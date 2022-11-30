@@ -1,6 +1,6 @@
 {
   "app": {
-    "bundleName": "com.example.ijkplayerdemo",
+    "bundleName": "com.example.ijkplayer",
     "vendor": "example",
     "versionCode": 1000000,
     "versionName": "1.0.0",

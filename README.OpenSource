@@ -1,0 +1,57 @@
+[
+    {
+        "Name": "ijkplayer",
+        "License": "ijkplayer is licensed under LGPLv2.1 or later, so itself is free for commercial use under LGPLv2.1 or later",
+        "License File": " README.md ",
+        "Version Number": "k0.8.8",
+        "Owner" : "bilibili"
+        "Upstream URL": "https://github.com/bilibili/ijkplayer",
+        "Description": "Android/iOS video player based on FFmpeg n3.4, with MediaCodec, VideoToolbox support."
+    },
+	{
+        "Name": "FFmpeg",
+        "License": "Most files in FFmpeg are under the GNU Lesser General Public License version 2.1 or later (LGPL v2.1+). Read the file COPYING.LGPLv2.1 for details. Some other files have MIT/X11/BSD-style licenses. In combination the LGPL v2.1+ applies to FFmpeg.
+                    Some optional parts of FFmpeg are licensed under the GNU General Public License version 2 or later (GPL v2+). See the file COPYING.GPLv2 for details. None of these parts are used by default, you have to explicitly pass --enable-gpl to configure to activate them. In this case, FFmpeg's license changes to GPL v2+.",
+        "License File": "LICENSE.md",
+        "Version Number": "ff4.0--ijk0.8.8--20210426--001",
+        "Owner" : "bilibili"
+        "Upstream URL": "https://github.com/bilibili/FFmpeg",
+        "Description": "FFmpeg is a collection of libraries and tools to process multimedia content such as audio, video, subtitles and related metadata."
+    },
+    {
+        "Name": "soundtouch",
+        "License": "This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License version 2.1 as published by the Free Software Foundation.",
+        "License File": "LICENSE",
+        "Version Number": "ijk-r0.1.2-dev",
+        "Owner" : "bilibili"
+        "Upstream URL": "https://github.com/bilibili/soundtouch",
+        "Description": "SoundTouch is an open-source audio processing library that allows changing the sound tempo, pitch and playback rate parameters independently from each other"
+    },
+    {
+        "Name": "libyuv",
+        "License": "BSD 3-Clause "New" or "Revised" License",
+        "License File": "LICENSE",
+        "Version Number": "ijk-r0.2.1-dev",
+        "Owner" : "bilibili"
+        "Upstream URL": "https://github.com/bilibili/libyuv",
+        "Description": "libyuv is an open source project that includes YUV conversion and scaling functionality."
+    },
+    {
+        "Name": "ijkplayer",
+        "License": "ijkplayer is licensed under LGPLv2.1 or later, so itself is free for commercial use under LGPLv2.1 or later",
+        "License File": "README.md",
+        "Version Number": "master",
+        "Owner" : "HarmonyOS-TPC"
+        "Upstream URL": "https://gitee.com/HarmonyOS-tpc/ijkplayer",
+        "Description": "基于FFmpeg的ohos视频播放器"
+    },
+    {
+        "Name": "hashmap",
+        "License": "MIT License",
+        "License File": "LICENSE",
+        "Version Number": "master",
+        "Owner" : "qilutong"
+        "Upstream URL": "https://github.com/qilutong/hashmap",
+        "Description": "C语言实现简单hashmap"
+    }
+]

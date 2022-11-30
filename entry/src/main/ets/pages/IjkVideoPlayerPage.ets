@@ -1,0 +1,404 @@
+/*
+ * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import router from '@ohos.router';
+import { IjkMediaPlayer } from "@ohos/ijkplayer";
+import { OnPreparedListener } from "@ohos/ijkplayer";
+import { OnVideoSizeChangedListener } from "@ohos/ijkplayer";
+import { OnCompletionListener } from "@ohos/ijkplayer";
+import { OnBufferingUpdateListener } from "@ohos/ijkplayer";
+import { OnErrorListener } from "@ohos/ijkplayer";
+import { OnInfoListener } from "@ohos/ijkplayer";
+import { OnSeekCompleteListener } from "@ohos/ijkplayer";
+import { LogUtils } from "@ohos/ijkplayer"
+import { PlayStatus } from "../common/PlayStatus"
+import prompt from '@ohos.prompt';
+
+let CONTROL_PlayStatus = PlayStatus.INIT;
+let PROGRESS_MAX_VALUE: number = 100;
+let mIjkMediaPlayer = IjkMediaPlayer.getInstance();
+let updateProgressTimer;
+let videoUrl = router.getParams()['videoUrl'];
+let videoUrls = ["http://1251017968.vod2.myqcloud.com/3eb04eefvodtransgzp1251017968/8782b1285285890810009576163/v.f30.mp4",
+  "http://newcntv.qcloudcdn.com/asp/hls/main/0303000a/3/default/a15b46e2313d46aaa70cf15399f6a196/main.m3u8?maxbr=2048",
+  "https://dvod.300hu.com/vod/product/179b797b-a38a-4e70-9529-defa11593dbb/afd6438205424934aa57352b93a1fc86.m3u8",
+  "http://hls.nntv.cn/nnlive/NNTV_METRO_A.m3u8",
+  "https://sf1-hscdn-tos.pstatp.com/obj/media-fe/xgplayer_doc_video/flv/xgplayer-demo-720p.flv"];
+let curIndex = 0;
+
+@Entry
+@Component
+struct IjkVideoPlayerPage {
+  @State progressValue: number = 0;
+  @State currentTime: string = "00:00";
+  @State totalTime: string = "00:00";
+  @State loadingVisible: Visibility = Visibility.None;
+  @State replayVisible: Visibility = Visibility.None;
+  @State videoWidth: number = 0;
+  @State videoHeight: number = 0;
+  @State slideEnable: boolean = false;
+
+  aboutToAppear() {
+    mIjkMediaPlayer.setDebug(true);
+    LogUtils.getInstance().LOGI("aboutToAppear");
+  }
+
+  aboutToDisappear() {
+    LogUtils.getInstance().LOGI("aboutToDisappear");
+    mIjkMediaPlayer.setScreenOnWhilePlaying(false);
+    if (CONTROL_PlayStatus != PlayStatus.INIT) {
+      this.stop();
+    }
+  }
+
+  onPageShow() {
+    this.startPlayOrResumePlay();
+  }
+
+  onPageHide() {
+    this.pause();
+  }
+
+  build() {
+    Flex({ direction: FlexDirection.Column, alignItems: ItemAlign.Auto, justifyContent: FlexAlign.Start }) {
+      Flex({ direction: FlexDirection.Column, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Center }) {
+        Text("ijkplayer播放器")
+          .fontSize('30px')
+          .fontColor(Color.White)
+          .margin('10px')
+          .fontWeight(FontWeight.Bold)
+      }.height('100px').width('100%').backgroundColor(Color.Black)
+
+      Divider().vertical(false).strokeWidth('20px').color(Color.White).lineCap(LineCapStyle.Round)
+      Stack({ alignContent: Alignment.Center }) {
+        XComponent({
+          id: 'xcomponentId',
+          type: 'surface',
+          libraryname: 'ijkplayer_napi'
+        })
+          .onLoad((context) => {
+          })
+          .onDestroy(() => {
+          })
+          .width('680px')
+          .height('460px')
+        Image($r('app.media.icon_replay'))
+          .objectFit(ImageFit.Auto)
+          .width('120px')
+          .height('120px')
+          .visibility(this.replayVisible)
+          .border({ width: 0 })
+          .borderStyle(BorderStyle.Dashed)
+          .onClick(() => {
+            this.startPlayOrResumePlay();
+          })
+        Image($r('app.media.icon_load'))
+          .objectFit(ImageFit.Auto)
+          .width('120px')
+          .height('120px')
+          .visibility(this.loadingVisible)
+          .border({ width: 0 })
+          .borderStyle(BorderStyle.Dashed)
+      }.width('100%').height('468px').backgroundColor('#000000')
+
+      Flex({ direction: FlexDirection.Row, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Start }) {
+        Text(this.currentTime).width('100px').fontSize('20px').margin('20px')
+        Slider({
+          value: this.progressValue,
+          min: 0,
+          max: PROGRESS_MAX_VALUE,
+          step: 1,
+          style: SliderStyle.OutSet
+        })
+          .width('600px')
+          .blockColor(Color.Blue)
+          .trackColor(Color.Gray)
+          .selectedColor(Color.Blue)
+          .showSteps(true)
+          .showTips(true)
+          .enabled(this.slideEnable)
+          .onChange((value: number, mode: SliderChangeMode) => {
+            this.showLoadIng();
+            this.pause();
+            LogUtils.getInstance().LOGI("slider-->seekValue start:" + value);
+            let seekValue = value * (mIjkMediaPlayer.getDuration() / 100);
+            this.seekTo(seekValue + "");
+            LogUtils.getInstance().LOGI("slider-->seekValue end:" + seekValue);
+          })
+        Text(this.totalTime).width('100px').fontSize('20px').margin('10px')
+      }
+
+      Flex({ direction: FlexDirection.Row, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Start }) {
+        Button('播放')
+          .onClick(() => {
+            this.startPlayOrResumePlay();
+          })
+          .width('400px')
+          .height('80px')
+          .margin('15px')
+        Button('暂停')
+          .onClick(() => {
+            this.pause();
+          })
+          .width('400px')
+          .height('80px')
+          .margin('15px')
+      }
+
+      Flex({ direction: FlexDirection.Row, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Start }) {
+        Button('停止')
+          .onClick(() => {
+            this.stop();
+          })
+          .width('400px')
+          .height('80px')
+          .margin('15px')
+
+        Button('切换')
+          .onClick(() => {
+            this.playNext();
+          })
+          .width('400px')
+          .height('80px')
+          .margin('15px')
+      }
+    }
+  }
+
+  private startPlayOrResumePlay() {
+    LogUtils.getInstance().LOGI("startPlayOrResumePlay start CONTROL_PlayStatus:" + CONTROL_PlayStatus)
+    if (CONTROL_PlayStatus == PlayStatus.INIT) {
+      this.stopProgressTask();
+      this.startProgressTask();
+      this.play(videoUrl.toString());
+    }
+    if (CONTROL_PlayStatus == PlayStatus.PAUSE) {
+      this.stopProgressTask();
+      this.startProgressTask();
+      mIjkMediaPlayer.start();
+    }
+  }
+
+  private completionNum(num: any): any {
+    if (num < 10) {
+      return '0' + num;
+    } else {
+      return num;
+    }
+  }
+
+  private stringForTime(timeMs: any): string {
+    let totalSeconds = (timeMs / 1000);
+    let seconds = totalSeconds % 60;
+    let minutes = (totalSeconds / 60) % 60;
+    let hours = totalSeconds / 3600;
+    LogUtils.getInstance().LOGI("stringForTime hours:" + hours + ",minutes:" + minutes + ",seconds:" + seconds);
+    hours = this.completionNum(Math.floor(Math.floor(hours * 100) / 100));
+    minutes = this.completionNum(Math.floor(Math.floor(minutes * 100) / 100));
+    seconds = this.completionNum(Math.floor(Math.floor(seconds * 100) / 100));
+    if (hours > 0) {
+      return hours + ":" + minutes + ":" + seconds;
+    } else {
+      return minutes + ":" + seconds;
+    }
+  }
+
+  private setProgress() {
+    let position = mIjkMediaPlayer.getCurrentPosition();
+    let duration = mIjkMediaPlayer.getDuration();
+    let pos = 0;
+    if (duration > 0) {
+      this.slideEnable = true;
+      let curPercent = position / duration;
+      pos = curPercent * 100;
+      this.progressValue = pos;
+    }
+    LogUtils.getInstance()
+      .LOGI("setProgress position:" + position + ",duration:" + duration + ",progressValue:" + pos);
+    this.totalTime = this.stringForTime(duration);
+    if (position > duration) {
+      position = duration;
+    }
+    this.currentTime = this.stringForTime(position);
+  }
+
+  private startProgressTask() {
+    let that = this;
+    updateProgressTimer = setInterval(function () {
+      LogUtils.getInstance().LOGI("startProgressTask");
+      that.setProgress();
+    }, 1000);
+  }
+
+  private stopProgressTask() {
+    LogUtils.getInstance().LOGI("stopProgressTask");
+    clearInterval(updateProgressTimer);
+  }
+
+  private showLoadIng() {
+    this.loadingVisible = Visibility.Visible;
+    this.replayVisible = Visibility.None;
+  }
+
+  private hideLoadIng() {
+    this.loadingVisible = Visibility.None;
+    this.replayVisible = Visibility.None;
+  }
+
+  private showRePlay() {
+    this.loadingVisible = Visibility.None;
+    this.replayVisible = Visibility.Visible;
+  }
+
+  private play(url: string) {
+    let that = this;
+    that.showLoadIng();
+    CONTROL_PlayStatus = PlayStatus.PLAY;
+    //设置视频源
+    mIjkMediaPlayer.setDataSource(url);
+    //使用精确寻帧 例如，拖动播放后，会寻找最近的关键帧进行播放，很有可能关键帧的位置不是拖动后的位置，而是较前的位置.可以设置这个参数来解决问题
+    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "enable-accurate-seek", "1");
+    //预读数据的缓冲区大小
+    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "max-buffer-size", "102400");
+    //停止预读的最小帧数
+    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "min-frames", "100");
+    //启动预加载
+    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "start-on-prepared", "1");
+    // 设置无缓冲，这是播放器的缓冲区，有数据就播放
+    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "packet-buffering", "0");
+    //跳帧处理,放CPU处理较慢时，进行跳帧处理，保证播放流程，画面和声音同步
+    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "framedrop", "5");
+    // 最大缓冲cache是3s， 有时候网络波动，会突然在短时间内收到好几秒的数据
+    // 因此需要播放器丢包，才不会累积延时
+    // 这个和第三个参数packet-buffering无关。
+    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "max_cached_duration", "3000");
+    // 无限制收流
+    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "infbuf", "1");
+    //屏幕常亮
+    mIjkMediaPlayer.setScreenOnWhilePlaying(true);
+    // 设置音量
+    //  mIjkMediaPlayer.setVolume("0.5", "0.5");
+    // 变速播放
+    // mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "soundtouch", "1");
+    // mIjkMediaPlayer.setSpeed("2f");
+    // 设置超时
+    // mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "timeout", "10000000");
+    // mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "connect_timeout", "10000000");
+    // mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "listen_timeout", "10000000");
+    // mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "addrinfo_timeout", "10000000");
+    // mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "dns_cache_timeout", "10000000");
+
+    let mOnVideoSizeChangedListener: OnVideoSizeChangedListener = {
+      onVideoSizeChanged(width: number, height: number, sar_num: number, sar_den: number) {
+        that.videoWidth = width;
+        that.videoHeight = height;
+        LogUtils.getInstance()
+          .LOGI("setOnVideoSizeChangedListener-->go:" + width + "," + height + "," + sar_num + "," + sar_den)
+        that.hideLoadIng();
+      }
+    }
+    mIjkMediaPlayer.setOnVideoSizeChangedListener(mOnVideoSizeChangedListener);
+    let mOnPreparedListener: OnPreparedListener = {
+      onPrepared() {
+        LogUtils.getInstance().LOGI("setOnPreparedListener-->go");
+      }
+    }
+    mIjkMediaPlayer.setOnPreparedListener(mOnPreparedListener);
+
+    let mOnCompletionListener: OnCompletionListener = {
+      onCompletion() {
+        LogUtils.getInstance().LOGI("OnCompletionListener-->go")
+        that.showRePlay();
+        that.currentTime = that.stringForTime(mIjkMediaPlayer.getDuration());
+        that.progressValue = PROGRESS_MAX_VALUE;
+        that.slideEnable = false;
+        that.stop();
+      }
+    }
+    mIjkMediaPlayer.setOnCompletionListener(mOnCompletionListener);
+
+    let mOnBufferingUpdateListener: OnBufferingUpdateListener = {
+      onBufferingUpdate(percent: number) {
+        LogUtils.getInstance().LOGI("OnBufferingUpdateListener-->go:" + percent);
+      }
+    }
+    mIjkMediaPlayer.setOnBufferingUpdateListener(mOnBufferingUpdateListener);
+
+    let mOnSeekCompleteListener: OnSeekCompleteListener = {
+      onSeekComplete() {
+        LogUtils.getInstance().LOGI("OnSeekCompleteListener-->go");
+        that.startPlayOrResumePlay();
+      }
+    }
+    mIjkMediaPlayer.setOnSeekCompleteListener(mOnSeekCompleteListener);
+
+    let mOnInfoListener: OnInfoListener = {
+      onInfo(what: number, extra: number) {
+        LogUtils.getInstance().LOGI("OnInfoListener-->go:" + what + "===" + extra);
+        that.hideLoadIng();
+      }
+    }
+    mIjkMediaPlayer.setOnInfoListener(mOnInfoListener);
+
+    let mOnErrorListener: OnErrorListener = {
+      onError(what: number, extra: number) {
+        LogUtils.getInstance().LOGI("OnErrorListener-->go:" + what + "===" + extra)
+        that.hideLoadIng();
+        prompt.showToast({
+          message: "亲，视频播放异常，系统开小差咯"
+        });
+      }
+    }
+    mIjkMediaPlayer.setOnErrorListener(mOnErrorListener);
+
+    mIjkMediaPlayer.setMessageListener();
+
+    mIjkMediaPlayer.prepareAsync();
+
+    mIjkMediaPlayer.start();
+  }
+
+  private pause() {
+    if (mIjkMediaPlayer.isPlaying()) {
+      mIjkMediaPlayer.pause();
+      CONTROL_PlayStatus = PlayStatus.PAUSE;
+      this.stopProgressTask();
+    }
+  }
+
+  private stop() {
+    CONTROL_PlayStatus = PlayStatus.INIT;
+    mIjkMediaPlayer.stop();
+    mIjkMediaPlayer.release();
+    this.stopProgressTask();
+  }
+
+  private seekTo(value: string) {
+    mIjkMediaPlayer.seekTo(value);
+  }
+
+  private playNext() {
+    if (curIndex == videoUrls.length - 1) {
+      curIndex = 0;
+    } else {
+      curIndex++;
+    }
+    CONTROL_PlayStatus = PlayStatus.INIT;
+    mIjkMediaPlayer.stop();
+    mIjkMediaPlayer.reset();
+    this.startProgressTask();
+    this.play(videoUrls[curIndex]);
+  }
+}

@@ -1,15 +1,16 @@
 {
-  "name": "entry",
-  "version": "1.0.0",
-  "ohos": {
-    "org": "huawei",
-    "buildTool": "hvigor",
-    "directoryLevel": "module"
-  },
-  "description": "example description",
-  "repository": {},
-  "license": "ISC",
-  "dependencies": {
-    "@ohos/ijkplayer": "file:../ijkplayer"
-  }
+	"license": "Apache License 2.0",
+	"devDependencies": {},
+	"name": "entry",
+	"ohos": {
+		"org": "opensource",
+		"directoryLevel": "module",
+		"buildTool": "hvigor"
+	},
+	"description": "example description",
+	"repository": {},
+	"version": "1.0.0",
+	"dependencies": {
+		"@ohos/ijkplayer": "file:../ijkplayer"
+	}
 }
