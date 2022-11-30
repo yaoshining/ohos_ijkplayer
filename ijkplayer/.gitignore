@@ -1,4 +1,6 @@
 /node_modules
-/.preview
-/build
-/.cxx
+/local.properties
+/.idea
+**/build
+.cxx
+package-lock.json
