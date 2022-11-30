@@ -23,7 +23,9 @@
 
 #include "ijkplayer.h"
 #include "ijkplayer_internal.h"
-#include "ijkversion.h"
+#include "../ijksdl/ijkversion.h"
+#include "stdatomic.h"
+
 
 #define MP_RET_IF_FAILED(ret) \
     do { \
@@ -116,13 +118,17 @@ void ijkmp_change_state_l(IjkMediaPlayer *mp, int new_state)
 
 IjkMediaPlayer *ijkmp_create(int (*msg_loop)(void*))
 {
+
     IjkMediaPlayer *mp = (IjkMediaPlayer *) mallocz(sizeof(IjkMediaPlayer));
     if (!mp)
         goto fail;
 
     mp->ffplayer = ffp_create();
+
     if (!mp->ffplayer)
         goto fail;
+
+    mp->ffplayer->mediacodec_all_videos=0;
 
     mp->msg_loop = msg_loop;
 
@@ -298,12 +304,15 @@ void ijkmp_shutdown_l(IjkMediaPlayer *mp)
 {
     assert(mp);
 
-    MPTRACE("ijkmp_shutdown_l()\n");
+    LOGI("ijkmp_shutdown_l()\n");
     if (mp->ffplayer) {
+        LOGI("ijkmp_shutdown_l() mp->ffplayer\n");
         ffp_stop_l(mp->ffplayer);
+        LOGI("ijkmp_shutdown_l() ffp_stop_l\n");
         ffp_wait_stop_l(mp->ffplayer);
+        LOGI("ijkmp_shutdown_l() ffp_wait_stop_l\n");
     }
-    MPTRACE("ijkmp_shutdown_l()=void\n");
+    LOGI("ijkmp_shutdown_l()=void\n");
 }
 
 void ijkmp_shutdown(IjkMediaPlayer *mp)
@@ -314,7 +323,7 @@ void ijkmp_shutdown(IjkMediaPlayer *mp)
 void ijkmp_inc_ref(IjkMediaPlayer *mp)
 {
     assert(mp);
-    __sync_fetch_and_add(&mp->ref_count, 1);
+    __atomic_fetch_add(&mp->ref_count, 1,memory_order_seq_cst);
 }
 
 void ijkmp_dec_ref(IjkMediaPlayer *mp)
@@ -322,7 +331,7 @@ void ijkmp_dec_ref(IjkMediaPlayer *mp)
     if (!mp)
         return;
 
-    int ref_count = __sync_sub_and_fetch(&mp->ref_count, 1);
+        int ref_count = __atomic_sub_fetch(&mp->ref_count, 1,memory_order_seq_cst);
     if (ref_count == 0) {
         MPTRACE("ijkmp_dec_ref(): ref=0\n");
         ijkmp_shutdown(mp);
@@ -341,6 +350,7 @@ void ijkmp_dec_ref_p(IjkMediaPlayer **pmp)
 
 static int ijkmp_set_data_source_l(IjkMediaPlayer *mp, const char *url)
 {
+
     assert(mp);
     assert(url);
 
@@ -378,13 +388,17 @@ int ijkmp_set_data_source(IjkMediaPlayer *mp, const char *url)
 
 static int ijkmp_msg_loop(void *arg)
 {
+    MPTRACE("ijkmp_msg_loop start\n");
     IjkMediaPlayer *mp = arg;
     int ret = mp->msg_loop(arg);
+    MPTRACE("ijkmp_msg_loop end msg_loop:%d\n",ret);
     return ret;
 }
 
 static int ijkmp_prepare_async_l(IjkMediaPlayer *mp)
 {
+    MPTRACE("ijkmp_prepare_async_l start\n");
+
     assert(mp);
 
     MPST_RET_IF_EQ(mp->mp_state, MP_STATE_IDLE);
@@ -399,7 +413,7 @@ static int ijkmp_prepare_async_l(IjkMediaPlayer *mp)
     MPST_RET_IF_EQ(mp->mp_state, MP_STATE_END);
 
     assert(mp->data_source);
-
+    MPTRACE("ijkmp_prepare_async_l ijkmp_change_state_l\n");
     ijkmp_change_state_l(mp, MP_STATE_ASYNC_PREPARING);
 
     msg_queue_start(&mp->ffplayer->msg_queue);
@@ -409,13 +423,13 @@ static int ijkmp_prepare_async_l(IjkMediaPlayer *mp)
     mp->msg_thread = SDL_CreateThreadEx(&mp->_msg_thread, ijkmp_msg_loop, mp, "ff_msg_loop");
     // msg_thread is detached inside msg_loop
     // TODO: 9 release weak_thiz if pthread_create() failed;
-
+    LOGI("ijkmp_prepare_async_l ffp_prepare_async_l start\n");
     int retval = ffp_prepare_async_l(mp->ffplayer, mp->data_source);
+    LOGI("ijkmp_prepare_async_l ffp_prepare_async_l retval:%d\n",retval);
     if (retval < 0) {
         ijkmp_change_state_l(mp, MP_STATE_ERROR);
         return retval;
     }
-
     return 0;
 }
 
@@ -608,13 +622,17 @@ int ijkmp_get_state(IjkMediaPlayer *mp)
 
 static long ijkmp_get_current_position_l(IjkMediaPlayer *mp)
 {
-    if (mp->seek_req)
+    LOGI("ijkmp_get_current_position_l");
+    if (mp->seek_req){
+       LOGI("ijkmp_get_current_position_l mp->seek_msec:%d",mp->seek_msec);
         return mp->seek_msec;
+      }
     return ffp_get_current_position_l(mp->ffplayer);
 }
 
 long ijkmp_get_current_position(IjkMediaPlayer *mp)
 {
+    LOGI("ijkmp_get_current_position");
     assert(mp);
     pthread_mutex_lock(&mp->mutex);
     long retval;
@@ -622,20 +640,24 @@ long ijkmp_get_current_position(IjkMediaPlayer *mp)
         retval = mp->seek_msec;
     else
         retval = ijkmp_get_current_position_l(mp);
+    LOGI("ijkmp_get_current_position success:%d",retval);
     pthread_mutex_unlock(&mp->mutex);
     return retval;
 }
 
 static long ijkmp_get_duration_l(IjkMediaPlayer *mp)
 {
+    LOGI("ijkmp_get_duration_l start");
     return ffp_get_duration_l(mp->ffplayer);
 }
 
 long ijkmp_get_duration(IjkMediaPlayer *mp)
 {
+    LOGI("ijkmp_get_duration start");
     assert(mp);
     pthread_mutex_lock(&mp->mutex);
     long retval = ijkmp_get_duration_l(mp);
+    LOGI("ijkmp_get_duration retval result:%d",retval);
     pthread_mutex_unlock(&mp->mutex);
     return retval;
 }

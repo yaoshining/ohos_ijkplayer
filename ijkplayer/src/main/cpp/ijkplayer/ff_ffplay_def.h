@@ -844,7 +844,7 @@ inline static void ffp_reset_internal(FFPlayer *ffp)
     ffp->pf_playback_volume             = 1.0f;
     ffp->pf_playback_volume_changed     = 0;
 
-    av_application_closep(&ffp->app_ctx);
+//    av_application_closep(&ffp->app_ctx);
     ijkio_manager_destroyp(&ffp->ijkio_manager_ctx);
 
     msg_queue_flush(&ffp->msg_queue);

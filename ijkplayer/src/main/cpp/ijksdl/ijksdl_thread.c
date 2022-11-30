@@ -27,16 +27,13 @@
 #include <unistd.h>
 #include "ijksdl_inc_internal.h"
 #include "ijksdl_thread.h"
-#ifdef __ANDROID__
-#include "ijksdl/android/ijksdl_android_jni.h"
-#endif
 
 #if !defined(__APPLE__)
 // using ios implement for autorelease
 static void *SDL_RunThread(void *data)
 {
     SDL_Thread *thread = data;
-    ALOGI("SDL_RunThread: [%d] %s\n", (int)gettid(), thread->name);
+    //ALOGI("SDL_RunThread: [%d] %s\n", (int)gettid(), thread->name);
     pthread_setname_np(pthread_self(), thread->name);
     thread->retval = thread->func(thread->data);
 #ifdef __ANDROID__
@@ -86,6 +83,11 @@ int SDL_SetThreadPriority(SDL_ThreadPriority priority)
 
 void SDL_WaitThread(SDL_Thread *thread, int *status)
 {
+    if(!thread){
+        ALOGD("SDL_WaitThread thread null");
+        return;
+    }
+
     assert(thread);
     if (!thread)
         return;

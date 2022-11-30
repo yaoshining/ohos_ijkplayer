@@ -21,10 +21,10 @@
 #include "ijkiourl.h"
 #include "ijkioprotocol.h"
 #include "ijkioapplication.h"
-#include "ijkplayer/ijkavutil/ijktree.h"
-#include "ijkplayer/ijkavutil/ijkutils.h"
-#include "ijkplayer/ijkavutil/ijkthreadpool.h"
-#include "ijkplayer/ijkavutil/ijkstl.h"
+#include "ijkavutil/ijktree.h"
+#include "ijkavutil/ijkutils.h"
+#include "ijkavutil/ijkthreadpool.h"
+#include "ijkavutil/ijkstl.h"
 #include "libavutil/log.h"
 
 #include <stdint.h>

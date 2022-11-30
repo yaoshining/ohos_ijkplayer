@@ -29,8 +29,9 @@
 
 #ifdef __ANDROID__
 
-#include <android/log.h>
+#include "j4a/j4a_base.h"
 #include "ijksdl_extra_log.h"
+#include "hilog/log.h"
 
 #define IJK_LOG_UNKNOWN     ANDROID_LOG_UNKNOWN
 #define IJK_LOG_DEFAULT     ANDROID_LOG_DEFAULT
@@ -48,11 +49,11 @@
 #define ALOG(level, TAG, ...)    ffp_log_extra_print(level, TAG, __VA_ARGS__)
 #else
 #define VLOG(level, TAG, ...)    ((void)__android_log_vprint(level, TAG, __VA_ARGS__))
-#define ALOG(level, TAG, ...)    ((void)__android_log_print(level, TAG, __VA_ARGS__))
+#define ALOG(level, TAG, ...)    HILOG_INFO(LOG_DEBUG,__VA_ARGS__)
 #endif
 
 #else
-
+#include "../utils/ohoslog/ohos_log.h"
 #define IJK_LOG_UNKNOWN     0
 #define IJK_LOG_DEFAULT     1
 
@@ -65,11 +66,12 @@
 #define IJK_LOG_SILENT      8
 
 #define VLOG(level, TAG, ...)    ((void)vprintf(__VA_ARGS__))
-#define ALOG(level, TAG, ...)    ((void)printf(__VA_ARGS__))
+//#define ALOG(level, TAG, ...)    ((void)printf2(__VA_ARGS__))
+#define ALOG(level, TAG, ...)    ((void)LOGI(__VA_ARGS__))
 
 #endif
 
-#define IJK_LOG_TAG "IJKMEDIA"
+#define IJK_LOG_TAG "ijkplayer"
 
 #define VLOGV(...)  VLOG(IJK_LOG_VERBOSE,   IJK_LOG_TAG, __VA_ARGS__)
 #define VLOGD(...)  VLOG(IJK_LOG_DEBUG,     IJK_LOG_TAG, __VA_ARGS__)

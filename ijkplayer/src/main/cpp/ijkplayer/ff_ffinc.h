@@ -39,7 +39,7 @@
 #include "libavutil/version.h"
 #include "libswresample/swresample.h"
 
-#include "ijksdl/ijksdl.h"
+#include "../ijksdl/ijksdl.h"
 
 typedef int (*ijk_inject_callback)(void *opaque, int type, void *data, size_t data_size);
 

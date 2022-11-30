@@ -24,7 +24,7 @@
 #ifndef FFPLAY__FF_FFPIPENODE_H
 #define FFPLAY__FF_FFPIPENODE_H
 
-#include "ijksdl/ijksdl_mutex.h"
+#include "../ijksdl/ijksdl_mutex.h"
 
 typedef struct IJKFF_Pipenode_Opaque IJKFF_Pipenode_Opaque;
 typedef struct IJKFF_Pipenode IJKFF_Pipenode;

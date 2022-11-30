@@ -24,9 +24,9 @@
 #ifndef FFPLAY__FF_FFPIPELINE_H
 #define FFPLAY__FF_FFPIPELINE_H
 
-#include "ijksdl/ijksdl_class.h"
-#include "ijksdl/ijksdl_mutex.h"
-#include "ijksdl/ijksdl_aout.h"
+#include "../ijksdl/ijksdl_class.h"
+#include "../ijksdl/ijksdl_mutex.h"
+#include "../ijksdl/ijksdl_aout.h"
 #include "ff_ffpipenode.h"
 #include "ff_ffplay_def.h"
 

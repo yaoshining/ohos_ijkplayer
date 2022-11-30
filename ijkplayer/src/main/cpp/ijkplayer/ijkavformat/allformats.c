@@ -65,6 +65,7 @@ static void ijkav_register_input_format(AVInputFormat *iformat)
 
 void ijkav_register_all(void)
 {
+    av_log(NULL, AV_LOG_VERBOSE, "===== ijkav_register_all begin=====\n");
     static int initialized;
 
     if (initialized)
@@ -76,14 +77,22 @@ void ijkav_register_all(void)
     /* protocols */
     av_log(NULL, AV_LOG_INFO, "===== custom modules begin =====\n");
 #ifdef __ANDROID__
+        av_log(NULL, AV_LOG_INFO, "===== custom modules begin __ANDROID__=====\n");
     IJK_REGISTER_PROTOCOL(ijkmediadatasource);
 #endif
+    av_log(NULL, AV_LOG_INFO, "===== custom modules begin !__ANDROID__=====\n");
     IJK_REGISTER_PROTOCOL(ijkio);
+    av_log(NULL, AV_LOG_INFO, "===== custom modules begin ijkio=====\n");
     IJK_REGISTER_PROTOCOL(async);
+    av_log(NULL, AV_LOG_INFO, "===== custom modules begin async=====\n");
     IJK_REGISTER_PROTOCOL(ijklongurl);
+    av_log(NULL, AV_LOG_INFO, "===== custom modules begin ijklongurl=====\n");
     IJK_REGISTER_PROTOCOL(ijktcphook);
+    av_log(NULL, AV_LOG_INFO, "===== custom modules begin ijktcphook=====\n");
     IJK_REGISTER_PROTOCOL(ijkhttphook);
+    av_log(NULL, AV_LOG_INFO, "===== custom modules begin ijkhttphook=====\n");
     IJK_REGISTER_PROTOCOL(ijksegment);
+    av_log(NULL, AV_LOG_INFO, "===== custom modules begin ijksegment=====\n");
     /* demuxers */
     IJK_REGISTER_DEMUXER(ijklivehook);
     av_log(NULL, AV_LOG_INFO, "===== custom modules end =====\n");

@@ -24,7 +24,7 @@
 #include "libavutil/avstring.h"
 #include "libavutil/opt.h"
 
-#include "ijkplayer/ijkavutil/opt.h"
+#include "ijkavutil/opt.h"
 
 #include "ijkavformat.h"
 #include "libavutil/application.h"

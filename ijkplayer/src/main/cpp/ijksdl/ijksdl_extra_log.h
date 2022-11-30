@@ -26,7 +26,7 @@
 #define IJKSDL__IJKSDL_EXTRA_LOG_H
 
 #ifdef __ANDROID__
-#include <android/log.h>
+#include "j4a/j4a_base.h"
 
 void ffp_log_extra_print(int level, const char *tag, const char *fmt, ...);
 void ffp_log_extra_vprint(int level, const char *tag, const char *fmt, va_list ap);

@@ -33,6 +33,7 @@
 #include "../ijksdl_video.h"
 #include "ijksdl_inc_ffmpeg.h"
 #include "ijksdl_image_convert.h"
+#include <syslog.h>
 
 struct SDL_VoutOverlay_Opaque {
     SDL_mutex *mutex;
@@ -159,6 +160,10 @@ static int func_unlock(SDL_VoutOverlay *overlay)
 
 static int func_fill_frame(SDL_VoutOverlay *overlay, const AVFrame *frame)
 {
+    LOGI("func_fill_frame");
+    AVBufferRef *tempbuf1=frame->buf;
+    AVBufferRef *tempbuf2=frame->extended_buf;
+    AVBufferRef *tempbuf3=frame->qp_table_buf;
     assert(overlay);
     SDL_VoutOverlay_Opaque *opaque = overlay->opaque;
     AVFrame swscale_dst_pic = { { 0 } };

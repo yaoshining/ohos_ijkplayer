@@ -26,9 +26,9 @@
 #include <OpenGLES/ES2/gl.h>
 #include <OpenGLES/ES2/glext.h>
 #else
-#include <GLES2/gl2.h>
-#include <GLES2/gl2ext.h>
-#include <GLES2/gl2platform.h>
+#include <GLES3/gl3.h>
+//#include <GLES2/gl2ext.h>
+#include <GLES3/gl3platform.h>
 #endif
 
 typedef struct SDL_VoutOverlay SDL_VoutOverlay;

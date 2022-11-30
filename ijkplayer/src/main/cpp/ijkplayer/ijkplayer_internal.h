@@ -25,7 +25,7 @@
 #define IJKPLAYER_ANDROID__IJKPLAYER_INTERNAL_H
 
 #include <assert.h>
-#include "ijksdl/ijksdl.h"
+#include "../ijksdl/ijksdl.h"
 #include "ff_fferror.h"
 #include "ff_ffplay.h"
 #include "ijkplayer.h"

@@ -24,6 +24,7 @@
 
 #ifndef IJKSDL__IJKSDL_AOUT_H
 #define IJKSDL__IJKSDL_AOUT_H
+#define SDL_AUDIO_MAX_CALLBACKS_PER_SEC 30
 
 #include "ijksdl_audio.h"
 #include "ijksdl_class.h"

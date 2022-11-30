@@ -23,6 +23,7 @@
  */
 
 #include "ff_ffpipenode.h"
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -75,6 +76,9 @@ void ffpipenode_free_p(IJKFF_Pipenode **node)
 
 int ffpipenode_run_sync(IJKFF_Pipenode *node)
 {
+    //ALOGD("1、ffpipenode_run_sync");
+
+
     return node->func_run_sync(node);
 }
 
