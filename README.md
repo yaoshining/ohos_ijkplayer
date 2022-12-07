@@ -33,16 +33,16 @@ OpenHarmony npm环境配置等更多内容，请参考 [如何安装OpenHarmony 
 ### 在UI中配置XComponent控件
 ```
     XComponent({
-    id: 'xcomponentId',
-    type: 'surface',
-    libraryname: 'ijkplayer_napi'
+      id: 'xcomponentId',
+      type: 'surface',
+      libraryname: 'ijkplayer_napi'
     })
     .onLoad((context) => {
     })
     .onDestroy(() => {
     })
-    .width('680px')
-    .height('460px')
+    .width('100%')
+    .aspectRatio(this.videoWidth / this.videoHeight)
 ```          
 
 ### 播放

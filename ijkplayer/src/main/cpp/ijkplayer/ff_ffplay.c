@@ -2271,11 +2271,7 @@ static int ffplay_video_thread(void *arg)
     for (;;) {
 
         ret = get_video_frame(ffp, frame);
-
-        char c[20];
-        sprintf(c,"返回结果",c);
-
-
+            
         if (ret < 0)
             goto the_end;
         if (!ret)
@@ -3160,16 +3156,6 @@ static int read_thread(void *arg)
         goto fail;
     }
 
-    if(!ic){
-
-    }else{
-
-    }
-
-    if (!ic->av_class) {
-
-    }
-
     ic->interrupt_callback.callback = decode_interrupt_cb;
     ic->interrupt_callback.opaque = is;
     if (!av_dict_get(ffp->format_opts, "scan_all_pmts", NULL, AV_DICT_MATCH_CASE)) {
@@ -3191,28 +3177,15 @@ static int read_thread(void *arg)
 
     if (ffp->iformat_name)
         is->iformat = av_find_input_format(ffp->iformat_name);
-
-
-
-
-
+            
     err = avformat_open_input(&ic, is->filename, is->iformat, &ffp->format_opts);
-
-    char c[50];
-    sprintf(c,"调用结果%d",err);
-
-
+            
     if (err < 0) {
-
         print_error(is->filename, err);
         ret = -1;
         goto fail;
-    }else{
-
     }
-
-
-
+            
     ffp_notify_msg1(ffp, FFP_MSG_OPEN_INPUT);
 
     if (scan_all_pmts_set)

@@ -92,8 +92,8 @@ struct IjkVideoPlayerPage {
           })
           .onDestroy(() => {
           })
-          .width('680px')
-          .height('460px')
+          .width('100%')
+          .aspectRatio(this.videoWidth / this.videoHeight)
         Image($r('app.media.icon_replay'))
           .objectFit(ImageFit.Auto)
           .width('120px')

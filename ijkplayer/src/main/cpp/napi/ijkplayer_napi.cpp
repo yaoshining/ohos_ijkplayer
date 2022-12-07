@@ -42,9 +42,10 @@ struct CallbackContext {
     int what = 0;
     int arg1 = 0;
     int arg2 = 0;
+    char *obj;
 };
 
-void messageCallBack(int what, int arg1, int arg2) {
+void messageCallBack(int what, int arg1, int arg2,char *obj) {
     LOGI("napi-->messageCallBack");
     struct CallbackContext *context = new CallbackContext();
     context->env = envMessage_;
@@ -62,13 +63,14 @@ void messageCallBack(int what, int arg1, int arg2) {
     context->what = what;
     context->arg1 = arg1;
     context->arg2 = arg2;
+    context->obj  = obj;
     context->callbackRef = callBackRefMessage_;
     work->data = (void *)context;
     uv_queue_work(
         loopMessage, work, [](uv_work_t *work) {},
         [](uv_work_t *work, int status) {
             LOGI("napi-->uv_queue_work");
-            CallbackContext *context = (CallbackContext *)work->data;
+            CallbackContext *context = static_cast<CallbackContext *>(work->data);
             napi_value callback = nullptr;
             napi_get_reference_value(context->env, context->callbackRef, &callback);
             napi_value what_;
@@ -78,9 +80,16 @@ void messageCallBack(int what, int arg1, int arg2) {
             napi_create_string_utf8(context->env, (char *)((std::to_string(context->what)).c_str()), NAPI_AUTO_LENGTH, &what_);
             napi_create_string_utf8(context->env, (char *)((std::to_string(context->arg1)).c_str()), NAPI_AUTO_LENGTH, &arg1_);
             napi_create_string_utf8(context->env, (char *)((std::to_string(context->arg2)).c_str()), NAPI_AUTO_LENGTH, &arg2_);
-            napi_value argv[] = {what_, arg1_, arg2_};
             napi_value ret = 0;
-            napi_call_function(context->env, nullptr, callback, 3, argv, &ret);
+            if(context->obj){
+                napi_create_string_utf8(context->env, context->obj, NAPI_AUTO_LENGTH, &obj_);
+                napi_value argv_4[] = {what_, arg1_, arg2_,obj_};
+                napi_call_function(context->env, nullptr, callback, PARAM_COUNT_4, argv_4, &ret);
+            }
+            else {
+                napi_value argv_3[] = {what_, arg1_, arg2_};
+                napi_call_function(context->env, nullptr, callback, PARAM_COUNT_3, argv_3, &ret);
+            }
             if (work != nullptr) {
                 delete work;
             }
@@ -91,7 +100,7 @@ void messageCallBack(int what, int arg1, int arg2) {
 
 void post_event(void *weak_this, int what, int arg1, int arg2,char *obj) {
     LOGI("napi-->post_event-->what:%d", what);
-    messageCallBack(what, arg1, arg2);
+    messageCallBack(what, arg1, arg2,obj);
 }
 
 void setEnvMessage(const napi_env &env) {

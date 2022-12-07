@@ -21,7 +21,7 @@
 #include <string.h>
 #include "../ohoslog/ohos_log.h"
 
-const int32_t MAX_STR_LENGTH = 1024;
+const int32_t MAX_STR_LENGTH = 2048;
 void NapiUtil::JsValueToString(const napi_env & env, const napi_value & value, const int32_t bufLen, std::string & target)
 {
     if (bufLen <= 0 || bufLen > MAX_STR_LENGTH) {
@@ -68,7 +68,7 @@ float NapiUtil::StringToFloat(std::string value){
     return std::stof(value);
 }
 
-bool NapiUtil::StringToBool(std::string value){
+bool NapiUtil::StringToBool(const std::string value){
     return value=="true" ? true:false;
 }
 

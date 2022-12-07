@@ -26,7 +26,7 @@ class IJKPlayerNapi {
 
   public:
     ~IJKPlayerNapi() {}
-
+    
     static IJKPlayerNapi *GetInstance() {
         return &IJKPlayerNapi ::ijkplayerNapi_;
     }
