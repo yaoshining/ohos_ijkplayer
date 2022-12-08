@@ -1,0 +1,20 @@
+{
+  "string": [
+    {
+      "name": "entry_desc",
+      "value": "ijkplayer"
+    },
+    {
+      "name": "MainAbility_label",
+      "value": "ijkplayer"
+    },
+    {
+      "name": "MainAbility_desc",
+      "value": "ijkplayer"
+    },
+    {
+      "name": "NET_REQUEST_PERMISSION",
+      "value": "api apply net request permission."
+    }
+  ]
+}
