@@ -31,11 +31,9 @@ let PROGRESS_MAX_VALUE: number = 100;
 let mIjkMediaPlayer = IjkMediaPlayer.getInstance();
 let updateProgressTimer;
 let videoUrl = router.getParams()['videoUrl'];
-let videoUrls = ["http://1251017968.vod2.myqcloud.com/3eb04eefvodtransgzp1251017968/8782b1285285890810009576163/v.f30.mp4",
-  "http://newcntv.qcloudcdn.com/asp/hls/main/0303000a/3/default/a15b46e2313d46aaa70cf15399f6a196/main.m3u8?maxbr=2048",
-  "https://dvod.300hu.com/vod/product/179b797b-a38a-4e70-9529-defa11593dbb/afd6438205424934aa57352b93a1fc86.m3u8",
-  "http://hls.nntv.cn/nnlive/NNTV_METRO_A.m3u8",
-  "https://sf1-hscdn-tos.pstatp.com/obj/media-fe/xgplayer_doc_video/flv/xgplayer-demo-720p.flv"];
+let videoUrls = ["http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8",
+                  "http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8"
+                ];
 let curIndex = 0;
 
 @Entry
