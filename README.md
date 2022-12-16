@@ -210,7 +210,7 @@ OpenHarmony npm环境配置等更多内容，请参考 [如何安装OpenHarmony 
 | getDuration                   | 无                          | number            | 获取视频总的时长                           |
 | getCurrentPosition            | 无                          | number            | 获取视频播放当前位置                        |
 | getAudioSessionId             | 无                          | number             | 获取音频sessionID                        |
-| setVolume                     | leftVolume: string,rightVolume:string | number   | 设置音量                                 |
+| setVolume                     | leftVolume: string,rightVolume:string | void   | 设置音量                                 |
 | setLoopCount                  | looping: boolean             | void               | 设置循环播放                              |
 | isLooping                     | 无                           | boolean            | 查看当前是否循环播放                        |
 | selectTrack                   | track: string                | void               | 选择轨道                                 |
