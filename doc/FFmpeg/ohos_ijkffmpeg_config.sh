@@ -58,8 +58,8 @@ FF_CONFIG_OPTIONS="
     --disable-encoders
     --disable-decoders
     --enable-network
-    --enable-protocol=file,http,https,tcp,httpproxy,rtmp
-    --enable-demuxer=hls,flv,live_flv,mp3,aac,ape,flac,ogg,wav,mov,mpegts,rtmp
+    --enable-protocol=file,http,https,tcp,httpproxy,rtmp,rtp
+    --enable-demuxer=hls,flv,live_flv,mp3,aac,ape,flac,ogg,wav,mov,mpegts,rtmp,rtsp,sdp,rtp
     --enable-muxer=mp4,h264,mp3
     --enable-parser=h263,mpeg4video,vp8,vp9,mp3,h264
     --enable-parser=mpegaudio,aac,aac_latm
@@ -146,7 +146,7 @@ mv libavfilter_ijk libavfilter
 #rm -rf ./ffbuild
 echo "***编译FFmpeg准备结束***"
 
-## other work need to be done manually
+# other work need to be done manually
 cat <<!EOF
 #####################################################
                     ****NOTICE****
