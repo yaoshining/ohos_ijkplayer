@@ -14,7 +14,6 @@
  */
 
 import router from '@ohos.router';
-import fileio from '@ohos.fileio';
 
 @Entry
 @Component
@@ -38,7 +37,7 @@ struct SampleVideoListPage {
             .fontColor(Color.Black)
             .margin(10)
             .onClick(() => {
-              router.push({ url: "pages/IjkVideoPlayerPage", params: {
+              router.pushUrl({ url: "pages/IjkVideoPlayerPage", params: {
                 videoUrl: "http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8"
               } });
             })

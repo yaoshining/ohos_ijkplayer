@@ -8,11 +8,13 @@ add_subdirectory(ijkplayer)
 add_definitions(-DOHOS_PLATFORM)
 
 add_library(ijkplayer_napi SHARED
+            napi/ijkplayer_napi_init.cpp
             napi/ijkplayer_napi.cpp
-           proxy/ijkplayer_napi_proxy.c
-           utils/hashmap/data_struct.c
-           utils/ffmpeg/custom_ffmpeg_log.c
-           utils/napi/napi_utils.cpp
+            napi/ijkplayer_napi_manager.cpp
+            proxy/ijkplayer_napi_proxy.cpp
+            utils/hashmap/data_struct.c
+            utils/ffmpeg/custom_ffmpeg_log.c
+            utils/napi/napi_utils.cpp
             )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})

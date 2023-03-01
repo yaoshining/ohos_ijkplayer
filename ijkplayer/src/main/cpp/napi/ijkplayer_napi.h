@@ -17,20 +17,17 @@
 #define ijkplayer_ijkplayer_napi .h_H
 #include <string>
 #include <unordered_map>
-#include "../utils/napi/napi_utils.h"
 #include <ace/xcomponent/native_interface_xcomponent.h>
 #include <napi/native_api.h>
-#include "uv.h"
+#include "../proxy/ijkplayer_napi_proxy.h"
+#include "../utils/napi/napi_utils.h"
+#include <uv.h>
 
 class IJKPlayerNapi {
 
   public:
-    ~IJKPlayerNapi() {}
-    
-    static IJKPlayerNapi *GetInstance() {
-        return &IJKPlayerNapi ::ijkplayerNapi_;
-    }
-
+    IJKPlayerNapi(std::string &id);
+    static IJKPlayerNapi *getInstance(std::string &id);
     static napi_value setDataSource(napi_env env, napi_callback_info info);
     static napi_value setOption(napi_env env, napi_callback_info info);
     static napi_value setOptionLong(napi_env env, napi_callback_info info);
@@ -58,23 +55,32 @@ class IJKPlayerNapi {
     static napi_value setStreamSelected(napi_env env, napi_callback_info info);
     static napi_value getMediaMeta(napi_env env, napi_callback_info info);
     static napi_value nativeOpenlog(napi_env env, napi_callback_info info);
-    bool Export(napi_env env, napi_value exports);
-    static OH_NativeXComponent_Callback *GetNXComponentCallback();
-    void SetNativeXComponent(OH_NativeXComponent *component);
-    void OnSurfaceCreated(OH_NativeXComponent *component, void *window);
-    void OnSurfaceChanged(OH_NativeXComponent *component, void *window);
-    void OnSurfaceDestroyed(OH_NativeXComponent *component, void *window);
-    void DispatchTouchEvent(OH_NativeXComponent *component, void *window);
+    static napi_value native_setup(napi_env env, napi_callback_info info);
 
-  private:
-    static IJKPlayerNapi ijkplayerNapi_;
+    ////////////////////////XComponent////////////////////////////
+    static OH_NativeXComponent_Callback *getNXComponentCallback();
+    void setNativeXComponent(OH_NativeXComponent *component);
+    void onSurfaceCreated(OH_NativeXComponent *component, void *window);
+    void onSurfaceChanged(OH_NativeXComponent *component, void *window);
+    void onSurfaceDestroyed(OH_NativeXComponent *component, void *window);
+    void dispatchTouchEvent(OH_NativeXComponent *component, void *window);
+    static std::string getXComponentId(napi_env env, napi_callback_info info);
+    void setXComponentAndNativeWindow(std::string &id, OH_NativeXComponent *component, void *window);
+    OH_NativeXComponent *getXComponent(std::string &id);
+    void *getNativeWindow(std::string &id);
+    napi_value Export(napi_env env, napi_value exports);
+
+  public:
+    static IJKPlayerNapiProxy *ijkPlayerNapiProxy_;
+    static std::unordered_map<std::string, IJKPlayerNapi *> ijkPlayerNapi_;
+    std::unordered_map<std::string, OH_NativeXComponent *> nativeXComponentMap_;
+    std::unordered_map<std::string, void *> nativeWindowMap_;
     static OH_NativeXComponent_Callback callback_;
     OH_NativeXComponent *component_;
     std::string id_;
-    uint64_t width_;
-    uint64_t height_;
-    double x_;
-    double y_;
+    uint64_t width_ = 0;
+    uint64_t height_ = 0;
     OH_NativeXComponent_TouchEvent touchEvent_;
 };
+
 #endif //ijkplayer_ijkplayer_napi.h_H

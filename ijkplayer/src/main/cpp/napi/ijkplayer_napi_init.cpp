@@ -13,12 +13,25 @@
  * limitations under the License.
  */
 
-import AbilityStage from "@ohos.application.AbilityStage"
+#include "ijkplayer_napi_manager.h"
 
-export default class MyAbilityStage extends AbilityStage {
+EXTERN_C_START
+static napi_value Init(napi_env env, napi_value exports) {
+    IJKPlayerNapiManager::getInstance()->initXComponent(env, exports);
+    return exports;
+}
+EXTERN_C_END
 
-    onCreate() {
-        console.log("[Demo] MyAbilityStage onCreate");
-    }
+static napi_module ijkplayerModule = {
+    .nm_version = 1,
+    .nm_flags = 0,
+    .nm_filename = nullptr,
+    .nm_register_func = Init,
+    .nm_modname = "ijkplayer_napi",
+    .nm_priv = ((void *)0),
+    .reserved = {0},
+};
 
+extern "C" __attribute__((constructor)) void RegisterModule(void) {
+    napi_module_register(&ijkplayerModule);
 }
