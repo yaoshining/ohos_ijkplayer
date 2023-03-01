@@ -1,16 +1,16 @@
 {
-	"license": "Apache License 2.0",
-	"devDependencies": {},
-	"name": "entry",
-	"ohos": {
-		"org": "opensource",
-		"directoryLevel": "module",
-		"buildTool": "hvigor"
-	},
-	"description": "example description",
-	"repository": {},
-	"version": "1.0.0",
-	"dependencies": {
-		"@ohos/ijkplayer": "file:../ijkplayer"
-	}
+  "license": "Apache License 2.0",
+  "devDependencies": {},
+  "name": "entry",
+  "ohos": {
+    "org": "opensource",
+    "directoryLevel": "module",
+    "buildTool": "hvigor"
+  },
+  "description": "一款基于FFmpeg的视频播放器。",
+  "repository": {},
+  "version": "1.0.5",
+  "dependencies": {
+    "@ohos/ijkplayer": "file:../ijkplayer"
+  }
 }

@@ -15,42 +15,65 @@
 
 #ifndef ijkplayer_ijkplayer_napi_proxy.h_H
 #define ijkplayer_ijkplayer_napi_proxy .h_H
+#include <string>
 #include <assert.h>
 #include <stdio.h>
-#include <string.h>
 #include <pthread.h>
 #include <unistd.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 #include "../utils/hashmap/data_struct.h"
 #include "../ijkplayer/ijkplayer_android.h"
 #include "../utils/ffmpeg/custom_ffmpeg_log.h"
+#ifdef __cplusplus
+}
+#endif
 
-void message_loop_callback(void (*pe)(void *weak_this, int what, int arg1, int arg2, char *obj));
-void IjkMediaPlayer_native_setup(void *weak_this, void *native_window);
-void IjkMediaPlayer_setDataSource(char *url);
-void IjkMediaPlayer_setOption(int category, char *name, char *value);
-void IjkMediaPlayer_setOptionLong(int category, char *name, int64_t value);
-void IjkMediaPlayer_prepareAsync();
-void IjkMediaPlayer_start();
-void IjkMediaPlayer_stop();
-void IjkMediaPlayer_pause();
-void IjkMediaPlayer_seekTo(int64_t msec);
-bool IjkMediaPlayer_isPlaying();
-int IjkMediaPlayer_getCurrentPosition();
-int IjkMediaPlayer_getDuration();
-void IjkMediaPlayer_release();
-void IjkMediaPlayer_reset();
-void IjkMediaPlayer_setVolume(float leftVolume, float rightVolume);
-void IjkMediaPlayer_native_setLogLevel(int32_t level);
-void ijkMediaPlayer_setPropertyFloat(int id, float value);
-float ijkMediaPlayer_getPropertyFloat(int id, float value);
-void ijkMediaPlayer_setPropertyLong(int id, long value);
-long ijkMediaPlayer_getPropertyLong(int id, long default_value);
-int IjkMediaPlayer_getAudioSessionId();
-void IjkMediaPlayer_setLoopCount(int loop_count);
-int IjkMediaPlayer_getLoopCount();
-char *IjkMediaPlayer_getVideoCodecInfo();
-char *IjkMediaPlayer_getAudioCodecInfo();
-void ijkMediaPlayer_setStreamSelected(int stream, bool select);
-HashMap IjkMediaPlayer_getMediaMeta();
-void IjkMediaPlayer_native_openlog();
+class IJKPlayerNapiProxy {
+
+  public:
+    IJKPlayerNapiProxy(std::string &id) : id_(id){};
+    void message_loop_callback(void (*pe)(void *weak_this, int what, int arg1, int arg2, char *obj));
+    void IjkMediaPlayer_native_setup(void *weak_this, void *native_window);
+    void IjkMediaPlayer_setDataSource(char *url);
+    void IjkMediaPlayer_setOption(int category, char *name, char *value);
+    void IjkMediaPlayer_setOptionLong(int category, char *name, int64_t value);
+    void IjkMediaPlayer_prepareAsync();
+    void IjkMediaPlayer_start();
+    void IjkMediaPlayer_stop();
+    void IjkMediaPlayer_pause();
+    void IjkMediaPlayer_seekTo(int64_t msec);
+    bool IjkMediaPlayer_isPlaying();
+    int IjkMediaPlayer_getCurrentPosition();
+    int IjkMediaPlayer_getDuration();
+    void IjkMediaPlayer_release();
+    void IjkMediaPlayer_reset();
+    void IjkMediaPlayer_setVolume(float leftVolume, float rightVolume);
+    void IjkMediaPlayer_native_setLogLevel(int32_t level);
+    void ijkMediaPlayer_setPropertyFloat(int id, float value);
+    float ijkMediaPlayer_getPropertyFloat(int id, float value);
+    void ijkMediaPlayer_setPropertyLong(int id, long value);
+    long ijkMediaPlayer_getPropertyLong(int id, long default_value);
+    int IjkMediaPlayer_getAudioSessionId();
+    void IjkMediaPlayer_setLoopCount(int loop_count);
+    int IjkMediaPlayer_getLoopCount();
+    char *IjkMediaPlayer_getVideoCodecInfo();
+    char *IjkMediaPlayer_getAudioCodecInfo();
+    void ijkMediaPlayer_setStreamSelected(int stream, bool select);
+    HashMap IjkMediaPlayer_getMediaMeta();
+    void IjkMediaPlayer_native_openlog();
+    IjkMediaPlayer *set_media_player(IjkMediaPlayer *mp);
+    IjkMediaPlayer *get_media_player();
+
+  public:
+    std::string id_;
+    void *GLOBAL_NATIVE_WINDOW = nullptr;
+    IjkMediaPlayer *GLOBAL_IJKMP = nullptr;
+    bool IJKMP_GLOABL_INIT = false;
+    typedef struct player_fields_t {
+        pthread_mutex_t mutex;
+    } player_fields_t;
+    player_fields_t g_clazz;
+};
 #endif //ijkplayer_ijkplayer_napi_proxy.h_H

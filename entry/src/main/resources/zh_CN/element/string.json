@@ -2,15 +2,15 @@
   "string": [
     {
       "name": "module_desc",
-      "value": "module description"
+      "value": "ijkplayer"
     },
     {
       "name": "EntryAbility_desc",
-      "value": "description"
+      "value": "ijkplayer"
     },
     {
       "name": "EntryAbility_label",
-      "value": "label"
+      "value": "ijkplayer"
     },
     {
       "name": "NET_REQUEST_PERMISSION",

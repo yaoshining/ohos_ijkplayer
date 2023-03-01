@@ -1,3 +1,6 @@
+## 1.0.5
+- 适配DevEco Studio 3.1 Beta1版本
+- 调整XComponent用法
 
 ## 1.0.2
 - 添加支持直播rtsp协议

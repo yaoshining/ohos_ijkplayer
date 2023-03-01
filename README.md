@@ -38,29 +38,36 @@ OpenHarmony npm环境配置等更多内容，请参考 [如何安装OpenHarmony 
       libraryname: 'ijkplayer_napi'
     })
     .onLoad((context) => {
-    })
-    .onDestroy(() => {
-    })
-    .width('100%')
-    .aspectRatio(this.videoWidth / this.videoHeight)
+      this.initDelayPlay(context);
+     })
+     .onDestroy(() => {
+     })
+     .width('100%')
+     .aspectRatio(this.aspRatio)
 ```          
 
 ### 播放
 ```
     let mIjkMediaPlayer = IjkMediaPlayer.getInstance();
-    //设置视频源
-    mIjkMediaPlayer.setDataSource(videoUrl.toString());
-    //使用精确寻帧 例如，拖动播放后，会寻找最近的关键帧进行播放，很有可能关键帧的位置不是拖动后的位置，而是较前的位置.可以设置这个参数来解决问题
+    // 设置XComponent回调的context
+    mIjkMediaPlayer.setContext(this.mContext);
+    // 设置debug模式
+    mIjkMediaPlayer.setDebug(true);
+    // 初始化配置
+    mIjkMediaPlayer.native_setup();
+    // 设置视频源
+    mIjkMediaPlayer.setDataSource(url);
+    // 使用精确寻帧 例如，拖动播放后，会寻找最近的关键帧进行播放，很有可能关键帧的位置不是拖动后的位置，而是较前的位置.可以设置这个参数来解决问题
     mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "enable-accurate-seek", "1");
-    //预读数据的缓冲区大小
+    // 预读数据的缓冲区大小
     mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "max-buffer-size", "102400");
-    //停止预读的最小帧数
+    // 停止预读的最小帧数
     mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "min-frames", "100");
-    //启动预加载
+    // 启动预加载
     mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "start-on-prepared", "1");
     // 设置无缓冲，这是播放器的缓冲区，有数据就播放
     mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "packet-buffering", "0");
-    //跳帧处理,放CPU处理较慢时，进行跳帧处理，保证播放流程，画面和声音同步
+    // 跳帧处理,放CPU处理较慢时，进行跳帧处理，保证播放流程，画面和声音同步
     mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "framedrop", "5");
     // 最大缓冲cache是3s， 有时候网络波动，会突然在短时间内收到好几秒的数据
     // 因此需要播放器丢包，才不会累积延时
@@ -68,13 +75,18 @@ OpenHarmony npm环境配置等更多内容，请参考 [如何安装OpenHarmony 
     mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "max_cached_duration", "3000");
     // 无限制收流
     mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "infbuf", "1");
-    //屏幕常亮
+    // 屏幕常亮
     mIjkMediaPlayer.setScreenOnWhilePlaying(true);
+    // 设置超时
+    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "timeout", "10000000");
+    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "connect_timeout", "10000000");
+    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "listen_timeout", "10000000");
+    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "addrinfo_timeout", "10000000");
+    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "dns_cache_timeout", "10000000");
     
     let mOnVideoSizeChangedListener: OnVideoSizeChangedListener = {
       onVideoSizeChanged(width: number, height: number, sar_num: number, sar_den: number) {
-        that.videoWidth=width;
-        that.videoHeight=height;
+        that.aspRatio = width / height;
         LogUtils.getInstance()
           .LOGI("setOnVideoSizeChangedListener-->go:" + width + "," + height + "," + sar_num + "," + sar_den)
         that.hideLoadIng();
@@ -180,7 +192,9 @@ OpenHarmony npm环境配置等更多内容，请参考 [如何安装OpenHarmony 
 ### IjkMediaPlayer.getInstance()
 | 接口名                      | 参数                         | 返回值             | 说明                                       |
 | ---------------------------| --------------------------- | ----------------- | ----------------------------------------- |
+| setContext                 | context: object            | void              | 设置XComponent回调的context                 |
 | setDebug                   | open: boolean              | void              | 设置日志开关                                |
+| native_setup               | 无                         | void              | 初始化配置                                |
 | setDataSource              | url: boolean               | void              | 设置视频源地址                               |
 | setOption                  | category:string, key: string, value: string | void | 设置播放前预设参数                         |
 | setOptionLong              | category:string, key: string, value: string | void | 设置播放前预设参数                            |
@@ -229,7 +243,8 @@ OpenHarmony npm环境配置等更多内容，请参考 [如何安装OpenHarmony 
 
 ## 兼容性
 
-支持OpenHarmony API version 9 的stage model
+- [DevEco Studio](https://developer.harmonyos.com/cn/develop/deveco-studio#download) 版本：DevEco Studio 3.1 Beta1及以上版本。
+- OpenHarmony SDK版本：API version 9 及以上版本。
 
 ## 目录结构
 
