@@ -279,9 +279,12 @@ struct IjkVideoPlayerPage {
   private play(url: string) {
     let that = this;
     that.showLoadIng();
-    CONTROL_PlayStatus = PlayStatus.PLAY;
     //设置XComponent回调的context
     mIjkMediaPlayer.setContext(this.mContext);
+    if (CONTROL_PlayStatus == PlayStatus.INIT) {
+      mIjkMediaPlayer.reset();
+    }
+    CONTROL_PlayStatus = PlayStatus.PLAY;
     //设置debug模式
     mIjkMediaPlayer.setDebug(true);
     //初始化配置
@@ -311,7 +314,6 @@ struct IjkVideoPlayerPage {
     // 设置超时
     mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "timeout", "10000000");
     mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "connect_timeout", "10000000");
-    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "listen_timeout", "10000000");
     mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "addrinfo_timeout", "10000000");
     mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "dns_cache_timeout", "10000000");
     // 设置音量
