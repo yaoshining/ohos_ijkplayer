@@ -1,7 +1,7 @@
 # ijkplayer
 
 ## 简介
->  一款基于FFmpeg的视频播放器。
+>  ijkplayer是OpenHarmony环境下可用的一款基于FFmpeg的视频播放器。
 
 ## 演示
 <img src="screenshot/ijkplayer.gif" width="100%"/>
@@ -14,20 +14,18 @@
 
 ## 下载安装
 ```shell
-npm install @ohos/ijkplayer --save
+ohpm install @ohos/ijkplayer
 ```
-OpenHarmony npm环境配置等更多内容，请参考 [如何安装OpenHarmony npm包](https://gitee.com/openharmony-tpc/docs/blob/master/OpenHarmony_npm_usage.md) 。
-
 ## 使用说明
 ```
    import { IjkMediaPlayer } from "@ohos/ijkplayer";
-   import { OnPreparedListener } from "@ohos/ijkplayer";
-   import { OnVideoSizeChangedListener } from "@ohos/ijkplayer";
-   import { OnCompletionListener } from "@ohos/ijkplayer";
-   import { OnBufferingUpdateListener } from "@ohos/ijkplayer";
-   import { OnErrorListener } from "@ohos/ijkplayer";
-   import { OnInfoListener } from "@ohos/ijkplayer";
-   import { OnSeekCompleteListener } from "@ohos/ijkplayer";
+   import type { OnPreparedListener } from "@ohos/ijkplayer";
+   import type { OnVideoSizeChangedListener } from "@ohos/ijkplayer";
+   import type { OnCompletionListener } from "@ohos/ijkplayer";
+   import type { OnBufferingUpdateListener } from "@ohos/ijkplayer";
+   import type { OnErrorListener } from "@ohos/ijkplayer";
+   import type { OnInfoListener } from "@ohos/ijkplayer";
+   import type { OnSeekCompleteListener } from "@ohos/ijkplayer";
    import { LogUtils } from "@ohos/ijkplayer";
 ```
 ### 在UI中配置XComponent控件
@@ -241,10 +239,11 @@ OpenHarmony npm环境配置等更多内容，请参考 [如何安装OpenHarmony 
 3、yuv:基于B站的yuv版本(ijk-r0.2.1-dev):[yuv源码链接](https://github.com/bilibili/libyuv/branches), 标准的库,可直接通过DevEco Studio cmake编译,编译脚本参考详见目录:doc/yuv
 
 
-## 兼容性
+## 约束与限制
 
-- [DevEco Studio](https://developer.harmonyos.com/cn/develop/deveco-studio#download) 版本：DevEco Studio 3.1 Beta1及以上版本。
-- OpenHarmony SDK版本：API version 9 及以上版本。
+在下述版本验证通过：
+
+DevEco Studio: 3.1Release(3.1.3.400), SDK: API9 Release(3.2.11.5)
 
 ## 目录结构
 

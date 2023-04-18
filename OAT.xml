@@ -65,6 +65,13 @@
                     desc="ijkplayer原库的版权协议，不修改，以防有修改版权风险"
                     name="MODULE_LICENSE_APACHE2"
                     type="filename"/>
+                <filteritem type="filepath" name="hvigor/hvigor-wrapper.js" desc="配置文件，DevEco Studio自动生成，不手动修改"/>
+                <filteritem type="filename" name="hvigorw.bat" desc="hvigorw配置文件，DevEco Studio自动生成，不手动修改"/>
+                <filteritem type="filename" name="hvigorw" desc="hvigorw配置文件，DevEco Studio自动生成，不手动修改"/>
+                <filteritem type="filepath" name="hvigor/hvigor-wrapper.js" desc="配置文件，DevEco Studio自动生成，不手动修改"/>
+				<filteritem type="filepath" name="ijkplayer/oh-package.json5" desc="配置文件，DevEco Studio自动生成，不手动修改"/>
+                <filteritem type="filename" name="hvigor-config.json5" desc="配置文件，DevEco Studio自动生成，不手动修改"/>
+                <filteritem type="filename" name="oh-package.json5" desc="hvigor配置文件，DevEco Studio自动生成，不手动修改"/>
             </filefilter>
             <filefilter
                 desc="Filters for compatibility，license header policies"
@@ -129,7 +136,24 @@
                     desc="ijkplayer原库的版权协议，不修改，以防有修改版权风险"
                     name="MODULE_LICENSE_APACHE2"
                     type="filename"/>
+                <filteritem type="filepath" name="hvigor/hvigor-wrapper.js" desc="配置文件，DevEco Studio自动生成，不手动修改"/>
+                <filteritem type="filename" name="hvigorw.bat" desc="hvigorw配置文件，DevEco Studio自动生成，不手动修改"/>
+                <filteritem type="filename" name="hvigorw" desc="hvigorw配置文件，DevEco Studio自动生成，不手动修改"/>
+                <filteritem type="filepath" name="hvigor/hvigor-wrapper.js" desc="配置文件，DevEco Studio自动生成，不手动修改"/>
+                <filteritem type="filename" name="hvigor-config.json5" desc="配置文件，DevEco Studio自动生成，不手动修改"/>
+                <filteritem type="filename" name="oh-package.json5" desc="hvigor配置文件，DevEco Studio自动生成，不手动修改"/>
+				<filteritem type="filepath" name="ijkplayer/oh-package.json5" desc="配置文件，DevEco Studio自动生成，不手动修改"/>
             </filefilter>
+			
+			<filefilter desc="Filters for binary file policies" name="binaryFileTypePolicyFilter">
+				<filteritem desc="配置文件，DevEco Studio自动生成，不手动修改" name="hvigor/hvigor-wrapper.js" type="filepath"/>
+				<filteritem desc="配置文件，DevEco Studio自动生成，不手动修改" name="hvigor-config.json5" type="filename"/>
+				<filteritem desc="hvigor配置文件，DevEco Studio自动生成，不手动修改" name="oh-package.json5" type="filename"/>
+				<filteritem desc="hvigor配置文件，DevEco Studio自动生成，不手动修改" name="build-profile.json5" type="filename"/>
+				<filteritem desc="hvigor配置文件，DevEco Studio自动生成，不手动修改" name="app.json5" type="filename"/>
+				<filteritem desc="hvigor配置文件，DevEco Studio自动生成，不手动修改" name="hvigorfile.ts" type="filename"/>
+			</filefilter>
+			
         </filefilterlist>
     </oatconfig>
 </configuration>
