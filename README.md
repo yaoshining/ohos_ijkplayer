@@ -193,7 +193,7 @@ ohpm install @ohos/ijkplayer
 | setContext                 | context: object            | void              | 设置XComponent回调的context                 |
 | setDebug                   | open: boolean              | void              | 设置日志开关                                |
 | native_setup               | 无                         | void              | 初始化配置                                |
-| setDataSource              | url: boolean               | void              | 设置视频源地址                               |
+| setDataSource              | url: string               | void              | 设置视频源地址                               |
 | setOption                  | category:string, key: string, value: string | void | 设置播放前预设参数                         |
 | setOptionLong              | category:string, key: string, value: string | void | 设置播放前预设参数                            |
 | prepareAsync               | 无                           | void              | 加载视频                                   |
