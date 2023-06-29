@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 3.4.1)
 
 project("ijkplayer")
 
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-int-conversion")
+
 add_definitions(-DOHOS_PLATFORM)
 
 add_library(ijksdl  SHARED    ijksdl_aout.c
@@ -56,5 +58,4 @@ target_link_libraries(ijksdl yuv)
 target_link_libraries(ijksdl EGL)
 target_link_libraries(ijksdl GLESv3)
 target_link_libraries(ijksdl hilog_ndk.z)
-target_link_libraries(ijksdl libc++.a)
 target_link_libraries(ijksdl OpenSLES)

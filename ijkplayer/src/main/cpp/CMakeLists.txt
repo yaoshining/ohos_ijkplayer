@@ -2,6 +2,8 @@
 cmake_minimum_required(VERSION 3.4.1)
 project(ijkplayer)
 
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-int-conversion")
+
 add_subdirectory(ijksdl)
 add_subdirectory(ijkplayer)
 
@@ -40,5 +42,4 @@ target_link_libraries(ijkplayer_napi PUBLIC GLESv3)
 target_link_libraries(ijkplayer_napi PUBLIC hilog_ndk.z)
 target_link_libraries(ijkplayer_napi PUBLIC ace_ndk.z)
 target_link_libraries(ijkplayer_napi PUBLIC ace_napi.z)
-target_link_libraries(ijkplayer_napi PUBLIC libc++.a)
 target_link_libraries(ijkplayer_napi PUBLIC uv)

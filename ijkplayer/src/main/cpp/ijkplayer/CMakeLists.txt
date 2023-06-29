@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 3.4.1)
 
 project("ijkplayer")
 
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-int-conversion")
+
 add_definitions(-DOHOS_PLATFORM)
 
 add_library(ijkplayer  SHARED
@@ -58,5 +60,4 @@ target_link_libraries(ijkplayer ijksdl_so)
 target_link_libraries(ijkplayer EGL)
 target_link_libraries(ijkplayer GLESv3)
 target_link_libraries(ijkplayer hilog_ndk.z)
-target_link_libraries(ijkplayer libc++.a)
 target_link_libraries(ijkplayer soundtouch)
