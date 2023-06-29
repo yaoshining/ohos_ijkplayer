@@ -12,6 +12,8 @@
 
 2、开发板选择RK3568，[ROM下载地址](http://ci.openharmony.cn/dailys/dailybuilds). 选择开发板类型是rk3568，请使用最新的版本
 
+3、使用git clone下载源码，不要直接通过gitee网页的方式下载
+
 ## 下载安装
 ```shell
 ohpm install @ohos/ijkplayer
@@ -243,7 +245,7 @@ ohpm install @ohos/ijkplayer
 
 在下述版本验证通过：
 
-DevEco Studio: 3.1Beta2(3.1.0.400), SDK: API9 Release(3.2.11.9)
+DevEco Studio版本: 4.0Canary1(4.0.3.212), SDK: API10(4.0.8.3)
 
 ## 目录结构
 
