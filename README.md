@@ -274,7 +274,7 @@ DevEco Studio版本: 4.0Canary1(4.0.3.212), SDK: API10(4.0.8.3)
 
 ## 开源协议
 
-本项目基于 [Apache License 2.0](https://gitee.com/openharmony-sig/ijkplayer/blob/master/LICENSE)，请自由地享受和参与开源。
+本项目基于 [Apache License 2.0](LICENSE)，请自由地享受和参与开源。
 
 
 
