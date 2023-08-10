@@ -420,6 +420,7 @@ struct IjkVideoPlayerPage {
     mIjkMediaPlayer.stop();
     mIjkMediaPlayer.reset();
     this.startProgressTask();
-    this.play(videoUrls[curIndex]);
+    videoUrl = videoUrls[curIndex]
+    this.play(videoUrl);
   }
 }
