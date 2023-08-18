@@ -305,6 +305,7 @@ void ijkmp_shutdown_l(IjkMediaPlayer *mp)
     assert(mp);
 
     LOGI("ijkmp_shutdown_l()\n");
+    pthread_mutex_lock(&mp->mutex);
     if (mp->ffplayer) {
         LOGI("ijkmp_shutdown_l() mp->ffplayer\n");
         ffp_stop_l(mp->ffplayer);
@@ -312,6 +313,7 @@ void ijkmp_shutdown_l(IjkMediaPlayer *mp)
         ffp_wait_stop_l(mp->ffplayer);
         LOGI("ijkmp_shutdown_l() ffp_wait_stop_l\n");
     }
+    pthread_mutex_unlock(&mp->mutex);
     LOGI("ijkmp_shutdown_l()=void\n");
 }
 
@@ -353,8 +355,6 @@ static int ijkmp_set_data_source_l(IjkMediaPlayer *mp, const char *url)
 
     assert(mp);
     assert(url);
-
-    // MPST_RET_IF_EQ(mp->mp_state, MP_STATE_IDLE);
     MPST_RET_IF_EQ(mp->mp_state, MP_STATE_INITIALIZED);
     MPST_RET_IF_EQ(mp->mp_state, MP_STATE_ASYNC_PREPARING);
     MPST_RET_IF_EQ(mp->mp_state, MP_STATE_PREPARED);
@@ -402,13 +402,11 @@ static int ijkmp_prepare_async_l(IjkMediaPlayer *mp)
     assert(mp);
 
     MPST_RET_IF_EQ(mp->mp_state, MP_STATE_IDLE);
-    // MPST_RET_IF_EQ(mp->mp_state, MP_STATE_INITIALIZED);
     MPST_RET_IF_EQ(mp->mp_state, MP_STATE_ASYNC_PREPARING);
     MPST_RET_IF_EQ(mp->mp_state, MP_STATE_PREPARED);
     MPST_RET_IF_EQ(mp->mp_state, MP_STATE_STARTED);
     MPST_RET_IF_EQ(mp->mp_state, MP_STATE_PAUSED);
     MPST_RET_IF_EQ(mp->mp_state, MP_STATE_COMPLETED);
-    // MPST_RET_IF_EQ(mp->mp_state, MP_STATE_STOPPED);
     MPST_RET_IF_EQ(mp->mp_state, MP_STATE_ERROR);
     MPST_RET_IF_EQ(mp->mp_state, MP_STATE_END);
 
@@ -449,10 +447,6 @@ static int ikjmp_chkst_start_l(int mp_state)
     MPST_RET_IF_EQ(mp_state, MP_STATE_IDLE);
     MPST_RET_IF_EQ(mp_state, MP_STATE_INITIALIZED);
     MPST_RET_IF_EQ(mp_state, MP_STATE_ASYNC_PREPARING);
-    // MPST_RET_IF_EQ(mp_state, MP_STATE_PREPARED);
-    // MPST_RET_IF_EQ(mp_state, MP_STATE_STARTED);
-    // MPST_RET_IF_EQ(mp_state, MP_STATE_PAUSED);
-    // MPST_RET_IF_EQ(mp_state, MP_STATE_COMPLETED);
     MPST_RET_IF_EQ(mp_state, MP_STATE_STOPPED);
     MPST_RET_IF_EQ(mp_state, MP_STATE_ERROR);
     MPST_RET_IF_EQ(mp_state, MP_STATE_END);
@@ -489,10 +483,6 @@ static int ikjmp_chkst_pause_l(int mp_state)
     MPST_RET_IF_EQ(mp_state, MP_STATE_IDLE);
     MPST_RET_IF_EQ(mp_state, MP_STATE_INITIALIZED);
     MPST_RET_IF_EQ(mp_state, MP_STATE_ASYNC_PREPARING);
-    // MPST_RET_IF_EQ(mp_state, MP_STATE_PREPARED);
-    // MPST_RET_IF_EQ(mp_state, MP_STATE_STARTED);
-    // MPST_RET_IF_EQ(mp_state, MP_STATE_PAUSED);
-    // MPST_RET_IF_EQ(mp_state, MP_STATE_COMPLETED);
     MPST_RET_IF_EQ(mp_state, MP_STATE_STOPPED);
     MPST_RET_IF_EQ(mp_state, MP_STATE_ERROR);
     MPST_RET_IF_EQ(mp_state, MP_STATE_END);
@@ -530,12 +520,6 @@ static int ijkmp_stop_l(IjkMediaPlayer *mp)
 
     MPST_RET_IF_EQ(mp->mp_state, MP_STATE_IDLE);
     MPST_RET_IF_EQ(mp->mp_state, MP_STATE_INITIALIZED);
-    // MPST_RET_IF_EQ(mp->mp_state, MP_STATE_ASYNC_PREPARING);
-    // MPST_RET_IF_EQ(mp->mp_state, MP_STATE_PREPARED);
-    // MPST_RET_IF_EQ(mp->mp_state, MP_STATE_STARTED);
-    // MPST_RET_IF_EQ(mp->mp_state, MP_STATE_PAUSED);
-    // MPST_RET_IF_EQ(mp->mp_state, MP_STATE_COMPLETED);
-    // MPST_RET_IF_EQ(mp->mp_state, MP_STATE_STOPPED);
     MPST_RET_IF_EQ(mp->mp_state, MP_STATE_ERROR);
     MPST_RET_IF_EQ(mp->mp_state, MP_STATE_END);
 
@@ -577,10 +561,6 @@ static int ikjmp_chkst_seek_l(int mp_state)
     MPST_RET_IF_EQ(mp_state, MP_STATE_IDLE);
     MPST_RET_IF_EQ(mp_state, MP_STATE_INITIALIZED);
     MPST_RET_IF_EQ(mp_state, MP_STATE_ASYNC_PREPARING);
-    // MPST_RET_IF_EQ(mp_state, MP_STATE_PREPARED);
-    // MPST_RET_IF_EQ(mp_state, MP_STATE_STARTED);
-    // MPST_RET_IF_EQ(mp_state, MP_STATE_PAUSED);
-    // MPST_RET_IF_EQ(mp_state, MP_STATE_COMPLETED);
     MPST_RET_IF_EQ(mp_state, MP_STATE_STOPPED);
     MPST_RET_IF_EQ(mp_state, MP_STATE_ERROR);
     MPST_RET_IF_EQ(mp_state, MP_STATE_END);

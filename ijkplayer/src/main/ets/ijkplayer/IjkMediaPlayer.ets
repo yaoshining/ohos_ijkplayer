@@ -71,6 +71,21 @@ export class IjkMediaPlayer {
     this.ijkplayer_napi._setDataSource(url);
   }
 
+  setDataSourceHeader(headers: Map<string, string>) {
+      if (headers) {
+        var builder = '';
+        headers.forEach((value, key) => {
+          var param = key.trim() + ":";
+          if (value)
+            param += value.trim();
+          param += "\r\n";
+          builder += param;
+        });
+        this.ijkplayer_napi._setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "headers", builder);
+        this.ijkplayer_napi._setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "protocol_whitelist", "async,cache,crypto,file,http,https,ijkhttphook,ijkinject,ijklivehook,ijklongurl,ijksegment,ijktcphook,pipe,rtp,tcp,tls,udp,ijkurlhook,data");
+      }
+  }
+
   setOption(category: string, key: string, value: string) {
     this.ijkplayer_napi._setOption(category, key, value);
   }
