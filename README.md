@@ -56,7 +56,13 @@ ohpm install @ohos/ijkplayer
     // 初始化配置
     mIjkMediaPlayer.native_setup();
     // 设置视频源
-    mIjkMediaPlayer.setDataSource(url);
+    mIjkMediaPlayer.setDataSource(url); 
+    // 设置视频源http请求头
+    let headers =  new Map([
+      ["user_agent", "Mozilla/5.0 BiliDroid/7.30.0 (bbcallen@gmail.com)"],
+      ["referer", "https://www.bilibili.com"]
+    ]);
+    mIjkMediaPlayer.setDataSourceHeader(headers);
     // 使用精确寻帧 例如，拖动播放后，会寻找最近的关键帧进行播放，很有可能关键帧的位置不是拖动后的位置，而是较前的位置.可以设置这个参数来解决问题
     mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "enable-accurate-seek", "1");
     // 预读数据的缓冲区大小
@@ -194,10 +200,11 @@ ohpm install @ohos/ijkplayer
 | ---------------------------| --------------------------- | ----------------- | ----------------------------------------- |
 | setContext                 | context: object            | void              | 设置XComponent回调的context                 |
 | setDebug                   | open: boolean              | void              | 设置日志开关                                |
-| native_setup               | 无                         | void              | 初始化配置                                |
-| setDataSource              | url: string               | void              | 设置视频源地址                               |
-| setOption                  | category:string, key: string, value: string | void | 设置播放前预设参数                         |
-| setOptionLong              | category:string, key: string, value: string | void | 设置播放前预设参数                            |
+| native_setup               | 无                         | void              | 初始化配置                                  |
+| setDataSource              | url: string                | void               | 设置视频源地址                             |
+| setDataSourceHeader        | headers: Map<string, string> | void            | 设置视频源的HTTP请求头                      |
+| setOption                  | category:string, key: string, value: string | void | 设置播放前预设参数                      |
+| setOptionLong              | category:string, key: string, value: string | void | 设置播放前预设参数                      |
 | prepareAsync               | 无                           | void              | 加载视频                                   |
 | start                      | 无                           | void              | 播放视频                                   |
 | stop                       | 无                           | void              | 停止播放                                   |

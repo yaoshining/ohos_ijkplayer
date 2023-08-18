@@ -32,7 +32,10 @@ let mIjkMediaPlayer = IjkMediaPlayer.getInstance();
 let updateProgressTimer;
 let videoUrl = router.getParams()['videoUrl'];
 let videoUrls = ["http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8",
-  "http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8"
+  "http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8",
+  "https://cn-gdfs-ct-01-04.bilivideo.com/upgcxcode/47/04/1224500447/1224500447-1-192.mp4?e=ig8euxZM2rNcNbR37bdVhwdlhW4jhwdVhoNvNC8BqJIzNbfq9rVEuxTEnE8L5F6VnEsSTx0vkX8fqJeYTj_lta53NCM=&uipk=5&nbs=1&deadline=1692253720&gen=playurlv2&os=bcache&oi=1921313500&trid=0000755cc4f3b28d47789616ada5a430f739T&mid=3493297548953879&platform=html5&upsig=bdbb02119ca73f5677b799ec16533297&uparams=e,uipk,nbs,deadline,gen,os,oi,trid,mid,platform&cdnid=60904&bvc=vod&nettype=0&bw=186138&orderid=0,1&buvid=&build=0&mobi_app=&f=T_0_0&logo=80000000",
+  "http://115.231.140.209:4480/upgcxcode/47/04/1224500447/1224500447_w1-1-336.flv?e=ig8euxZM2rNcNbN3hwdVhwdlhb4VhwdVhoNvNC8BqJIzNbfqXBvEuENvNC8aNEVEtEvE9IMvXBvE2ENvNCImNEVEIj0Y2J_aug859IB_&uipk=5&nbs=1&deadline=1692246519&gen=playurlv2&os=mcdn&oi=1921313500&trid=00001c9e80ea98364ae2a28212d121f58587t&mid=3493297546857410&platform=android_tv_yst&upsig=64d24d53922f2b5cdd2410c4ae2f9b0b&uparams=e,uipk,nbs,deadline,gen,os,oi,trid,mid,platform&mcdnid=1003147&bvc=vod&nettype=0&bw=280935&orderid=0,3&buvid=&build=0&f=t_0_0&logo=A0000001"
+
 ];
 let curIndex = 0;
 
@@ -291,6 +294,12 @@ struct IjkVideoPlayerPage {
     mIjkMediaPlayer.native_setup();
     //设置视频源
     mIjkMediaPlayer.setDataSource(url);
+    //设置视频源http请求头
+    let headers = new Map([
+      ["user_agent", "Mozilla/5.0 BiliDroid/7.30.0 (bbcallen@gmail.com)"],
+      ["referer", "https://www.bilibili.com"]
+    ]);
+    mIjkMediaPlayer.setDataSourceHeader(headers);
     //使用精确寻帧 例如，拖动播放后，会寻找最近的关键帧进行播放，很有可能关键帧的位置不是拖动后的位置，而是较前的位置.可以设置这个参数来解决问题
     mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "enable-accurate-seek", "1");
     //预读数据的缓冲区大小
