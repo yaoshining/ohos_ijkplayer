@@ -117,7 +117,7 @@ struct IjkVideoPlayerPage {
           .visibility(this.loadingVisible)
           .border({ width: 0 })
           .borderStyle(BorderStyle.Dashed)
-      }.width('100%').height('468px').backgroundColor('#000000')
+      }.width('100%').height('468px').backgroundColor('#000000').margin({top:"250px"})
 
       Flex({ direction: FlexDirection.Row, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Start }) {
         Text(this.currentTime).width('100px').fontSize('20px').margin('20px')
@@ -144,7 +144,7 @@ struct IjkVideoPlayerPage {
             LogUtils.getInstance().LOGI("slider-->seekValue end:" + seekValue);
           })
         Text(this.totalTime).width('100px').fontSize('20px').margin('10px')
-      }
+      }.margin({top:"350px"})
 
       Flex({ direction: FlexDirection.Row, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Start }) {
         Button('播放')
