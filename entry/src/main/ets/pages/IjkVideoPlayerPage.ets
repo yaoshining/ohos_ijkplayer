@@ -202,16 +202,6 @@ struct IjkVideoPlayerPage {
           .width('400px')
           .height('80px')
           .margin('15px')
-
-        Button('3 倍速')
-          .onClick(() => {
-            this.playSpeed = '3f'
-            this.stop();
-            this.startPlayOrResumePlay()
-          })
-          .width('400px')
-          .height('80px')
-          .margin('15px')
       }
     }
   }
