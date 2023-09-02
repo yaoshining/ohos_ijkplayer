@@ -32,10 +32,7 @@ let mIjkMediaPlayer = IjkMediaPlayer.getInstance();
 let updateProgressTimer;
 let videoUrl = router.getParams()['videoUrl'];
 let videoUrls = ["http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8",
-  "http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8",
-  "https://cn-gdfs-ct-01-04.bilivideo.com/upgcxcode/47/04/1224500447/1224500447-1-192.mp4?e=ig8euxZM2rNcNbR37bdVhwdlhW4jhwdVhoNvNC8BqJIzNbfq9rVEuxTEnE8L5F6VnEsSTx0vkX8fqJeYTj_lta53NCM=&uipk=5&nbs=1&deadline=1692253720&gen=playurlv2&os=bcache&oi=1921313500&trid=0000755cc4f3b28d47789616ada5a430f739T&mid=3493297548953879&platform=html5&upsig=bdbb02119ca73f5677b799ec16533297&uparams=e,uipk,nbs,deadline,gen,os,oi,trid,mid,platform&cdnid=60904&bvc=vod&nettype=0&bw=186138&orderid=0,1&buvid=&build=0&mobi_app=&f=T_0_0&logo=80000000",
-  "http://115.231.140.209:4480/upgcxcode/47/04/1224500447/1224500447_w1-1-336.flv?e=ig8euxZM2rNcNbN3hwdVhwdlhb4VhwdVhoNvNC8BqJIzNbfqXBvEuENvNC8aNEVEtEvE9IMvXBvE2ENvNCImNEVEIj0Y2J_aug859IB_&uipk=5&nbs=1&deadline=1692246519&gen=playurlv2&os=mcdn&oi=1921313500&trid=00001c9e80ea98364ae2a28212d121f58587t&mid=3493297546857410&platform=android_tv_yst&upsig=64d24d53922f2b5cdd2410c4ae2f9b0b&uparams=e,uipk,nbs,deadline,gen,os,oi,trid,mid,platform&mcdnid=1003147&bvc=vod&nettype=0&bw=280935&orderid=0,3&buvid=&build=0&f=t_0_0&logo=A0000001"
-
+  "https://sf1-hscdn-tos.pstatp.com/obj/media-fe/xgplayer_doc_video/flv/xgplayer-demo-720p.flv"
 ];
 let curIndex = 0;
 
