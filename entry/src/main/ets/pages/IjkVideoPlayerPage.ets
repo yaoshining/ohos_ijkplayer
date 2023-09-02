@@ -52,6 +52,7 @@ struct IjkVideoPlayerPage {
   @State mContext: object = null;
   @State mFirst: boolean = true;
   @State mDestroyPage: boolean = false;
+  @State playSpeed:string = '1f'
 
   aboutToAppear() {
     LogUtils.getInstance().LOGI("aboutToAppear");
@@ -175,6 +176,28 @@ struct IjkVideoPlayerPage {
         Button('切换')
           .onClick(() => {
             this.playNext();
+          })
+          .width('400px')
+          .height('80px')
+          .margin('15px')
+      }
+
+      Flex({ direction: FlexDirection.Row, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Start }) {
+        Button('1.5倍速')
+          .onClick(() => {
+            this.playSpeed = '1.5f'
+            this.stop();
+            this.startPlayOrResumePlay()
+          })
+          .width('400px')
+          .height('80px')
+          .margin('15px')
+
+        Button('2 倍速')
+          .onClick(() => {
+            this.playSpeed = '2f'
+            this.stop();
+            this.startPlayOrResumePlay()
           })
           .width('400px')
           .height('80px')
@@ -328,9 +351,11 @@ struct IjkVideoPlayerPage {
     // 设置音量
     // mIjkMediaPlayer.setVolume("0.5", "0.5");
     // 变速播放
-    // mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "soundtouch", "1");
-    // mIjkMediaPlayer.setSpeed("2f");
+    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "soundtouch", "1");
+    mIjkMediaPlayer.setSpeed(this.playSpeed);
 
+    //是否开启循环播放
+    mIjkMediaPlayer.setLoopCount(true);
     let mOnVideoSizeChangedListener: OnVideoSizeChangedListener = {
       onVideoSizeChanged(width: number, height: number, sar_num: number, sar_den: number) {
         that.aspRatio = width / height;
