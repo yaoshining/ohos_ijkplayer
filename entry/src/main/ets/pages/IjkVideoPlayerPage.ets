@@ -32,7 +32,7 @@ let mIjkMediaPlayer = IjkMediaPlayer.getInstance();
 let updateProgressTimer;
 let videoUrl = router.getParams()['videoUrl'];
 let videoUrls = ["http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8",
-  "https://sf1-hscdn-tos.pstatp.com/obj/media-fe/xgplayer_doc_video/flv/xgplayer-demo-720p.flv"
+                 "http://video-hw-drcn.dbankcdn.cn/P_VT/video_cutover/68/v3/1896497A351226208282761216/index.m3u8?zoneoffset=0&servicetype=0&icpid=&accounttype=1&limitflux=-1&limitdur=-1&accountinfo=yzBKEa1iS2rptqZ%2BAZGqXwiWJjwJbSA3YCwalbjnOW%2BFzfY9s4Z2GqV88VC05iPanuqF2qVfO7VeyitLa8%2B99w%3D%3D%3A20230904080539%3AUTC%2C%2C%2C20230904080539%2CMP2020031314520661500020113000000%2C%2C-1%2C1%2C0%2C%2C%2C1%2C%2C%2C%2C1%2C%2C0%2C%2C%2C%2C%2C1%2CEND&GuardEncType=2",
 ];
 let curIndex = 0;
 
