@@ -13,6 +13,6 @@
  * limitations under the License.
  */
 
-export interface OnPreparedListener {
-  onPrepared:()=>void;
+export class RouterParam {
+  videoUrl: string = "";
 }

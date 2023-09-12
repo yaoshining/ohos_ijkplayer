@@ -14,5 +14,5 @@
  */
 
 export interface OnErrorListener {
-  onError(what: number, extra: number)
+  onError:(what: number, extra: number)=>void
 }

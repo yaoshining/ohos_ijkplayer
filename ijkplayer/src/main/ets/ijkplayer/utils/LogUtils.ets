@@ -21,10 +21,10 @@ export class LogUtils {
   };
 
   public static getInstance() {
-    if (!this.instance) {
-      this.instance = new LogUtils();
+    if (!LogUtils.instance) {
+      LogUtils.instance = new LogUtils();
     }
-    return this.instance;
+    return LogUtils.instance;
   }
 
   setLogSwitch(logOpen: boolean) {

@@ -14,5 +14,5 @@
  */
 
 export interface OnVideoSizeChangedListener {
-  onVideoSizeChanged(width: number, height: number, sar_num: number, sar_den: number)
+  onVideoSizeChanged:(width: number, height: number, sar_num: number, sar_den: number)=>void
 }
