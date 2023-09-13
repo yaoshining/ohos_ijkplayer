@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export declare class ijkplayerNapi {
+export declare class IjkPlayerNapi {
   _nativeOpenlog();
   _setDataSource(url:string);
   _setOption(category:string,key:string,value:string);

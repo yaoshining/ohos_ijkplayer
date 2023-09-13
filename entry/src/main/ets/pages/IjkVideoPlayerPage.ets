@@ -26,14 +26,13 @@ import { LogUtils } from "@ohos/ijkplayer"
 import { PlayStatus } from "../common/PlayStatus"
 import prompt from '@ohos.prompt';
 import { RouterParam } from "./RouterParam"
-import {ijkplayerNapi} from "../util/ijkplayer_napi"
 
 let CONTROL_PlayStatus = PlayStatus.INIT;
 let PROGRESS_MAX_VALUE: number = 100;
 let mIjkMediaPlayer = IjkMediaPlayer.getInstance();
 let updateProgressTimer: number = 0;
 let videoUrls: string[] = ["http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8",
-  "https://sf1-hscdn-tos.pstatp.com/obj/media-fe/xgplayer_doc_video/flv/xgplayer-demo-720p.flv"
+  "http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8"
 ];
 let curIndex: number = 0;
 
@@ -47,7 +46,7 @@ struct IjkVideoPlayerPage {
   @State replayVisible: Visibility = Visibility.None;
   @State slideEnable: boolean = false;
   @State aspRatio: number = 0.5;
-  @State mContext: ijkplayerNapi | undefined = undefined;
+  @State mContext: object | undefined = undefined;
   @State mFirst: boolean = true;
   @State mDestroyPage: boolean = false;
   @State playSpeed: string = '1f'
@@ -97,7 +96,7 @@ struct IjkVideoPlayerPage {
           libraryname: 'ijkplayer_napi'
         })
           .onLoad((event?: object) => {
-            this.initDelayPlay(event as ijkplayerNapi);
+            this.initDelayPlay(event);
           })
           .onDestroy(() => {
           })
@@ -208,7 +207,7 @@ struct IjkVideoPlayerPage {
     }
   }
 
-  private initDelayPlay(context: ijkplayerNapi) {
+  private initDelayPlay(context: object) {
     this.mContext = context;
     let that = this;
     setTimeout(() => {
@@ -309,8 +308,7 @@ struct IjkVideoPlayerPage {
     that.showLoadIng();
     //设置XComponent回调的context
     if (!!this.mContext){
-      let context:ijkplayerNapi=this.mContext
-      mIjkMediaPlayer.setContext(context as object);
+      mIjkMediaPlayer.setContext(this.mContext);
     }
     if (CONTROL_PlayStatus == PlayStatus.INIT) {
       mIjkMediaPlayer.reset();

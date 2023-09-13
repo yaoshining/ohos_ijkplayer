@@ -24,8 +24,7 @@ import { MessageType } from '../ijkplayer/common/MessageType';
 import { PropertiesType } from '../ijkplayer/common/PropertiesType';
 import { LogUtils } from "../ijkplayer/utils/LogUtils";
 import window from '@ohos.window';
-import overlay from '@ohos.bundle.overlay';
-import { ijkplayerNapi } from "./utils/ijkplayer_napi"
+import { IjkPlayerNapi } from "./utils/IjkPlayerNapi";
 
 export class IjkMediaPlayer {
   private static instance: IjkMediaPlayer;
@@ -56,10 +55,10 @@ export class IjkMediaPlayer {
   private mOnInfoListener: OnInfoListener | null = null;
   private mOnSeekCompleteListener: OnSeekCompleteListener | null = null;
   private mOnTimedTextListener: OnTimedTextListener | null = null;
-  private ijkplayer_napi: ijkplayerNapi | null = null;
+  private ijkplayer_napi: IjkPlayerNapi | null = null;
 
   setContext(context: object) {
-    this.ijkplayer_napi = context as ijkplayerNapi;
+    this.ijkplayer_napi = context as IjkPlayerNapi;
   }
 
   setDebug(open: boolean) {
