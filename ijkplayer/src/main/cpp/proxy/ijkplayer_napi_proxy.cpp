@@ -14,7 +14,7 @@
  */
 
 #include "ijkplayer_napi_proxy.h"
-
+static IjkMediaPlayer *GLOBAL_IJKMP = nullptr;
 static void (*post_event)(void *weak_this, int what, int arg1, int arg2, char *obj);
 
 void IJKPlayerNapiProxy::message_loop_callback(void (*pe)(void *weak_this, int what, int arg1, int arg2, char *obj)) {
@@ -266,7 +266,7 @@ void IJKPlayerNapiProxy::IjkMediaPlayer_reset() {
     ijkmp_android_set_surface(mp, NULL);
     void *weak_thiz = ijkmp_set_weak_thiz(mp, NULL);
     IjkMediaPlayer_release();
-    IjkMediaPlayer_native_setup(weak_thiz, GLOBAL_NATIVE_WINDOW);
+    LOGI("napi_proxy-->IjkMediaPlayer_reset");
     ijkmp_dec_ref_p(&mp);
 }
 

@@ -52,7 +52,7 @@ class IJKPlayerNapiProxy {
     void IjkMediaPlayer_setVolume(float leftVolume, float rightVolume);
     void IjkMediaPlayer_native_setLogLevel(int32_t level);
     void ijkMediaPlayer_setPropertyFloat(int id, float value);
-    float ijkMediaPlayer_getPropertyFloat(int id, float value);
+    float ijkMediaPlayer_getPropertyFloat(int id, float default_value);
     void ijkMediaPlayer_setPropertyLong(int id, long value);
     long ijkMediaPlayer_getPropertyLong(int id, long default_value);
     int IjkMediaPlayer_getAudioSessionId();
@@ -60,7 +60,7 @@ class IJKPlayerNapiProxy {
     int IjkMediaPlayer_getLoopCount();
     char *IjkMediaPlayer_getVideoCodecInfo();
     char *IjkMediaPlayer_getAudioCodecInfo();
-    void ijkMediaPlayer_setStreamSelected(int stream, bool select);
+    void ijkMediaPlayer_setStreamSelected(int stream, bool selected);
     HashMap IjkMediaPlayer_getMediaMeta();
     void IjkMediaPlayer_native_openlog();
     IjkMediaPlayer *set_media_player(IjkMediaPlayer *mp);
@@ -69,7 +69,6 @@ class IJKPlayerNapiProxy {
   public:
     std::string id_;
     void *GLOBAL_NATIVE_WINDOW = nullptr;
-    IjkMediaPlayer *GLOBAL_IJKMP = nullptr;
     bool IJKMP_GLOABL_INIT = false;
     typedef struct player_fields_t {
         pthread_mutex_t mutex;
