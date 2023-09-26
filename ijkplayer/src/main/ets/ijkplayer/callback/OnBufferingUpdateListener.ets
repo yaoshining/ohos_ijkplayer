@@ -14,5 +14,5 @@
  */
 
 export interface OnBufferingUpdateListener {
-  onBufferingUpdate(percent: number)
+  onBufferingUpdate:(percent: number)=>void
 }

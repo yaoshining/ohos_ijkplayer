@@ -14,5 +14,5 @@
  */
 
 export interface OnInfoListener {
-  onInfo(what: number, extra: number)
+  onInfo:(what: number, extra: number)=>void
 }

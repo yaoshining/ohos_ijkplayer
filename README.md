@@ -251,8 +251,8 @@ ohpm install @ohos/ijkplayer
 ## 约束与限制
 
 在下述版本验证通过：
-
-DevEco Studio版本: 4.0Canary1(4.0.3.212), SDK: API10(4.0.8.3)
+- DevEco Studio版本: 4.0(4.0.3.512),SDK: API10(4.0.10.9)
+- DevEco Studio版本: 4.0Canary1(4.0.3.212),SDK: API10(4.0.8.3)
 
 ## 目录结构
 

@@ -14,5 +14,5 @@
  */
 
 export interface OnSeekCompleteListener {
-  onSeekComplete();
+  onSeekComplete:()=>void;
 }

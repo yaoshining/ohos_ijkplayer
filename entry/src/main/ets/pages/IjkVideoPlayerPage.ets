@@ -25,16 +25,16 @@ import { OnSeekCompleteListener } from "@ohos/ijkplayer";
 import { LogUtils } from "@ohos/ijkplayer"
 import { PlayStatus } from "../common/PlayStatus"
 import prompt from '@ohos.prompt';
+import { RouterParam } from "./RouterParam"
 
 let CONTROL_PlayStatus = PlayStatus.INIT;
 let PROGRESS_MAX_VALUE: number = 100;
 let mIjkMediaPlayer = IjkMediaPlayer.getInstance();
-let updateProgressTimer;
-let videoUrl = router.getParams()['videoUrl'];
-let videoUrls = ["http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8",
-                 "http://video-hw-drcn.dbankcdn.cn/P_VT/video_cutover/68/v3/1896497A351226208282761216/index.m3u8?zoneoffset=0&servicetype=0&icpid=&accounttype=1&limitflux=-1&limitdur=-1&accountinfo=yzBKEa1iS2rptqZ%2BAZGqXwiWJjwJbSA3YCwalbjnOW%2BFzfY9s4Z2GqV88VC05iPanuqF2qVfO7VeyitLa8%2B99w%3D%3D%3A20230904080539%3AUTC%2C%2C%2C20230904080539%2CMP2020031314520661500020113000000%2C%2C-1%2C1%2C0%2C%2C%2C1%2C%2C%2C%2C1%2C%2C0%2C%2C%2C%2C%2C1%2CEND&GuardEncType=2",
+let updateProgressTimer: number = 0;
+let videoUrls: string[] = ["http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8",
+  "http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8"
 ];
-let curIndex = 0;
+let curIndex: number = 0;
 
 @Entry
 @Component
@@ -46,13 +46,15 @@ struct IjkVideoPlayerPage {
   @State replayVisible: Visibility = Visibility.None;
   @State slideEnable: boolean = false;
   @State aspRatio: number = 0.5;
-  @State mContext: object = null;
+  @State mContext: object | undefined = undefined;
   @State mFirst: boolean = true;
   @State mDestroyPage: boolean = false;
-  @State playSpeed:string = '1f'
+  @State playSpeed: string = '1f'
+  private videoUrl: string = '';
 
   aboutToAppear() {
     LogUtils.getInstance().LOGI("aboutToAppear");
+    this.videoUrl = (router.getParams() as RouterParam).videoUrl;
   }
 
   aboutToDisappear() {
@@ -74,6 +76,8 @@ struct IjkVideoPlayerPage {
     this.pause();
   }
 
+  xcomponentController: XComponentController = new XComponentController()
+
   build() {
     Flex({ direction: FlexDirection.Column, alignItems: ItemAlign.Auto, justifyContent: FlexAlign.Start }) {
       Flex({ direction: FlexDirection.Column, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Center }) {
@@ -91,8 +95,8 @@ struct IjkVideoPlayerPage {
           type: 'surface',
           libraryname: 'ijkplayer_napi'
         })
-          .onLoad((context) => {
-            this.initDelayPlay(context);
+          .onLoad((event?: object) => {
+            this.initDelayPlay(event);
           })
           .onDestroy(() => {
           })
@@ -115,7 +119,7 @@ struct IjkVideoPlayerPage {
           .visibility(this.loadingVisible)
           .border({ width: 0 })
           .borderStyle(BorderStyle.Dashed)
-      }.width('100%').height('468px').backgroundColor('#000000').margin({top:"250px"})
+      }.width('100%').height('468px').backgroundColor('#000000').margin({ top: "250px" })
 
       Flex({ direction: FlexDirection.Row, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Start }) {
         Text(this.currentTime).width('100px').fontSize('20px').margin('20px')
@@ -142,7 +146,7 @@ struct IjkVideoPlayerPage {
             LogUtils.getInstance().LOGI("slider-->seekValue end:" + seekValue);
           })
         Text(this.totalTime).width('100px').fontSize('20px').margin('10px')
-      }.margin({top:"350px"})
+      }.margin({ top: "350px" })
 
       Flex({ direction: FlexDirection.Row, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Start }) {
         Button('播放')
@@ -217,7 +221,7 @@ struct IjkVideoPlayerPage {
     if (CONTROL_PlayStatus == PlayStatus.INIT) {
       this.stopProgressTask();
       this.startProgressTask();
-      this.play(videoUrl.toString());
+      this.play(this.videoUrl.toString());
     }
     if (CONTROL_PlayStatus == PlayStatus.PAUSE) {
       this.stopProgressTask();
@@ -226,7 +230,7 @@ struct IjkVideoPlayerPage {
     }
   }
 
-  private completionNum(num: any): any {
+  private completionNum(num: number): string | number {
     if (num < 10) {
       return '0' + num;
     } else {
@@ -234,11 +238,11 @@ struct IjkVideoPlayerPage {
     }
   }
 
-  private stringForTime(timeMs: any): string {
-    let totalSeconds = (timeMs / 1000);
-    let seconds = totalSeconds % 60;
-    let minutes = (totalSeconds / 60) % 60;
-    let hours = totalSeconds / 3600;
+  private stringForTime(timeMs: number): string {
+    let totalSeconds: number | string = (timeMs / 1000);
+    let seconds: number | string = totalSeconds % 60;
+    let minutes: number | string = (totalSeconds / 60) % 60;
+    let hours: number | string = totalSeconds / 3600;
     LogUtils.getInstance().LOGI("stringForTime hours:" + hours + ",minutes:" + minutes + ",seconds:" + seconds);
     hours = this.completionNum(Math.floor(Math.floor(hours * 100) / 100));
     minutes = this.completionNum(Math.floor(Math.floor(minutes * 100) / 100));
@@ -271,7 +275,7 @@ struct IjkVideoPlayerPage {
 
   private startProgressTask() {
     let that = this;
-    updateProgressTimer = setInterval(function () {
+    updateProgressTimer = setInterval(() => {
       LogUtils.getInstance().LOGI("startProgressTask");
       if (!that.mDestroyPage) {
         that.setProgress();
@@ -303,7 +307,9 @@ struct IjkVideoPlayerPage {
     let that = this;
     that.showLoadIng();
     //设置XComponent回调的context
-    mIjkMediaPlayer.setContext(this.mContext);
+    if (!!this.mContext){
+      mIjkMediaPlayer.setContext(this.mContext);
+    }
     if (CONTROL_PlayStatus == PlayStatus.INIT) {
       mIjkMediaPlayer.reset();
     }
@@ -354,7 +360,7 @@ struct IjkVideoPlayerPage {
     //是否开启循环播放
     mIjkMediaPlayer.setLoopCount(true);
     let mOnVideoSizeChangedListener: OnVideoSizeChangedListener = {
-      onVideoSizeChanged(width: number, height: number, sar_num: number, sar_den: number) {
+      onVideoSizeChanged: (width: number, height: number, sar_num: number, sar_den: number) => {
         that.aspRatio = width / height;
         LogUtils.getInstance()
           .LOGI("setOnVideoSizeChangedListener-->go:" + width + "," + height + "," + sar_num + "," + sar_den)
@@ -363,14 +369,14 @@ struct IjkVideoPlayerPage {
     }
     mIjkMediaPlayer.setOnVideoSizeChangedListener(mOnVideoSizeChangedListener);
     let mOnPreparedListener: OnPreparedListener = {
-      onPrepared() {
+      onPrepared: () => {
         LogUtils.getInstance().LOGI("setOnPreparedListener-->go");
       }
     }
     mIjkMediaPlayer.setOnPreparedListener(mOnPreparedListener);
 
     let mOnCompletionListener: OnCompletionListener = {
-      onCompletion() {
+      onCompletion: () => {
         LogUtils.getInstance().LOGI("OnCompletionListener-->go")
         that.showRePlay();
         that.currentTime = that.stringForTime(mIjkMediaPlayer.getDuration());
@@ -382,14 +388,14 @@ struct IjkVideoPlayerPage {
     mIjkMediaPlayer.setOnCompletionListener(mOnCompletionListener);
 
     let mOnBufferingUpdateListener: OnBufferingUpdateListener = {
-      onBufferingUpdate(percent: number) {
+      onBufferingUpdate: (percent: number) => {
         LogUtils.getInstance().LOGI("OnBufferingUpdateListener-->go:" + percent);
       }
     }
     mIjkMediaPlayer.setOnBufferingUpdateListener(mOnBufferingUpdateListener);
 
     let mOnSeekCompleteListener: OnSeekCompleteListener = {
-      onSeekComplete() {
+      onSeekComplete: () => {
         LogUtils.getInstance().LOGI("OnSeekCompleteListener-->go");
         that.startPlayOrResumePlay();
       }
@@ -397,15 +403,16 @@ struct IjkVideoPlayerPage {
     mIjkMediaPlayer.setOnSeekCompleteListener(mOnSeekCompleteListener);
 
     let mOnInfoListener: OnInfoListener = {
-      onInfo(what: number, extra: number) {
+      onInfo: (what: number, extra: number) => {
         LogUtils.getInstance().LOGI("OnInfoListener-->go:" + what + "===" + extra);
         that.hideLoadIng();
       }
     }
     mIjkMediaPlayer.setOnInfoListener(mOnInfoListener);
 
+
     let mOnErrorListener: OnErrorListener = {
-      onError(what: number, extra: number) {
+      onError: (what: number, extra: number) => {
         LogUtils.getInstance().LOGI("OnErrorListener-->go:" + what + "===" + extra)
         that.hideLoadIng();
         prompt.showToast({
@@ -413,6 +420,7 @@ struct IjkVideoPlayerPage {
         });
       }
     }
+
     mIjkMediaPlayer.setOnErrorListener(mOnErrorListener);
 
     mIjkMediaPlayer.setMessageListener();
@@ -451,7 +459,7 @@ struct IjkVideoPlayerPage {
     mIjkMediaPlayer.stop();
     mIjkMediaPlayer.reset();
     this.startProgressTask();
-    videoUrl = videoUrls[curIndex]
-    this.play(videoUrl);
+    this.videoUrl = videoUrls[curIndex]
+    this.play(this.videoUrl);
   }
 }

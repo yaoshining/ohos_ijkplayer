@@ -14,5 +14,5 @@
  */
 
 export interface OnCompletionListener {
-  onCompletion()
+  onCompletion:()=>void
 }

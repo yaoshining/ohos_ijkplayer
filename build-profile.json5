@@ -1,19 +1,20 @@
 {
-  "app": { 
+  "app": {
     "products": [
       {
         "name": "default",
         "signingConfig": "default",
         "compileSdkVersion": 10,
-        "compatibleSdkVersion": 10
+        "compatibleSdkVersion": 10,
+        "runtimeOS": "OpenHarmony"
       }
     ],
-    "buildModeSet":[
+    "buildModeSet": [
       {
-      "name":"debug"
+        "name": "debug"
       },
       {
-      "name":"release"
+        "name": "release"
       }
     ]
   },
