@@ -11,7 +11,7 @@
   "main": "index.ets",
   "type": "module",
   "repository": "https://gitee.com/openharmony-sig/ijkplayer",
-  "version": "2.0.0",
+  "version": "2.0.1.rc0",
   "dependencies": {},
   "tags": [
     "Media"
