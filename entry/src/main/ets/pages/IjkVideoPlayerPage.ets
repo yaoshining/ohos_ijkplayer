@@ -96,7 +96,9 @@ struct IjkVideoPlayerPage {
           libraryname: 'ijkplayer_napi'
         })
           .onLoad((event?: object) => {
-            this.initDelayPlay(event);
+            if(!!event){
+              this.initDelayPlay(event);
+            }
           })
           .onDestroy(() => {
           })

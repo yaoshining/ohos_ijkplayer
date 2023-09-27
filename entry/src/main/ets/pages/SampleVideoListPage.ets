@@ -14,10 +14,12 @@
  */
 
 import router from '@ohos.router';
+import VideoNewsView from '../ListView/VideoNewsView';
 
 @Entry
 @Component
 struct SampleVideoListPage {
+  private items: Array<string> = ['1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1'];
   build() {
 
     Flex({ direction: FlexDirection.Column, alignItems: ItemAlign.Start, justifyContent: FlexAlign.Start }) {
@@ -42,7 +44,14 @@ struct SampleVideoListPage {
               } });
             })
         }
-      }
+      }.height('30%')
+      List({space: 20}) {
+        ForEach(this.items, (title: string) => {
+          ListItem() {
+            VideoNewsView()
+          }
+        })
+      }.margin({top: 30})
     }
   }
 }
