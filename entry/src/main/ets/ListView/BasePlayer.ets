@@ -18,9 +18,9 @@ import { PlayerListener } from './PlayerListener';
 import { VideoSource } from './VideoSource';
 
 export abstract class BasePlayer implements PlayerInterface {
-  protected videoSource: VideoSource;
-  protected playListener: PlayerListener;
-  protected context: Context;
+  protected videoSource: VideoSource | null = null;
+  protected playListener: PlayerListener | null = null;
+  protected context: Context | null = null;
   protected needInit: boolean = false;
 
   init() {

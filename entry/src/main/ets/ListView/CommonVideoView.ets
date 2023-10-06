@@ -17,12 +17,31 @@ import { PlayerListener } from './PlayerListener'
 import { VideoPlayer } from './VideoPlayer'
 import { VideoSource } from './VideoSource'
 
+class PlayerListenerClass implements PlayerListener{
+  onPlay() {
+  }
+
+  onStop() {
+  }
+
+  onPause() {
+  }
+
+  onError() {
+  }
+
+  onUpdate(current: number, duration: number) {
+  }
+
+  onComplete() {
+  }
+}
 @Component
 export struct CommonVideoView {
-  private videoSource: VideoSource
+  private videoSource: VideoSource | null = null;
   private pic = $r('app.media.icon');
-  private xComponentContext: object;
-  private player: VideoPlayer;
+  private xComponentContext: object | null = null;
+  private player: VideoPlayer = VideoPlayer.getInstance();
   private isInit: boolean = false;
   private xComponentId = "xid" + Math.random();
   @State isPlaying: boolean = false;
@@ -35,7 +54,9 @@ export struct CommonVideoView {
         libraryname: 'ijkplayer_napi'
       })
         .onLoad((context) => {
-          this.xComponentContext = context;
+          if(context){
+            this.xComponentContext = context;
+          }
         })
         .onDestroy(() => {
 
@@ -63,28 +84,9 @@ export struct CommonVideoView {
 
   initPlayer() {
     this.player = VideoPlayer.getInstance()
-    let listener: PlayerListener = {
-      onPlay() {
-
-      },
-      onStop() {
-
-      },
-      onPause() {
-
-      },
-      onError() {
-
-      },
-      onUpdate(current: number, duration: number) {
-
-      },
-      onComplete() {
-
-      }
-    }
-    this.player.setContext(this.xComponentContext)
-      .setVideoSource(this.videoSource)
+    let listener = new PlayerListenerClass();
+    this.player.setContext(this.xComponentContext!)
+      .setVideoSource(this.videoSource!)
       .setListener(listener);
   }
 
