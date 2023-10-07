@@ -27,10 +27,10 @@ export class VideoPlayer implements PlayerInterface {
   }
 
   public static getInstance() {
-    if (!this.instance) {
-      this.instance = new VideoPlayer();
+    if (!VideoPlayer.instance) {
+      VideoPlayer.instance = new VideoPlayer();
     }
-    return this.instance;
+    return VideoPlayer.instance;
   }
 
   init() {
