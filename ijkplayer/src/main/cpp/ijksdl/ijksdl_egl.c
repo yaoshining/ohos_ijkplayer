@@ -38,6 +38,10 @@
 #include "video/gles2/internal.h"
 #include <syslog.h>
 
+#ifdef __OHOS__
+#include "native_window/external_window.h"
+#endif
+
 #define IJK_EGL_RENDER_BUFFER 0
 
 typedef struct IJK_EGL_Opaque {
@@ -224,6 +228,28 @@ static EGLBoolean IJK_EGL_makeCurrent(IJK_EGL* egl, EGLNativeWindowType window)
         return EGL_FALSE;
     }
 
+#ifdef __ANDROID__
+    {
+        EGLint native_visual_id = 0;
+        if (!eglGetConfigAttrib(display, config, EGL_NATIVE_VISUAL_ID, &native_visual_id)) {
+            ALOGE("[EGL] eglGetConfigAttrib() returned error %d", eglGetError());
+            eglTerminate(display);
+            return EGL_FALSE;
+        }
+
+        int32_t width = ANativeWindow_getWidth(window);
+        int32_t height = ANativeWindow_getWidth(window);
+        ALOGI("[EGL] ANativeWindow_setBuffersGeometry(f=%d);", native_visual_id);
+        int ret = ANativeWindow_setBuffersGeometry(window, width, height, native_visual_id);
+        if (ret) {
+            ALOGE("[EGL] ANativeWindow_setBuffersGeometry(format) returned error %d", ret);
+            eglTerminate(display);
+            return EGL_FALSE;
+        }
+    }
+#endif
+
+#ifdef __OHOS__
     {
         EGLint native_visual_id = 0;
         if (!eglGetConfigAttrib(display, config, EGL_NATIVE_VISUAL_ID, &native_visual_id)) {
@@ -232,20 +258,18 @@ static EGLBoolean IJK_EGL_makeCurrent(IJK_EGL* egl, EGLNativeWindowType window)
             eglTerminate(display);
             return EGL_FALSE;
         }
-        char c[50];
-        sprintf(c,"IJK_EGL_makeCurrent eglGetConfigAttrib %d",native_visual_id);
-
-
-//        int32_t width = NativeLayerHandle(window, GET_WIDTH);
-//        int32_t height = NativeLayerHandle(window, GET_HEIGHT);
-//        int ret = NativeLayerHandle(window, SET_WIDTH_AND_HEIGHT, width, height, native_visual_id);
-//        if (ret) {
-//            eglTerminate(display);
-//            return EGL_FALSE;
-//        } else {
-//
-//        }
+        
+        int32_t code = SET_FORMAT;
+        ALOGI("[EGL] OH_NativeWindow_NativeWindowHandleOpt(f=%d);", native_visual_id);
+        int ret = OH_NativeWindow_NativeWindowHandleOpt(window, code, native_visual_id);
+        if (ret) {
+            ALOGE("[EGL] OH_NativeWindow_NativeWindowHandleOpt(format) returned error %d", ret);
+            eglTerminate(display);
+            return EGL_FALSE;
+        }
     }
+#endif
+        
     EGLSurface surface = eglCreateWindowSurface(display, config, window, NULL);
     if (surface == EGL_NO_SURFACE) {
         ALOGE("[EGL] eglCreateWindowSurface failed\n");
@@ -304,7 +328,6 @@ static EGLBoolean IJK_EGL_makeCurrent(IJK_EGL* egl, EGLNativeWindowType window)
     egl->context = context;
     egl->surface = surface;
     egl->display = display;
-
 
     return EGL_TRUE;
 }
