@@ -1,6 +1,9 @@
+## 2.0.2
+- 修复eglCreateWindowSurface接口兼容性问题：将window的format设置为与参数config的format一致
+
 ## 2.0.2-rc.0
 - 修复不兼容API9问题
-- 
+
 ## 2.0.1
 - 添加demo视频列表
 - AkrTs语法整改
