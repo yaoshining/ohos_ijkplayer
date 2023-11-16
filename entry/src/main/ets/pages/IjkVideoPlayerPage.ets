@@ -140,12 +140,15 @@ struct IjkVideoPlayerPage {
           .showTips(true)
           .enabled(this.slideEnable)
           .onChange((value: number, mode: SliderChangeMode) => {
-            this.showLoadIng();
-            this.pause();
-            LogUtils.getInstance().LOGI("slider-->seekValue start:" + value);
-            let seekValue = value * (mIjkMediaPlayer.getDuration() / 100);
-            this.seekTo(seekValue + "");
-            LogUtils.getInstance().LOGI("slider-->seekValue end:" + seekValue);
+            if(mode == 2) {
+              this.showLoadIng();
+              this.pause();
+              LogUtils.getInstance().LOGI("slider-->seekValue start:" + value);
+              let seekValue = value * (mIjkMediaPlayer.getDuration() / 100);
+              this.seekTo(seekValue + "");
+              this.setProgress()
+              LogUtils.getInstance().LOGI("slider-->seekValue end:" + seekValue);
+            }
           })
         Text(this.totalTime).width('100px').fontSize('20px').margin('10px')
       }.margin({ top: "350px" })
