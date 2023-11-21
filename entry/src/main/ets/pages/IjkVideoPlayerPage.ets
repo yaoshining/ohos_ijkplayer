@@ -49,7 +49,10 @@ struct IjkVideoPlayerPage {
   @State mContext: object | undefined = undefined;
   @State mFirst: boolean = true;
   @State mDestroyPage: boolean = false;
-  @State playSpeed: string = '1f'
+  @State playSpeed: string = '1f';
+  @State oldSeconds: number = 0;
+  @State isSeekTo: boolean = false;
+  @State isCurrentTime: boolean = false;
   private videoUrl: string = '';
 
   aboutToAppear() {
@@ -141,13 +144,15 @@ struct IjkVideoPlayerPage {
           .enabled(this.slideEnable)
           .onChange((value: number, mode: SliderChangeMode) => {
             if(mode == 2) {
+              this.isSeekTo = true;
+              this.mDestroyPage = false;
               this.showLoadIng();
-              this.pause();
               LogUtils.getInstance().LOGI("slider-->seekValue start:" + value);
               let seekValue = value * (mIjkMediaPlayer.getDuration() / 100);
               this.seekTo(seekValue + "");
               this.setProgress()
               LogUtils.getInstance().LOGI("slider-->seekValue end:" + seekValue);
+              this.isSeekTo = false;
             }
           })
         Text(this.totalTime).width('100px').fontSize('20px').margin('10px')
@@ -222,6 +227,7 @@ struct IjkVideoPlayerPage {
   }
 
   private startPlayOrResumePlay() {
+    this.mDestroyPage = false;
     LogUtils.getInstance().LOGI("startPlayOrResumePlay start CONTROL_PlayStatus:" + CONTROL_PlayStatus)
     if (CONTROL_PlayStatus == PlayStatus.INIT) {
       this.stopProgressTask();
@@ -229,9 +235,8 @@ struct IjkVideoPlayerPage {
       this.play(this.videoUrl.toString());
     }
     if (CONTROL_PlayStatus == PlayStatus.PAUSE) {
-      this.stopProgressTask();
-      this.startProgressTask();
       mIjkMediaPlayer.start();
+      this.setProgress()
     }
   }
 
@@ -245,17 +250,25 @@ struct IjkVideoPlayerPage {
 
   private stringForTime(timeMs: number): string {
     let totalSeconds: number | string = (timeMs / 1000);
-    let seconds: number | string = totalSeconds % 60;
+    let newSeconds: number | string = totalSeconds % 60;
     let minutes: number | string = (totalSeconds / 60) % 60;
     let hours: number | string = totalSeconds / 3600;
-    LogUtils.getInstance().LOGI("stringForTime hours:" + hours + ",minutes:" + minutes + ",seconds:" + seconds);
+    LogUtils.getInstance().LOGI("stringForTime hours:" + hours + ",minutes:" + minutes + ",seconds:" + newSeconds);
     hours = this.completionNum(Math.floor(Math.floor(hours * 100) / 100));
     minutes = this.completionNum(Math.floor(Math.floor(minutes * 100) / 100));
-    seconds = this.completionNum(Math.floor(Math.floor(seconds * 100) / 100));
+    newSeconds = Math.floor(Math.floor(newSeconds * 100) / 100)
+    if(this.isCurrentTime) {
+      if(this.oldSeconds < newSeconds || newSeconds === 0 || this.isSeekTo) {
+        this.oldSeconds = newSeconds
+      }else {
+        newSeconds = this.oldSeconds
+      }
+    }
+    newSeconds = this.completionNum(newSeconds);
     if (hours > 0) {
-      return hours + ":" + minutes + ":" + seconds;
+      return hours + ":" + minutes + ":" + newSeconds;
     } else {
-      return minutes + ":" + seconds;
+      return minutes + ":" + newSeconds;
     }
   }
 
@@ -275,7 +288,9 @@ struct IjkVideoPlayerPage {
     if (position > duration) {
       position = duration;
     }
+    this.isCurrentTime = true;
     this.currentTime = this.stringForTime(position);
+    this.isCurrentTime = false
   }
 
   private startProgressTask() {
@@ -285,7 +300,7 @@ struct IjkVideoPlayerPage {
       if (!that.mDestroyPage) {
         that.setProgress();
       }
-    }, 1000);
+    }, 300);
   }
 
   private stopProgressTask() {
@@ -418,6 +433,7 @@ struct IjkVideoPlayerPage {
 
     let mOnErrorListener: OnErrorListener = {
       onError: (what: number, extra: number) => {
+        this.stopProgressTask();
         LogUtils.getInstance().LOGI("OnErrorListener-->go:" + what + "===" + extra)
         that.hideLoadIng();
         prompt.showToast({
@@ -438,8 +454,9 @@ struct IjkVideoPlayerPage {
   private pause() {
     if (mIjkMediaPlayer.isPlaying()) {
       mIjkMediaPlayer.pause();
+      this.setProgress();
+      this.mDestroyPage = true;
       CONTROL_PlayStatus = PlayStatus.PAUSE;
-      this.stopProgressTask();
     }
   }
 
