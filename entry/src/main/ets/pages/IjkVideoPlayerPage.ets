@@ -106,7 +106,6 @@ struct IjkVideoPlayerPage {
           .onDestroy(() => {
           })
           .width('100%')
-          .aspectRatio(this.aspRatio)
         Image($r('app.media.icon_replay'))
           .objectFit(ImageFit.Auto)
           .width('120px')
@@ -124,7 +123,7 @@ struct IjkVideoPlayerPage {
           .visibility(this.loadingVisible)
           .border({ width: 0 })
           .borderStyle(BorderStyle.Dashed)
-      }.width('100%').height('468px').backgroundColor('#000000').clip(true)
+      }.width('100%').height('700px').backgroundColor('#000000').clip(true)
 
       Flex({ direction: FlexDirection.Row, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Start }) {
         Text(this.currentTime).width('100px').fontSize('20px').margin('20px')
