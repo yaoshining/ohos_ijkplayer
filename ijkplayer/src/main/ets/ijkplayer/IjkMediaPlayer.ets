@@ -25,6 +25,7 @@ import { PropertiesType } from '../ijkplayer/common/PropertiesType';
 import { LogUtils } from "../ijkplayer/utils/LogUtils";
 import window from '@ohos.window';
 import { IjkPlayerNapi } from "./utils/IjkPlayerNapi";
+import { BusinessError } from '@ohos.base';
 
 export class IjkMediaPlayer {
   private static instance: IjkMediaPlayer;
@@ -32,7 +33,7 @@ export class IjkMediaPlayer {
   private constructor() {
   };
 
-  public static getInstance() {
+  public static getInstance(): IjkMediaPlayer {
     if (!IjkMediaPlayer.instance) {
       IjkMediaPlayer.instance = new IjkMediaPlayer();
     }
@@ -57,23 +58,23 @@ export class IjkMediaPlayer {
   private mOnTimedTextListener: OnTimedTextListener | null = null;
   private ijkplayer_napi: IjkPlayerNapi | null = null;
 
-  setContext(context: object) {
+  setContext(context: object): void {
     this.ijkplayer_napi = context as IjkPlayerNapi;
   }
 
-  setDebug(open: boolean) {
+  setDebug(open: boolean): void {
     LogUtils.getInstance().setLogSwitch(open);
     if (open && !!this.ijkplayer_napi) {
       this.ijkplayer_napi._nativeOpenlog();
     }
   }
 
-  setDataSource(url: string) {
+  setDataSource(url: string): void {
     if (!!this.ijkplayer_napi)
       this.ijkplayer_napi._setDataSource(url);
   }
 
-  setDataSourceHeader(headers: Map<string, string>) {
+  setDataSourceHeader(headers: Map<string, string>): void {
     if (headers) {
       let builder: string = '';
       headers.forEach((value, key) => {
@@ -90,58 +91,58 @@ export class IjkMediaPlayer {
     }
   }
 
-  setOption(category: string, key: string, value: string) {
+  setOption(category: string, key: string, value: string): void {
     if (!!this.ijkplayer_napi)
       this.ijkplayer_napi._setOption(category, key, value);
   }
 
-  setOptionLong(category: string, key: string, value: string) {
+  setOptionLong(category: string, key: string, value: string): void {
     if (!!this.ijkplayer_napi)
       this.ijkplayer_napi._setOptionLong(category, key, value);
   }
 
-  prepareAsync() {
+  prepareAsync(): void {
     if (!!this.ijkplayer_napi)
       this.ijkplayer_napi._prepareAsync();
   }
 
-  start() {
+  start(): void {
     if (!!this.ijkplayer_napi)
       this.ijkplayer_napi._start();
   }
 
-  stop() {
+  stop(): void {
     if (!!this.ijkplayer_napi)
       this.ijkplayer_napi._stop();
   }
 
-  pause() {
+  pause(): void {
     if (!!this.ijkplayer_napi)
       this.ijkplayer_napi._pause();
   }
 
-  reset() {
+  reset(): void {
     if (!!this.ijkplayer_napi)
       this.ijkplayer_napi._reset();
   }
 
-  release() {
+  release(): void {
     if (!!this.ijkplayer_napi)
       this.ijkplayer_napi._release();
   }
 
-  seekTo(msec: string) {
+  seekTo(msec: string): void {
     if (!!this.ijkplayer_napi)
       this.ijkplayer_napi._seekTo(msec);
   }
 
-  setScreenOnWhilePlaying(on: boolean) {
-    window.getTopWindow(getContext(this), (err, data) => {
-      data.setKeepScreenOn(on);
+  setScreenOnWhilePlaying(on: boolean): void {
+    window.getLastWindow(getContext(this), (err: BusinessError, data: window.Window) => {
+      data.setWindowKeepScreenOn(on);
     });
   }
 
-  setSpeed(speed: string) {
+  setSpeed(speed: string): void {
     this._setPropertyFloat(PropertiesType.FFP_PROP_FLOAT_PLAYBACK_RATE, speed);
   }
 
@@ -157,39 +158,39 @@ export class IjkMediaPlayer {
     }
   }
 
-  setOnVideoSizeChangedListener(listener: OnVideoSizeChangedListener) {
+  setOnVideoSizeChangedListener(listener: OnVideoSizeChangedListener): void {
     this.mOnVideoSizeChangedListener = listener;
   }
 
-  setOnPreparedListener(listener: OnPreparedListener) {
+  setOnPreparedListener(listener: OnPreparedListener): void {
     this.mOnPreparedListener = listener;
   }
 
-  setOnCompletionListener(listener: OnCompletionListener) {
+  setOnCompletionListener(listener: OnCompletionListener): void {
     this.mOnCompletionListener = listener;
   }
 
-  setOnInfoListener(listener: OnInfoListener) {
+  setOnInfoListener(listener: OnInfoListener): void {
     this.mOnInfoListener = listener;
   }
 
-  setOnErrorListener(listener: OnErrorListener) {
+  setOnErrorListener(listener: OnErrorListener): void {
     this.mOnErrorListener = listener;
   }
 
-  setOnBufferingUpdateListener(listener: OnBufferingUpdateListener) {
+  setOnBufferingUpdateListener(listener: OnBufferingUpdateListener): void {
     this.mOnBufferingUpdateListener = listener;
   }
 
-  setOnSeekCompleteListener(listener: OnSeekCompleteListener) {
+  setOnSeekCompleteListener(listener: OnSeekCompleteListener): void {
     this.mOnSeekCompleteListener = listener;
   }
 
-  setOnTimedTextListener(listener: OnTimedTextListener) {
+  setOnTimedTextListener(listener: OnTimedTextListener): void {
     this.mOnTimedTextListener = listener;
   }
 
-  setMessageListener() {
+  setMessageListener(): void {
     LogUtils.getInstance().LOGI("setMessageListener start");
     let that = this;
     let onVideoSizeChangedListener = this.mOnVideoSizeChangedListener;
@@ -298,7 +299,7 @@ export class IjkMediaPlayer {
     }
   }
 
-  private _setPropertyFloat(property: string, value: string) {
+  private _setPropertyFloat(property: string, value: string): void {
     if (!!this.ijkplayer_napi)
       this.ijkplayer_napi._setPropertyFloat(property, value);
   }
@@ -311,7 +312,7 @@ export class IjkMediaPlayer {
     }
   }
 
-  private _setPropertyLong(property: string, value: string) {
+  private _setPropertyLong(property: string, value: string): void {
     if (!!this.ijkplayer_napi)
       this.ijkplayer_napi._setPropertyLong(property, value);
   }
@@ -324,12 +325,12 @@ export class IjkMediaPlayer {
     }
   }
 
-  setVolume(leftVolume: string, rightVolume: string) {
+  setVolume(leftVolume: string, rightVolume: string): void {
     if (!!this.ijkplayer_napi)
       this.ijkplayer_napi._setVolume(leftVolume, rightVolume);
   }
 
-  setLoopCount(looping: boolean) {
+  setLoopCount(looping: boolean): void {
     let loopCount = looping ? "0" : "1";
     this.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "loop", loopCount);
     if (!!this.ijkplayer_napi)
@@ -343,16 +344,16 @@ export class IjkMediaPlayer {
     return loopCount != 1;
   }
 
-  selectTrack(track: string) {
+  selectTrack(track: string): void {
     if (!!this.ijkplayer_napi)
       this._setStreamSelected(track, "true");
   }
 
-  deselectTrack(track: string) {
+  deselectTrack(track: string): void {
     this._setStreamSelected(track, "false");
   }
 
-  private _setStreamSelected(stream: string, select: string) {
+  private _setStreamSelected(stream: string, select: string): void {
     if (!!this.ijkplayer_napi)
       this.ijkplayer_napi._setStreamSelected(stream, select);
   }
@@ -487,7 +488,7 @@ export class IjkMediaPlayer {
     return mediaInfo;
   }
 
-  native_setup() {
+  native_setup(): void {
     if (!!this.ijkplayer_napi)
       this.ijkplayer_napi._native_setup();
   }

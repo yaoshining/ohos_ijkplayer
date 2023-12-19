@@ -33,7 +33,7 @@ export class VideoPlayer implements PlayerInterface {
     return VideoPlayer.instance;
   }
 
-  init() {
+  init(): void {
 
   }
 
@@ -45,23 +45,23 @@ export class VideoPlayer implements PlayerInterface {
     return this.player.setContext(context);
   }
 
-  play() {
+  play(): void {
     this.player.play();
   }
 
-  pause() {
+  pause(): void {
     this.player.pause();
   }
 
-  stop() {
+  stop(): void {
     this.player.stop();
   }
 
-  seekTo(position: number) {
+  seekTo(position: number): void {
     this.player.seekTo(position);
   }
 
-  release() {
+  release(): void {
     this.player.release();
   }
 

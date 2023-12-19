@@ -17,21 +17,21 @@ import { PlayerListener } from './PlayerListener';
 import { VideoSource } from './VideoSource';
 
 export interface PlayerInterface {
-  init();
+  init(): void;
 
   setVideoSource(video: VideoSource): PlayerInterface;
 
   setContext(context: object): PlayerInterface;
 
-  play();
+  play(): void;
 
-  pause();
+  pause(): void;
 
-  stop();
+  stop(): void;
 
-  seekTo(position: number);
+  seekTo(position: number): void;
 
-  release();
+  release(): void;
 
   setListener(listener: PlayerListener): PlayerInterface;
 

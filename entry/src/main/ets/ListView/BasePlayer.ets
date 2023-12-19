@@ -23,7 +23,7 @@ export abstract class BasePlayer implements PlayerInterface {
   protected context: Context | null = null;
   protected needInit: boolean = false;
 
-  init() {
+  init(): void {
 
   }
 
@@ -43,19 +43,19 @@ export abstract class BasePlayer implements PlayerInterface {
     return this;
   }
 
-  play() {
+  play(): void {
   }
 
-  pause() {
+  pause(): void {
   }
 
-  stop() {
+  stop(): void {
   }
 
-  seekTo(position: number) {
+  seekTo(position: number): void {
   }
 
-  release() {
+  release(): void {
   }
 
   setListener(listener: PlayerListener): PlayerInterface {

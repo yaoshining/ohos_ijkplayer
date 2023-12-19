@@ -24,7 +24,7 @@ import { OnInfoListener } from "@ohos/ijkplayer";
 import { OnSeekCompleteListener } from "@ohos/ijkplayer";
 import { LogUtils } from "@ohos/ijkplayer"
 import { PlayStatus } from "../common/PlayStatus"
-import prompt from '@ohos.prompt';
+import prompt from '@ohos.promptAction';
 import { RouterParam } from "./RouterParam"
 
 let CONTROL_PlayStatus = PlayStatus.INIT;

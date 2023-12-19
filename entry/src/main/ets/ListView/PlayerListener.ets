@@ -14,15 +14,15 @@
  */
 
 export interface PlayerListener {
-  onPlay();
+  onPlay(): void;
 
-  onStop();
+  onStop(): void;
 
-  onPause();
+  onPause(): void;
 
-  onError();
+  onError(): void;
 
-  onUpdate(current: number, duration: number);
+  onUpdate(current: number, duration: number): void;
 
-  onComplete();
+  onComplete(): void;
 }
