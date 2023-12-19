@@ -18,22 +18,22 @@ import { VideoPlayer } from './VideoPlayer'
 import { VideoSource } from './VideoSource'
 
 class PlayerListenerClass implements PlayerListener{
-  onPlay() {
+  onPlay(): void {
   }
 
-  onStop() {
+  onStop(): void {
   }
 
-  onPause() {
+  onPause(): void {
   }
 
-  onError() {
+  onError(): void {
   }
 
-  onUpdate(current: number, duration: number) {
+  onUpdate(current: number, duration: number): void {
   }
 
-  onComplete() {
+  onComplete(): void {
   }
 }
 @Component
@@ -82,7 +82,7 @@ export struct CommonVideoView {
     }.width('100%').height('100%')
   }
 
-  initPlayer() {
+  initPlayer(): void {
     this.player = VideoPlayer.getInstance()
     let listener = new PlayerListenerClass();
     this.player.setContext(this.xComponentContext!)
@@ -90,7 +90,7 @@ export struct CommonVideoView {
       .setListener(listener);
   }
 
-  play() {
+  play(): void {
     if (!this.isInit || this.player == null) {
       this.isInit = true;
       this.initPlayer();
@@ -99,7 +99,7 @@ export struct CommonVideoView {
     this.player.play();
   }
 
-  stop() {
+  stop(): void {
     if (this.player != null) {
       this.player.pause();
     }

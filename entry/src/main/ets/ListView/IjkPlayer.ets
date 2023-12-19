@@ -35,7 +35,7 @@ export class IjkPlayer extends BasePlayer {
     this.mIjkMediaPlayer = IjkMediaPlayer.getInstance();
   }
 
-  init() {
+  init(): void {
     if ((this.mIjkMediaPlayer == null && this.context != null) || this.needInit) {
       this.needInit = false;
       let ijkMediaPlayer = this.mIjkMediaPlayer;
@@ -146,32 +146,32 @@ export class IjkPlayer extends BasePlayer {
     return super.setContext(context);
   }
 
-  play() {
+  play(): void {
     this.init();
     if (this.mIjkMediaPlayer != null) {
       this.mIjkMediaPlayer.start();
     }
   }
 
-  pause() {
+  pause(): void {
     if (this.mIjkMediaPlayer != null) {
       this.mIjkMediaPlayer.pause();
     }
   }
 
-  stop() {
+  stop(): void {
     if (this.mIjkMediaPlayer != null) {
       this.mIjkMediaPlayer.stop();
     }
   }
 
-  seekTo(position: number) {
+  seekTo(position: number): void {
     if (this.mIjkMediaPlayer != null) {
       this.mIjkMediaPlayer.seekTo(position.toString());
     }
   }
 
-  release() {
+  release(): void {
     if (this.mIjkMediaPlayer != null) {
       this.mIjkMediaPlayer.release();
     }

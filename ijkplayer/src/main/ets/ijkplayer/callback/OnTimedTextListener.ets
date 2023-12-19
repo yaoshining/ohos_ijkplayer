@@ -14,5 +14,5 @@
  */
 
 export interface OnTimedTextListener {
-  onTimedText(text: string);
+  onTimedText: (text: string) => void;
 }
