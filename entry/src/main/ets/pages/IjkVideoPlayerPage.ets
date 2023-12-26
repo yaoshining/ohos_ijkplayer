@@ -19,7 +19,7 @@ import { OnPreparedListener } from "@ohos/ijkplayer";
 import { OnVideoSizeChangedListener } from "@ohos/ijkplayer";
 import { OnCompletionListener } from "@ohos/ijkplayer";
 import { OnBufferingUpdateListener } from "@ohos/ijkplayer";
-import { OnErrorListener } from "@ohos/ijkplayer";
+import { OnErrorListener, OnTimedTextListener } from "@ohos/ijkplayer";
 import { OnInfoListener } from "@ohos/ijkplayer";
 import { OnSeekCompleteListener } from "@ohos/ijkplayer";
 import { LogUtils } from "@ohos/ijkplayer"
@@ -99,7 +99,7 @@ struct IjkVideoPlayerPage {
           libraryname: 'ijkplayer_napi'
         })
           .onLoad((event?: object) => {
-            if(!!event){
+            if (!!event) {
               this.initDelayPlay(event);
             }
           })
@@ -142,7 +142,7 @@ struct IjkVideoPlayerPage {
           .showTips(true)
           .enabled(this.slideEnable)
           .onChange((value: number, mode: SliderChangeMode) => {
-            if(mode == 2) {
+            if (mode == 2) {
               this.isSeekTo = true;
               this.mDestroyPage = false;
               this.showLoadIng();
@@ -256,10 +256,10 @@ struct IjkVideoPlayerPage {
     hours = this.completionNum(Math.floor(Math.floor(hours * 100) / 100));
     minutes = this.completionNum(Math.floor(Math.floor(minutes * 100) / 100));
     newSeconds = Math.floor(Math.floor(newSeconds * 100) / 100)
-    if(this.isCurrentTime) {
-      if(this.oldSeconds < newSeconds || newSeconds === 0 || this.isSeekTo) {
+    if (this.isCurrentTime) {
+      if (this.oldSeconds < newSeconds || newSeconds === 0 || this.isSeekTo) {
         this.oldSeconds = newSeconds
-      }else {
+      } else {
         newSeconds = this.oldSeconds
       }
     }
@@ -326,7 +326,7 @@ struct IjkVideoPlayerPage {
     let that = this;
     that.showLoadIng();
     //设置XComponent回调的context
-    if (!!this.mContext){
+    if (!!this.mContext) {
       mIjkMediaPlayer.setContext(this.mContext);
     }
     if (CONTROL_PlayStatus == PlayStatus.INIT) {
@@ -363,6 +363,7 @@ struct IjkVideoPlayerPage {
     mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "max_cached_duration", "3000");
     // 无限制收流
     mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "infbuf", "1");
+    mIjkMediaPlayer.setOptionLong(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "infbuf", "1")
     // 屏幕常亮
     mIjkMediaPlayer.setScreenOnWhilePlaying(true);
     // 设置超时
@@ -375,7 +376,8 @@ struct IjkVideoPlayerPage {
     // 变速播放
     mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "soundtouch", "1");
     mIjkMediaPlayer.setSpeed(this.playSpeed);
-
+    let Speed = mIjkMediaPlayer.getSpeed()
+    LogUtils.getInstance().LOGI('getSpeed--' + Speed)
     //是否开启循环播放
     mIjkMediaPlayer.setLoopCount(true);
     let mOnVideoSizeChangedListener: OnVideoSizeChangedListener = {
@@ -394,6 +396,12 @@ struct IjkVideoPlayerPage {
     }
     mIjkMediaPlayer.setOnPreparedListener(mOnPreparedListener);
 
+    let mOnTimedTextListener: OnTimedTextListener = {
+      onTimedText: () => {
+      }
+    }
+    mIjkMediaPlayer.setOnTimedTextListener(mOnTimedTextListener)
+
     let mOnCompletionListener: OnCompletionListener = {
       onCompletion: () => {
         LogUtils.getInstance().LOGI("OnCompletionListener-->go")
@@ -409,6 +417,25 @@ struct IjkVideoPlayerPage {
     let mOnBufferingUpdateListener: OnBufferingUpdateListener = {
       onBufferingUpdate: (percent: number) => {
         LogUtils.getInstance().LOGI("OnBufferingUpdateListener-->go:" + percent);
+        let MediaInfo = mIjkMediaPlayer.getMediaInfo()
+        LogUtils.getInstance().LOGI('getMediaInfo---' + MediaInfo);
+        let VideoWidth = mIjkMediaPlayer.getVideoWidth()
+        LogUtils.getInstance().LOGI('getVideoWidth---' + VideoWidth);
+
+        let VideoHeight = mIjkMediaPlayer.getVideoHeight()
+        LogUtils.getInstance().LOGI('getVideoHeight---' + VideoHeight);
+
+        let VideoSarNum = mIjkMediaPlayer.getVideoSarNum()
+        LogUtils.getInstance().LOGI('getVideoSarNum---' + VideoSarNum);
+
+        let VideoSarDen = mIjkMediaPlayer.getVideoSarDen()
+        LogUtils.getInstance().LOGI('getVideoSarDen---' + VideoSarDen);
+
+        let AudioSessionId = mIjkMediaPlayer.getAudioSessionId()
+        LogUtils.getInstance().LOGI('getAudioSessionId---' + AudioSessionId);
+
+        let Looping = mIjkMediaPlayer.isLooping()
+        LogUtils.getInstance().LOGI('isLooping---' + Looping);
       }
     }
     mIjkMediaPlayer.setOnBufferingUpdateListener(mOnBufferingUpdateListener);
@@ -441,6 +468,7 @@ struct IjkVideoPlayerPage {
       }
     }
 
+
     mIjkMediaPlayer.setOnErrorListener(mOnErrorListener);
 
     mIjkMediaPlayer.setMessageListener();
@@ -460,6 +488,7 @@ struct IjkVideoPlayerPage {
   }
 
   private stop() {
+
     CONTROL_PlayStatus = PlayStatus.INIT;
     mIjkMediaPlayer.stop();
     mIjkMediaPlayer.release();
@@ -468,6 +497,8 @@ struct IjkVideoPlayerPage {
 
   private seekTo(value: string) {
     mIjkMediaPlayer.seekTo(value);
+    mIjkMediaPlayer.selectTrack(value)
+    mIjkMediaPlayer.deselectTrack(value)
   }
 
   private playNext() {
