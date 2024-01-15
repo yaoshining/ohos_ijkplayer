@@ -222,7 +222,6 @@ ohpm install @ohos/ijkplayer
 | setOnErrorListener          | listener: OnErrorListener              | void     | 设置播放异常回调监听                        |
 | setOnBufferingUpdateListener | listener: OnBufferingUpdateListener   | void     | 设置buffer缓冲回调监听                     |
 | setOnSeekCompleteListener    | listener: OnSeekCompleteListener      | void     | 设置快进后退回调监听                        |
-| setOnTimedTextListener       | listener: OnTimedTextListener         | void     | 设置字幕回调监听                           |
 | setMessageListener           | 无                          | void              | 设置视频监听器到napi用于接收回调              |
 | getVideoWidth                | 无                          | number            | 获取视频宽度                               |
 | getVideoHeight                | 无                          | number            | 获取视频高度                              |
@@ -283,7 +282,7 @@ ohpm install @ohos/ijkplayer
 
 ## 开源协议
 
-本项目基于 [Apache License 2.0](LICENSE)，请自由地享受和参与开源。
+本项目基于 [LGPLv2.1 or later](LICENSE)，请自由地享受和参与开源。
 
 
 
