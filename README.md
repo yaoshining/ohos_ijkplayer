@@ -4,13 +4,13 @@
 >  ijkplayer是OpenHarmony环境下可用的一款基于FFmpeg的视频播放器。
 
 ## 演示
-<img src="screenshot/ijkplayer.gif" width="100%"/>
+<img src="screenshot/ijkplayer-zh.gif" width="100%"/>
 
 ## 编译运行
 
 1、通过IDE工具下载依赖SDK，Tools->SDK Manager->OpenHarmony SDK 把native选项勾上下载，API版本>=9
 
-2、开发板选择RK3568，[ROM下载地址](http://ci.openharmony.cn/dailys/dailybuilds). 选择开发板类型是rk3568，请使用最新的版本
+2、开发板选择RK3568，[ROM下载地址](http://ci.openharmony.cn/workbench/cicd/dailybuild/dailylist). 选择开发板类型是rk3568，请使用最新的版本
 
 3、使用git clone下载源码，不要直接通过gitee网页的方式下载
 
