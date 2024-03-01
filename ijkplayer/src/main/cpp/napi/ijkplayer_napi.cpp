@@ -74,9 +74,9 @@ void messageCallBack(int what, int arg1, int arg2, char *obj) {
             napi_value arg1_;
             napi_value arg2_;
             napi_value obj_;
-            napi_create_string_utf8(context->env, (char *)((std::to_string(context->what)).c_str()), NAPI_AUTO_LENGTH, &what_);
-            napi_create_string_utf8(context->env, (char *)((std::to_string(context->arg1)).c_str()), NAPI_AUTO_LENGTH, &arg1_);
-            napi_create_string_utf8(context->env, (char *)((std::to_string(context->arg2)).c_str()), NAPI_AUTO_LENGTH, &arg2_);
+            napi_create_int32(context->env, context->what, &what_);
+            napi_create_int32(context->env, context->arg1, &arg1_);
+            napi_create_int32(context->env, context->arg2, &arg2_);
             napi_value ret = 0;
             if (context->obj) {
                 napi_create_string_utf8(context->env, context->obj, NAPI_AUTO_LENGTH, &obj_);
