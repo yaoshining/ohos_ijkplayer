@@ -14,7 +14,7 @@
  */
 
 #ifndef ijkplayer_ijkplayer_napi_proxy.h_H
-#define ijkplayer_ijkplayer_napi_proxy .h_H
+#define ijkplayer_ijkplayer_napi_proxy.h_H
 #include <string>
 #include <assert.h>
 #include <stdio.h>
@@ -29,6 +29,7 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
+#include "../ijkplayer/ohos/Player.h"
 
 class IJKPlayerNapiProxy {
 
@@ -45,8 +46,8 @@ class IJKPlayerNapiProxy {
     void IjkMediaPlayer_pause();
     void IjkMediaPlayer_seekTo(int64_t msec);
     bool IjkMediaPlayer_isPlaying();
-    int IjkMediaPlayer_getCurrentPosition();
-    int IjkMediaPlayer_getDuration();
+    int64_t IjkMediaPlayer_getCurrentPosition();
+    int64_t IjkMediaPlayer_getDuration();
     void IjkMediaPlayer_release();
     void IjkMediaPlayer_reset();
     void IjkMediaPlayer_setVolume(float leftVolume, float rightVolume);
@@ -65,6 +66,8 @@ class IJKPlayerNapiProxy {
     void IjkMediaPlayer_native_openlog();
     IjkMediaPlayer *set_media_player(IjkMediaPlayer *mp);
     IjkMediaPlayer *get_media_player();
+
+    Player& GetOhMediaPlayer();
 
   public:
     std::string id_;

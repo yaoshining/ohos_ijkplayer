@@ -7,3 +7,6 @@ package-lock.json
 .clang-format
 .clang-tidy
 .clangd
+@ohos
+.vscode
+.vs

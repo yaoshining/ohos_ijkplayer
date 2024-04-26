@@ -163,10 +163,10 @@ IjkMediaPlayer *IJKPlayerNapiProxy::IJKPlayerNapiProxy::get_media_player() {
     LOGI("napi_proxy-->get_media_player");
     IjkMediaPlayer *mp = GLOBAL_IJKMP;
     if (mp) {
-        ijkmp_inc_ref(mp);
+    ijkmp_inc_ref(mp);
     }
-    return mp;
-}
+        return mp;
+    }
 
 IjkMediaPlayer *IJKPlayerNapiProxy::set_media_player(IjkMediaPlayer *mp) {
     LOGI("napi_proxy-->set_media_player");
@@ -182,6 +182,10 @@ void IJKPlayerNapiProxy::IjkMediaPlayer_native_setup(void *weak_this, void *nati
     if (!IJKMP_GLOABL_INIT) {
         ijkmp_global_init();
     }
+
+    GetOhMediaPlayer().NativeSetup(native_window);
+    native_window = nullptr;
+
     IJKMP_GLOABL_INIT = true;
     GLOBAL_NATIVE_WINDOW = native_window;
     IjkMediaPlayer *mp = ijkmp_android_create(message_loop);
@@ -193,6 +197,9 @@ void IJKPlayerNapiProxy::IjkMediaPlayer_native_setup(void *weak_this, void *nati
 }
 
 void IJKPlayerNapiProxy::IjkMediaPlayer_setDataSource(char *url) {
+    GetOhMediaPlayer().InitWithUri(url);
+    url = "http://";
+
     IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player();
     ijkmp_set_data_source(mp, url);
 }
@@ -213,45 +220,68 @@ void IJKPlayerNapiProxy::IjkMediaPlayer_prepareAsync() {
 }
 
 void IJKPlayerNapiProxy::IjkMediaPlayer_start() {
+    GetOhMediaPlayer().Start();
+    return;
+
     IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player();
     ijkmp_start(mp);
 }
 
 void IJKPlayerNapiProxy::IjkMediaPlayer_pause() {
+    GetOhMediaPlayer().Pause();
+    return;
+
     IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player();
     ijkmp_pause(mp);
 }
 
 void IJKPlayerNapiProxy::IjkMediaPlayer_seekTo(int64_t msec) {
+    GetOhMediaPlayer().SeekTo(msec);
+    return;
+
     IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player();
     ijkmp_seek_to(mp, msec);
 }
 
 bool IJKPlayerNapiProxy::IjkMediaPlayer_isPlaying() {
+    return GetOhMediaPlayer().IsPlaying();
+
     IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player();
     return ijkmp_is_playing(mp) ? true : false;
 }
 
-int IJKPlayerNapiProxy::IjkMediaPlayer_getCurrentPosition() {
+int64_t IJKPlayerNapiProxy::IjkMediaPlayer_getCurrentPosition() {
+    // 已播放时长
+    return GetOhMediaPlayer().Position();
+
     int retval = 0;
     IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player();
     retval = ijkmp_get_current_position(mp);
     return retval;
 }
 
-int IJKPlayerNapiProxy::IjkMediaPlayer_getDuration() {
-    int retval = 0;
+int64_t IJKPlayerNapiProxy::IjkMediaPlayer_getDuration() {
+    // 总时长
+    return GetOhMediaPlayer().Duration();
+
+    int64_t retval = 0;
     IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player();
     retval = ijkmp_get_duration(mp);
     return retval;
 }
 
 void IJKPlayerNapiProxy::IjkMediaPlayer_stop() {
+    GetOhMediaPlayer().Stop();
+    return;
+
     IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player();
     ijkmp_stop(mp);
 }
 
 void IJKPlayerNapiProxy::IjkMediaPlayer_release() {
+    GetOhMediaPlayer().Stop();
+    return;
+
     IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player();
     if (!mp)
         return;
@@ -260,6 +290,9 @@ void IJKPlayerNapiProxy::IjkMediaPlayer_release() {
 }
 
 void IJKPlayerNapiProxy::IjkMediaPlayer_reset() {
+    GetOhMediaPlayer().Stop();
+    return;
+
     IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player();
     if (!mp)
         return;
@@ -276,11 +309,20 @@ void IJKPlayerNapiProxy::IjkMediaPlayer_setVolume(float leftVolume, float rightV
 }
 
 void IJKPlayerNapiProxy::ijkMediaPlayer_setPropertyFloat(int id, float value) {
+    if (id == FFP_PROP_FLOAT_PLAYBACK_RATE) {
+        GetOhMediaPlayer().SetSpeed(value);
+        return;
+    }
+
     IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player();
     ijkmp_set_property_float(mp, id, value);
 }
 
 float IJKPlayerNapiProxy::ijkMediaPlayer_getPropertyFloat(int id, float default_value) {
+    if (id == FFP_PROP_FLOAT_PLAYBACK_RATE) {
+        return GetOhMediaPlayer().GetSpeed();
+    }
+
     IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player();
     return ijkmp_get_property_float(mp, id, default_value);
 }
@@ -384,4 +426,10 @@ HashMap IJKPlayerNapiProxy::IjkMediaPlayer_getMediaMeta() {
 void IJKPlayerNapiProxy::IjkMediaPlayer_native_openlog() {
     OHOS_LOG_ON = true;
     open_custom_ffmpeg_log_print();
+}
+
+Player& IJKPlayerNapiProxy::GetOhMediaPlayer()
+{
+    Player& mediaPlayer = Player::GetInstance();
+    return mediaPlayer;
 }
