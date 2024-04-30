@@ -371,6 +371,7 @@ char *IJKPlayerNapiProxy::IjkMediaPlayer_getAudioCodecInfo() {
 }
 
 void IJKPlayerNapiProxy::ijkMediaPlayer_setStreamSelected(int stream, bool selected) {
+    return;
     IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player();
     int ret = 0;
     ret = ijkmp_set_stream_selected(mp, stream, selected);

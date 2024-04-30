@@ -131,9 +131,7 @@ void Player::Stop()
 
 void Player::Pause()
 {
-    std::unique_lock<std::mutex> lock(mutex_);
     isPaused_ = true;
-    doneCond_.notify_all();
 }
 
 bool Player::IsPlaying() const
@@ -151,14 +149,20 @@ int64_t Player::Duration() const
 
 int64_t Player::Position() const
 {
-    int64_t position = sampleInfo_.frameInterval * decContext_->outputFrameCount_ / MILLI_SECOND;
-    AVCODEC_SAMPLE_LOGI("OHAVCODEC Player::Position %{public}d", position);
+    int64_t position = 0;
+    if (decContext_) {
+        position = sampleInfo_.frameInterval * decContext_->outputFrameCount_ / MILLI_SECOND;
+        AVCODEC_SAMPLE_LOGI("OHAVCODEC Player::Position %{public}d", position);
+    }
     return position;
 }
 
 int32_t Player::SeekTo(int64_t millisecond)
 {
-    return demuxer_->SeekTo(millisecond);
+    if (demuxer_) {
+        return demuxer_->SeekTo(millisecond);
+    }
+    return 0;
 }
 
 void Player::SetSpeed(double speed)
@@ -218,14 +222,14 @@ void Player::Release()
 
 void Player::DecInputThread()
 {
-    while (true) {
+    while (!isReleased_) {
         // 停止
         CHECK_AND_BREAK_LOG(isStarted_, "Decoder input thread out");
 
         // 暂停
-        std::unique_lock<std::mutex> pauseLock(mutex_);
-        doneCond_.wait(pauseLock, [this]() { return !this->isPaused_;});
-        pauseLock.unlock();
+        if (isPaused_) {
+            continue;
+        }
 
         std::unique_lock<std::mutex> lock(decContext_->inputMutex_);
         bool condRet = decContext_->inputCond_.wait_for(
@@ -252,14 +256,14 @@ void Player::DecInputThread()
 void Player::DecOutputThread()
 {
     sampleInfo_.frameInterval = MICRO_SECOND / (sampleInfo_.frameRate * speed_);
-    while (true) {
+    while (!isReleased_) {
         // 停止
         CHECK_AND_BREAK_LOG(isStarted_, "Decoder output thread out");
 
         // 暂停
-        std::unique_lock<std::mutex> pauseLock(mutex_);
-        doneCond_.wait(pauseLock, [this]() { return !this->isPaused_;});
-        pauseLock.unlock();
+        if (isPaused_) {
+            continue;
+        }
 
         thread_local auto lastPushTime = std::chrono::system_clock::now();
         std::unique_lock<std::mutex> lock(decContext_->outputMutex_);
