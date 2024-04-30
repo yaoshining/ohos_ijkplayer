@@ -109,6 +109,5 @@ int32_t Demuxer::GetVideoTrackInfo(std::shared_ptr<OH_AVFormat> sourceFormat, Sa
 
 int32_t Demuxer::SeekTo(int64_t millisecond)
 {
-    int32_t ret = OH_AVDemuxer_SeekToTime(demuxer_, millisecond, OH_AVSeekMode::SEEK_MODE_CLOSEST_SYNC);
-    CHECK_AND_RETURN_RET_LOG(ret == AV_ERR_OK, ret, "OH_AVDemuxer_SeekToTime failed");
+    return AVCODEC_SAMPLE_ERR_ERROR;
 }
