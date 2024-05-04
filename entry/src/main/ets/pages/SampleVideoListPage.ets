@@ -33,14 +33,14 @@ struct SampleVideoListPage {
 
       List({ space: 20, initialIndex: 0 }) {
         ListItem() {
-          Text("测试地址:http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8")
+          Text("测试地址:https://getsamplefiles.com/download/mp4/sample-5.mp4")
             .fontSize(20)
             .fontWeight(FontWeight.Bold)
             .fontColor(Color.Black)
             .margin(10)
             .onClick(() => {
               router.pushUrl({ url: "pages/IjkVideoPlayerPage", params: {
-                videoUrl: "http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8"
+                videoUrl: "https://getsamplefiles.com/download/mp4/sample-5.mp4"
               } });
             })
         }
