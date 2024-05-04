@@ -22,7 +22,7 @@ import { VideoSource } from './VideoSource';
 export default struct VideoNewsView {
   private title: string = "";
   private radio: number =  1.77;
-  private testUrl: string = "http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8";
+  private testUrl: string = "https://getsamplefiles.com/download/mp4/sample-5.mp4";
 
   build() {
     Column() {

@@ -31,8 +31,8 @@ let CONTROL_PlayStatus = PlayStatus.INIT;
 let PROGRESS_MAX_VALUE: number = 100;
 let mIjkMediaPlayer = IjkMediaPlayer.getInstance();
 let updateProgressTimer: number = 0;
-let videoUrls: string[] = ["http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8",
-  "http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8"
+let videoUrls: string[] = ["https://getsamplefiles.com/download/mp4/sample-5.mp4",
+  "https://getsamplefiles.com/download/mp4/sample-5.mp4"
 ];
 let curIndex: number = 0;
 
