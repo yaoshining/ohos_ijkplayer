@@ -497,8 +497,7 @@ struct IjkVideoPlayerPage {
 
   private seekTo(value: string) {
     mIjkMediaPlayer.seekTo(value);
-    mIjkMediaPlayer.selectTrack(value)
-    mIjkMediaPlayer.deselectTrack(value)
+
   }
 
   private playNext() {
