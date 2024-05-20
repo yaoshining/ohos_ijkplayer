@@ -47,13 +47,6 @@ napi_value NapiUtil::SetNapiCallInt32(const napi_env & env,  const int32_t intVa
     return result;
 }
 
-napi_value NapiUtil::SetNapiCallInt64(const napi_env & env,  const int64_t intValue)
-{
-    napi_value result;
-    napi_create_int64(env, intValue, &result);
-    return result;
-}
-
 napi_value NapiUtil::SetNapiCallBool(napi_env env, bool value)
 {
     napi_value temp;

@@ -283,16 +283,16 @@ napi_value IJKPlayerNapi::release(napi_env env, napi_callback_info info) {
 napi_value IJKPlayerNapi::getDuration(napi_env env, napi_callback_info info) {
     LOGI("napi-->getDuration");
     std::string xcomponentId = IJKPlayerNapi::getXComponentId(env, info);
-    int64_t duration = IJKPlayerNapi::getInstance(xcomponentId)->ijkPlayerNapiProxy_->IjkMediaPlayer_getDuration();
-    return NapiUtil::SetNapiCallInt64(env, duration);
+    int duration = IJKPlayerNapi::getInstance(xcomponentId)->ijkPlayerNapiProxy_->IjkMediaPlayer_getDuration();
+    return NapiUtil::SetNapiCallInt32(env, duration);
 }
 
 napi_value IJKPlayerNapi::getCurrentPosition(napi_env env, napi_callback_info info) {
     LOGI("napi-->getCurrentPosition");
     std::string xcomponentId = IJKPlayerNapi::getXComponentId(env, info);
-    int64_t currentPosition =
+    int currentPosition =
         IJKPlayerNapi::getInstance(xcomponentId)->ijkPlayerNapiProxy_->IjkMediaPlayer_getCurrentPosition();
-    return NapiUtil::SetNapiCallInt64(env, currentPosition);
+    return NapiUtil::SetNapiCallInt32(env, currentPosition);
 }
 
 napi_value IJKPlayerNapi::seekTo(napi_env env, napi_callback_info info) {

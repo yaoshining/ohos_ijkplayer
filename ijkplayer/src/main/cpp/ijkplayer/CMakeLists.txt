@@ -36,10 +36,6 @@ add_library(ijkplayer  SHARED
                                  ijkavutil/ijktree.c
                                  ijkavutil/ijkfifo.c
                                  ijkavutil/ijkstl.cpp
-                                ohos/Player.cpp
-                                ohos/sample_callback.cpp
-                                ohos/video_decoder.cpp
-                                ohos/demuxer.cpp
                                 )
 
 
@@ -56,8 +52,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../third_party/ffmpeg/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../third_party/yuv/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../third_party/soundtouch/include)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ohos/dfx/log)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ohos/dfx/error)
 
 
 
@@ -67,8 +61,3 @@ target_link_libraries(ijkplayer EGL)
 target_link_libraries(ijkplayer GLESv3)
 target_link_libraries(ijkplayer hilog_ndk.z)
 target_link_libraries(ijkplayer soundtouch)
-target_link_libraries(ijkplayer libnative_media_codecbase.so)
-target_link_libraries(ijkplayer libnative_media_avdemuxer.so)
-target_link_libraries(ijkplayer libnative_media_avsource.so)
-target_link_libraries(ijkplayer libnative_media_core.so)
-target_link_libraries(ijkplayer libnative_media_vdec.so)
