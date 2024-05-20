@@ -18,6 +18,14 @@ add_library(ijkplayer_napi SHARED
             utils/ffmpeg/custom_ffmpeg_log.c
             utils/napi/napi_utils.cpp
             )
+add_library(ijkplayer_audio_napi SHARED
+            napi/ijkplayer_napi_audio_init.cpp
+            napi/ijkplayer_napi.cpp
+            proxy/ijkplayer_napi_proxy.cpp
+            utils/hashmap/data_struct.c
+            utils/ffmpeg/custom_ffmpeg_log.c
+            utils/napi/napi_utils.cpp
+            )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ijkplayer)
@@ -43,3 +51,13 @@ target_link_libraries(ijkplayer_napi PUBLIC hilog_ndk.z)
 target_link_libraries(ijkplayer_napi PUBLIC ace_ndk.z)
 target_link_libraries(ijkplayer_napi PUBLIC ace_napi.z)
 target_link_libraries(ijkplayer_napi PUBLIC uv)
+
+target_link_libraries(ijkplayer_audio_napi PUBLIC ijkplayer)
+target_link_libraries(ijkplayer_audio_napi PUBLIC ijksdl)
+target_link_libraries(ijkplayer_audio_napi PUBLIC ijkffmpeg)
+target_link_libraries(ijkplayer_audio_napi PUBLIC EGL)
+target_link_libraries(ijkplayer_audio_napi PUBLIC GLESv3)
+target_link_libraries(ijkplayer_audio_napi PUBLIC hilog_ndk.z)
+target_link_libraries(ijkplayer_audio_napi PUBLIC ace_ndk.z)
+target_link_libraries(ijkplayer_audio_napi PUBLIC ace_napi.z)
+target_link_libraries(ijkplayer_audio_napi PUBLIC uv)

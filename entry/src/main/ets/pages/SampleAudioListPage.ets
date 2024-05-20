@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (C) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,10 +13,9 @@
  * limitations under the License.
  */
 
-import router from '@ohos.router';
+
 import { IjkMediaPlayer } from "@ohos/ijkplayer";
 import { OnPreparedListener } from "@ohos/ijkplayer";
-import { OnVideoSizeChangedListener } from "@ohos/ijkplayer";
 import { OnCompletionListener } from "@ohos/ijkplayer";
 import { OnBufferingUpdateListener } from "@ohos/ijkplayer";
 import { OnErrorListener, OnTimedTextListener } from "@ohos/ijkplayer";
@@ -25,7 +24,6 @@ import { OnSeekCompleteListener } from "@ohos/ijkplayer";
 import { LogUtils } from "@ohos/ijkplayer"
 import { PlayStatus } from "../common/PlayStatus"
 import prompt from '@ohos.promptAction';
-import { RouterParam } from "./RouterParam"
 
 let CONTROL_PlayStatus = PlayStatus.INIT;
 let PROGRESS_MAX_VALUE: number = 100;
@@ -38,7 +36,7 @@ let curIndex: number = 0;
 
 @Entry
 @Component
-struct IjkVideoPlayerPage {
+struct SampleAudioListPage {
   @State progressValue: number = 0;
   @State currentTime: string = "00:00";
   @State totalTime: string = "00:00";
@@ -46,7 +44,6 @@ struct IjkVideoPlayerPage {
   @State replayVisible: Visibility = Visibility.None;
   @State slideEnable: boolean = false;
   @State aspRatio: number = 0.5;
-  @State mContext: object | undefined = undefined;
   @State mFirst: boolean = true;
   @State mDestroyPage: boolean = false;
   @State playSpeed: string = '1f';
@@ -57,7 +54,8 @@ struct IjkVideoPlayerPage {
 
   aboutToAppear() {
     LogUtils.getInstance().LOGI("aboutToAppear");
-    this.videoUrl = (router.getParams() as RouterParam).videoUrl;
+    this.videoUrl = videoUrls[0]
+    this.initDelayPlay();
   }
 
   aboutToDisappear() {
@@ -70,7 +68,7 @@ struct IjkVideoPlayerPage {
   }
 
   onPageShow() {
-    if (this.mContext && !this.mFirst) {
+    if (!this.mFirst) {
       this.startPlayOrResumePlay();
     }
   }
@@ -79,12 +77,11 @@ struct IjkVideoPlayerPage {
     this.pause();
   }
 
-  xcomponentController: XComponentController = new XComponentController()
 
   build() {
     Flex({ direction: FlexDirection.Column, alignItems: ItemAlign.Auto, justifyContent: FlexAlign.Start }) {
       Flex({ direction: FlexDirection.Column, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Center }) {
-        Text("ijkplayer播放器")
+        Text("ijkplayer音频播放器")
           .fontSize('30px')
           .fontColor(Color.White)
           .margin('10px')
@@ -92,38 +89,6 @@ struct IjkVideoPlayerPage {
       }.height('100px').width('100%').backgroundColor(Color.Black)
 
       Divider().vertical(false).strokeWidth('20px').color(Color.White).lineCap(LineCapStyle.Round)
-      Stack({ alignContent: Alignment.Center }) {
-        XComponent({
-          id: 'xcomponentId',
-          type: 'surface',
-          libraryname: 'ijkplayer_napi'
-        })
-          .onLoad((event?: object) => {
-            if (!!event) {
-              this.initDelayPlay(event);
-            }
-          })
-          .onDestroy(() => {
-          })
-          .width('100%')
-        Image($r('app.media.icon_replay'))
-          .objectFit(ImageFit.Auto)
-          .width('120px')
-          .height('120px')
-          .visibility(this.replayVisible)
-          .border({ width: 0 })
-          .borderStyle(BorderStyle.Dashed)
-          .onClick(() => {
-            this.startPlayOrResumePlay();
-          })
-        Image($r('app.media.icon_load'))
-          .objectFit(ImageFit.Auto)
-          .width('120px')
-          .height('120px')
-          .visibility(this.loadingVisible)
-          .border({ width: 0 })
-          .borderStyle(BorderStyle.Dashed)
-      }.width('100%').height('700px').backgroundColor('#000000').clip(true)
 
       Flex({ direction: FlexDirection.Row, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Start }) {
         Text(this.currentTime).width('100px').fontSize('20px').margin('20px')
@@ -216,8 +181,7 @@ struct IjkVideoPlayerPage {
     }
   }
 
-  private initDelayPlay(context: object) {
-    this.mContext = context;
+  private initDelayPlay() {
     let that = this;
     setTimeout(() => {
       that.startPlayOrResumePlay();
@@ -325,10 +289,8 @@ struct IjkVideoPlayerPage {
   private play(url: string) {
     let that = this;
     that.showLoadIng();
-    //设置XComponent回调的context
-    if (!!this.mContext) {
-      mIjkMediaPlayer.setContext(this.mContext, 'xcomponentId');
-    }
+
+    mIjkMediaPlayer.setAudioId('audioIjkId');
     if (CONTROL_PlayStatus == PlayStatus.INIT) {
       mIjkMediaPlayer.reset();
     }
@@ -380,15 +342,6 @@ struct IjkVideoPlayerPage {
     LogUtils.getInstance().LOGI('getSpeed--' + Speed)
     //是否开启循环播放
     mIjkMediaPlayer.setLoopCount(true);
-    let mOnVideoSizeChangedListener: OnVideoSizeChangedListener = {
-      onVideoSizeChanged: (width: number, height: number, sar_num: number, sar_den: number) => {
-        that.aspRatio = width / height;
-        LogUtils.getInstance()
-          .LOGI("setOnVideoSizeChangedListener-->go:" + width + "," + height + "," + sar_num + "," + sar_den)
-        that.hideLoadIng();
-      }
-    }
-    mIjkMediaPlayer.setOnVideoSizeChangedListener(mOnVideoSizeChangedListener);
     let mOnPreparedListener: OnPreparedListener = {
       onPrepared: () => {
         LogUtils.getInstance().LOGI("setOnPreparedListener-->go");
@@ -419,20 +372,6 @@ struct IjkVideoPlayerPage {
         LogUtils.getInstance().LOGI("OnBufferingUpdateListener-->go:" + percent);
         let MediaInfo = mIjkMediaPlayer.getMediaInfo()
         LogUtils.getInstance().LOGI('getMediaInfo---' + MediaInfo);
-        let VideoWidth = mIjkMediaPlayer.getVideoWidth()
-        LogUtils.getInstance().LOGI('getVideoWidth---' + VideoWidth);
-
-        let VideoHeight = mIjkMediaPlayer.getVideoHeight()
-        LogUtils.getInstance().LOGI('getVideoHeight---' + VideoHeight);
-
-        let VideoSarNum = mIjkMediaPlayer.getVideoSarNum()
-        LogUtils.getInstance().LOGI('getVideoSarNum---' + VideoSarNum);
-
-        let VideoSarDen = mIjkMediaPlayer.getVideoSarDen()
-        LogUtils.getInstance().LOGI('getVideoSarDen---' + VideoSarDen);
-
-        let AudioSessionId = mIjkMediaPlayer.getAudioSessionId()
-        LogUtils.getInstance().LOGI('getAudioSessionId---' + AudioSessionId);
 
         let Looping = mIjkMediaPlayer.isLooping()
         LogUtils.getInstance().LOGI('isLooping---' + Looping);
@@ -463,7 +402,7 @@ struct IjkVideoPlayerPage {
         LogUtils.getInstance().LOGI("OnErrorListener-->go:" + what + "===" + extra)
         that.hideLoadIng();
         prompt.showToast({
-          message: "亲，视频播放异常，系统开小差咯"
+          message: "亲，音频播放异常，系统开小差咯"
         });
       }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Huawei Device Co., Ltd.
+ * Copyright (C) 2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,38 +13,176 @@
  * limitations under the License.
  */
 
-import hilog from '@ohos.hilog';
-import { describe, beforeAll, beforeEach, afterEach, afterAll, it, expect } from '@ohos/hypium'
+import { describe, it, expect } from '@ohos/hypium'
+import { IjkMediaPlayer, LogUtils,
+  OnBufferingUpdateListener,
+  OnCompletionListener,
+  OnErrorListener, OnInfoListener, OnPreparedListener,
+  OnSeekCompleteListener,
+  OnTimedTextListener} from "@ohos/ijkplayer";
+import prompt from '@ohos.promptAction';
+
+let mIjkMediaPlayer = IjkMediaPlayer.getInstance();
 
 export default function abilityTest() {
   describe('ActsAbilityTest',  () =>{
-    // Defines a test suite. Two parameters are supported: test suite name and test suite function.
-    beforeAll( () =>{
-      // Presets an action, which is performed only once before all test cases of the test suite start.
-      // This API supports only one parameter: preset action function.
+    it('initIjkPlayer', 0,  () => {
+      mIjkMediaPlayer.setAudioId('audioIjkId');
+      mIjkMediaPlayer.isVideo(false);
+      //设置debug模式
+      mIjkMediaPlayer.setDebug(true);
+      //初始化配置
+      mIjkMediaPlayer.native_setup();
+      //设置视频源
+      mIjkMediaPlayer.setDataSource("https://getsamplefiles.com/download/mp4/sample-5.mp4");
+      //设置视频源http请求头
+      let headers = new Map([
+        ["user_agent", "Mozilla/5.0 BiliDroid/7.30.0 (bbcallen@gmail.com)"],
+        ["referer", "https://www.bilibili.com"]
+      ]);
+      mIjkMediaPlayer.setDataSourceHeader(headers);
+      //使用精确寻帧 例如，拖动播放后，会寻找最近的关键帧进行播放，很有可能关键帧的位置不是拖动后的位置，而是较前的位置.可以设置这个参数来解决问题
+      mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "enable-accurate-seek", "1");
+      //预读数据的缓冲区大小
+      mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "max-buffer-size", "102400");
+      //停止预读的最小帧数
+      mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "min-frames", "100");
+      //启动预加载
+      mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "start-on-prepared", "1");
+      // 设置无缓冲，这是播放器的缓冲区，有数据就播放
+      mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "packet-buffering", "0");
+      //跳帧处理,放CPU处理较慢时，进行跳帧处理，保证播放流程，画面和声音同步
+      mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "framedrop", "5");
+      // 最大缓冲cache是3s， 有时候网络波动，会突然在短时间内收到好几秒的数据
+      // 因此需要播放器丢包，才不会累积延时
+      // 这个和第三个参数packet-buffering无关。
+      mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "max_cached_duration", "3000");
+      // 无限制收流
+      mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "infbuf", "1");
+      mIjkMediaPlayer.setOptionLong(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "infbuf", "1")
+      // 屏幕常亮
+      mIjkMediaPlayer.setScreenOnWhilePlaying(true);
+      // 设置超时
+      mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "timeout", "10000000");
+      mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "connect_timeout", "10000000");
+      mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "addrinfo_timeout", "10000000");
+      mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "dns_cache_timeout", "10000000");
+      // 设置音量
+      // mIjkMediaPlayer.setVolume("0.5", "0.5");
+      // 变速播放
+      mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "soundtouch", "1");
+      mIjkMediaPlayer.setSpeed('1f');
+      let Speed = mIjkMediaPlayer.getSpeed()
+      LogUtils.getInstance().LOGI('getSpeed--' + Speed)
+      //是否开启循环播放
+      mIjkMediaPlayer.setLoopCount(true);
+      let mOnPreparedListener: OnPreparedListener = {
+        onPrepared: () => {
+          LogUtils.getInstance().LOGI("setOnPreparedListener-->go");
+        }
+      }
+      mIjkMediaPlayer.setOnPreparedListener(mOnPreparedListener);
+
+      let mOnTimedTextListener: OnTimedTextListener = {
+        onTimedText: () => {
+        }
+      }
+      mIjkMediaPlayer.setOnTimedTextListener(mOnTimedTextListener)
+
+      let mOnCompletionListener: OnCompletionListener = {
+        onCompletion: () => {
+          LogUtils.getInstance().LOGI("OnCompletionListener-->go")
+        }
+      }
+      mIjkMediaPlayer.setOnCompletionListener(mOnCompletionListener);
+
+      let mOnBufferingUpdateListener: OnBufferingUpdateListener = {
+        onBufferingUpdate: (percent: number) => {
+          LogUtils.getInstance().LOGI("OnBufferingUpdateListener-->go:" + percent);
+          let MediaInfo = mIjkMediaPlayer.getMediaInfo()
+          LogUtils.getInstance().LOGI('getMediaInfo---' + MediaInfo);
+
+          let Looping = mIjkMediaPlayer.isLooping()
+          LogUtils.getInstance().LOGI('isLooping---' + Looping);
+        }
+      }
+      mIjkMediaPlayer.setOnBufferingUpdateListener(mOnBufferingUpdateListener);
+
+      let mOnSeekCompleteListener: OnSeekCompleteListener = {
+        onSeekComplete: () => {
+          LogUtils.getInstance().LOGI("OnSeekCompleteListener-->go");
+        }
+      }
+      mIjkMediaPlayer.setOnSeekCompleteListener(mOnSeekCompleteListener);
+
+      let mOnInfoListener: OnInfoListener = {
+        onInfo: (what: number, extra: number) => {
+          LogUtils.getInstance().LOGI("OnInfoListener-->go:" + what + "===" + extra);
+        }
+      }
+      mIjkMediaPlayer.setOnInfoListener(mOnInfoListener);
+
+
+      let mOnErrorListener: OnErrorListener = {
+        onError: (what: number, extra: number) => {
+          LogUtils.getInstance().LOGI("OnErrorListener-->go:" + what + "===" + extra)
+          prompt.showToast({
+            message: "亲，音频播放异常，系统开小差咯"
+          });
+        }
+      }
+
+      mIjkMediaPlayer.setOnErrorListener(mOnErrorListener);
+
+      mIjkMediaPlayer.setMessageListener();
+
+      mIjkMediaPlayer.prepareAsync();
+
+      mIjkMediaPlayer.start();
+
+      expect(mIjkMediaPlayer.getSpeed()).assertEqual('1.000000')
     })
-    beforeEach( () =>{
-      // Presets an action, which is performed before each unit test case starts.
-      // The number of execution times is the same as the number of test cases defined by **it**.
-      // This API supports only one parameter: preset action function.
+
+    it('getMediaInfo', 0,  () => {
+      let MediaInfo = mIjkMediaPlayer.getMediaInfo();
+      expect(typeof MediaInfo).assertEqual('object')
     })
-    afterEach( () =>{
-      // Presets a clear action, which is performed after each unit test case ends.
-      // The number of execution times is the same as the number of test cases defined by **it**.
-      // This API supports only one parameter: clear action function.
+
+    it('isLooping', 0,  () => {
+      let loopFlag = mIjkMediaPlayer.isLooping();
+      expect(loopFlag).assertTrue();
     })
-    afterAll( ()=> {
-      // Presets a clear action, which is performed after all test cases of the test suite end.
-      // This API supports only one parameter: clear action function.
+
+    it('isPlaying', 0,  () => {
+      let isPlaying = mIjkMediaPlayer.isPlaying();
+      expect(isPlaying).assertFalse();
     })
-    it('assertContain',0,  ()=> {
-      // Defines a test case. This API supports three parameters: test case name, filter parameter, and test case function.
-      hilog.info(0x0000, 'testTag', '%{public}s', 'it begin');
-      let a = 'abc'
-      let b = 'b'
-      // Defines a variety of assertion methods, which are used to declare expected boolean conditions.
-      expect(a).assertContain(b)
-      expect(a).assertEqual(a)
+
+    it('pause', 0,  () => {
+      mIjkMediaPlayer.pause();;
+      expect(mIjkMediaPlayer.isPlaying()).assertFalse();
+    })
+
+    it('stop', 0,  () => {
+      mIjkMediaPlayer.stop();
+      expect(mIjkMediaPlayer.isPlaying()).assertFalse();
+    })
+
+    it('reset', 0,  () => {
+      mIjkMediaPlayer.reset();
+      expect(mIjkMediaPlayer.isPlaying()).assertFalse();
+    })
+
+    it('release', 0,  () => {
+      mIjkMediaPlayer.release();
+      expect(mIjkMediaPlayer.isPlaying()).assertFalse();
+    })
+
+    it('seekTo', 0,  () => {
+      let position = mIjkMediaPlayer.getCurrentPosition();
+      let seekValue = 3 * (mIjkMediaPlayer.getDuration() / 100);
+      mIjkMediaPlayer.seekTo(seekValue.toString());
+      expect(mIjkMediaPlayer.isPlaying()).assertFalse();
     })
   })
 }

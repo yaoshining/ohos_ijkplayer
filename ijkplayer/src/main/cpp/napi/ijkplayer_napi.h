@@ -56,6 +56,8 @@ class IJKPlayerNapi {
     static napi_value getMediaMeta(napi_env env, napi_callback_info info);
     static napi_value nativeOpenlog(napi_env env, napi_callback_info info);
     static napi_value native_setup(napi_env env, napi_callback_info info);
+    static napi_value native_setup_audio(napi_env env, napi_callback_info info);
+    static napi_value JsConstructor(napi_env env, napi_callback_info info);
 
     ////////////////////////XComponent////////////////////////////
     static OH_NativeXComponent_Callback *getNXComponentCallback();
@@ -64,7 +66,6 @@ class IJKPlayerNapi {
     void onSurfaceChanged(OH_NativeXComponent *component, void *window);
     void onSurfaceDestroyed(OH_NativeXComponent *component, void *window);
     void dispatchTouchEvent(OH_NativeXComponent *component, void *window);
-    static std::string getXComponentId(napi_env env, napi_callback_info info);
     void setXComponentAndNativeWindow(std::string &id, OH_NativeXComponent *component, void *window);
     OH_NativeXComponent *getXComponent(std::string &id);
     void *getNativeWindow(std::string &id);
@@ -81,6 +82,7 @@ class IJKPlayerNapi {
     uint64_t width_ = 0;
     uint64_t height_ = 0;
     OH_NativeXComponent_TouchEvent touchEvent_;
+    static bool gIsVideo;
 };
 
 #endif //ijkplayer_ijkplayer_napi.h_H

@@ -26,6 +26,7 @@ import { LogUtils } from "../ijkplayer/utils/LogUtils";
 import window from '@ohos.window';
 import { IjkPlayerNapi } from "./utils/IjkPlayerNapi";
 import { BusinessError } from '@ohos.base';
+import { newIjkPlayerAudio } from 'libijkplayer_audio_napi.so'
 
 export class IjkMediaPlayer {
   private static instance: IjkMediaPlayer;
@@ -57,21 +58,34 @@ export class IjkMediaPlayer {
   private mOnSeekCompleteListener: OnSeekCompleteListener | null = null;
   private mOnTimedTextListener: OnTimedTextListener | null = null;
   private ijkplayer_napi: IjkPlayerNapi | null = null;
+  private ijkplayer_audio_napi: newIjkPlayerAudio | null = null;
+  private id: string = '';
 
-  setContext(context: object): void {
+  setContext(context: object, id: string): void {
     this.ijkplayer_napi = context as IjkPlayerNapi;
+    this.id = id
+  }
+
+  setAudioId(id: string) {
+    this.ijkplayer_audio_napi = new newIjkPlayerAudio(id, false)
+    this.id = id
   }
 
   setDebug(open: boolean): void {
     LogUtils.getInstance().setLogSwitch(open);
     if (open && !!this.ijkplayer_napi) {
-      this.ijkplayer_napi._nativeOpenlog();
+      this.ijkplayer_napi._nativeOpenlog(this.id);
+    } else if (open && this.ijkplayer_audio_napi) {
+      this.ijkplayer_audio_napi._nativeOpenlog(this.id);
     }
   }
 
   setDataSource(url: string): void {
     if (!!this.ijkplayer_napi)
-      this.ijkplayer_napi._setDataSource(url);
+      this.ijkplayer_napi._setDataSource(this.id, url);
+    else if (this.ijkplayer_audio_napi) {
+      this.ijkplayer_audio_napi._setDataSource(this.id, url);
+    }
   }
 
   setDataSourceHeader(headers: Map<string, string>): void {
@@ -85,55 +99,85 @@ export class IjkMediaPlayer {
         builder += param;
       });
       if (!!this.ijkplayer_napi) {
-        this.ijkplayer_napi._setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "headers", builder);
-        this.ijkplayer_napi._setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "protocol_whitelist", "async,cache,crypto,file,http,https,ijkhttphook,ijkinject,ijklivehook,ijklongurl,ijksegment,ijktcphook,pipe,rtp,tcp,tls,udp,ijkurlhook,data");
+        this.ijkplayer_napi._setOption(this.id, IjkMediaPlayer.OPT_CATEGORY_FORMAT, "headers", builder);
+        this.ijkplayer_napi._setOption(this.id, IjkMediaPlayer.OPT_CATEGORY_FORMAT, "protocol_whitelist", "async,cache,crypto,file,http,https,ijkhttphook,ijkinject,ijklivehook,ijklongurl,ijksegment,ijktcphook,pipe,rtp,tcp,tls,udp,ijkurlhook,data");
+      } else if (this.ijkplayer_audio_napi) {
+        this.ijkplayer_audio_napi._setOption(this.id, IjkMediaPlayer.OPT_CATEGORY_FORMAT, "headers", builder);
+        this.ijkplayer_audio_napi._setOption(this.id, IjkMediaPlayer.OPT_CATEGORY_FORMAT, "protocol_whitelist", "async,cache,crypto,file,http,https,ijkhttphook,ijkinject,ijklivehook,ijklongurl,ijksegment,ijktcphook,pipe,rtp,tcp,tls,udp,ijkurlhook,data");
       }
     }
   }
 
   setOption(category: string, key: string, value: string): void {
-    if (!!this.ijkplayer_napi)
-      this.ijkplayer_napi._setOption(category, key, value);
+    if (!!this.ijkplayer_napi) {
+      this.ijkplayer_napi._setOption(this.id, category, key, value);
+    } else if (this.ijkplayer_audio_napi) {
+      this.ijkplayer_audio_napi._setOption(this.id, category, key, value);
+    }
   }
 
   setOptionLong(category: string, key: string, value: string): void {
-    if (!!this.ijkplayer_napi)
-      this.ijkplayer_napi._setOptionLong(category, key, value);
+    if (!!this.ijkplayer_napi) {
+      this.ijkplayer_napi._setOptionLong(this.id, category, key, value);
+    } else if (this.ijkplayer_audio_napi) {
+      this.ijkplayer_audio_napi._setOptionLong(this.id, category, key, value);
+    }
   }
 
   prepareAsync(): void {
-    if (!!this.ijkplayer_napi)
-      this.ijkplayer_napi._prepareAsync();
+    if (!!this.ijkplayer_napi) {
+      this.ijkplayer_napi._prepareAsync(this.id);
+    } else if (this.ijkplayer_audio_napi) {
+      this.ijkplayer_audio_napi._prepareAsync(this.id);
+    }
   }
 
   start(): void {
-    if (!!this.ijkplayer_napi)
-      this.ijkplayer_napi._start();
+    if (!!this.ijkplayer_napi) {
+      this.ijkplayer_napi._start(this.id);
+    } else if (this.ijkplayer_audio_napi) {
+      this.ijkplayer_audio_napi._start(this.id);
+    }
   }
 
   stop(): void {
-    if (!!this.ijkplayer_napi)
-      this.ijkplayer_napi._stop();
+    if (!!this.ijkplayer_napi) {
+      this.ijkplayer_napi._stop(this.id);
+    } else if (this.ijkplayer_audio_napi) {
+      this.ijkplayer_audio_napi._stop(this.id);
+    }
   }
 
   pause(): void {
-    if (!!this.ijkplayer_napi)
-      this.ijkplayer_napi._pause();
+    if (!!this.ijkplayer_napi) {
+      this.ijkplayer_napi._pause(this.id);
+    } else if (this.ijkplayer_audio_napi) {
+      this.ijkplayer_audio_napi._pause(this.id);
+    }
   }
 
   reset(): void {
-    if (!!this.ijkplayer_napi)
-      this.ijkplayer_napi._reset();
+    if (!!this.ijkplayer_napi) {
+      this.ijkplayer_napi._reset(this.id);
+    } else if (this.ijkplayer_audio_napi) {
+      this.ijkplayer_audio_napi._reset(this.id);
+    }
   }
 
   release(): void {
-    if (!!this.ijkplayer_napi)
-      this.ijkplayer_napi._release();
+    if (!!this.ijkplayer_napi) {
+      this.ijkplayer_napi._release(this.id);
+    } else if (this.ijkplayer_audio_napi) {
+      this.ijkplayer_audio_napi._release(this.id);
+    }
   }
 
   seekTo(msec: string): void {
-    if (!!this.ijkplayer_napi)
-      this.ijkplayer_napi._seekTo(msec);
+    if (!!this.ijkplayer_napi) {
+      this.ijkplayer_napi._seekTo(this.id, msec);
+    } else if (this.ijkplayer_audio_napi) {
+      this.ijkplayer_audio_napi._seekTo(this.id, msec);
+    }
   }
 
   setScreenOnWhilePlaying(on: boolean): void {
@@ -151,8 +195,11 @@ export class IjkMediaPlayer {
   }
 
   isPlaying(): boolean {
-    if (!!this.ijkplayer_napi)
-      return this.ijkplayer_napi._isPlaying();
+    if (!!this.ijkplayer_napi) {
+      return this.ijkplayer_napi._isPlaying(this.id);
+    } else if (this.ijkplayer_audio_napi) {
+      return this.ijkplayer_audio_napi._isPlaying(this.id);
+    }
     else {
       return false
     }
@@ -226,14 +273,20 @@ export class IjkMediaPlayer {
         onCompletionListener.onCompletion();
       }
 
-      if (!!that.ijkplayer_napi && what == MessageType.MEDIA_BUFFERING_UPDATE && onBufferingUpdateListener != null) {
+      if ((!!that.ijkplayer_napi && what == MessageType.MEDIA_BUFFERING_UPDATE && onBufferingUpdateListener != null) ||
+        (that.ijkplayer_audio_napi && what == MessageType.MEDIA_BUFFERING_UPDATE && onBufferingUpdateListener != null)) {
         let bufferPosition = arg1;
         if (bufferPosition < 0) {
           bufferPosition = 0;
         }
         let percent = 0;
-        let duration: number = that.ijkplayer_napi._getDuration();
-        if (duration > 0) {
+        let duration: number | undefined = 0
+        if (!!this.ijkplayer_napi) {
+          duration = that.ijkplayer_napi?._getDuration(this.id);
+        } else if (this.ijkplayer_audio_napi) {
+          duration = that.ijkplayer_audio_napi?._getDuration(this.id);
+        }
+        if (typeof duration === 'number' && duration > 0) {
           percent = bufferPosition * 100 / duration;
         }
         if (percent >= 100) {
@@ -255,8 +308,11 @@ export class IjkMediaPlayer {
         onTimedTextListener.onTimedText(obj);
       }
     };
-    if (!!this.ijkplayer_napi)
-      this.ijkplayer_napi._setMessageListener(messageCallBack);
+    if (!!this.ijkplayer_napi) {
+      this.ijkplayer_napi._setMessageListener(this.id, messageCallBack);
+    } else if (this.ijkplayer_audio_napi) {
+      this.ijkplayer_audio_napi._setMessageListener(this.id, messageCallBack);
+    }
   }
 
   getVideoWidth(): number {
@@ -276,77 +332,106 @@ export class IjkMediaPlayer {
   }
 
   getDuration(): number {
-    if (!!this.ijkplayer_napi)
-      return this.ijkplayer_napi._getDuration();
+    if (!!this.ijkplayer_napi) {
+      return this.ijkplayer_napi._getDuration(this.id);
+    } else if (this.ijkplayer_audio_napi) {
+      return this.ijkplayer_audio_napi._getDuration(this.id);
+    }
     else {
       return 0
     }
   }
 
   getCurrentPosition(): number {
-    if (!!this.ijkplayer_napi)
-      return this.ijkplayer_napi._getCurrentPosition();
+    if (!!this.ijkplayer_napi) {
+      return this.ijkplayer_napi._getCurrentPosition(this.id);
+    } else if (this.ijkplayer_audio_napi) {
+      return this.ijkplayer_audio_napi._getCurrentPosition(this.id);
+    }
     else {
       return 0
     }
   }
 
   getAudioSessionId(): number {
-    if (!!this.ijkplayer_napi)
-      return this.ijkplayer_napi._getAudioSessionId();
+    if (!!this.ijkplayer_napi) {
+      return this.ijkplayer_napi._getAudioSessionId(this.id);
+    } else if (this.ijkplayer_audio_napi) {
+      return this.ijkplayer_audio_napi._getAudioSessionId(this.id);
+    }
     else {
       return 0
     }
   }
 
   private _setPropertyFloat(property: string, value: string): void {
-    if (!!this.ijkplayer_napi)
-      this.ijkplayer_napi._setPropertyFloat(property, value);
+    if (!!this.ijkplayer_napi) {
+      this.ijkplayer_napi._setPropertyFloat(this.id, property, value);
+    } else if (this.ijkplayer_audio_napi) {
+      this.ijkplayer_audio_napi._setPropertyFloat(this.id, property, value);
+    }
   }
 
   private _getPropertyFloat(property: string, value: string): number {
-    if (!!this.ijkplayer_napi)
-      return this.ijkplayer_napi._getPropertyFloat(property, value);
+    if (!!this.ijkplayer_napi) {
+      return this.ijkplayer_napi._getPropertyFloat(this.id, property, value);
+    } else if (this.ijkplayer_audio_napi) {
+      return this.ijkplayer_audio_napi._getPropertyFloat(this.id, property, value);
+    }
     else {
       return 0
     }
   }
 
   private _setPropertyLong(property: string, value: string): void {
-    if (!!this.ijkplayer_napi)
-      this.ijkplayer_napi._setPropertyLong(property, value);
+    if (!!this.ijkplayer_napi) {
+      this.ijkplayer_napi._setPropertyLong(this.id, property, value);
+    } else if (this.ijkplayer_audio_napi) {
+      this.ijkplayer_audio_napi._setPropertyLong(this.id, property, value);
+    }
   }
 
   private _getPropertyLong(property: string, value: string): number {
-    if (!!this.ijkplayer_napi)
-      return this.ijkplayer_napi._getPropertyLong(property, value);
+    if (!!this.ijkplayer_napi) {
+      return this.ijkplayer_napi._getPropertyLong(this.id, property, value);
+    } else if (this.ijkplayer_audio_napi) {
+      return this.ijkplayer_audio_napi._getPropertyLong(this.id, property, value);
+    }
     else {
       return 0
     }
   }
 
   setVolume(leftVolume: string, rightVolume: string): void {
-    if (!!this.ijkplayer_napi)
-      this.ijkplayer_napi._setVolume(leftVolume, rightVolume);
+    if (!!this.ijkplayer_napi) {
+      this.ijkplayer_napi._setVolume(this.id, leftVolume, rightVolume);
+    } else if (this.ijkplayer_audio_napi) {
+      this.ijkplayer_audio_napi._setVolume(this.id, leftVolume, rightVolume);
+    }
   }
 
   setLoopCount(looping: boolean): void {
     let loopCount = looping ? "0" : "1";
     this.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "loop", loopCount);
-    if (!!this.ijkplayer_napi)
-      this.ijkplayer_napi._setLoopCount(loopCount);
+    if (!!this.ijkplayer_napi) {
+      this.ijkplayer_napi._setLoopCount(this.id, loopCount);
+    } else if (this.ijkplayer_audio_napi) {
+      this.ijkplayer_audio_napi._setLoopCount(this.id, loopCount);
+    }
   }
 
   isLooping(): boolean {
     let loopCount: number = 0
-    if (!!this.ijkplayer_napi)
-      loopCount = this.ijkplayer_napi._getLoopCount();
+    if (!!this.ijkplayer_napi) {
+      loopCount = this.ijkplayer_napi._getLoopCount(this.id);
+    } else if (this.ijkplayer_audio_napi) {
+      loopCount = this.ijkplayer_audio_napi._getLoopCount(this.id);
+    }
     return loopCount != 1;
   }
 
   selectTrack(track: string): void {
-    if (!!this.ijkplayer_napi)
-      this._setStreamSelected(track, "true");
+    this._setStreamSelected(track, "true");
   }
 
   deselectTrack(track: string): void {
@@ -354,8 +439,11 @@ export class IjkMediaPlayer {
   }
 
   private _setStreamSelected(stream: string, select: string): void {
-    if (!!this.ijkplayer_napi)
-      this.ijkplayer_napi._setStreamSelected(stream, select);
+    if (!!this.ijkplayer_napi) {
+      this.ijkplayer_napi._setStreamSelected(this.id, stream, select);
+    } else if (this.ijkplayer_audio_napi) {
+      return this.ijkplayer_audio_napi._setStreamSelected(this.id, stream, select);
+    }
   }
 
   getVideoDecoder(): number {
@@ -451,25 +539,32 @@ export class IjkMediaPlayer {
   }
 
   private _getVideoCodecInfo(): string {
-    if (!!this.ijkplayer_napi)
-      return this.ijkplayer_napi._getVideoCodecInfo();
+    if (!!this.ijkplayer_napi) {
+      return this.ijkplayer_napi._getVideoCodecInfo(this.id);
+    } else if (this.ijkplayer_audio_napi) {
+      return this.ijkplayer_audio_napi._getVideoCodecInfo(this.id);
+    }
     else {
       return ''
     }
   }
 
   private _getAudioCodecInfo(): string {
-    if (!!this.ijkplayer_napi)
-      return this.ijkplayer_napi._getAudioCodecInfo();
-    else {
+    if (!!this.ijkplayer_napi) {
+      return this.ijkplayer_napi._getAudioCodecInfo(this.id);
+    } else if (this.ijkplayer_audio_napi) {
+      return this.ijkplayer_audio_napi._getAudioCodecInfo(this.id);
+    } else {
       return ''
     }
   }
 
   private _getMediaMeta(): string {
-    if (!!this.ijkplayer_napi)
-      return this.ijkplayer_napi._getMediaMeta();
-    else {
+    if (!!this.ijkplayer_napi) {
+      return this.ijkplayer_napi._getMediaMeta(this.id);
+    } else if (this.ijkplayer_audio_napi) {
+      return this.ijkplayer_audio_napi._getMediaMeta(this.id);
+    } else {
       return ''
     }
   }
@@ -489,8 +584,11 @@ export class IjkMediaPlayer {
   }
 
   native_setup(): void {
-    if (!!this.ijkplayer_napi)
-      this.ijkplayer_napi._native_setup();
+    if (!!this.ijkplayer_napi) {
+      this.ijkplayer_napi._native_setup(this.id);
+    } else if (this.ijkplayer_audio_napi) {
+      this.ijkplayer_audio_napi._native_setup_audio(this.id);
+    }
   }
 }
 

@@ -1,0 +1,6 @@
+{
+  "name": "libijkplayer_audio_napi.so",
+  "types": "./index.d.ts",
+  "version": "2.0.3-rc.1",
+  "description": "A Ijkplayer implementation in C"
+}
