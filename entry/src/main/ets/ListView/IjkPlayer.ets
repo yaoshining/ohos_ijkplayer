@@ -44,7 +44,6 @@ export class IjkPlayer extends BasePlayer {
         ijkMediaPlayer.stop();
         ijkMediaPlayer.reset();
       }
-      ijkMediaPlayer.setContext(this.context!);
       this.hasContext = true;
 
       ijkMediaPlayer.setDebug(true);

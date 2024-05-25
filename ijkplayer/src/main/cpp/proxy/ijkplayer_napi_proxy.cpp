@@ -193,6 +193,19 @@ void IJKPlayerNapiProxy::IjkMediaPlayer_native_setup(void *weak_this, void *nati
     ijkmp_set_ijkio_inject_opaque(mp, ijkmp_get_weak_thiz(mp));
 }
 
+void IJKPlayerNapiProxy::IjkMediaPlayer_native_setup_audio() {
+    LOGI("napi_proxy-->IjkMediaPlayer_native_setup");
+    if (!IJKMP_GLOABL_INIT) {
+        ijkmp_global_init();
+    }
+
+    IJKMP_GLOABL_INIT = true;
+    IjkMediaPlayer *mp = ijkmp_android_create(message_loop);
+    IJKPlayerNapiProxy::set_media_player(mp);
+    ijkmp_set_inject_opaque(mp, ijkmp_get_weak_thiz(mp));
+    ijkmp_set_ijkio_inject_opaque(mp, ijkmp_get_weak_thiz(mp));
+}
+
 void IJKPlayerNapiProxy::IjkMediaPlayer_setDataSource(char *url) {
     IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player();
     ijkmp_set_data_source(mp, url);
