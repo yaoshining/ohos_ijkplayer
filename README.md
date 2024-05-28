@@ -8,11 +8,82 @@
 
 ## 编译运行
 
-1、通过IDE工具下载依赖SDK，Tools->SDK Manager->OpenHarmony SDK 把native选项勾上下载，API版本>=9
+1、手动删除ijkplayer/libs中的两个so库。
 
-2、开发板选择RK3568，[ROM下载地址](http://ci.openharmony.cn/workbench/cicd/dailybuild/dailylist). 选择开发板类型是rk3568，请使用最新的版本
+2、使用交叉编译工具(https://gitee.com/openharmony-sig/tpc_c_cplusplus)编译出FFmpeg-ff4.0和openssl两个库（具体编译方式可以看下库中详细描述），编译好后存放到ijkplayer/src/main/cpp/thirdparty下，保留ffmpeg文件夹下原本的config文件。
+    
+    1. 注意编译FFmpeg-ff4.0的时候依赖的openssl使用OpenSSL_1_1_1w
 
-3、使用git clone下载源码，不要直接通过gitee网页的方式下载
+    2. 编译之前需要先修改tpc_c_cplusplus\thirdparty\openssl下面HPKBUILD文件中openssl的版本
+    ```
+    pkgver=OpenSSL_1_1_1t 
+    //修改为
+    pkgver=OpenSSL_1_1_1w
+    ```
+    3. 下载openssl的[OpenSSL_1_1_1w版本](https://github.com/openssl/openssl/archive/refs/tags/OpenSSL_1_1_1w.tar.gz)，执行以下命令获取对应的sha512值，替换SHA512SUM文件的内容。
+
+    ```
+    sha512num openssl-OpenSSL_1_1_1w.tar.gz
+
+3、修改ijkplayer/src/main/cpp/下的CMakeLists.txt文件以及ijkplayer、ijksdl中的CMakeLists.txt文件，总共三个CMakeLists.txt文件，请注意
+
+```
+#CMakeLists.txt都屏蔽以下内容
+#target_link_libraries(ijkplayer ijkffmpeg)
+
+#add_library(ijkffmpeg SHARED IMPORTED)
+#set_target_properties(ijkffmpeg PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../../../libs/${OHOS_ARCH}/libijkffmpeg.z.so)
+```
+
+```
+#ijkplayer/src/main/cpp/ijkplayer中的CMakeLists.txt添加如下内容
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../third_party/ffmpeg/${OHOS_ARCH}/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../third_party/openssl/${OHOS_ARCH}/include)
+
+target_link_libraries(ijkplayer PUBLIC z)
+target_link_libraries(ijkplayer PUBLIC avcodec)
+target_link_libraries(ijkplayer PUBLIC avfilter)
+target_link_libraries(ijkplayer PUBLIC avformat)
+target_link_libraries(ijkplayer PUBLIC avutil)
+target_link_libraries(ijkplayer PUBLIC swresample)
+target_link_libraries(ijkplayer PUBLIC swscale)
+target_link_libraries(ijkplayer PUBLIC avdevice)
+target_link_libraries(ijkplayer PUBLIC crypto)
+target_link_libraries(ijkplayer PUBLIC ssl)
+target_link_directories(ijkplayer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/ffmpeg/${OHOS_ARCH}/lib ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/openssl/${OHOS_ARCH}/lib)
+```
+
+```
+#ijkplayer/src/main/cpp/ijksdl中的CMakeLists.txt添加如下内容
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../third_party/ffmpeg/${OHOS_ARCH}/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../third_party/openssl/${OHOS_ARCH}/include)
+
+target_link_libraries(ijksdl PUBLIC z)
+target_link_libraries(ijksdl PUBLIC avcodec)
+target_link_libraries(ijksdl PUBLIC avfilter)
+target_link_libraries(ijksdl PUBLIC avformat)
+target_link_libraries(ijksdl PUBLIC avutil)
+target_link_libraries(ijksdl PUBLIC swresample)
+target_link_libraries(ijksdl PUBLIC swscale)
+target_link_libraries(ijksdl PUBLIC avdevice)
+target_link_libraries(ijksdl PUBLIC crypto)
+target_link_libraries(ijksdl PUBLIC ssl)
+target_link_directories(ijksdl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/ffmpeg/${OHOS_ARCH}/lib ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/openssl/${OHOS_ARCH}/lib)
+```
+
+```
+#ijkplayer/src/main/cpp/中的CMakeLists.txt添加如下内容
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/third_party/ffmpeg/${OHOS_ARCH}/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/third_party/openssl/${OHOS_ARCH}/include)
+
+修改
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-int-conversion")
+替换成
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-int-conversion -Wl,-Bsymbolic")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-int-conversion -Wl,-Bsymbolic")
+```
+
+
 
 ## 下载安装
 ```shell
@@ -241,11 +312,9 @@ ohpm install @ohos/ijkplayer
 
 ## 依赖的三方库编译指导
 
-1、FFmpeg:基于B站的FFmpeg版本(ff4.0--ijk0.8.8--20210426--001):[FFmpeg源码链接](https://github.com/bilibili/FFmpeg/tags), 由于工具链问题,请使用GN编译,编译教程参考：[OpenHarmony编译构建指导](https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/subsystems/subsys-build-all.md). 编译脚本参考详见目录:doc/FFmpeg/
+1、soudtouch:基于B站的soudtouch版本(ijk-r0.1.2-dev):[soundtouch源码链接](https://github.com/bilibili/soundtouch/branches), 标准的库,可直接通过DevEco Studio cmake编译，编译脚本参考详见目录:doc/soundtouch
 
-2、soudtouch:基于B站的soudtouch版本(ijk-r0.1.2-dev):[soundtouch源码链接](https://github.com/bilibili/soundtouch/branches), 标准的库,可直接通过DevEco Studio cmake编译，编译脚本参考详见目录:doc/soundtouch
-
-3、yuv:基于B站的yuv版本(ijk-r0.2.1-dev):[yuv源码链接](https://github.com/bilibili/libyuv/branches), 标准的库,可直接通过DevEco Studio cmake编译,编译脚本参考详见目录:doc/yuv
+2、yuv:基于B站的yuv版本(ijk-r0.2.1-dev):[yuv源码链接](https://github.com/bilibili/libyuv/branches), 标准的库,可直接通过DevEco Studio cmake编译,编译脚本参考详见目录:doc/yuv
 
 
 ## 约束与限制
