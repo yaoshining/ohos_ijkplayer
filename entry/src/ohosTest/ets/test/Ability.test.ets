@@ -28,7 +28,6 @@ export default function abilityTest() {
   describe('ActsAbilityTest',  () =>{
     it('initIjkPlayer', 0,  () => {
       mIjkMediaPlayer.setAudioId('audioIjkId');
-      mIjkMediaPlayer.isVideo(false);
       //设置debug模式
       mIjkMediaPlayer.setDebug(true);
       //初始化配置
