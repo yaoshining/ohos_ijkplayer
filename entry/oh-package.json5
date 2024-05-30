@@ -1,5 +1,5 @@
 {
-  "license": "Apache License 2.0",
+  "license": "LGPLv2.1 or later",
   "devDependencies": {},
   "name": "entry",
   "description": "ijkplayer是OpenHarmony环境下可用的一款基于FFmpeg的视频播放器。",
