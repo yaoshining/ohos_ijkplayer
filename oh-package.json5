@@ -1,5 +1,5 @@
 {
-  "license": "Apache License 2.0",
+  "license": "LGPLv2.1 or later",
   "devDependencies": {
     "@ohos/hypium": "1.0.6"
   },
