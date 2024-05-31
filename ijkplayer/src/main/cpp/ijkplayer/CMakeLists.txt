@@ -42,9 +42,6 @@ add_library(ijkplayer  SHARED
 add_library(soundtouch STATIC IMPORTED)
 set_target_properties(soundtouch PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/soundtouch/${OHOS_ARCH}/libsoundtouch.a)
 
-add_library(ijkffmpeg SHARED IMPORTED)
-set_target_properties(ijkffmpeg PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../../../../libs/${OHOS_ARCH}/libijkffmpeg.z.so)
-
 add_library(ijksdl_so SHARED IMPORTED)
 set_target_properties(ijksdl_so PROPERTIES IMPORTED_LOCATION ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libijksdl.so)
 
@@ -52,12 +49,26 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../third_party/ffmpeg/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../third_party/yuv/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../third_party/soundtouch/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../third_party/ffmpeg/${OHOS_ARCH}/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../third_party/openssl/${OHOS_ARCH}/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../third_party/soundtouch/${OHOS_ARCH}/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../third_party/yuv/${OHOS_ARCH}/include)
 
+target_link_directories(ijkplayer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/ffmpeg/${OHOS_ARCH}/lib 														 
+${CMAKE_CURRENT_SOURCE_DIR}/../third_party/openssl/${OHOS_ARCH}/lib)
 
-
-target_link_libraries(ijkplayer ijkffmpeg)
 target_link_libraries(ijkplayer ijksdl_so)
 target_link_libraries(ijkplayer EGL)
 target_link_libraries(ijkplayer GLESv3)
 target_link_libraries(ijkplayer hilog_ndk.z)
 target_link_libraries(ijkplayer soundtouch)
+target_link_libraries(ijkplayer z)
+target_link_libraries(ijkplayer avcodec)
+target_link_libraries(ijkplayer avfilter)
+target_link_libraries(ijkplayer avformat)
+target_link_libraries(ijkplayer avutil)
+target_link_libraries(ijkplayer swresample)
+target_link_libraries(ijkplayer swscale)
+target_link_libraries(ijkplayer avdevice)
+target_link_libraries(ijkplayer crypto)
+target_link_libraries(ijkplayer ssl)
