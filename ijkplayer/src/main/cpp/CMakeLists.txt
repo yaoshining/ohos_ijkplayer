@@ -2,7 +2,8 @@
 cmake_minimum_required(VERSION 3.4.1)
 project(ijkplayer)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-int-conversion")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-int-conversion -Wl,-Bsymbolic")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-int-conversion -Wl,-Bsymbolic")
 
 add_subdirectory(ijksdl)
 add_subdirectory(ijkplayer)
@@ -34,17 +35,11 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/proxy)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/napi)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/utils/napi)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/third_party/ffmpeg/include)
-
-
-add_library(ijkffmpeg SHARED IMPORTED )
-
-set_target_properties(ijkffmpeg
-        PROPERTIES IMPORTED_LOCATION
-        ${CMAKE_SOURCE_DIR}/../../../libs/${OHOS_ARCH}/libijkffmpeg.z.so)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/third_party/ffmpeg/${OHOS_ARCH}/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/third_party/openssl/${OHOS_ARCH}/include)
 
 target_link_libraries(ijkplayer_napi PUBLIC ijkplayer)
 target_link_libraries(ijkplayer_napi PUBLIC ijksdl)
-target_link_libraries(ijkplayer_napi PUBLIC ijkffmpeg)
 target_link_libraries(ijkplayer_napi PUBLIC EGL)
 target_link_libraries(ijkplayer_napi PUBLIC GLESv3)
 target_link_libraries(ijkplayer_napi PUBLIC hilog_ndk.z)
@@ -54,7 +49,6 @@ target_link_libraries(ijkplayer_napi PUBLIC uv)
 
 target_link_libraries(ijkplayer_audio_napi PUBLIC ijkplayer)
 target_link_libraries(ijkplayer_audio_napi PUBLIC ijksdl)
-target_link_libraries(ijkplayer_audio_napi PUBLIC ijkffmpeg)
 target_link_libraries(ijkplayer_audio_napi PUBLIC EGL)
 target_link_libraries(ijkplayer_audio_napi PUBLIC GLESv3)
 target_link_libraries(ijkplayer_audio_napi PUBLIC hilog_ndk.z)

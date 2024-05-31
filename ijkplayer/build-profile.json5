@@ -9,7 +9,8 @@
       "arguments": " -DOHOS_STL=c++_shared",
       "abiFilters": [
         "armeabi-v7a",
-        "arm64-v8a"
+        "arm64-v8a",
+	"x86_64"
       ],
       "cppFlags": ""
     },
