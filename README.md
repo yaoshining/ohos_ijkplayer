@@ -16,26 +16,29 @@
    1. 注意编译FFmpeg-ff4.0的时候依赖的openssl使用OpenSSL_1_1_1w
 
    2. 编译之前需要先修改下面HPKBUILD文件中[openssl](https://gitee.com/openharmony-sig/tpc_c_cplusplus/tree/master/thirdparty/openssl)的版本
-   
+
       ```shell
       pkgver=OpenSSL_1_1_1t 
       //修改为
       pkgver=OpenSSL_1_1_1w
       ```
-   
+
    3. 下载openssl的[OpenSSL_1_1_1w版本](https://github.com/openssl/openssl/archive/refs/tags/OpenSSL_1_1_1w.tar.gz)，执行以下命令获取对应的sha512值，替换SHA512SUM文件的内容。
-   
+
       ```shell
       sha512num openssl-OpenSSL_1_1_1w.tar.gz
       ```
 
+   4. 编译最后会在lycium\usr生成FFmpeg-ff4.0文件夹改名为ffmpeg。
+
 3. soudtouch:基于B站的soudtouch版本(ijk-r0.1.2-dev):[soundtouch源码链接](https://github.com/bilibili/soundtouch/branches) ，soundtouch须在交叉编译出库文件和头文件。
+
    1. 把doc目录下的soundtouch-ijk文件夹拷贝到thirdparty下在lycium文件夹执行./build.sh soundtouch-ijk可以在lycium\usr目录下编译出soundtouch的静态库和头文件
 
 4. yuv:基于B站的yuv版本(ijk-r0.2.1-dev):[yuv源码链接](https://github.com/bilibili/libyuv/branches)，yuv须在交叉编译出库文件和头文件。
    1. 把doc目录下的libyuv-ijk文件夹拷贝到thirdparty下在lycium文件夹执行./build.sh libyuv-ijk可以在lycium\usr目录下编译出yuv的静态库和头文件
 
-5.	把编译生成的取出openssl、FFmpeg、soundtouch、yuv的文件夹，存放到工程的ijkplayer/src/main/cpp/thirdparty下，如图所示：
+5. 把编译生成的openssl、ffmpeg、soundtouch、yuv的文件夹，覆盖到工程的ijkplayer/src/main/cpp/thirdparty下，如图所示：
 
 ![img.png](image/img.png)
 
