@@ -50,6 +50,7 @@ package() {
     cd $builddir	
     mkdir -p $LYCIUM_ROOT/usr/$pkgname/$ARCH/include/
     mkdir -p $LYCIUM_ROOT/usr/$pkgname/$ARCH/lib
+    cp -rf *.h $LYCIUM_ROOT/usr/$pkgname/$ARCH/include/
     cp -rf include/* $LYCIUM_ROOT/usr/$pkgname/$ARCH/include/
     cp -rf $ARCH-build/*.a $LYCIUM_ROOT/usr/$pkgname/$ARCH/lib/
     ret=$?

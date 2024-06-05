@@ -40,7 +40,7 @@ add_library(ijkplayer  SHARED
 
 
 add_library(soundtouch STATIC IMPORTED)
-set_target_properties(soundtouch PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/soundtouch/${OHOS_ARCH}/libsoundtouch.a)
+set_target_properties(soundtouch PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/soundtouch/${OHOS_ARCH}/lib/libsoundtouch.a)
 
 add_library(ijksdl_so SHARED IMPORTED)
 set_target_properties(ijksdl_so PROPERTIES IMPORTED_LOCATION ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libijksdl.so)

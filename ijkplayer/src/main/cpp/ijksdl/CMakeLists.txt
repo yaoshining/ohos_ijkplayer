@@ -38,7 +38,7 @@ add_library(ijksdl  SHARED    ijksdl_aout.c
                                )
 
 add_library(yuv STATIC IMPORTED)
-set_target_properties(yuv PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/yuv/${OHOS_ARCH}/libyuv.a)
+set_target_properties(yuv PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/yuv/${OHOS_ARCH}/lib/libyuv.a)
 
 
 #add_library(ijkOpenSLES SHARED IMPORTED)
