@@ -22,6 +22,7 @@ export abstract class BasePlayer implements PlayerInterface {
   protected playListener: PlayerListener | null = null;
   protected context: Context | null = null;
   protected needInit: boolean = false;
+  protected id: string = "";
 
   init(): void {
 
@@ -35,11 +36,12 @@ export abstract class BasePlayer implements PlayerInterface {
     return this;
   }
 
-  setContext(context: Context): PlayerInterface {
+  setContext(context: Context, id: string): PlayerInterface {
     if (context != this.context) {
       this.needInit = true;
     }
     this.context = context;
+    this.id = id;
     return this;
   }
 

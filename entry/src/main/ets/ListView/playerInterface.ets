@@ -21,7 +21,7 @@ export interface PlayerInterface {
 
   setVideoSource(video: VideoSource): PlayerInterface;
 
-  setContext(context: object): PlayerInterface;
+  setContext(context: object, id: string): PlayerInterface;
 
   play(): void;
 
