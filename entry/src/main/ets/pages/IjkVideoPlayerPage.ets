@@ -14,18 +14,19 @@
  */
 
 import router from '@ohos.router';
-import { IjkMediaPlayer } from "@ohos/ijkplayer";
-import { OnPreparedListener } from "@ohos/ijkplayer";
-import { OnVideoSizeChangedListener } from "@ohos/ijkplayer";
-import { OnCompletionListener } from "@ohos/ijkplayer";
-import { OnBufferingUpdateListener } from "@ohos/ijkplayer";
-import { OnErrorListener, OnTimedTextListener } from "@ohos/ijkplayer";
-import { OnInfoListener } from "@ohos/ijkplayer";
-import { OnSeekCompleteListener } from "@ohos/ijkplayer";
-import { LogUtils } from "@ohos/ijkplayer"
-import { PlayStatus } from "../common/PlayStatus"
+import { Callback } from '@ohos.base';
+import { IjkMediaPlayer, InterruptEvent, InterruptHintType } from '@ohos/ijkplayer';
+import { OnPreparedListener } from '@ohos/ijkplayer';
+import { OnVideoSizeChangedListener } from '@ohos/ijkplayer';
+import { OnCompletionListener } from '@ohos/ijkplayer';
+import { OnBufferingUpdateListener } from '@ohos/ijkplayer';
+import { OnErrorListener, OnTimedTextListener } from '@ohos/ijkplayer';
+import { OnInfoListener } from '@ohos/ijkplayer';
+import { OnSeekCompleteListener } from '@ohos/ijkplayer';
+import { LogUtils } from '@ohos/ijkplayer';
 import prompt from '@ohos.promptAction';
-import { RouterParam } from "./RouterParam"
+import { PlayStatus } from '../common/PlayStatus';
+import { RouterParam } from './RouterParam';
 
 let CONTROL_PlayStatus = PlayStatus.INIT;
 let PROGRESS_MAX_VALUE: number = 100;
@@ -58,6 +59,17 @@ struct IjkVideoPlayerPage {
   aboutToAppear() {
     LogUtils.getInstance().LOGI("aboutToAppear");
     this.videoUrl = (router.getParams() as RouterParam).videoUrl;
+    let event:  Callback<InterruptEvent> = (event) => {
+      console.info(`event: ${JSON.stringify(event)}`);
+      if (event.hintType === InterruptHintType.INTERRUPT_HINT_PAUSE) {
+        this.pause();
+      } else if (event.hintType === InterruptHintType.INTERRUPT_HINT_RESUME) {
+        this.startPlayOrResumePlay();
+      } else if (event.hintType === InterruptHintType.INTERRUPT_HINT_STOP) {
+        this.stop();
+      }
+    }
+    mIjkMediaPlayer.on('audioInterrupt', event);
   }
 
   aboutToDisappear() {
@@ -67,6 +79,7 @@ struct IjkVideoPlayerPage {
     if (CONTROL_PlayStatus != PlayStatus.INIT) {
       this.stop();
     }
+    mIjkMediaPlayer.off('audioInterrupt');
   }
 
   onPageShow() {

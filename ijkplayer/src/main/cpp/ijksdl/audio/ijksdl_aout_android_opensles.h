@@ -26,8 +26,9 @@
 #define IJKSDL_ANDROID__IJKSDL_AOUT_ANDROID_OPENSLES_H
 
 #include "../ijksdl_aout.h"
+#include "../ijkplayer/ff_ffplay.h"
 
-SDL_Aout *SDL_AoutAndroid_CreateForOpenSLES();
+SDL_Aout *SDLAoutCreateForOpenSLES(FFPlayer *ffp);
 bool      SDL_AoutAndroid_IsObjectOfOpenSLES(SDL_Aout *aout);
 
 #endif

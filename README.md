@@ -228,6 +228,27 @@ ohpm install @ohos/ijkplayer
 ```
    mIjkMediaPlayer.setVolume(leftVolume, rightVolume);
 ```
+### 音频焦点监控
+```
+   import { InterruptEvent, InterruptHintType } from '@ohos/ijkplayer/src/main/ets/ijkplayer/IjkMediaPlayer';
+   import { Callback } from '@ohos.base';
+   // 音频焦点变化回调处理
+   let event:  Callback<InterruptEvent> = (event) => {
+     console.info(`event: ${JSON.stringify(event)}`);
+     if (event.hintType === InterruptHintType.INTERRUPT_HINT_PAUSE) {
+       this.pause();
+     } else if (event.hintType === InterruptHintType.INTERRUPT_HINT_RESUME) {
+       this.startPlayOrResumePlay();
+     } else if (event.hintType === InterruptHintType.INTERRUPT_HINT_STOP) {
+       this.stop();
+     }
+   }
+   // 设置监听音频中断事件
+   mIjkMediaPlayer.on('audioInterrupt', event);
+
+   // 取消订阅音频中断事件
+   mIjkMediaPlayer.off('audioInterrupt');
+```
 
 ## 接口说明
 
@@ -273,7 +294,37 @@ ohpm install @ohos/ijkplayer
 | deselectTrack                  | track: string                               | void               | 删除选择轨道                 |
 | getMediaInfo                   | 无                                           | object              | 获取媒体信息                 |
 | setAudioId                     | id: string                                  | void              | 设置创建音频对象，设置id          |
+| on              | type: ‘audioInterrupt’, callback: Callback< InterruptEvent >               | void              | 监听音频中断事件，使用callback方式返回结果         |
+| off             | type: ‘audioInterrupt’                              | void              | 取消订阅音频中断事件         |
 
+### 参数说明
+1.	InterruptEvent
+播放中断时，应用接收的中断事件。
+
+| 名称      | 类型               | 必填 | 说明                                 |
+|-----------|--------------------|------|--------------------------------------|
+| forceType | InterruptForceType | 是   | 操作是由系统执行或是由应用程序执行。 |
+| hintType  | InterruptHint      | 是   | 中断提示。                           |
+
+2.	InterruptForceType
+枚举，强制打断类型。
+
+| 名称            | 值 | 说明                                 |
+|-----------------|----|--------------------------------------|
+| INTERRUPT_FORCE | 0  | 由系统进行操作，强制打断音频播放。   |
+| INTERRUPT_SHARE | 1  | 由应用进行操作，可以选择打断或忽略。 |
+
+3.	InterruptHint
+枚举，中断提示。
+
+| 名称                  | 值 | 说明                                         |
+|-----------------------|----|----------------------------------------------|
+| INTERRUPT_HINT_NONE   | 0  | 无提示。                                     |
+| INTERRUPT_HINT_RESUME | 1  | 提示音频恢复。                               |
+| INTERRUPT_HINT_PAUSE  | 2  | 提示音频暂停。                               |
+| INTERRUPT_HINT_STOP   | 3  | 提示音频停止。                               |
+| INTERRUPT_HINT_DUCK   | 4  | 提示音频躲避。（躲避：音量减弱，而不会停止） |
+| INTERRUPT_HINT_UNDUCK | 5  | 提示音量恢复。                               |
 
 ## 约束与限制
 
@@ -282,6 +333,8 @@ ohpm install @ohos/ijkplayer
 - DevEco Studio版本: 4.1Canary(4.1.3.213),SDK: API11(4.1.2.3)
 - DevEco Studio版本: 4.0(4.0.3.512),SDK: API10(4.0.10.9)
 - DevEco Studio版本: 4.0Canary1(4.0.3.212),SDK: API10(4.0.8.3)
+
+ 监听音频中断事件需保证设备系统版本在22以上。
 
 ## 目录结构
 

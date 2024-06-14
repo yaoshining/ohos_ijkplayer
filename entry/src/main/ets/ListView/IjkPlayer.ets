@@ -40,7 +40,9 @@ export class IjkPlayer extends BasePlayer {
       this.needInit = false;
       let ijkMediaPlayer = this.mIjkMediaPlayer;
 
-      this.mIjkMediaPlayer.setContext(this.context, this.id);
+      if (this.context !== null) {
+        this.mIjkMediaPlayer.setContext(this.context, this.id);
+      }
       //暂停上一个
       if (this.hasContext) {
         ijkMediaPlayer.stop();

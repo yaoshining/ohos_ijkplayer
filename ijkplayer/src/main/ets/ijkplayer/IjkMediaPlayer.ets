@@ -25,8 +25,29 @@ import { PropertiesType } from '../ijkplayer/common/PropertiesType';
 import { LogUtils } from "../ijkplayer/utils/LogUtils";
 import window from '@ohos.window';
 import { IjkPlayerNapi } from "./utils/IjkPlayerNapi";
-import { BusinessError } from '@ohos.base';
-import { newIjkPlayerAudio } from 'libijkplayer_audio_napi.so'
+import { BusinessError, Callback } from '@ohos.base';
+import { newIjkPlayerAudio } from 'libijkplayer_audio_napi.so';
+
+export type AudioInterrupt = 'audioInterrupt';
+
+export enum InterruptHintType {
+  INTERRUPT_HINT_NONE = 0,
+  INTERRUPT_HINT_RESUME = 1,
+  INTERRUPT_HINT_PAUSE = 2,
+  INTERRUPT_HINT_STOP = 3,
+  INTERRUPT_HINT_DUCK = 4,
+  INTERRUPT_HINT_UNDUCK = 5,
+}
+
+export enum InterruptForceType {
+  INTERRUPT_FORCE = 0,
+  INTERRUPT_SHARE = 1,
+}
+
+export interface InterruptEvent {
+  forceType: InterruptForceType;
+  hintType: InterruptHintType;
+}
 
 export class IjkMediaPlayer {
   private static instance: IjkMediaPlayer;
@@ -60,6 +81,7 @@ export class IjkMediaPlayer {
   private ijkplayer_napi: IjkPlayerNapi | null = null;
   private ijkplayer_audio_napi: newIjkPlayerAudio | null = null;
   private id: string = '';
+  private callback: Callback<InterruptEvent> | null = null;
 
   setContext(context: object, id: string): void {
     this.ijkplayer_napi = context as IjkPlayerNapi;
@@ -205,6 +227,14 @@ export class IjkMediaPlayer {
     }
   }
 
+  public on(type: AudioInterrupt,  callback: Callback<InterruptEvent>) : void {
+    this.callback= callback;
+  }
+
+  public off(type: AudioInterrupt): void {
+    this.callback = null;
+  }
+
   setOnVideoSizeChangedListener(listener: OnVideoSizeChangedListener): void {
     this.mOnVideoSizeChangedListener = listener;
   }
@@ -306,6 +336,15 @@ export class IjkMediaPlayer {
       }
       if (what == MessageType.MEDIA_TIMED_TEXT && onTimedTextListener != null) {
         onTimedTextListener.onTimedText(obj);
+      }
+      if (what == MessageType.MEDIA_AUDIO_INTERRUPT && onCompletionListener != null) {
+        if (this.callback){
+          let event: InterruptEvent = {
+            forceType: arg1,
+            hintType: arg2,
+          }
+          this.callback(event);
+        }
       }
     };
     if (!!this.ijkplayer_napi) {

@@ -6,6 +6,6 @@
   "repository": {},
   "version": "2.0.3-rc.1",
   "dependencies": {
-    "@ohos/ijkplayer": "2.0.3-rc.1"
+    "@ohos/ijkplayer": "file:../ijkplayer"
   }
 }
