@@ -46,15 +46,15 @@ add_library(ijksdl_so SHARED IMPORTED)
 set_target_properties(ijksdl_so PROPERTIES IMPORTED_LOCATION ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libijksdl.so)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../third_party/ffmpeg/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../third_party/ffmpeg/)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../third_party/yuv/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../third_party/soundtouch/include)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../third_party/ffmpeg/${OHOS_ARCH}/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../third_party/ffmpeg/ffmpeg/${OHOS_ARCH}/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../third_party/openssl/${OHOS_ARCH}/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../third_party/soundtouch/${OHOS_ARCH}/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../third_party/yuv/${OHOS_ARCH}/include)
 
-target_link_directories(ijkplayer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/ffmpeg/${OHOS_ARCH}/lib 														 
+target_link_directories(ijkplayer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/ffmpeg/ffmpeg/${OHOS_ARCH}/lib
 ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/openssl/${OHOS_ARCH}/lib)
 
 target_link_libraries(ijkplayer ijksdl_so)
