@@ -39,6 +39,8 @@ export class IjkPlayer extends BasePlayer {
     if ((this.mIjkMediaPlayer == null && this.context != null) || this.needInit) {
       this.needInit = false;
       let ijkMediaPlayer = this.mIjkMediaPlayer;
+
+      this.mIjkMediaPlayer.setContext(this.context, this.id);
       //暂停上一个
       if (this.hasContext) {
         ijkMediaPlayer.stop();
@@ -141,8 +143,8 @@ export class IjkPlayer extends BasePlayer {
     return this;
   }
 
-  setContext(context: Context): PlayerInterface {
-    return super.setContext(context);
+  setContext(context: Context, id: string): PlayerInterface {
+    return super.setContext(context, id);
   }
 
   play(): void {

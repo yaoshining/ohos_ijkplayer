@@ -85,7 +85,7 @@ export struct CommonVideoView {
   initPlayer(): void {
     this.player = VideoPlayer.getInstance()
     let listener = new PlayerListenerClass();
-    this.player.setContext(this.xComponentContext!)
+    this.player.setContext(this.xComponentContext!, this.xComponentId)
       .setVideoSource(this.videoSource!)
       .setListener(listener);
   }

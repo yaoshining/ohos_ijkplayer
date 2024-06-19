@@ -41,8 +41,8 @@ export class VideoPlayer implements PlayerInterface {
     return this.player.setVideoSource(video);
   }
 
-  setContext(context: object): PlayerInterface {
-    return this.player.setContext(context);
+  setContext(context: object, id: string): PlayerInterface {
+    return this.player.setContext(context, id);
   }
 
   play(): void {
