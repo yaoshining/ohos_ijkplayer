@@ -48,7 +48,7 @@ typedef struct hashmap *HashMap; // 定义HashMap
 // 函数指针
 typedef int (*HashCode)(HashMap map, void *key);              // 指向哈希函数
 typedef Bool (*HashEqual)(void *key1, void *key2);            // 指向判等函数
-typedef void (*HashPut)(HashMap map, void *key, void *value); // 指向添加键值对的函数
+typedef void (*HashPut)(HashMap map, const void *key, const void *value); // 指向添加键值对的函数
 typedef void *(*HashGet)(HashMap map, void *key);             // 指向获取键对应值的函数
 typedef Bool (*HashRemove)(HashMap map, void *key);           // 指向删除键值对的函数
 typedef void (*HashClear)(HashMap map);                       // 指向清空map的函数

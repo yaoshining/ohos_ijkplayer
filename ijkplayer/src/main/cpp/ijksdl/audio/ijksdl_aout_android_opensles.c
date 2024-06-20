@@ -21,57 +21,54 @@
  * License along with ijkPlayer; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-
-#include <stdbool.h>
-#include <assert.h>
-#include <math.h>
-#include <inttypes.h>
-#include "../ijksdl_inc_internal.h"
-#include "../ijksdl_thread.h"
+ 
+#include "ijksdl_aout_android_opensles.h"
+#include "ohaudio/native_audiorenderer.h"
+#include "ohaudio/native_audiostreambuilder.h"
+#include "ohaudio/native_audiostream_base.h"
+#include "hilog/log.h"
+#include "../ijksdl_class.h"
+#include "../ijksdl_aout.h"
+#include "../ijksdl_audio.h"
 #include "../ijksdl_aout_internal.h"
-#include "../utils/opensles/OpenSLES.h"
-#include "../utils/opensles/OpenSLES_OpenHarmony.h"
-#include "../utils/opensles/OpenSLES_Platform.h"
 
-#ifdef SDLTRACE
-#undef SDLTRACE
-#define SDLTRACE(...)
-//#define SDLTRACE ALOGW
-#endif
+static const int OPENSLES_BUFFERS = 255; /* maximum number of buffers */
+static const int OPENSLES_BUFLEN = 10;   /* ms */
+static const int GLOBAL_RESMGR = 0xFF00;
+static const char *TAG = "[Sample_audio]";
+static const int MS_TO_S = 1000;
+static const int US_TO_S = 1000000;
 
-#define OPENSLES_BUFFERS 255 /* maximum number of buffers */
-#define OPENSLES_BUFLEN  10 /* ms */
-
-bool AUDIO_PAUSE_STATUS;
-bool AUDIO_CLOSE_STATUS;
+SDL_Aout_Opaque *g_opaque = NULL;
+static OH_AudioRenderer *audioRenderer = NULL;
+static OH_AudioStreamBuilder *rendererBuilder = NULL;
+static OH_AudioRenderer *audioRendererNormal = NULL; // 生成音频播放对象
 
 static SDL_Class g_opensles_class = {
-    .name = "OpenSLES",
+    .name = "OpenOhAudio",
 };
 
-typedef struct SDL_Aout_Opaque {
-    SDL_cond   * wakeup_cond;
-    SDL_mutex  * wakeup_mutex;
+typedef struct DataFormatPcm {
+    Sint32 formatType;
+    Sint32 numChannels;
+    Sint32 samplesPerSec;
+    Sint32 bitsPerSample;
+    Sint32 containerSize;
+    Sint32 channelMask;
+    Sint32 endianness;
+} OHDataFormatPcm;
 
+typedef struct SDL_Aout_Opaque {
+    FFPlayer *ffp;
     SDL_Thread * audio_tid;
     SDL_Thread _audio_tid;
 
     SDL_AudioSpec    spec;
-    SLDataFormat_PCM format_pcm;
+    OHDataFormatPcm  formatPcm;
     int              bytes_per_frame;
     int              milli_per_buffer;
     int              frames_per_buffer;
     int              bytes_per_buffer;
-
-    SLObjectItf                     slObject;
-    SLEngineItf                     slEngine;
-
-    SLObjectItf                     slOutputMixObject;
-
-    SLObjectItf                     slPlayerObject;
-    SLOHBufferQueueItf   slBufferQueueItf;
-    SLVolumeItf                     slVolumeItf;
-    SLPlayItf                       slPlayItf;
 
     volatile bool  need_set_volume;
     volatile float left_volume;
@@ -86,547 +83,180 @@ typedef struct SDL_Aout_Opaque {
     size_t         buffer_capacity;
 } SDL_Aout_Opaque;
 
-#define CHECK_OPENSL_ERROR(ret__, ...) \
-    do { \
-        if((ret__) != SL_RESULT_SUCCESS) \
-        { \
-            ALOGE(__VA_ARGS__); \
-            goto fail; \
-        } \
-    } while(0)
-
-#define CHECK_COND_ERROR(cond__, ...) \
-    do { \
-        if(!(cond__)) \
-        { \
-            ALOGE(__VA_ARGS__); \
-            goto fail; \
-        } \
-    } while(0)
-
-static inline SLmillibel android_amplification_to_sles(float volumeLevel) {
-    // FIXME use the FX Framework conversions
-    if (volumeLevel < 0.00000001)
-        return SL_MILLIBEL_MIN;
-
-    SLmillibel mb = lroundf(2000.f * log10f(volumeLevel));
-    if (mb < SL_MILLIBEL_MIN)
-        mb = SL_MILLIBEL_MIN;
-    else if (mb > 0)
-        mb = 0; 
-    return mb;
-}
-
-static void aout_opensles_callback(SLOHBufferQueueItf caller, void * pContext)
+static int32_t AudioRendererOnWriteData(OH_AudioRenderer *renderer, void *userData, void *buffer, int32_t bufferLen)
 {
-    LOGI("audio->aout_opensles_callback");
-    SDLTRACE("%s\n", __func__);
-    SDL_Aout        * aout = pContext;
-    SDL_Aout_Opaque * opaque = aout->opaque;
-
-    if (opaque) {
-        if(!AUDIO_CLOSE_STATUS && !AUDIO_PAUSE_STATUS) {
-            SDL_LockMutex(opaque->wakeup_mutex);
-            opaque->is_running = true;
-            SDL_CondSignal(opaque->wakeup_cond);
-            SDL_UnlockMutex(opaque->wakeup_mutex);
-        }
-        else{
-            opaque->is_running = true;
-            SDL_CondSignal(opaque->wakeup_cond);
-        }
+    SDL_Aout_Opaque *opaque = g_opaque;
+    if ((opaque == NULL) || opaque->abort_request || opaque->pause_on) {
+        return 0;
     }
-    LOGI("audio->aout_opensles_callback end");
-}
 
-static int aout_thread_n(SDL_Aout * aout)
-{
-    LOGI("audio->aout_thread_n");
-    SDL_Aout_Opaque               * opaque = aout->opaque;
-    SLPlayItf slPlayItf = opaque->slPlayItf;
-    SLOHBufferQueueItf slBufferQueueItf = opaque->slBufferQueueItf;
-    SLVolumeItf slVolumeItf = opaque->slVolumeItf;
-    SDL_AudioCallback audio_cblk = opaque->spec.callback;
-    void                          * userdata = opaque->spec.userdata;
-    uint8_t                       * next_buffer = NULL;
-    int next_buffer_index = 0;
-    size_t bytes_per_buffer = opaque->bytes_per_buffer;
-
-    SDL_SetThreadPriority(SDL_THREAD_PRIORITY_HIGH);
-
-    if (!opaque->abort_request) {
-        (*slPlayItf)->SetPlayState(slPlayItf, SL_PLAYSTATE_PLAYING);
+    SDL_AudioCallback audioCallback = opaque->spec.callback;
+    if (audioCallback != NULL) {
+        audioCallback(opaque->spec.userdata, (uint8_t *)buffer, bufferLen);
     }
-    while (!opaque->abort_request) {
-        SLOHBufferQueueState slState = {0};
-        LOGI("audio-->aout_thread_n abort_request");
-        SLresult slRet = (*slBufferQueueItf)->GetState(slBufferQueueItf, &slState);
-        if (slRet != SL_RESULT_SUCCESS) {
-            LOGI("%s: slBufferQueueItf->GetState() failed\n", __func__);
-            SDL_UnlockMutex(opaque->wakeup_mutex);
-        }
-
-        SDL_LockMutex(opaque->wakeup_mutex);
-        if (opaque->pause_on) {
-            LOGI("audio-->aout_thread_n opaque->pause_on");
-        } else {
-            LOGI("audio-->aout_thread_n opaque->pause_on false");
-        }
-        LOGI("audio-->aout_thread_n slState.count:%d", slState.count);
-        if (!opaque->abort_request && (opaque->pause_on || slState.count >= OPENSLES_BUFFERS)) {
-            while (!opaque->abort_request && (opaque->pause_on || slState.count >= OPENSLES_BUFFERS)) {
-                LOGI("audio-->aout_thread_n abort_request OPENSLES_BUFFERS");
-                if (!opaque->pause_on && !AUDIO_CLOSE_STATUS) {
-                    LOGI("audio-->aout_thread_n abort_request OPENSLES_BUFFERS SL_PLAYSTATE_PLAYING");
-                    SLuint32 playState;
-                    SLresult playStateResult = (*slPlayItf)->GetPlayState(slPlayItf, &playState);
-                    if ((playStateResult == SL_RESULT_SUCCESS && playState != 3)||(playStateResult != SL_RESULT_SUCCESS)) {
-                        LOGI("audio-->aout_thread_n GetPlayState SL_RESULT_SUCCESS while:%d", playState);
-                        AUDIO_PAUSE_STATUS = false;
-                        (*slPlayItf)->SetPlayState(slPlayItf, SL_PLAYSTATE_PLAYING);
-                    }
-                }
-                SDL_CondWaitTimeout(opaque->wakeup_cond, opaque->wakeup_mutex, 1000);
-                SLresult slRet = (*slBufferQueueItf)->GetState(slBufferQueueItf, &slState);
-                if (slRet != SL_RESULT_SUCCESS) {
-                    LOGI("audio-->%s: slBufferQueueItf->GetState() failed\n", __func__);
-                    SDL_UnlockMutex(opaque->wakeup_mutex);
-                }
-                LOGI("audio-->aout_thread_n abort_request OPENSLES_BUFFERS SL_PLAYSTATE_PAUSED");
-
-                if (opaque->pause_on && !AUDIO_CLOSE_STATUS) {
-                    LOGI("audio-->aout_thread_n abort_request OPENSLES_BUFFERS SL_PLAYSTATE_PAUSED go");
-                    SLuint32 playState;
-                    SLresult playStateResult = (*slPlayItf)->GetPlayState(slPlayItf, &playState);
-                    if((playState != 2) && !AUDIO_CLOSE_STATUS) {
-                        LOGI("audio-->aout_thread_n abort_request OPENSLES_BUFFERS SL_PLAYSTATE_PAUSED go exe");
-                        (*slPlayItf)->SetPlayState(slPlayItf, SL_PLAYSTATE_PAUSED);
-                    }
-                }
-            }
-            if (!opaque->abort_request && !opaque->pause_on && !AUDIO_CLOSE_STATUS) {
-                LOGI("audio-->aout_thread_n SetPlayState SL_PLAYSTATE_PLAYING");
-                SLuint32 playState;
-                SLresult playStateResult = (*slPlayItf)->GetPlayState(slPlayItf, &playState);
-                if ((playStateResult == SL_RESULT_SUCCESS && playState != 3)||(playStateResult != SL_RESULT_SUCCESS)) {
-                    AUDIO_PAUSE_STATUS = false;
-                    LOGI("audio-->aout_thread_n GetPlayState SL_RESULT_SUCCESS other:%d", playState);
-                    (*slPlayItf)->SetPlayState(slPlayItf, SL_PLAYSTATE_PLAYING);
-                }
-            }
-        }
-        if (opaque->need_flush) {
-            opaque->need_flush = 0;
-            LOGI("audio-->aout_thread_n Clear(slBufferQueueItf");
-            (*slBufferQueueItf)->Clear(slBufferQueueItf);
-        }
-#if 0
-
-        if (opaque->need_set_volume) {
-            opaque->need_set_volume = 0;
-            // FIXME: set volume here
-        }
-#endif
-        if (opaque->need_set_volume) {
-            LOGI("audio->aout_thread_n need_set_volume");
-            opaque->need_set_volume = 0;
-            //TODO 处理设置音量
-            SLmillibel maxVolumeLevel = 0;
-            (*slVolumeItf)->GetMaxVolumeLevel(slVolumeItf, &maxVolumeLevel);
-            SLmillibel perVolumeLevel = 1;
-            if(maxVolumeLevel!=1 && maxVolumeLevel>1){
-                perVolumeLevel=maxVolumeLevel/10;
-            }
-            SLmillibel curVolumeLevel = 1;
-            (*slVolumeItf)->GetVolumeLevel(slVolumeItf, &curVolumeLevel);
-            SLmillibel relVolumeLevel = curVolumeLevel;
-            if(opaque->left_volume > 0){
-                relVolumeLevel=(opaque->left_volume)*perVolumeLevel*10;
-            }
-            if(opaque->right_volume > 0){
-                relVolumeLevel=(opaque->right_volume)*perVolumeLevel*10;
-            }
-            if(opaque->left_volume<=0 && opaque->right_volume<=0){
-                opaque->left_volume=1;
-                opaque->right_volume=1;
-            }
-            LOGI("audio->slVolumeItf->SetVolumeLevel((%f, %f),%d,%d,%d,%d)\n", opaque->left_volume, opaque->right_volume,(int)maxVolumeLevel,(int)perVolumeLevel,(int)relVolumeLevel,(int)curVolumeLevel);
-            SLresult slRet = (*slVolumeItf)->SetVolumeLevel(slVolumeItf, relVolumeLevel);
-            if (slRet != SL_RESULT_SUCCESS) {
-                LOGI("audio->slVolumeItf->SetVolumeLevel failed %d\n", (int)slRet);
-            }
-        }
-        LOGI("audio->aout_thread_n SDL_UnlockMutex opaque->wakeup_mutex");
-
-        SDL_UnlockMutex(opaque->wakeup_mutex);
-
-        if(AUDIO_CLOSE_STATUS) return 0;
-
-        next_buffer = opaque->buffer + next_buffer_index * bytes_per_buffer;
-        next_buffer_index = (next_buffer_index + 1) % OPENSLES_BUFFERS;
-        LOGI("audio->aout_thread_n buffer->next_buffer_index:%d", next_buffer_index);
-        LOGI("audio->aout_thread_n buffer->buffer:%d", &next_buffer);
-        audio_cblk(userdata, next_buffer, bytes_per_buffer);
-        if (opaque->need_flush) {
-            (*slBufferQueueItf)->Clear(slBufferQueueItf);
-            opaque->need_flush = false;
-        }
-        LOGI("audio->aout_thread_n opaque->need_flus");
-
-        if (opaque->need_flush) {
-            LOGI("audio->aout_thread_n need_flush");
-            ALOGE("flush");
-            opaque->need_flush = 0;
-            (*slBufferQueueItf)->Clear(slBufferQueueItf);
-        } else {
-            LOGI("audio->aout_thread_n Enqueue buffer:%d==bytes_per_buffer:%d", next_buffer, bytes_per_buffer);
-            if(AUDIO_CLOSE_STATUS) return 0;
-            SLresult slRet = (*slBufferQueueItf)->Enqueue(slBufferQueueItf, next_buffer, bytes_per_buffer);
-            if (slRet == SL_RESULT_SUCCESS) {
-                LOGI("audio->Enqueue->SL_RESULT_SUCCESS");
-                // do nothing
-            } else if (slRet == SL_RESULT_BUFFER_INSUFFICIENT) {
-                // don't retry, just pass through
-                LOGI("audio->Enqueue->SL_RESULT_BUFFER_INSUFFICIENT\n");
-            } else {
-                LOGI("audio->Enqueue->failed = %d\n", (int)slRet);
-                break;
-            }
-        }
-
-        // TODO: 1 if callback return -1 or 0
-    }
-    LOGI("audio->aout_thread_n end");
     return 0;
 }
 
-static int aout_thread(void * arg)
+static int32_t AudioRendererOnInterrupt(OH_AudioRenderer *renderer, void *userData, OH_AudioInterrupt_ForceType type,
+                                        OH_AudioInterrupt_Hint hint)
 {
-    return aout_thread_n(arg);
+    LOGI("AudioRendererOnInterrupt type:%d, hint:%d", type, hint);
+    if ((g_opaque == NULL) || (g_opaque->ffp == NULL)) {
+        return -1;
+    }
+    ffp_notify_msg3(g_opaque->ffp, FFP_MSG_AUDIO_INTERRUPT, type, hint);
+    return 0;
 }
 
-static void aout_close_audio(SDL_Aout * aout)
+static double AoutGetLatencySeconds(SDL_Aout *aout)
 {
-    LOGI("audio->aout_close_audio");
-    AUDIO_CLOSE_STATUS=true;
-    SDL_Aout_Opaque * opaque = aout->opaque;
-    if (!opaque) {
-        LOGI("audio->aout_close_audio opaque NULL");
-        return;
-    }
-    LOGI("audio->aout_close_audio SDL_LockMutex");
-    SDL_LockMutex(opaque->wakeup_mutex);
-    opaque->abort_request = true;
-    SDL_CondSignal(opaque->wakeup_cond);
-    SDL_UnlockMutex(opaque->wakeup_mutex);
-    LOGI("audio->aout_close_audio SDL_WaitThread");
-//    SDL_WaitThread(opaque->audio_tid, NULL);
-    opaque->audio_tid = NULL;
-    LOGI("audio->aout_close_audio SL_PLAYSTATE_STOPPED before");
-    if (opaque->slPlayItf)
-        (*opaque->slPlayItf)->SetPlayState(opaque->slPlayItf, SL_PLAYSTATE_STOPPED);
-    LOGI("audio->aout_close_audio SL_PLAYSTATE_STOPPED end");
-    if (opaque->slBufferQueueItf)
-        (*opaque->slBufferQueueItf)->Clear(opaque->slBufferQueueItf);
-
-    if (opaque->slBufferQueueItf)
-        opaque->slBufferQueueItf = NULL;
-    if (opaque->slVolumeItf)
-        opaque->slVolumeItf = NULL;
-    if (opaque->slPlayItf)
-        opaque->slPlayItf = NULL;
-
-    if (opaque->slPlayerObject) {
-        (*opaque->slPlayerObject)->Destroy(opaque->slPlayerObject);
-        opaque->slPlayerObject = NULL;
-    }
-
-    freep((void **)&opaque->buffer);
-    LOGI("audio->aout_close_audio end");
+    return 0;
 }
 
-static void aout_free_l(SDL_Aout * aout)
+// 音频渲染器初始化
+static int AoutOpenAudio(SDL_Aout *aout, const SDL_AudioSpec *desired, SDL_AudioSpec *obtained)
 {
-    LOGI("audio->aout_free_l");
-    SDLTRACE("%s\n", __func__);
-    if (!aout)
-        return;
-
-    aout_close_audio(aout);
-
-    SDL_Aout_Opaque * opaque = aout->opaque;
-
-    if (opaque->slOutputMixObject) {
-        (*opaque->slOutputMixObject)->Destroy(opaque->slOutputMixObject);
-        opaque->slOutputMixObject = NULL;
+    if (audioRendererNormal != NULL) {
+        OH_AudioRenderer_Release(audioRendererNormal);
+        OH_AudioStreamBuilder_Destroy(rendererBuilder);
+        audioRendererNormal = NULL;
+        rendererBuilder = NULL;
     }
+    SDL_Aout_Opaque *opaque = aout->opaque;
 
-    opaque->slEngine = NULL;
-    if (opaque->slObject) {
-        (*opaque->slObject)->Destroy(opaque->slObject);
-        opaque->slObject = NULL;
-    }
-
-    SDL_DestroyCondP(&opaque->wakeup_cond);
-    SDL_DestroyMutexP(&opaque->wakeup_mutex);
-
-    SDL_Aout_FreeInternal(aout);
-    LOGI("audio->aout_free_l end");
-}
-
-static int aout_open_audio(SDL_Aout * aout, const SDL_AudioSpec * desired, SDL_AudioSpec * obtained)
-{
-    LOGI("audio->aout_open_audio");
-    AUDIO_CLOSE_STATUS = false;
-    AUDIO_PAUSE_STATUS = false;
-    SDLTRACE("%s\n", __func__);
-    assert(desired);
-    SDLTRACE("aout_open_audio()\n");
-    SDL_Aout_Opaque  * opaque = aout->opaque;
-    SLEngineItf slEngine = opaque->slEngine;
-    SLDataFormat_PCM * format_pcm = &opaque->format_pcm;
-    int ret = 0;
-
+    void *userdata = opaque->spec.userdata;
+    OHDataFormatPcm *formatPcm = &opaque->formatPcm;
     opaque->spec = *desired;
 
-    // config audio src
-    SLDataLocator_BufferQueue loc_bufq = {
-        SL_DATALOCATOR_BUFFERQUEUE,
-        OPENSLES_BUFFERS
-    };
-    //TODO audiotrack
-    //    int native_sample_rate = audiotrack_get_native_output_sample_rate(NULL);
-    //    ALOGI("OpenSL-ES: native sample rate %d Hz\n", native_sample_rate);
-    LOGI("audio->desired->channels:%d", desired->channels);
-    CHECK_COND_ERROR((desired->format == AUDIO_S16SYS), "%s: not AUDIO_S16SYS", __func__);
-    CHECK_COND_ERROR((desired->channels == 2 || desired->channels == 1), "%s: not 1,2 channel", __func__);
-    CHECK_COND_ERROR((desired->freq >= 8000 && desired->freq <= 48000), "%s: unsupport freq %d Hz", __func__, desired->freq);
+    formatPcm->numChannels = desired->channels;
+    formatPcm->samplesPerSec = desired->freq * MS_TO_S; // milli Hz 48000 * 1000
+    formatPcm->bitsPerSample = AUDIO_U16LSB;
+    formatPcm->containerSize = AUDIO_U16LSB;
 
-    format_pcm->formatType = SL_DATAFORMAT_PCM;
-    format_pcm->numChannels = desired->channels;
-    format_pcm->samplesPerSec = desired->freq * 1000; // milli Hz
-    // format_pcm->numChannels      = 2;
-    // format_pcm->samplesPerSec    = SL_SAMPLINGRATE_44_1;
+    // create builder
+    OH_AudioStreamBuilder_Create(&rendererBuilder, AUDIOSTREAM_TYPE_RENDERER);
+    // set params and callbacks
+    OH_AudioStreamBuilder_SetSamplingRate(rendererBuilder, desired->freq * MS_TO_S);
+    OH_AudioStreamBuilder_SetChannelCount(rendererBuilder, desired->channels);
+    OH_AudioStreamBuilder_SetSampleFormat(rendererBuilder, AUDIOSTREAM_SAMPLE_S16LE);
+    OH_AudioStreamBuilder_SetEncodingType(rendererBuilder, AUDIOSTREAM_ENCODING_TYPE_RAW);
+    // 当设备支持低时延通路时，开发者可以使用低时延模式创建播放器
+    OH_AudioStreamBuilder_SetLatencyMode(rendererBuilder, AUDIOSTREAM_LATENCY_MODE_FAST);
+    // 关键参数，仅OHAudio支持，根据音频用途设置，系统会根据此参数实现音频策略自适应
+    OH_AudioStreamBuilder_SetRendererInfo(rendererBuilder, AUDIOSTREAM_USAGE_MOVIE);
 
-    format_pcm->bitsPerSample = SL_PCMSAMPLEFORMAT_FIXED_16;
-    format_pcm->containerSize = SL_PCMSAMPLEFORMAT_FIXED_16;
-    switch (desired->channels) {
-        case 2:
-        format_pcm->channelMask = SL_SPEAKER_FRONT_LEFT | SL_SPEAKER_FRONT_RIGHT;
-        break;
-        case 1:
-        format_pcm->channelMask = SL_SPEAKER_FRONT_CENTER;
-        break;
-        default:
-        LOGI("audio->%s, invalid channel %d", __func__, desired->channels);
-        goto fail;
-    }
-    format_pcm->endianness = SL_BYTEORDER_LITTLEENDIAN;
+    OH_AudioRenderer_Callbacks rendererCallbacks;
 
-    SLDataSource audio_source = {
-        &loc_bufq, format_pcm
-    };
-
-    // config audio sink
-    SLDataLocator_OutputMix loc_outmix = {
-        SL_DATALOCATOR_OUTPUTMIX,
-        opaque->slOutputMixObject
-    };
-    SLDataSink audio_sink = {
-        &loc_outmix, NULL
-    };
-
-    SLObjectItf slPlayerObject = NULL;
-    const SLInterfaceID ids2[] = {
-        SL_IID_OH_BUFFERQUEUE, SL_IID_VOLUME, SL_IID_PLAY
-    };
-    static const SLboolean req2[] = {
-        SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE
-    };
-    ret = (*slEngine)->CreateAudioPlayer(slEngine, &slPlayerObject, &audio_source,
-            &audio_sink, sizeof(ids2) / sizeof(*ids2),
-            ids2, req2);
-    //    ret = (*slEngine)->CreateAudioPlayer(slEngine, &slPlayerObject, &audio_source, &audio_sink, 3, NULL, NULL);
-    LOGI("audio->ret:%d===%s: slEngine->CreateAudioPlayer()", ret, __func__);
-    CHECK_OPENSL_ERROR(ret, "%s: slEngine->CreateAudioPlayer() failed", __func__);
-    opaque->slPlayerObject = slPlayerObject;
-
-    ret = (*slPlayerObject)->Realize(slPlayerObject, SL_BOOLEAN_FALSE);
-    LOGI("audio->ret:%d===%s:  slPlayerObject->Realize()", ret, __func__);
-    CHECK_OPENSL_ERROR(ret, "%s: slPlayerObject->Realize() failed", __func__);
-
-    ret = (*slPlayerObject)->GetInterface(slPlayerObject, SL_IID_PLAY, &opaque->slPlayItf);
-    LOGI("audio->ret:%d===%s:  slPlayerObject->GetInterface(SL_IID_PLAY)", ret, __func__);
-    CHECK_OPENSL_ERROR(ret, "%s: slPlayerObject->GetInterface(SL_IID_PLAY) failed", __func__);
-
-    ret = (*slPlayerObject)->GetInterface(slPlayerObject, SL_IID_VOLUME, &opaque->slVolumeItf);
-    LOGI("audio->ret:%d===%s:  slPlayerObject->GetInterface(SL_IID_VOLUME)", ret, __func__);
-    CHECK_OPENSL_ERROR(ret, "%s: slPlayerObject->GetInterface(SL_IID_VOLUME) failed", __func__);
-
-    ret = (*slPlayerObject)->GetInterface(slPlayerObject, SL_IID_OH_BUFFERQUEUE, &opaque->slBufferQueueItf);
-
-    LOGI("audio->ret:%d===%s:  slPlayerObject->GetInterface(SL_IID_ANDROIDSIMPLEBUFFERQUEUE)", ret, __func__);
-    CHECK_OPENSL_ERROR(ret, "%s: slPlayerObject->GetInterface(SL_IID_ANDROIDSIMPLEBUFFERQUEUE) failed", __func__);
-
-    ret = (*opaque->slBufferQueueItf)->RegisterCallback(opaque->slBufferQueueItf, aout_opensles_callback, (void*)aout);
-    LOGI("audio->ret:%d===%s:  slBufferQueueItf->RegisterCallback()", ret, __func__);
-    CHECK_OPENSL_ERROR(ret, "%s: slBufferQueueItf->RegisterCallback() failed", __func__);
-
-    opaque->bytes_per_frame = format_pcm->numChannels * format_pcm->bitsPerSample / 8;
+    opaque->bytes_per_frame = formatPcm->numChannels * formatPcm->bitsPerSample / AUDIO_U8;
     opaque->milli_per_buffer = OPENSLES_BUFLEN;
-    opaque->frames_per_buffer = opaque->milli_per_buffer * format_pcm->samplesPerSec / 1000000; // samplesPerSec is in milli
+    opaque->frames_per_buffer =
+        opaque->milli_per_buffer * formatPcm->samplesPerSec / US_TO_S; // samplesPerSec is in milli
     opaque->bytes_per_buffer = opaque->bytes_per_frame * opaque->frames_per_buffer;
     opaque->buffer_capacity = OPENSLES_BUFFERS * opaque->bytes_per_buffer;
-    LOGI("audio->OpenSL-ES: bytes_per_frame  = %d bytes\n", (int)opaque->bytes_per_frame);
-    LOGI("audio->OpenSL-ES: milli_per_buffer = %d ms\n", (int)opaque->milli_per_buffer);
-    LOGI("audio->OpenSL-ES: frame_per_buffer = %d frames\n", (int)opaque->frames_per_buffer);
-    LOGI("audio->OpenSL-ES: bytes_per_buffer = %d bytes\n", (int)opaque->bytes_per_buffer);
-    LOGI("audio->OpenSL-ES: buffer_capacity  = %d bytes\n", (int)opaque->buffer_capacity);
-    opaque->buffer = malloc(opaque->buffer_capacity);
-    CHECK_COND_ERROR(opaque->buffer, "%s: failed to alloc buffer %d\n", __func__, (int)opaque->buffer_capacity);
+    opaque->pause_on = true;
+    opaque->abort_request = false;
 
-    opaque->pause_on = 1;
-    opaque->abort_request = 0;
-    opaque->audio_tid = SDL_CreateThreadEx(&opaque->_audio_tid, aout_thread, aout, "ff_aout_opensles");
-    CHECK_COND_ERROR(opaque->audio_tid, "%s: failed to SDL_CreateThreadEx", __func__);
+    rendererCallbacks.OH_AudioRenderer_OnWriteData = AudioRendererOnWriteData; // 看下数据写入OnWriteData
+    rendererCallbacks.OH_AudioRenderer_OnStreamEvent = NULL;                   // 自定义音频流事件函数
+    rendererCallbacks.OH_AudioRenderer_OnInterruptEvent = AudioRendererOnInterrupt; // 自定义音频中断事件函数
+    rendererCallbacks.OH_AudioRenderer_OnError = NULL; // 自定义异常回调函数
 
-    if (obtained) {
+    // 设置输出音频流的回调，在生成音频播放对象时自动注册
+    OH_AudioStreamBuilder_SetRendererCallback(rendererBuilder, rendererCallbacks, NULL);
+    // 构造播放音频流
+    OH_AudioStreamBuilder_GenerateRenderer(rendererBuilder, &audioRendererNormal);
+
+    if (obtained != NULL) {
         *obtained = *desired;
         obtained->size = opaque->buffer_capacity;
-        obtained->freq = format_pcm->samplesPerSec / 1000;
+        obtained->freq = formatPcm->samplesPerSec / MS_TO_S;
     }
     LOGI("audio->aout_open_audio end");
-
     return opaque->buffer_capacity;
-    fail:
-    LOGI("audio->aout_open_audio fail->close");
-    aout_close_audio(aout);
-    return -1;
 }
 
-static void aout_pause_audio(SDL_Aout * aout, int pause_on)
+static void AoutPauseAudio(SDL_Aout *aout, int pauseOn)
 {
-    LOGI("audio->aout_pause_audio");
-    SDL_Aout_Opaque * opaque = aout->opaque;
-    AUDIO_PAUSE_STATUS = true;
-    SDL_LockMutex(opaque->wakeup_mutex);
-//    SDLTRACE("aout_pause_audio(%d)", pause_on);
-    LOGI("audio->aout_pause_audio pause_on:%d",pause_on);
-    opaque->pause_on = pause_on;
-    if (!pause_on)
-        SDL_CondSignal(opaque->wakeup_cond);
-    SDL_UnlockMutex(opaque->wakeup_mutex);
-    LOGI("audio->aout_pause_audio end");
-}
-
-static void aout_flush_audio(SDL_Aout * aout)
-{
-    LOGI("audio->aout_flush_audio");
-    SDL_Aout_Opaque * opaque = aout->opaque;
-    SDL_LockMutex(opaque->wakeup_mutex);
-    SDLTRACE("aout_flush_audio()");
-    opaque->need_flush = 1;
-    SDL_CondSignal(opaque->wakeup_cond);
-    SDL_UnlockMutex(opaque->wakeup_mutex);
-    LOGI("audio->aout_flush_audio end");
-}
-
-static void aout_set_volume(SDL_Aout * aout, float left_volume, float right_volume)
-{
-    LOGI("audio->aout_set_volume");
-    SDL_Aout_Opaque * opaque = aout->opaque;
-    SDL_LockMutex(opaque->wakeup_mutex);
-    LOGI("audio->aout_set_volume(%f, %f)", left_volume, right_volume);
-    opaque->left_volume = left_volume;
-    opaque->right_volume = right_volume;
-    opaque->need_set_volume = 1;
-    SDL_CondSignal(opaque->wakeup_cond);
-    SDL_UnlockMutex(opaque->wakeup_mutex);
-    LOGI("audio->aout_set_volume end");
-}
-
-static double aout_get_latency_seconds(SDL_Aout * aout)
-{
-    LOGI("audio->aout_get_latency_seconds");
-    if(AUDIO_CLOSE_STATUS) return 0;
-    SDL_Aout_Opaque * opaque = aout->opaque;
-    SLOHBufferQueueState state = {
-        0
-    };
-    SLresult slRet = (*opaque->slBufferQueueItf)->GetState(opaque->slBufferQueueItf, &state);
-    if (slRet != SL_RESULT_SUCCESS) {
-        ALOGE("%s failed\n", __func__);
-        LOGI("audio->aout_get_latency_seconds go SL_RESULT_SUCCESS");
-        return ((double)opaque->milli_per_buffer) * OPENSLES_BUFFERS / 1000;
+    if ((g_opaque == NULL) || (audioRendererNormal == NULL)) {
+        return;
     }
-    LOGI("audio->aout_get_l  atency_seconds state.count :%d", state.count);
-    // assume there is always a buffer in coping
-    double latency = ((double)opaque->milli_per_buffer) * state.count / 1000;
-    LOGI("audio->aout_get_l  atency_seconds go latency:%d", latency);
-    return latency;
+    g_opaque->pause_on = pauseOn;
+    // 非0表示暂停，0表示取消暂停继续播放
+    if (pauseOn != 0) {
+        OH_AudioRenderer_Pause(audioRendererNormal);
+    } else {
+        OH_AudioRenderer_Start(audioRendererNormal);
+    }
+    return;
 }
 
-SDL_Aout * SDL_AoutAndroid_CreateForOpenSLES()
+static void AudioRendererStop(SDL_Aout *aout)
+{
+    if ((g_opaque == NULL) || (audioRendererNormal == NULL)) {
+        return;
+    }
+    g_opaque->abort_request = true;
+    OH_AudioRenderer_Stop(audioRendererNormal);
+}
+
+static void AudioRendererFlush(SDL_Aout *aout)
+{
+    if (audioRendererNormal == NULL) {
+        return;
+    }
+    OH_AudioRenderer_Flush(audioRendererNormal); // 丢弃已经写入的音频数据
+}
+
+static void AudioRendererRelease(SDL_Aout *aout)
+{
+    AudioRendererStop(aout);
+    if (audioRendererNormal != NULL) {
+        OH_AudioStreamBuilder_Destroy(rendererBuilder);
+        OH_AudioRenderer_Release(audioRendererNormal);
+        audioRendererNormal = NULL;
+    }
+}
+
+static void AoutSetVolume(SDL_Aout *aout, float leftVolume, float rightVolume)
+{
+    SDL_Aout_Opaque *opaque = aout->opaque;
+    opaque->left_volume = leftVolume;
+    opaque->right_volume = rightVolume;
+    opaque->need_set_volume = true;
+    LOGI("audio->aout_set_volume");
+}
+
+SDL_Aout *SDLAoutCreateForOpenSLES(FFPlayer *ffp) // 实现音频播放功能；
 {
     LOGI("audio->SDL_AoutAndroid_CreateForOpenSLES");
-    SDLTRACE("%s\n", __func__);
-    SDL_Aout * aout = SDL_Aout_CreateInternal(sizeof(SDL_Aout_Opaque));
-    if (!aout)
+
+    SDL_Aout *aout = SDL_Aout_CreateInternal(sizeof(SDL_Aout_Opaque));
+    if (aout == NULL) {
         return NULL;
+    }
 
-    SDL_Aout_Opaque * opaque = aout->opaque;
-    opaque->wakeup_cond = SDL_CreateCond();
-    opaque->wakeup_mutex = SDL_CreateMutex();
+    SDL_Aout_Opaque *opaque = aout->opaque;
+    g_opaque = opaque;
+    opaque->ffp = ffp;
 
-    int ret = 0;
-
-    SLObjectItf slObject = NULL;
-    ret = slCreateEngine(&slObject, 0, NULL, 0, NULL, NULL);
-    CHECK_OPENSL_ERROR(ret, "%s: slCreateEngine() failed", __func__);
-    opaque->slObject = slObject;
-
-    ret = (*slObject)->Realize(slObject, SL_BOOLEAN_FALSE);
-    CHECK_OPENSL_ERROR(ret, "%s: slObject->Realize() failed", __func__);
-
-    SLEngineItf slEngine = NULL;
-    ret = (*slObject)->GetInterface(slObject, SL_IID_ENGINE, &slEngine);
-    CHECK_OPENSL_ERROR(ret, "%s: slObject->GetInterface() failed", __func__);
-    opaque->slEngine = slEngine;
-
-    SLObjectItf slOutputMixObject = NULL;
-    const SLInterfaceID ids1[] = {
-        SL_IID_VOLUME
-    };
-    const SLboolean req1[] = {
-        SL_BOOLEAN_FALSE
-    };
-    ret = (*slEngine)->CreateOutputMix(slEngine, &slOutputMixObject, 1, ids1, req1);
-    CHECK_OPENSL_ERROR(ret, "%s: slEngine->CreateOutputMix() failed", __func__);
-    opaque->slOutputMixObject = slOutputMixObject;
-
-    ret = (*slOutputMixObject)->Realize(slOutputMixObject, SL_BOOLEAN_FALSE);
-    CHECK_OPENSL_ERROR(ret, "%s: slOutputMixObject->Realize() failed", __func__);
-
-    aout->free_l = aout_free_l;
+    aout->free_l = AudioRendererRelease;
     aout->opaque_class = &g_opensles_class;
-    aout->open_audio = aout_open_audio;
-    aout->pause_audio = aout_pause_audio;
-    aout->flush_audio = aout_flush_audio;
-    aout->close_audio = aout_close_audio;
-    aout->set_volume = aout_set_volume;
-    aout->func_get_latency_seconds = aout_get_latency_seconds;
+    aout->open_audio = AoutOpenAudio; // 打开音频
+
+    aout->pause_audio = AoutPauseAudio; // 暂停或播放音频
+    aout->flush_audio = AudioRendererFlush;
+    aout->close_audio = AudioRendererStop; // 关闭音频
+    aout->set_volume = AoutSetVolume;       // 设置音量
+    aout->func_get_latency_seconds = AoutGetLatencySeconds;
 
     return aout;
-    fail:
-    aout_free_l(aout);
-    return NULL;
 }
 
 bool SDL_AoutAndroid_IsObjectOfOpenSLES(SDL_Aout * aout)
 {
     LOGI("audio->SDL_AoutAndroid_IsObjectOfOpenSLES");
-    if (aout)
+    if (aout == NULL) {
         return false;
-
+    }
     return aout->opaque_class == &g_opensles_class;
 }

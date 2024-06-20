@@ -37,117 +37,119 @@ static void message_loop_n(IjkMediaPlayer *mp) {
 
         switch (msg.what) {
             LOGI("napi_proxy-->message_loop_n-->go-->msg:%d", msg.what);
-        case FFP_MSG_FLUSH:
-            MPTRACE("FFP_MSG_FLUSH:\n");
-            post_event(weak_thiz, MEDIA_NOP, 0, 0, NULL);
-            break;
-        case FFP_MSG_ERROR:
-            MPTRACE("FFP_MSG_ERROR: %d\n", msg.arg1);
-            post_event(weak_thiz, MEDIA_ERROR, MEDIA_ERROR_IJK_PLAYER, msg.arg1, NULL);
-            break;
-        case FFP_MSG_PREPARED:
-            MPTRACE("FFP_MSG_PREPARED:\n");
-            post_event(weak_thiz, MEDIA_PREPARED, 0, 0, NULL);
-            break;
-        case FFP_MSG_COMPLETED:
-            MPTRACE("FFP_MSG_COMPLETED:\n");
-            post_event(weak_thiz, MEDIA_PLAYBACK_COMPLETE, 0, 0, NULL);
-            break;
-        case FFP_MSG_VIDEO_SIZE_CHANGED:
-            MPTRACE("FFP_MSG_VIDEO_SIZE_CHANGED: %d, %d\n", msg.arg1, msg.arg2);
-            post_event(weak_thiz, MEDIA_SET_VIDEO_SIZE, msg.arg1, msg.arg2, NULL);
-            break;
-        case FFP_MSG_SAR_CHANGED:
-            MPTRACE("FFP_MSG_SAR_CHANGED: %d, %d\n", msg.arg1, msg.arg2);
-            post_event(weak_thiz, MEDIA_SET_VIDEO_SAR, msg.arg1, msg.arg2, NULL);
-            break;
-        case FFP_MSG_VIDEO_RENDERING_START:
-            MPTRACE("FFP_MSG_VIDEO_RENDERING_START:\n");
-            post_event(weak_thiz, MEDIA_INFO, MEDIA_INFO_VIDEO_RENDERING_START, 0, NULL);
-            break;
-        case FFP_MSG_AUDIO_RENDERING_START:
-            MPTRACE("FFP_MSG_AUDIO_RENDERING_START:\n");
-            post_event(weak_thiz, MEDIA_INFO, MEDIA_INFO_AUDIO_RENDERING_START, 0, NULL);
-            break;
-        case FFP_MSG_VIDEO_ROTATION_CHANGED:
-            MPTRACE("FFP_MSG_VIDEO_ROTATION_CHANGED: %d\n", msg.arg1);
-            post_event(weak_thiz, MEDIA_INFO, MEDIA_INFO_VIDEO_ROTATION_CHANGED, msg.arg1, NULL);
-            break;
-        case FFP_MSG_AUDIO_DECODED_START:
-            MPTRACE("FFP_MSG_AUDIO_DECODED_START:\n");
-            post_event(weak_thiz, MEDIA_INFO, MEDIA_INFO_AUDIO_DECODED_START, 0, NULL);
-            break;
-        case FFP_MSG_VIDEO_DECODED_START:
-            MPTRACE("FFP_MSG_VIDEO_DECODED_START:\n");
-            post_event(weak_thiz, MEDIA_INFO, MEDIA_INFO_VIDEO_DECODED_START, 0, NULL);
-            break;
-        case FFP_MSG_OPEN_INPUT:
-            MPTRACE("FFP_MSG_OPEN_INPUT:\n");
-            post_event(weak_thiz, MEDIA_INFO, MEDIA_INFO_OPEN_INPUT, 0, NULL);
-            break;
-        case FFP_MSG_FIND_STREAM_INFO:
-            MPTRACE("FFP_MSG_FIND_STREAM_INFO:\n");
-            post_event(weak_thiz, MEDIA_INFO, MEDIA_INFO_FIND_STREAM_INFO, 0, NULL);
-            break;
-        case FFP_MSG_COMPONENT_OPEN:
-            MPTRACE("FFP_MSG_COMPONENT_OPEN:\n");
-            post_event(weak_thiz, MEDIA_INFO, MEDIA_INFO_COMPONENT_OPEN, 0, NULL);
-            break;
-        case FFP_MSG_BUFFERING_START:
-            MPTRACE("FFP_MSG_BUFFERING_START:\n");
-            post_event(weak_thiz, MEDIA_INFO, MEDIA_INFO_BUFFERING_START, msg.arg1, NULL);
-            break;
-        case FFP_MSG_BUFFERING_END:
-            MPTRACE("FFP_MSG_BUFFERING_END:\n");
-            post_event(weak_thiz, MEDIA_INFO, MEDIA_INFO_BUFFERING_END, msg.arg1, NULL);
-            break;
-        case FFP_MSG_BUFFERING_UPDATE:
-            // MPTRACE("FFP_MSG_BUFFERING_UPDATE: %d, %d", msg.arg1, msg.arg2);
-            post_event(weak_thiz, MEDIA_BUFFERING_UPDATE, msg.arg1, msg.arg2, NULL);
-            break;
-        case FFP_MSG_BUFFERING_BYTES_UPDATE:
-            break;
-        case FFP_MSG_BUFFERING_TIME_UPDATE:
-            break;
-        case FFP_MSG_SEEK_COMPLETE:
-            MPTRACE("FFP_MSG_SEEK_COMPLETE:\n");
-            post_event(weak_thiz, MEDIA_SEEK_COMPLETE, 0, 0, NULL);
-            break;
-        case FFP_MSG_ACCURATE_SEEK_COMPLETE:
-            MPTRACE("FFP_MSG_ACCURATE_SEEK_COMPLETE:\n");
-            post_event(weak_thiz, MEDIA_INFO, MEDIA_INFO_MEDIA_ACCURATE_SEEK_COMPLETE, msg.arg1, NULL);
-            break;
-        case FFP_MSG_PLAYBACK_STATE_CHANGED:
-            break;
-        case FFP_MSG_TIMED_TEXT:
-            if (msg.obj) {
-                post_event(weak_thiz, MEDIA_TIMED_TEXT, 0, 0, (char *)msg.obj);
-            } else {
-                post_event(weak_thiz, MEDIA_TIMED_TEXT, 0, 0, NULL);
-            }
-            break;
-        case FFP_MSG_GET_IMG_STATE:
-            if (msg.obj) {
-                post_event(weak_thiz, MEDIA_GET_IMG_STATE, msg.arg1, msg.arg2, (char *)msg.obj);
-            } else {
-                post_event(weak_thiz, MEDIA_GET_IMG_STATE, msg.arg1, msg.arg2, NULL);
-            }
-            break;
-        case FFP_MSG_VIDEO_SEEK_RENDERING_START:
-            MPTRACE("FFP_MSG_VIDEO_SEEK_RENDERING_START:\n");
-            post_event(weak_thiz, MEDIA_INFO, MEDIA_INFO_VIDEO_SEEK_RENDERING_START, msg.arg1, NULL);
-            break;
-        case FFP_MSG_AUDIO_SEEK_RENDERING_START:
-            MPTRACE("FFP_MSG_AUDIO_SEEK_RENDERING_START:\n");
-            post_event(weak_thiz, MEDIA_INFO, MEDIA_INFO_AUDIO_SEEK_RENDERING_START, msg.arg1, NULL);
-            break;
-        default:
-            ALOGE("unknown FFP_MSG_xxx(%d)\n", msg.what);
-            break;
+            case FFP_MSG_FLUSH:
+                MPTRACE("FFP_MSG_FLUSH:\n");
+                post_event(weak_thiz, MEDIA_NOP, 0, 0, nullptr);
+                break;
+            case FFP_MSG_ERROR:
+                MPTRACE("FFP_MSG_ERROR: %d\n", msg.arg1);
+                post_event(weak_thiz, MEDIA_ERROR, MEDIA_ERROR_IJK_PLAYER, msg.arg1, nullptr);
+                break;
+            case FFP_MSG_PREPARED:
+                MPTRACE("FFP_MSG_PREPARED:\n");
+                post_event(weak_thiz, MEDIA_PREPARED, 0, 0, nullptr);
+                break;
+            case FFP_MSG_COMPLETED:
+                MPTRACE("FFP_MSG_COMPLETED:\n");
+                post_event(weak_thiz, MEDIA_PLAYBACK_COMPLETE, 0, 0, nullptr);
+                break;
+            case FFP_MSG_VIDEO_SIZE_CHANGED:
+                MPTRACE("FFP_MSG_VIDEO_SIZE_CHANGED: %d, %d\n", msg.arg1, msg.arg2);
+                post_event(weak_thiz, MEDIA_SET_VIDEO_SIZE, msg.arg1, msg.arg2, nullptr);
+                break;
+            case FFP_MSG_SAR_CHANGED:
+                MPTRACE("FFP_MSG_SAR_CHANGED: %d, %d\n", msg.arg1, msg.arg2);
+                post_event(weak_thiz, MEDIA_SET_VIDEO_SAR, msg.arg1, msg.arg2, nullptr);
+                break;
+            case FFP_MSG_VIDEO_RENDERING_START:
+                MPTRACE("FFP_MSG_VIDEO_RENDERING_START:\n");
+                post_event(weak_thiz, MEDIA_INFO, MEDIA_INFO_VIDEO_RENDERING_START, 0, nullptr);
+                break;
+            case FFP_MSG_AUDIO_RENDERING_START:
+                MPTRACE("FFP_MSG_AUDIO_RENDERING_START:\n");
+                post_event(weak_thiz, MEDIA_INFO, MEDIA_INFO_AUDIO_RENDERING_START, 0, nullptr);
+                break;
+            case FFP_MSG_VIDEO_ROTATION_CHANGED:
+                MPTRACE("FFP_MSG_VIDEO_ROTATION_CHANGED: %d\n", msg.arg1);
+                post_event(weak_thiz, MEDIA_INFO, MEDIA_INFO_VIDEO_ROTATION_CHANGED, msg.arg1, nullptr);
+                break;
+            case FFP_MSG_AUDIO_DECODED_START:
+                MPTRACE("FFP_MSG_AUDIO_DECODED_START:\n");
+                post_event(weak_thiz, MEDIA_INFO, MEDIA_INFO_AUDIO_DECODED_START, 0, nullptr);
+                break;
+            case FFP_MSG_VIDEO_DECODED_START:
+                MPTRACE("FFP_MSG_VIDEO_DECODED_START:\n");
+                post_event(weak_thiz, MEDIA_INFO, MEDIA_INFO_VIDEO_DECODED_START, 0, nullptr);
+                break;
+            case FFP_MSG_OPEN_INPUT:
+                MPTRACE("FFP_MSG_OPEN_INPUT:\n");
+                post_event(weak_thiz, MEDIA_INFO, MEDIA_INFO_OPEN_INPUT, 0, nullptr);
+                break;
+            case FFP_MSG_FIND_STREAM_INFO:
+                MPTRACE("FFP_MSG_FIND_STREAM_INFO:\n");
+                post_event(weak_thiz, MEDIA_INFO, MEDIA_INFO_FIND_STREAM_INFO, 0, nullptr);
+                break;
+            case FFP_MSG_COMPONENT_OPEN:
+                MPTRACE("FFP_MSG_COMPONENT_OPEN:\n");
+                post_event(weak_thiz, MEDIA_INFO, MEDIA_INFO_COMPONENT_OPEN, 0, nullptr);
+                break;
+            case FFP_MSG_BUFFERING_START:
+                MPTRACE("FFP_MSG_BUFFERING_START:\n");
+                post_event(weak_thiz, MEDIA_INFO, MEDIA_INFO_BUFFERING_START, msg.arg1, nullptr);
+                break;
+            case FFP_MSG_BUFFERING_END:
+                MPTRACE("FFP_MSG_BUFFERING_END:\n");
+                post_event(weak_thiz, MEDIA_INFO, MEDIA_INFO_BUFFERING_END, msg.arg1, nullptr);
+                break;
+            case FFP_MSG_BUFFERING_UPDATE:
+                post_event(weak_thiz, MEDIA_BUFFERING_UPDATE, msg.arg1, msg.arg2, nullptr);
+                break;
+            case FFP_MSG_BUFFERING_BYTES_UPDATE:
+                break;
+            case FFP_MSG_BUFFERING_TIME_UPDATE:
+                break;
+            case FFP_MSG_SEEK_COMPLETE:
+                MPTRACE("FFP_MSG_SEEK_COMPLETE:\n");
+                post_event(weak_thiz, MEDIA_SEEK_COMPLETE, 0, 0, nullptr);
+                break;
+            case FFP_MSG_ACCURATE_SEEK_COMPLETE:
+                MPTRACE("FFP_MSG_ACCURATE_SEEK_COMPLETE:\n");
+                post_event(weak_thiz, MEDIA_INFO, MEDIA_INFO_MEDIA_ACCURATE_SEEK_COMPLETE, msg.arg1, nullptr);
+                break;
+            case FFP_MSG_PLAYBACK_STATE_CHANGED:
+                break;
+            case FFP_MSG_TIMED_TEXT:
+                if (msg.obj) {
+                    post_event(weak_thiz, MEDIA_TIMED_TEXT, 0, 0, (char *)msg.obj);
+                } else {
+                    post_event(weak_thiz, MEDIA_TIMED_TEXT, 0, 0, nullptr);
+                }
+                break;
+            case FFP_MSG_GET_IMG_STATE:
+                if (msg.obj) {
+                    post_event(weak_thiz, MEDIA_GET_IMG_STATE, msg.arg1, msg.arg2, (char *)msg.obj);
+                } else {
+                    post_event(weak_thiz, MEDIA_GET_IMG_STATE, msg.arg1, msg.arg2, nullptr);
+                }
+                break;
+            case FFP_MSG_VIDEO_SEEK_RENDERING_START:
+                MPTRACE("FFP_MSG_VIDEO_SEEK_RENDERING_START:\n");
+                post_event(weak_thiz, MEDIA_INFO, MEDIA_INFO_VIDEO_SEEK_RENDERING_START, msg.arg1, nullptr);
+                break;
+            case FFP_MSG_AUDIO_SEEK_RENDERING_START:
+                MPTRACE("FFP_MSG_AUDIO_SEEK_RENDERING_START:\n");
+                post_event(weak_thiz, MEDIA_INFO, MEDIA_INFO_AUDIO_SEEK_RENDERING_START, msg.arg1, nullptr);
+                break;
+            case FFP_MSG_AUDIO_INTERRUPT:
+                MPTRACE("FFP_MSG_AUDIO_INTERRUPT:\n");
+                post_event(weak_thiz, MEDIA_AUDIO_INTERRUPT, msg.arg1, msg.arg2, nullptr);
+                break;
+            default:
+                ALOGE("unknown FFP_MSG_xxx(%d)\n", msg.what);
+                break;
         }
         msg_free_res(&msg);
     }
-
 }
 
 static int message_loop(void *arg);
@@ -358,6 +360,43 @@ const char *getFromMediaMetaByKey(IjkMediaMeta *meta, char *key) {
     return value;
 }
 
+static void IjkMediaPlayerFillHashMap(const char *type, HashMap map, IjkMediaMeta *streamRawMeta)
+{
+    map->put(map, IJKM_KEY_CODEC_NAME,
+             getFromMediaMetaByKey(streamRawMeta, IJKM_KEY_CODEC_NAME));
+    map->put(map, IJKM_KEY_CODEC_PROFILE,
+             getFromMediaMetaByKey(streamRawMeta, IJKM_KEY_CODEC_PROFILE));
+    map->put(map, IJKM_KEY_CODEC_LEVEL,
+             getFromMediaMetaByKey(streamRawMeta, IJKM_KEY_CODEC_LEVEL));
+    map->put(map, IJKM_KEY_CODEC_LONG_NAME,
+             getFromMediaMetaByKey(streamRawMeta, IJKM_KEY_CODEC_LONG_NAME));
+    map->put(map, IJKM_KEY_CODEC_PIXEL_FORMAT,
+             getFromMediaMetaByKey(streamRawMeta, IJKM_KEY_CODEC_PIXEL_FORMAT));
+    map->put(map, IJKM_KEY_BITRATE, getFromMediaMetaByKey(streamRawMeta, IJKM_KEY_BITRATE));
+    map->put(map, IJKM_KEY_CODEC_PROFILE_ID,
+             getFromMediaMetaByKey(streamRawMeta, IJKM_KEY_CODEC_PROFILE_ID));
+    if (strcmp(type, IJKM_VAL_TYPE__VIDEO) == 0) {
+        map->put(map, IJKM_KEY_WIDTH, getFromMediaMetaByKey(streamRawMeta, IJKM_KEY_WIDTH));
+        map->put(map, IJKM_KEY_HEIGHT,
+                 getFromMediaMetaByKey(streamRawMeta, IJKM_KEY_HEIGHT));
+        map->put(map, IJKM_KEY_FPS_NUM,
+                 getFromMediaMetaByKey(streamRawMeta, IJKM_KEY_FPS_NUM));
+        map->put(map, IJKM_KEY_TBR_NUM,
+                 getFromMediaMetaByKey(streamRawMeta, IJKM_KEY_TBR_NUM));
+        map->put(map, IJKM_KEY_TBR_DEN,
+                 getFromMediaMetaByKey(streamRawMeta, IJKM_KEY_TBR_DEN));
+        map->put(map, IJKM_KEY_SAR_NUM,
+                 getFromMediaMetaByKey(streamRawMeta, IJKM_KEY_SAR_NUM));
+        map->put(map, IJKM_KEY_SAR_DEN,
+                 getFromMediaMetaByKey(streamRawMeta, IJKM_KEY_SAR_DEN));
+    } else if (strcmp(type, IJKM_VAL_TYPE__AUDIO) == 0) {
+        map->put(map, IJKM_KEY_SAMPLE_RATE,
+                 getFromMediaMetaByKey(streamRawMeta, IJKM_KEY_SAMPLE_RATE));
+        map->put(map, IJKM_KEY_CHANNEL_LAYOUT,
+                 getFromMediaMetaByKey(streamRawMeta, IJKM_KEY_CHANNEL_LAYOUT));
+    }
+}
+
 HashMap IJKPlayerNapiProxy::IjkMediaPlayer_getMediaMeta() {
     IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player();
     IjkMediaMeta *meta = ijkmp_get_meta_l(mp);
@@ -366,30 +405,12 @@ HashMap IJKPlayerNapiProxy::IjkMediaPlayer_getMediaMeta() {
     for (size_t i = 0; i < count; ++i) {
         IjkMediaMeta *streamRawMeta = ijkmeta_get_child_l(meta, i);
         if (streamRawMeta) {
-            map->put(map, (void *)IJKM_KEY_TYPE, (void *)getFromMediaMetaByKey(streamRawMeta, IJKM_KEY_TYPE));
-            map->put(map, (void *)IJKM_KEY_TYPE, (void *)getFromMediaMetaByKey(streamRawMeta, IJKM_KEY_TYPE));
-            map->put(map, (void *)IJKM_KEY_LANGUAGE, (void *)getFromMediaMetaByKey(streamRawMeta, IJKM_KEY_LANGUAGE));
+            map->put(map, IJKM_KEY_TYPE, getFromMediaMetaByKey(streamRawMeta, IJKM_KEY_TYPE));
+            map->put(map, IJKM_KEY_TYPE, getFromMediaMetaByKey(streamRawMeta, IJKM_KEY_TYPE));
+            map->put(map, IJKM_KEY_LANGUAGE, getFromMediaMetaByKey(streamRawMeta, IJKM_KEY_LANGUAGE));
             const char *type = ijkmeta_get_string_l(streamRawMeta, IJKM_KEY_TYPE);
-            if (type) {
-                map->put(map, (void *)IJKM_KEY_CODEC_NAME, (void *)getFromMediaMetaByKey(streamRawMeta, IJKM_KEY_CODEC_NAME));
-                map->put(map, (void *)IJKM_KEY_CODEC_PROFILE, (void *)getFromMediaMetaByKey(streamRawMeta, IJKM_KEY_CODEC_PROFILE));
-                map->put(map, (void *)IJKM_KEY_CODEC_LEVEL, (void *)getFromMediaMetaByKey(streamRawMeta, IJKM_KEY_CODEC_LEVEL));
-                map->put(map, (void *)IJKM_KEY_CODEC_LONG_NAME, (void *)getFromMediaMetaByKey(streamRawMeta, IJKM_KEY_CODEC_LONG_NAME));
-                map->put(map, (void *)IJKM_KEY_CODEC_PIXEL_FORMAT, (void *)getFromMediaMetaByKey(streamRawMeta, IJKM_KEY_CODEC_PIXEL_FORMAT));
-                map->put(map, (void *)IJKM_KEY_BITRATE, (void *)getFromMediaMetaByKey(streamRawMeta, IJKM_KEY_BITRATE));
-                map->put(map, (void *)IJKM_KEY_CODEC_PROFILE_ID, (void *)getFromMediaMetaByKey(streamRawMeta, IJKM_KEY_CODEC_PROFILE_ID));
-                if (0 == strcmp(type, IJKM_VAL_TYPE__VIDEO)) {
-                    map->put(map, (void *)IJKM_KEY_WIDTH, (void *)getFromMediaMetaByKey(streamRawMeta, IJKM_KEY_WIDTH));
-                    map->put(map, (void *)IJKM_KEY_HEIGHT, (void *)getFromMediaMetaByKey(streamRawMeta, IJKM_KEY_HEIGHT));
-                    map->put(map, (void *)IJKM_KEY_FPS_NUM, (void *)getFromMediaMetaByKey(streamRawMeta, IJKM_KEY_FPS_NUM));
-                    map->put(map, (void *)IJKM_KEY_TBR_NUM, (void *)getFromMediaMetaByKey(streamRawMeta, IJKM_KEY_TBR_NUM));
-                    map->put(map, (void *)IJKM_KEY_TBR_DEN, (void *)getFromMediaMetaByKey(streamRawMeta, IJKM_KEY_TBR_DEN));
-                    map->put(map, (void *)IJKM_KEY_SAR_NUM, (void *)getFromMediaMetaByKey(streamRawMeta, IJKM_KEY_SAR_NUM));
-                    map->put(map, (void *)IJKM_KEY_SAR_DEN, (void *)getFromMediaMetaByKey(streamRawMeta, IJKM_KEY_SAR_DEN));
-                } else if (0 == strcmp(type, IJKM_VAL_TYPE__AUDIO)) {
-                    map->put(map, (void *)IJKM_KEY_SAMPLE_RATE, (void *)getFromMediaMetaByKey(streamRawMeta, IJKM_KEY_SAMPLE_RATE));
-                    map->put(map, (void *)IJKM_KEY_CHANNEL_LAYOUT, (void *)getFromMediaMetaByKey(streamRawMeta, IJKM_KEY_CHANNEL_LAYOUT));
-                }
+            if (type != nullptr) {
+                IjkMediaPlayerFillHashMap(type, map, streamRawMeta);
             }
         }
     }

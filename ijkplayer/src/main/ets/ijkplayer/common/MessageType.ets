@@ -31,6 +31,8 @@ export class MessageType {
 
   static MEDIA_INFO: number= 200;
 
+  static MEDIA_AUDIO_INTERRUPT:number = 201;
+
   static MEDIA_SET_VIDEO_SAR:number = 10001;
 
 }

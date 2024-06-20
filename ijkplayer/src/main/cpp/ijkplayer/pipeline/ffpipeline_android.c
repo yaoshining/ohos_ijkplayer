@@ -82,20 +82,14 @@ static SDL_Aout *func_open_audio_output(IJKFF_Pipeline *pipeline, FFPlayer *ffp)
 {
     LOGI("audio-->func_open_audio_output start");
     SDL_Aout *aout = NULL;
-//    if (ffp->opensles) {
-        LOGI("audio-->func_open_audio_output opensles");
-        aout = SDL_AoutAndroid_CreateForOpenSLES();
-//    } else {
-//        LOGI("func_open_audio_output AudioTrack");
-//        //TODO 不支持AudioTrack
-////        aout = SDL_AoutAndroid_CreateForAudioTrack();
-//    }
+    LOGI("audio-->func_open_audio_output opensles");
+    aout = SDLAoutCreateForOpenSLES(ffp);
     if (aout) {
         LOGI("audio-->func_open_audio_output aout");
-        LOGI("audio-->func_open_audio_output aout left:%f,right:%f",pipeline->opaque->left_volume,pipeline->opaque->right_volume);
+        LOGI("audio-->func_open_audio_output aout left:%f,right:%f", pipeline->opaque->left_volume,
+             pipeline->opaque->right_volume);
         SDL_AoutSetStereoVolume(aout, pipeline->opaque->left_volume, pipeline->opaque->right_volume);
-    }
-    else{
+    } else {
         LOGI("audio-->func_open_audio_output aout null");
     }
     return aout;

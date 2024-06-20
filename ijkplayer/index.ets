@@ -15,6 +15,14 @@
 
 export { IjkMediaPlayer } from "./src/main/ets/ijkplayer/IjkMediaPlayer";
 
+export { InterruptEvent } from "./src/main/ets/ijkplayer/IjkMediaPlayer";
+
+export { InterruptHintType } from "./src/main/ets/ijkplayer/IjkMediaPlayer";
+
+export { InterruptForceType } from "./src/main/ets/ijkplayer/IjkMediaPlayer";
+
+export { AudioInterrupt } from "./src/main/ets/ijkplayer/IjkMediaPlayer";
+
 export { OnPreparedListener } from "./src/main/ets/ijkplayer/callback/OnPreparedListener";
 
 export { OnCompletionListener } from "./src/main/ets/ijkplayer/callback/OnCompletionListener";

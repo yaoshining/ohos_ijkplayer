@@ -34,7 +34,7 @@ add_library(ijksdl  SHARED    ijksdl_aout.c
                               ffmpeg/abi_all/image_convert.c
                               audio/ijksdl_aout_android_opensles.c
                               dummy/ijksdl_vout_dummy.c
-                              {CMAKE_CURRENT_SOURCE_DIR}/../../utils/ohoslog/ohos_log.cpp
+                              ${CMAKE_CURRENT_SOURCE_DIR}/../utils/ohoslog/ohos_log.cpp
                                )
 
 add_library(yuv STATIC IMPORTED)
@@ -61,7 +61,6 @@ target_link_libraries(ijksdl yuv)
 target_link_libraries(ijksdl EGL)
 target_link_libraries(ijksdl GLESv3)
 target_link_libraries(ijksdl hilog_ndk.z)
-target_link_libraries(ijksdl OpenSLES)
 target_link_libraries(ijksdl native_window)
 target_link_libraries(ijksdl z)
 target_link_libraries(ijksdl avcodec)
@@ -73,3 +72,4 @@ target_link_libraries(ijksdl swscale)
 target_link_libraries(ijksdl avdevice)
 target_link_libraries(ijksdl crypto)
 target_link_libraries(ijksdl ssl)
+target_link_libraries(ijksdl libohaudio.so)
