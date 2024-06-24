@@ -83,7 +83,7 @@
 #define MAX_RETRY_CONVERT_IMAGE                 (3)
 
 #define MAX_QUEUE_SIZE (15 * 1024 * 1024)
-#define MAX_ACCURATE_SEEK_TIMEOUT (5000)
+#define MAX_ACCURATE_SEEK_TIMEOUT (1000)
 #ifdef FFP_MERGE
 #define MIN_FRAMES 25
 #endif
@@ -449,7 +449,6 @@ static int exit_on_mousedown;
 static int loop = 1;
 static int framedrop = -1;
 static int infinite_buffer = -1;
-static enum ShowMode show_mode = SHOW_MODE_NONE;
 static const char *audio_codec_name;
 static const char *subtitle_codec_name;
 static const char *video_codec_name;
@@ -552,6 +551,13 @@ inline static void ffp_reset_demux_cache_control(FFDemuxCacheControl *dcc)
 /* ffplayer */
 struct IjkMediaMeta;
 struct IJKFF_Pipeline;
+typedef enum FFPlayerShowMode {
+    FFPLAYER_SHOW_MODE_NONE = -1,
+    FFPLAYER_SHOW_MODE_VIDEO = 0,
+    FFPLAYER_SHOW_MODE_WAVES,
+    FFPLAYER_SHOW_MODE_RDFT,
+    FFPLAYER_SHOW_MODE_NB
+} FFPlayerShowMode;
 typedef struct FFPlayer {
     const AVClass *av_class;
 
@@ -604,7 +610,7 @@ typedef struct FFPlayer {
     int64_t seek_at_start;
     int subtitle;
     int infinite_buffer;
-    enum ShowMode show_mode;
+    FFPlayerShowMode show_mode;
     char *audio_codec_name;
     char *subtitle_codec_name;
     char *video_codec_name;
@@ -758,7 +764,7 @@ inline static void ffp_reset_internal(FFPlayer *ffp)
     ffp->framedrop              = 0; // option
     ffp->seek_at_start          = 0;
     ffp->infinite_buffer        = -1;
-    ffp->show_mode              = SHOW_MODE_NONE;
+    ffp->show_mode              = FFPLAYER_SHOW_MODE_NONE;
     av_freep(&ffp->audio_codec_name);
     av_freep(&ffp->video_codec_name);
     ffp->rdftspeed              = 0.02;

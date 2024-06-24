@@ -46,4 +46,7 @@ void    ffpipeline_set_surface_need_reconfigure_l(IJKFF_Pipeline* pipeline, bool
 
 void    ffpipeline_set_volume(IJKFF_Pipeline* pipeline, float *leftVolume, float *rightVolume);
 
+extern IJKFF_Pipenode *ffpipenode_create_video_decoder_from_ohos_mediacodec(FFPlayer *ffp, IJKFF_Pipeline *pipeline,
+    SDL_Vout *vout);
+
 #endif
