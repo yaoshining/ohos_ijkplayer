@@ -36,6 +36,10 @@ add_library(ijkplayer  SHARED
                                  ijkavutil/ijktree.c
                                  ijkavutil/ijkfifo.c
                                  ijkavutil/ijkstl.cpp
+                                 ohos/ffpipenode_ohos_mediacodec_vdec.cpp
+                                 ohos/ohos_video_decoder_data.cpp
+                                 ohos/ohos_video_decoder_Info.cpp
+                                 ohos/ohos_video_decoder.cpp
                                 )
 
 
@@ -72,3 +76,8 @@ target_link_libraries(ijkplayer swscale)
 target_link_libraries(ijkplayer avdevice)
 target_link_libraries(ijkplayer crypto)
 target_link_libraries(ijkplayer ssl)
+target_link_libraries(ijkplayer libnative_media_codecbase.so)
+target_link_libraries(ijkplayer libnative_media_core.so)
+target_link_libraries(ijkplayer libnative_media_vdec.so)
+target_link_libraries(ijkplayer libnative_window.so)
+target_link_libraries(ijkplayer libnative_buffer.so)

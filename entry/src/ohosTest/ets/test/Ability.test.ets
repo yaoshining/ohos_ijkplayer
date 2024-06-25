@@ -33,7 +33,7 @@ export default function abilityTest() {
       //初始化配置
       mIjkMediaPlayer.native_setup();
       //设置视频源
-      mIjkMediaPlayer.setDataSource("https://getsamplefiles.com/download/mp4/sample-5.mp4");
+      mIjkMediaPlayer.setDataSource("https://1251542705.vod2.myqcloud.com/4a8d9c67vodtransgzp1251542705/203109c63270835013529449619/v.f1419907.mp4");
       //设置视频源http请求头
       let headers = new Map([
         ["user_agent", "Mozilla/5.0 BiliDroid/7.30.0 (bbcallen@gmail.com)"],

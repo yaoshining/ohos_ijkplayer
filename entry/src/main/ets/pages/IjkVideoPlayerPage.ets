@@ -32,10 +32,12 @@ let CONTROL_PlayStatus = PlayStatus.INIT;
 let PROGRESS_MAX_VALUE: number = 100;
 let mIjkMediaPlayer = IjkMediaPlayer.getInstance();
 let updateProgressTimer: number = 0;
-let videoUrls: string[] = ["http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8",
-  "http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8"
-];
+let videoUrls: string[] =
+  ["https://1251542705.vod2.myqcloud.com/4a8d9c67vodtransgzp1251542705/203109c63270835013529449619/v.f1419907.mp4",
+    "http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8"
+  ];
 let curIndex: number = 0;
+const initAspectRatio = 1;
 
 @Entry
 @Component
@@ -54,7 +56,11 @@ struct IjkVideoPlayerPage {
   @State oldSeconds: number = 0;
   @State isSeekTo: boolean = false;
   @State isCurrentTime: boolean = false;
+  @State videoWidth: string = '100%';
+  @State videoAspectRatio: number = initAspectRatio;
   private videoUrl: string = '';
+  private last: number = 0;
+  @State videoParentAspectRatio: number = initAspectRatio;
 
   aboutToAppear() {
     LogUtils.getInstance().LOGI("aboutToAppear");
@@ -119,6 +125,8 @@ struct IjkVideoPlayerPage {
           .onDestroy(() => {
           })
           .width('100%')
+          .width(this.videoWidth)
+          .aspectRatio(this.videoAspectRatio)
         Image($r('app.media.icon_replay'))
           .objectFit(ImageFit.Auto)
           .width('120px')
@@ -136,7 +144,7 @@ struct IjkVideoPlayerPage {
           .visibility(this.loadingVisible)
           .border({ width: 0 })
           .borderStyle(BorderStyle.Dashed)
-      }.width('100%').height('700px').backgroundColor('#000000').clip(true)
+      }.width('100%').backgroundColor('#000000').clip(true).aspectRatio(this.videoParentAspectRatio)
 
       Flex({ direction: FlexDirection.Row, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Start }) {
         Text(this.currentTime).width('100px').fontSize('20px').margin('20px')
@@ -208,9 +216,11 @@ struct IjkVideoPlayerPage {
       Flex({ direction: FlexDirection.Row, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Start }) {
         Button('1.5倍速')
           .onClick(() => {
+            if (!this.debounce()) {
+              return;
+            }
             this.playSpeed = '1.5f'
-            this.stop();
-            this.startPlayOrResumePlay()
+            mIjkMediaPlayer.setSpeed("1.5f");
           })
           .width('400px')
           .height('80px')
@@ -219,8 +229,7 @@ struct IjkVideoPlayerPage {
         Button('2 倍速')
           .onClick(() => {
             this.playSpeed = '2f'
-            this.stop();
-            this.startPlayOrResumePlay()
+            mIjkMediaPlayer.setSpeed("2f");
           })
           .width('400px')
           .height('80px')
@@ -395,9 +404,22 @@ struct IjkVideoPlayerPage {
     mIjkMediaPlayer.setLoopCount(true);
     let mOnVideoSizeChangedListener: OnVideoSizeChangedListener = {
       onVideoSizeChanged: (width: number, height: number, sar_num: number, sar_den: number) => {
-        that.aspRatio = width / height;
+        if (height === 0) {
+          return;
+        }
+        const va = width / height;
+        const vpa = that.videoParentAspectRatio;
+        if (vpa > va) {
+          that.videoWidth = (width / (height * vpa)) * 100 + '%';
+        } else {
+          that.videoWidth = '100%';
+        }
+        if (width && height) {
+          that.videoAspectRatio = width / height;
+        }
         LogUtils.getInstance()
-          .LOGI("setOnVideoSizeChangedListener-->go:" + width + "," + height + "," + sar_num + "," + sar_den)
+          .LOGI("setOnVideoSizeChangedListener-->go:" + width + "," + height + "," + sar_num + "," + sar_den);
+        that.getVideoSize();
         that.hideLoadIng();
       }
     }
@@ -491,6 +513,15 @@ struct IjkVideoPlayerPage {
     mIjkMediaPlayer.start();
   }
 
+  private getVideoSize() {
+    let VideoWidth = mIjkMediaPlayer.getVideoWidth();
+    LogUtils.getInstance().LOGI("getVideoWidth---" + VideoWidth);
+
+    let VideoHeight = mIjkMediaPlayer.getVideoHeight();
+    LogUtils.getInstance().LOGI("getVideoHeight---" + VideoHeight);
+  }
+
+
   private pause() {
     if (mIjkMediaPlayer.isPlaying()) {
       mIjkMediaPlayer.pause();
@@ -514,6 +545,9 @@ struct IjkVideoPlayerPage {
   }
 
   private playNext() {
+    if (!this.debounce()) {
+      return;
+    }
     if (curIndex == videoUrls.length - 1) {
       curIndex = 0;
     } else {
@@ -523,7 +557,18 @@ struct IjkVideoPlayerPage {
     mIjkMediaPlayer.stop();
     mIjkMediaPlayer.reset();
     this.startProgressTask();
-    this.videoUrl = videoUrls[curIndex]
+    this.videoUrl = videoUrls[curIndex];
     this.play(this.videoUrl);
   }
+
+  debounce() {
+    const delay = 600;
+    let cur = new Date().getTime();
+    if (cur - this.last > delay) {
+      this.last = cur;
+      return true;
+    }
+    return false;
+  }
+
 }

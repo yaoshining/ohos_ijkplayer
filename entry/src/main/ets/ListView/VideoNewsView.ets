@@ -22,7 +22,7 @@ import { VideoSource } from './VideoSource';
 export default struct VideoNewsView {
   private title: string = "";
   private radio: number =  1.77;
-  private testUrl: string = "https://getsamplefiles.com/download/mp4/sample-5.mp4";
+  private testUrl: string = "https://1251542705.vod2.myqcloud.com/4a8d9c67vodtransgzp1251542705/203109c63270835013529449619/v.f1419907.mp4";
 
   build() {
     Column() {
