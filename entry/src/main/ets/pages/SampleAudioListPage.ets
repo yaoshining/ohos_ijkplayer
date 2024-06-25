@@ -13,16 +13,16 @@
  * limitations under the License.
  */
 
-
-import { IjkMediaPlayer } from "@ohos/ijkplayer";
-import { OnPreparedListener } from "@ohos/ijkplayer";
-import { OnCompletionListener } from "@ohos/ijkplayer";
-import { OnBufferingUpdateListener } from "@ohos/ijkplayer";
-import { OnErrorListener, OnTimedTextListener } from "@ohos/ijkplayer";
-import { OnInfoListener } from "@ohos/ijkplayer";
-import { OnSeekCompleteListener } from "@ohos/ijkplayer";
-import { LogUtils } from "@ohos/ijkplayer"
-import { PlayStatus } from "../common/PlayStatus"
+import { Callback } from '@ohos.base';
+import { IjkMediaPlayer, InterruptEvent, InterruptHintType, } from '@ohos/ijkplayer';
+import { OnPreparedListener } from '@ohos/ijkplayer';
+import { OnCompletionListener } from '@ohos/ijkplayer';
+import { OnBufferingUpdateListener } from '@ohos/ijkplayer';
+import { OnErrorListener, OnTimedTextListener } from '@ohos/ijkplayer';
+import { OnInfoListener } from '@ohos/ijkplayer';
+import { OnSeekCompleteListener } from '@ohos/ijkplayer';
+import { LogUtils } from '@ohos/ijkplayer';
+import { PlayStatus } from '../common/PlayStatus';
 import prompt from '@ohos.promptAction';
 
 let CONTROL_PlayStatus = PlayStatus.INIT;
@@ -56,6 +56,17 @@ struct SampleAudioListPage {
     LogUtils.getInstance().LOGI("aboutToAppear");
     this.videoUrl = videoUrls[0]
     this.initDelayPlay();
+    let event: Callback<InterruptEvent> = (event) => {
+      LogUtils.getInstance().LOGI(`event: ${JSON.stringify(event)}`);
+      if (event.hintType === InterruptHintType.INTERRUPT_HINT_PAUSE) {
+        this.pause();
+      } else if (event.hintType === InterruptHintType.INTERRUPT_HINT_RESUME) {
+        this.startPlayOrResumePlay();
+      } else if (event.hintType === InterruptHintType.INTERRUPT_HINT_STOP) {
+        this.stop();
+      }
+    }
+    mIjkMediaPlayer.on('audioInterrupt', event);
   }
 
   aboutToDisappear() {
@@ -65,6 +76,7 @@ struct SampleAudioListPage {
     if (CONTROL_PlayStatus != PlayStatus.INIT) {
       this.stop();
     }
+    mIjkMediaPlayer.off('audioInterrupt');
   }
 
   onPageShow() {
@@ -76,7 +88,6 @@ struct SampleAudioListPage {
   onPageHide() {
     this.pause();
   }
-
 
   build() {
     Flex({ direction: FlexDirection.Column, alignItems: ItemAlign.Auto, justifyContent: FlexAlign.Start }) {

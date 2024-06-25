@@ -65,8 +65,8 @@ struct IjkVideoPlayerPage {
   aboutToAppear() {
     LogUtils.getInstance().LOGI("aboutToAppear");
     this.videoUrl = (router.getParams() as RouterParam).videoUrl;
-    let event:  Callback<InterruptEvent> = (event) => {
-      console.info(`event: ${JSON.stringify(event)}`);
+    let event: Callback<InterruptEvent> = (event) => {
+      LogUtils.getInstance().LOGI(`event: ${JSON.stringify(event)}`);
       if (event.hintType === InterruptHintType.INTERRUPT_HINT_PAUSE) {
         this.pause();
       } else if (event.hintType === InterruptHintType.INTERRUPT_HINT_RESUME) {
