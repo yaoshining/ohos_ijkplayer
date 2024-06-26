@@ -203,8 +203,12 @@ export class IjkMediaPlayer {
   }
 
   setScreenOnWhilePlaying(on: boolean): void {
-    window.getLastWindow(getContext(this), (err: BusinessError, data: window.Window) => {
-      data.setWindowKeepScreenOn(on);
+    window.getLastWindow(getContext(this)).then((data: window.Window) => {
+      if (data) {
+        data.setWindowKeepScreenOn(on);
+      }
+    }).catch((err: BusinessError) => {
+      LogUtils.getInstance().LOGI(`getLastWindow error: ${JSON.stringify(err)}`);
     });
   }
 
