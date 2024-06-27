@@ -34,7 +34,7 @@ let mIjkMediaPlayer = IjkMediaPlayer.getInstance();
 let updateProgressTimer: number = 0;
 let videoUrls: string[] =
   ["https://1251542705.vod2.myqcloud.com/4a8d9c67vodtransgzp1251542705/203109c63270835013529449619/v.f1419907.mp4",
-    "http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8"
+    "https://getsamplefiles.com/download/mp4/sample-5.mp4",
   ];
 let curIndex: number = 0;
 const initAspectRatio = 1;
@@ -193,17 +193,6 @@ struct IjkVideoPlayerPage {
           .width('400px')
           .height('80px')
           .margin('15px')
-      }
-
-      Flex({ direction: FlexDirection.Row, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Start }) {
-        Button('停止')
-          .onClick(() => {
-            this.stop();
-          })
-          .width('400px')
-          .height('80px')
-          .margin('15px')
-
         Button('切换')
           .onClick(() => {
             this.playNext();
@@ -214,6 +203,18 @@ struct IjkVideoPlayerPage {
       }
 
       Flex({ direction: FlexDirection.Row, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Start }) {
+        Button('1倍速')
+          .onClick(() => {
+            if (!this.debounce()) {
+              return;
+            }
+            this.playSpeed = '1f'
+            mIjkMediaPlayer.setSpeed("1f");
+          })
+          .width('400px')
+          .height('80px')
+          .margin('15px')
+
         Button('1.5倍速')
           .onClick(() => {
             if (!this.debounce()) {
