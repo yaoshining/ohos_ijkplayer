@@ -54,6 +54,11 @@
 ```shell
 ohpm install @ohos/ijkplayer
 ```
+## X86模拟器配置
+
+[使用模拟器运行应用/服务](https://developer.huawei.com/consumer/cn/deveco-developer-suite/enabling/kit?currentPage=1&pageSize=100)
+
+
 ## 使用说明
 ```
    import { IjkMediaPlayer } from "@ohos/ijkplayer";
