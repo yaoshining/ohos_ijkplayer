@@ -1,3 +1,11 @@
+## 2.0.3
+
+- 音频框架由OpenSLES切换OHAudio
+- 新增音频焦点监听接口与取消监听接口
+  - on(type: AudioInterrupt,  callback: Callback<InterruptEvent>)
+  - off(type: AudioInterrupt)
+- 修复2.0.3-rc.2、2.0.3-rc.3版本漏问题：切换依赖版本openssl1.0.2u -> openssl1.1.1w
+
 ## 2.0.3-rc.3
 
 - 适配H265硬解码
