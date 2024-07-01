@@ -9,36 +9,21 @@
 ## 编译运行
 
 ### ffmpeg soundtouch yuv依赖
-1. 修改编译之前需要在交叉编译中支持编译x86_64架构，可以参考[adpater_architecture.md](https://gitee.com/openharmony-sig/tpc_c_cplusplus/blob/master/docs/adpater_architecture.md)文档。
 
-2. FFmpeg:基于B站的FFmpeg版本(ff4.0--ijk0.8.8--20210426--001):[FFmpeg源码链接](https://github.com/bilibili/FFmpeg/tags)， [FFmpeg](https://gitee.com/openharmony-sig/tpc_c_cplusplus/tree/master/thirdparty/FFmpeg-ff4.0)可以在交叉编译出库文件和头文件，编译可参考[FFmpeg-ff4.0编译指导](https://gitee.com/openharmony-sig/tpc_c_cplusplus/blob/master/thirdparty/FFmpeg-ff4.0/README_zh.md)。
+1. FFmpeg:基于B站的FFmpeg版本(ff4.0--ijk0.8.8--20210426--001):[FFmpeg源码链接](https://github.com/bilibili/FFmpeg/tags)， [FFmpeg](https://gitee.com/openharmony-sig/tpc_c_cplusplus/tree/support_x86/thirdparty/FFmpeg-ff4.0)可以在交叉编译出库文件和头文件，编译可参考[FFmpeg-ff4.0编译指导](https://gitee.com/openharmony-sig/tpc_c_cplusplus/blob/support_x86/thirdparty/FFmpeg-ff4.0/README_zh.md)。
 
-   1. 注意编译FFmpeg-ff4.0的时候依赖的openssl使用OpenSSL_1_1_1w
+   1. 编译成功后会在lycium\usr生成FFmpeg-ff4.0文件夹改名为ffmpeg。
 
-   2. 编译之前需要先修改下面HPKBUILD文件中[openssl](https://gitee.com/openharmony-sig/tpc_c_cplusplus/tree/master/thirdparty/openssl)的版本
-
-      ```shell
-      pkgver=OpenSSL_1_1_1t 
-      //修改为
-      pkgver=OpenSSL_1_1_1w
-      ```
-
-   3. 下载openssl的[OpenSSL_1_1_1w版本](https://github.com/openssl/openssl/archive/refs/tags/OpenSSL_1_1_1w.tar.gz)，执行以下命令获取对应的sha512值，替换SHA512SUM文件的内容。
-
-      ```shell
-      sha512num openssl-OpenSSL_1_1_1w.tar.gz
-      ```
-
-   4. 编译最后会在lycium\usr生成FFmpeg-ff4.0文件夹改名为ffmpeg。
-
-3. soudtouch:基于B站的soudtouch版本(ijk-r0.1.2-dev):[soundtouch源码链接](https://github.com/bilibili/soundtouch/branches) ，soundtouch须在交叉编译出库文件和头文件。
+2. soudtouch:基于B站的soudtouch版本(ijk-r0.1.2-dev):[soundtouch源码链接](https://github.com/bilibili/soundtouch/branches) ，soundtouch须在交叉编译出库文件和头文件。
 
    1. 把doc目录下的soundtouch-ijk文件夹拷贝到thirdparty下在lycium文件夹执行./build.sh soundtouch-ijk可以在lycium\usr目录下编译出soundtouch的静态库和头文件
 
-4. yuv:基于B站的yuv版本(ijk-r0.2.1-dev):[yuv源码链接](https://github.com/bilibili/libyuv/branches)，yuv须在交叉编译出库文件和头文件。
+3. yuv:基于B站的yuv版本(ijk-r0.2.1-dev):[yuv源码链接](https://github.com/bilibili/libyuv/branches)，yuv须在交叉编译出库文件和头文件。
    1. 把doc目录下的libyuv-ijk文件夹拷贝到thirdparty下在lycium文件夹执行./build.sh libyuv-ijk可以在lycium\usr目录下编译出yuv的静态库和头文件
 
-5. 把编译生成的openssl、ffmpeg、soundtouch、yuv的文件夹，覆盖到工程的ijkplayer/src/main/cpp/thirdparty下，如图所示：
+4. 把编译生成的ffmpeg文件夹拷贝到ijkplayer/src/main/cpp/third_party/ffmpeg下
+
+5. 把编译生成的openssl、soundtouch、yuv的文件夹，拷贝到工程的ijkplayer/src/main/cpp/third_party下，如图所示：
 
 ![img.png](image/img.png)
 
@@ -54,11 +39,6 @@
 ```shell
 ohpm install @ohos/ijkplayer
 ```
-## X86模拟器配置
-
-[使用模拟器运行应用/服务](https://developer.huawei.com/consumer/cn/deveco-developer-suite/enabling/kit?currentPage=1&pageSize=100)
-
-
 ## 使用说明
 ```
    import { IjkMediaPlayer } from "@ohos/ijkplayer";
