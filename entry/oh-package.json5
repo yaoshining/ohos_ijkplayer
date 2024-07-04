@@ -4,7 +4,7 @@
   "name": "entry",
   "description": "ijkplayer是OpenHarmony环境下可用的一款基于FFmpeg的视频播放器。",
   "repository": {},
-  "version": "2.0.3",
+  "version": "2.0.4-rc.0",
   "dependencies": {
     "@ohos/ijkplayer": "file:../ijkplayer"
   }
