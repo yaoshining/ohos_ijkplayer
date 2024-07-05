@@ -116,6 +116,8 @@ static double AoutGetLatencySeconds(SDL_Aout *aout)
 // 音频渲染器初始化
 static int AoutOpenAudio(SDL_Aout *aout, const SDL_AudioSpec *desired, SDL_AudioSpec *obtained)
 {
+    LOGI("AoutOpenAudio channels:%d, freq:%d, samples:%d, format: %d", desired->channels, desired->freq,
+         desired->samples, desired->format);
     if (audioRendererNormal != NULL) {
         OH_AudioRenderer_Release(audioRendererNormal);
         OH_AudioStreamBuilder_Destroy(rendererBuilder);
@@ -136,7 +138,7 @@ static int AoutOpenAudio(SDL_Aout *aout, const SDL_AudioSpec *desired, SDL_Audio
     // create builder
     OH_AudioStreamBuilder_Create(&rendererBuilder, AUDIOSTREAM_TYPE_RENDERER);
     // set params and callbacks
-    OH_AudioStreamBuilder_SetSamplingRate(rendererBuilder, desired->freq * MS_TO_S);
+    OH_AudioStreamBuilder_SetSamplingRate(rendererBuilder, desired->freq);
     OH_AudioStreamBuilder_SetChannelCount(rendererBuilder, desired->channels);
     OH_AudioStreamBuilder_SetSampleFormat(rendererBuilder, AUDIOSTREAM_SAMPLE_S16LE);
     OH_AudioStreamBuilder_SetEncodingType(rendererBuilder, AUDIOSTREAM_ENCODING_TYPE_RAW);
