@@ -4,6 +4,7 @@ project(ijkplayer)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-int-conversion -Wl,-Bsymbolic")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-int-conversion -Wl,-Bsymbolic")
+set(CMAKE_SKIP_RPATH TRUE)
 
 add_subdirectory(ijksdl)
 add_subdirectory(ijkplayer)

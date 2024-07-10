@@ -555,11 +555,9 @@ struct IjkVideoPlayerPage {
       curIndex++;
     }
     CONTROL_PlayStatus = PlayStatus.INIT;
-    mIjkMediaPlayer.stop();
-    mIjkMediaPlayer.reset();
-    this.startProgressTask();
+    this.stop();
     this.videoUrl = videoUrls[curIndex];
-    this.play(this.videoUrl);
+    this.startPlayOrResumePlay()
   }
 
   debounce() {

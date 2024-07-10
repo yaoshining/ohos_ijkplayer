@@ -83,9 +83,11 @@ export class IjkMediaPlayer {
   private id: string = '';
   private callback: Callback<InterruptEvent> | null = null;
 
-  setContext(context: object, id: string): void {
+  setContext(context: object, id?: string): void {
     this.ijkplayer_napi = context as IjkPlayerNapi;
-    this.id = id
+    if(id) {
+      this.id = id
+    }
   }
 
   setAudioId(id: string) {

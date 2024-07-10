@@ -66,6 +66,7 @@ class IJKPlayerNapi {
     void onSurfaceChanged(OH_NativeXComponent *component, void *window);
     void onSurfaceDestroyed(OH_NativeXComponent *component, void *window);
     void dispatchTouchEvent(OH_NativeXComponent *component, void *window);
+    static std::string getXComponentId(napi_env env, napi_callback_info info);
     void setXComponentAndNativeWindow(std::string &id, OH_NativeXComponent *component, void *window);
     OH_NativeXComponent *getXComponent(std::string &id);
     void *getNativeWindow(std::string &id);
