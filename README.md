@@ -237,6 +237,11 @@ ohpm install @ohos/ijkplayer
    mIjkMediaPlayer.off('audioInterrupt');
 ```
 
+### 开启硬解码
+```
+   ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec_all_videos", "1");
+```
+
 ## 接口说明
 
 ### IjkMediaPlayer.getInstance()
@@ -316,10 +321,7 @@ ohpm install @ohos/ijkplayer
 ## 约束与限制
 
 在下述版本验证通过：
-- DevEco Studio版本: 4.1Canary2(4.1.3.322),SDK: API11(4.1.0.36)
-- DevEco Studio版本: 4.1Canary(4.1.3.213),SDK: API11(4.1.2.3)
-- DevEco Studio版本: 4.0(4.0.3.512),SDK: API10(4.0.10.9)
-- DevEco Studio版本: 4.0Canary1(4.0.3.212),SDK: API10(4.0.8.3)
+- DevEco Studio NEXT 5.0（5.0.3.427）--SDK:API12
 
  监听音频中断事件需保证设备系统版本在22以上。
 

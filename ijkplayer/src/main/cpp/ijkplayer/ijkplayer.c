@@ -128,7 +128,7 @@ IjkMediaPlayer *ijkmp_create(int (*msg_loop)(void*))
     if (!mp->ffplayer)
         goto fail;
 
-    mp->ffplayer->mediacodec_all_videos=1;
+    mp->ffplayer->mediacodec_all_videos=0;
 
     mp->msg_loop = msg_loop;
 
