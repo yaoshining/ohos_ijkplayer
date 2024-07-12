@@ -457,10 +457,8 @@ struct SampleAudioListPage {
       curIndex++;
     }
     CONTROL_PlayStatus = PlayStatus.INIT;
-    mIjkMediaPlayer.stop();
-    mIjkMediaPlayer.reset();
-    this.startProgressTask();
-    this.videoUrl = videoUrls[curIndex]
-    this.play(this.videoUrl);
+    this.stop();
+    this.videoUrl = videoUrls[curIndex];
+    this.startPlayOrResumePlay()
   }
 }

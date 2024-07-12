@@ -70,8 +70,10 @@ ohpm install @ohos/ijkplayer
 ### 播放
 ```
     let mIjkMediaPlayer = IjkMediaPlayer.getInstance();
-    // 设置XComponent回调的context
-    mIjkMediaPlayer.setContext(this.mContext);
+    // 如果播放视频，调用setContext接口，参数1为XComponent回调的context， 可选参数2为XComponent的id属性值
+    mIjkMediaPlayer.setContext(this.mContext, "xcomponentId");
+    // 如果只播放音频，则调用setAudioId接口，参数为音频对象的id
+    // mIjkMediaPlayer.setAudioId('audioIjkId');
     // 设置debug模式
     mIjkMediaPlayer.setDebug(true);
     // 初始化配置
@@ -238,49 +240,49 @@ ohpm install @ohos/ijkplayer
 ## 接口说明
 
 ### IjkMediaPlayer.getInstance()
-| 接口名                            | 参数                                          | 返回值             | 说明                     |
-|--------------------------------|---------------------------------------------| ----------------- |------------------------|
-| setContext                     | context: object                             | void              | 设置XComponent回调的context |
-| setDebug                       | open: boolean                               | void              | 设置日志开关                 |
-| native_setup                   | 无                                           | void              | 初始化配置                  |
-| setDataSource                  | url: string                                 | void               | 设置视频源地址                |
-| setDataSourceHeader            | headers: Map<string, string>                | void            | 设置视频源的HTTP请求头          |
-| setOption                      | category:string, key: string, value: string | void | 设置播放前预设参数              |
-| setOptionLong                  | category:string, key: string, value: string | void | 设置播放前预设参数              |
-| prepareAsync                   | 无                                           | void              | 加载视频                   |
-| start                          | 无                                           | void              | 播放视频                   |
-| stop                           | 无                                           | void              | 停止播放                   |
-| pause                          | 无                                           | void              | 暂停播放                   |
-| reset                          | 无                                           | void              | 视频重置                   | 
-| release                        | 无                                           | void              | 释放资源                   |
-| seekTo                         | msec： string                                | void              | 快进、后退                  |
-| setScreenOnWhilePlaying        | on: boolean                                 | void              | 设置屏幕常亮                 |
-| setSpeed                       | speed: string                               | void              | 设置播放倍数                 |
-| getSpeed                       | 无                                           | number             | 获取设置的倍数                |
-| isPlaying                      | 无                                           | boolean            | 查看是否正在播放状态             |
-| setOnVideoSizeChangedListener  | listener: OnVideoSizeChangedListener        | void     | 设置获取视频宽高回调监听           |
-| setOnPreparedListener          | listener: OnPreparedListener                | void     | 设置视频准备就绪回调监听           |
-| setOnInfoListener              | listener: OnInfoListener                    | void     | 设置播放器的各种状态回调监听         |
-| setOnErrorListener             | listener: OnErrorListener                   | void     | 设置播放异常回调监听             |
-| setOnBufferingUpdateListener   | listener: OnBufferingUpdateListener         | void     | 设置buffer缓冲回调监听         |
-| setOnSeekCompleteListener      | listener: OnSeekCompleteListener            | void     | 设置快进后退回调监听             |
-| setMessageListener             | 无                                           | void              | 设置视频监听器到napi用于接收回调     |
-| getVideoWidth                  | 无                                           | number            | 获取视频宽度                 |
-| getVideoHeight                 | 无                                           | number            | 获取视频高度                 |
-| getVideoSarNum                 | 无                                           | number            | 获取视频高度                 |
-| getVideoSarDen                 | 无                                           | number            | 获取视频高度                 |
-| getDuration                    | 无                                           | number            | 获取视频总的时长               |
-| getCurrentPosition             | 无                                           | number            | 获取视频播放当前位置             |
-| getAudioSessionId              | 无                                           | number             | 获取音频sessionID          |
-| setVolume                      | leftVolume: string,rightVolume:string       | void   | 设置音量                   |
-| setLoopCount                   | looping: boolean                            | void               | 设置循环播放                 |
-| isLooping                      | 无                                           | boolean            | 查看当前是否循环播放             |
-| selectTrack                    | track: string                               | void               | 选择轨道                   |
-| deselectTrack                  | track: string                               | void               | 删除选择轨道                 |
-| getMediaInfo                   | 无                                           | object              | 获取媒体信息                 |
-| setAudioId                     | id: string                                  | void              | 设置创建音频对象，设置id          |
-| on              | type: ‘audioInterrupt’, callback: Callback< InterruptEvent >               | void              | 监听音频中断事件，使用callback方式返回结果         |
-| off             | type: ‘audioInterrupt’                              | void              | 取消订阅音频中断事件         |
+| 接口名                           | 参数                                                           | 返回值               | 说明                                                           |
+|-------------------------------|--------------------------------------------------------------|-------------------|--------------------------------------------------------------|
+| setContext                    | context: object, id?: string                                 | void              | 设置XComponent回调的context, 设置XComponent的id属性值(可选), 播放视频时需要调用该接口 |
+| setDebug                      | open: boolean                                                | void              | 设置日志开关                                                       |
+| native_setup                  | 无                                                            | void              | 初始化配置                                                        |
+| setDataSource                 | url: string                                                  | void              | 设置视频源地址                                                      |
+| setDataSourceHeader           | headers: Map<string, string>                                 | void              | 设置视频源的HTTP请求头                                                |
+| setOption                     | category:string, key: string, value: string                  | void              | 设置播放前预设参数                                                    |
+| setOptionLong                 | category:string, key: string, value: string                  | void              | 设置播放前预设参数                                                    |
+| prepareAsync                  | 无                                                            | void              | 加载视频                                                         |
+| start                         | 无                                                            | void              | 播放视频                                                         |
+| stop                          | 无                                                            | void              | 停止播放                                                         |
+| pause                         | 无                                                            | void              | 暂停播放                                                         |
+| reset                         | 无                                                            | void              | 视频重置                                                         | 
+| release                       | 无                                                            | void              | 释放资源                                                         |
+| seekTo                        | msec： string                                                 | void              | 快进、后退                                                        |
+| setScreenOnWhilePlaying       | on: boolean                                                  | void              | 设置屏幕常亮                                                       |
+| setSpeed                      | speed: string                                                | void              | 设置播放倍数                                                       |
+| getSpeed                      | 无                                                            | number            | 获取设置的倍数                                                      |
+| isPlaying                     | 无                                                            | boolean           | 查看是否正在播放状态                                                   |
+| setOnVideoSizeChangedListener | listener: OnVideoSizeChangedListener                         | void              | 设置获取视频宽高回调监听                                                 |
+| setOnPreparedListener         | listener: OnPreparedListener                                 | void              | 设置视频准备就绪回调监听                                                 |
+| setOnInfoListener             | listener: OnInfoListener                                     | void              | 设置播放器的各种状态回调监听                                               |
+| setOnErrorListener            | listener: OnErrorListener                                    | void              | 设置播放异常回调监听                                                   |
+| setOnBufferingUpdateListener  | listener: OnBufferingUpdateListener                          | void              | 设置buffer缓冲回调监听                                               |
+| setOnSeekCompleteListener     | listener: OnSeekCompleteListener                             | void              | 设置快进后退回调监听                                                   |
+| setMessageListener            | 无                                                            | void              | 设置视频监听器到napi用于接收回调                                           |
+| getVideoWidth                 | 无                                                            | number            | 获取视频宽度                                                       |
+| getVideoHeight                | 无                                                            | number            | 获取视频高度                                                       |
+| getVideoSarNum                | 无                                                            | number            | 获取视频高度                                                       |
+| getVideoSarDen                | 无                                                            | number            | 获取视频高度                                                       |
+| getDuration                   | 无                                                            | number            | 获取视频总的时长                                                     |
+| getCurrentPosition            | 无                                                            | number            | 获取视频播放当前位置                                                   |
+| getAudioSessionId             | 无                                                            | number            | 获取音频sessionID                                                |
+| setVolume                     | leftVolume: string,rightVolume:string                        | void              | 设置音量                                                         |
+| setLoopCount                  | looping: boolean                                             | void              | 设置循环播放                                                       |
+| isLooping                     | 无                                                            | boolean           | 查看当前是否循环播放                                                   |
+| selectTrack                   | track: string                                                | void              | 选择轨道                                                         |
+| deselectTrack                 | track: string                                                | void              | 删除选择轨道                                                       |
+| getMediaInfo                  | 无                                                            | object            | 获取媒体信息                                                       |
+| setAudioId                    | id: string                                                   | void              | 设置创建音频对象，设置id                                                |
+| on                            | type: ‘audioInterrupt’, callback: Callback< InterruptEvent > | void              | 监听音频中断事件，使用callback方式返回结果                                    |
+| off                           | type: ‘audioInterrupt’                                       | void              | 取消订阅音频中断事件                                                   |
 
 ### 参数说明
 1.	InterruptEvent
