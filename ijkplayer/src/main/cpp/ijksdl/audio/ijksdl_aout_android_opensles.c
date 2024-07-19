@@ -108,8 +108,26 @@ static int32_t AudioRendererOnInterrupt(OH_AudioRenderer *renderer, void *userDa
     return 0;
 }
 
+static int32_t AudioRendererOnError(OH_AudioRenderer *renderer, void *userData, OH_AudioStream_Result error)
+{
+    LOGI("AudioRendererOnError result: %d", error);
+    if ((g_opaque == NULL) || (g_opaque->ffp == NULL)) {
+        return -1;
+    }
+    if (error != AUDIOSTREAM_SUCCESS) {
+        ffp_notify_msg2(g_opaque->ffp, FFP_MSG_ERROR, error);
+    }
+    return 0;
+}
+
 static double AoutGetLatencySeconds(SDL_Aout *aout)
 {
+    return 0;
+}
+
+static int32_t AudioRendererOnStreamEvent(OH_AudioRenderer *renderer, void *userData, OH_AudioStream_Event event)
+{
+    LOGI("AudioRendererOnStreamEvent, event:%d", event);
     return 0;
 }
 
@@ -159,9 +177,9 @@ static int AoutOpenAudio(SDL_Aout *aout, const SDL_AudioSpec *desired, SDL_Audio
     opaque->abort_request = false;
 
     rendererCallbacks.OH_AudioRenderer_OnWriteData = AudioRendererOnWriteData; // 看下数据写入OnWriteData
-    rendererCallbacks.OH_AudioRenderer_OnStreamEvent = NULL;                   // 自定义音频流事件函数
+    rendererCallbacks.OH_AudioRenderer_OnStreamEvent = AudioRendererOnStreamEvent;  // 自定义音频流事件函数
     rendererCallbacks.OH_AudioRenderer_OnInterruptEvent = AudioRendererOnInterrupt; // 自定义音频中断事件函数
-    rendererCallbacks.OH_AudioRenderer_OnError = NULL; // 自定义异常回调函数
+    rendererCallbacks.OH_AudioRenderer_OnError = AudioRendererOnError; // 自定义异常回调函数
 
     // 设置输出音频流的回调，在生成音频播放对象时自动注册
     OH_AudioStreamBuilder_SetRendererCallback(rendererBuilder, rendererCallbacks, NULL);
@@ -221,11 +239,11 @@ static void AudioRendererRelease(SDL_Aout *aout)
 
 static void AoutSetVolume(SDL_Aout *aout, float leftVolume, float rightVolume)
 {
-    SDL_Aout_Opaque *opaque = aout->opaque;
-    opaque->left_volume = leftVolume;
-    opaque->right_volume = rightVolume;
-    opaque->need_set_volume = true;
-    LOGI("audio->aout_set_volume");
+    LOGI("audio->aout_set_volume, leftVolume:%f, rightVolume:%f", leftVolume, rightVolume);
+    if (audioRendererNormal != NULL) {
+        OH_AudioStream_Result  ret = OH_AudioRenderer_SetVolume(audioRendererNormal, leftVolume);
+        LOGD("audio->aout_set_volume, OH_AudioRenderer_SetVolume ret:%d", ret);
+    }
 }
 
 SDL_Aout *SDLAoutCreateForOpenSLES(FFPlayer *ffp) // 实现音频播放功能；

@@ -47,6 +47,7 @@ struct SampleAudioListPage {
   @State mFirst: boolean = true;
   @State mDestroyPage: boolean = false;
   @State playSpeed: string = '1f';
+  @State volume: number = 1.0;
   @State oldSeconds: number = 0;
   @State isSeekTo: boolean = false;
   @State isCurrentTime: boolean = false;
@@ -188,6 +189,28 @@ struct SampleAudioListPage {
           .width('400px')
           .height('80px')
           .margin('15px')
+      }
+      Flex({ direction: FlexDirection.Row, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Start }) {
+        Text("音频音量").width('120px').fontSize('30px').margin('15px')
+        Slider({
+          value: this.volume,
+          min: 0.0,
+          max: 1.0,
+          step: 0.1,
+          style: SliderStyle.OutSet
+        })
+          .width('600px')
+          .blockColor(Color.Blue)
+          .trackColor(Color.Gray)
+          .selectedColor(Color.Blue)
+          .showSteps(true)
+          .showTips(true)
+          .onChange((value: number, mode: SliderChangeMode) => {
+            if (mode == SliderChangeMode.End) {
+              this.volume = value;
+              mIjkMediaPlayer.setVolume(String(this.volume), String(this.volume));
+            }
+          })
       }
     }
   }
@@ -344,8 +367,8 @@ struct SampleAudioListPage {
     mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "connect_timeout", "10000000");
     mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "addrinfo_timeout", "10000000");
     mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "dns_cache_timeout", "10000000");
-    // 设置音量
-    // mIjkMediaPlayer.setVolume("0.5", "0.5");
+    // 初始化音频音量
+    this.volume = 1.0;
     // 变速播放
     mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "soundtouch", "1");
     mIjkMediaPlayer.setSpeed(this.playSpeed);
