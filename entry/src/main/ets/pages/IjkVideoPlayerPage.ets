@@ -255,7 +255,7 @@ struct IjkVideoPlayerPage {
           .onChange((value: number, mode: SliderChangeMode) => {
             if (mode == SliderChangeMode.End) {
               this.volume = value;
-              mIjkMediaPlayer.setVolume(String(this.volume), String(this.volume));
+              mIjkMediaPlayer.setVolume(this.volume.toString(), this.volume.toString());
             }
           })
       }
@@ -383,6 +383,8 @@ struct IjkVideoPlayerPage {
     mIjkMediaPlayer.setDebug(true);
     //初始化配置
     mIjkMediaPlayer.native_setup();
+    // 初始化配置后需要重新设置音频流音量，否则音量为默认值1.0
+    mIjkMediaPlayer.setVolume(this.volume.toString(), this.volume.toString());
     //设置视频源
     mIjkMediaPlayer.setDataSource(url);
     //设置视频源http请求头
@@ -417,8 +419,6 @@ struct IjkVideoPlayerPage {
     mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "connect_timeout", "10000000");
     mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "addrinfo_timeout", "10000000");
     mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "dns_cache_timeout", "10000000");
-    // 初始化音量
-    this.volume = 1.0;
     // 变速播放
     mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "soundtouch", "1");
     mIjkMediaPlayer.setSpeed(this.playSpeed);
