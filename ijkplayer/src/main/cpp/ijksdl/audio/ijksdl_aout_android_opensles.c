@@ -44,6 +44,8 @@ static OH_AudioRenderer *audioRenderer = NULL;
 static OH_AudioStreamBuilder *rendererBuilder = NULL;
 static OH_AudioRenderer *audioRendererNormal = NULL; // 生成音频播放对象
 
+static void AoutSetVolume(SDL_Aout *aout, float leftVolume, float rightVolume);
+
 static SDL_Class g_opensles_class = {
     .name = "OpenOhAudio",
 };
@@ -185,7 +187,9 @@ static int AoutOpenAudio(SDL_Aout *aout, const SDL_AudioSpec *desired, SDL_Audio
     OH_AudioStreamBuilder_SetRendererCallback(rendererBuilder, rendererCallbacks, NULL);
     // 构造播放音频流
     OH_AudioStreamBuilder_GenerateRenderer(rendererBuilder, &audioRendererNormal);
-
+    // 设置音频流音量
+    AoutSetVolume(aout, aout->opaque->left_volume, aout->opaque->right_volume);
+    
     if (obtained != NULL) {
         *obtained = *desired;
         obtained->size = opaque->buffer_capacity;
@@ -240,6 +244,12 @@ static void AudioRendererRelease(SDL_Aout *aout)
 static void AoutSetVolume(SDL_Aout *aout, float leftVolume, float rightVolume)
 {
     LOGI("audio->aout_set_volume, leftVolume:%f, rightVolume:%f", leftVolume, rightVolume);
+    if ((aout == NULL) || (aout->opaque == NULL)) {
+        return;
+    }
+    SDL_Aout_Opaque *opaque = aout->opaque;
+    opaque->left_volume = leftVolume;
+    opaque->right_volume = rightVolume;
     if (audioRendererNormal != NULL) {
         OH_AudioStream_Result  ret = OH_AudioRenderer_SetVolume(audioRendererNormal, leftVolume);
         LOGD("audio->aout_set_volume, OH_AudioRenderer_SetVolume ret:%d", ret);
