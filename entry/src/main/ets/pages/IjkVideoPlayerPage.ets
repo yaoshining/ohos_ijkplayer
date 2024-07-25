@@ -113,21 +113,24 @@ struct IjkVideoPlayerPage {
 
       Divider().vertical(false).strokeWidth('20px').color(Color.White).lineCap(LineCapStyle.Round)
       Stack({ alignContent: Alignment.Center }) {
-        XComponent({
-          id: 'xcomponentId',
-          type: 'surface',
-          libraryname: 'ijkplayer_napi'
-        })
-          .onLoad((event?: object) => {
-            if (!!event) {
-              this.initDelayPlay(event);
-            }
+        Column(){
+          XComponent({
+            id: 'xcomponentId',
+            type: 'surface',
+            libraryname: 'ijkplayer_napi'
           })
-          .onDestroy(() => {
-          })
-          .width('100%')
-          .width(this.videoWidth)
-          .aspectRatio(this.videoAspectRatio)
+            .onLoad((event?: object) => {
+              if (!!event) {
+                this.initDelayPlay(event);
+              }
+            })
+            .onDestroy(() => {
+            })
+            .width('100%')
+            .width(this.videoWidth)
+            .aspectRatio(this.videoAspectRatio)
+        }.aspectRatio(this.videoAspectRatio)
+
         Image($r('app.media.icon_replay'))
           .objectFit(ImageFit.Auto)
           .width('120px')
@@ -145,7 +148,7 @@ struct IjkVideoPlayerPage {
           .visibility(this.loadingVisible)
           .border({ width: 0 })
           .borderStyle(BorderStyle.Dashed)
-      }.width('100%').backgroundColor('#000000').clip(true).aspectRatio(this.videoParentAspectRatio)
+      }.width('100%').backgroundColor('#000000').clip(true)
 
       Flex({ direction: FlexDirection.Row, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Start }) {
         Text(this.currentTime).width('100px').fontSize('20px').margin('20px')
