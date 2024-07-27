@@ -16,9 +16,11 @@
 export class VideoSource {
   public videoUrl: string;
   public videoPic: string;
+  public title: string;
 
-  constructor(url: string, pic: string) {
+  constructor(url: string, pic: string, title: string) {
     this.videoUrl = url;
     this.videoPic = pic;
+    this.title = title;
   }
 }

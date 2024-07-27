@@ -64,8 +64,9 @@ class IJKPlayerNapiProxy {
     void ijkMediaPlayer_setStreamSelected(int stream, bool selected);
     HashMap IjkMediaPlayer_getMediaMeta();
     void IjkMediaPlayer_native_openlog();
-    IjkMediaPlayer *set_media_player(IjkMediaPlayer *mp);
-    IjkMediaPlayer *get_media_player();
+    IjkMediaPlayer *set_media_player(std::string id, IjkMediaPlayer *mp);
+    IjkMediaPlayer *get_media_player(std::string id);
+    void delete_media_player(std::string id);
 
   public:
     std::string id_;

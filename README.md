@@ -69,7 +69,10 @@ ohpm install @ohos/ijkplayer
 
 ### 播放
 ```
+    //单例模式
     let mIjkMediaPlayer = IjkMediaPlayer.getInstance();
+    //多实例模式
+    let mIjkMediaPlayer = new IjkMediaPlayer();
     // 如果播放视频，调用setContext接口，参数1为XComponent回调的context， 可选参数2为XComponent的id属性值
     mIjkMediaPlayer.setContext(this.mContext, "xcomponentId");
     // 如果只播放音频，则调用setAudioId接口，参数为音频对象的id

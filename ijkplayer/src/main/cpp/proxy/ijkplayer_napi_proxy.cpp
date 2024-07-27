@@ -14,7 +14,7 @@
  */
 
 #include "ijkplayer_napi_proxy.h"
-static IjkMediaPlayer *GLOBAL_IJKMP = nullptr;
+static std::unordered_map<std::string, IjkMediaPlayer *> GLOBAL_IJKMP;
 static void (*post_event)(void *weak_this, int what, int arg1, int arg2, char *obj);
 
 void IJKPlayerNapiProxy::message_loop_callback(void (*pe)(void *weak_this, int what, int arg1, int arg2, char *obj)) {
@@ -161,23 +161,37 @@ static int message_loop(void *arg) {
     return 0;
 }
 
-IjkMediaPlayer *IJKPlayerNapiProxy::IJKPlayerNapiProxy::get_media_player() {
-    LOGI("napi_proxy-->get_media_player");
-    IjkMediaPlayer *mp = GLOBAL_IJKMP;
+IjkMediaPlayer *IJKPlayerNapiProxy::get_media_player(std::string id)
+{
+    IjkMediaPlayer *mp = nullptr;
+    std::unordered_map<std::string, IjkMediaPlayer *>::iterator it = GLOBAL_IJKMP.find(id);
+    if (it != GLOBAL_IJKMP.end()) {
+        mp = it->second;
+    }
+
     if (mp) {
         ijkmp_inc_ref(mp);
     }
     return mp;
 }
 
-IjkMediaPlayer *IJKPlayerNapiProxy::set_media_player(IjkMediaPlayer *mp) {
+IjkMediaPlayer *IJKPlayerNapiProxy::set_media_player(std::string id, IjkMediaPlayer *mp)
+{
     LOGI("napi_proxy-->set_media_player");
     if (mp) {
         ijkmp_inc_ref(mp);
     }
-    GLOBAL_IJKMP = mp;
-    return mp;
+    GLOBAL_IJKMP.insert(std::make_pair(id, mp));
+    return GLOBAL_IJKMP[id];
 }
+
+void IJKPlayerNapiProxy::delete_media_player(std::string id)
+{
+    auto it = GLOBAL_IJKMP.find(id);
+    if (it != GLOBAL_IJKMP.end()) {
+        GLOBAL_IJKMP.erase(it);
+    }
+};
 
 void IJKPlayerNapiProxy::IjkMediaPlayer_native_setup(void *weak_this, void *native_window) {
     LOGI("napi_proxy-->IjkMediaPlayer_native_setup");
@@ -188,7 +202,7 @@ void IJKPlayerNapiProxy::IjkMediaPlayer_native_setup(void *weak_this, void *nati
     IJKMP_GLOABL_INIT = true;
     GLOBAL_NATIVE_WINDOW = native_window;
     IjkMediaPlayer *mp = ijkmp_android_create(message_loop);
-    IJKPlayerNapiProxy::set_media_player(mp);
+    IJKPlayerNapiProxy::set_media_player(id_, mp);
     ijkmp_android_set_surface(mp, native_window);
     ijkmp_set_weak_thiz(mp, weak_this);
     ijkmp_set_inject_opaque(mp, ijkmp_get_weak_thiz(mp));
@@ -203,135 +217,223 @@ void IJKPlayerNapiProxy::IjkMediaPlayer_native_setup_audio() {
 
     IJKMP_GLOABL_INIT = true;
     IjkMediaPlayer *mp = ijkmp_android_create(message_loop);
-    IJKPlayerNapiProxy::set_media_player(mp);
+    IJKPlayerNapiProxy::set_media_player(id_, mp);
     ijkmp_set_inject_opaque(mp, ijkmp_get_weak_thiz(mp));
     ijkmp_set_ijkio_inject_opaque(mp, ijkmp_get_weak_thiz(mp));
 }
 
 void IJKPlayerNapiProxy::IjkMediaPlayer_setDataSource(char *url) {
-    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player();
+    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player(id_);
+    if (!mp) {
+        LOGE("napi_proxy-->IjkMediaPlayer_setDataSource mp NULL");
+        return;
+    }
     ijkmp_set_data_source(mp, url);
 }
 
 void IJKPlayerNapiProxy::IjkMediaPlayer_setOption(int category, char *name, char *value) {
-    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player();
+    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player(id_);
+    if (!mp) {
+        LOGE("napi_proxy-->IjkMediaPlayer_setOption mp NULL");
+        return;
+    }
     ijkmp_set_option(mp, category, name, value);
 }
 
 void IJKPlayerNapiProxy::IjkMediaPlayer_setOptionLong(int category, char *name, int64_t value) {
-    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player();
+    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player(id_);
+    if (!mp) {
+        LOGE("napi_proxy-->IjkMediaPlayer_setOptionLong mp NULL");
+        return;
+    }
     ijkmp_set_option_int(mp, category, name, value);
 }
 
 void IJKPlayerNapiProxy::IjkMediaPlayer_prepareAsync() {
-    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player();
+    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player(id_);
+    if (!mp) {
+        LOGE("napi_proxy-->IjkMediaPlayer_prepareAsync mp NULL");
+        return;
+    }
     ijkmp_prepare_async(mp);
 }
 
 void IJKPlayerNapiProxy::IjkMediaPlayer_start() {
-    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player();
+    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player(id_);
+    if (!mp) {
+        LOGE("napi_proxy-->IjkMediaPlayer_start mp NULL");
+        return;
+    }
     ijkmp_start(mp);
 }
 
 void IJKPlayerNapiProxy::IjkMediaPlayer_pause() {
-    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player();
+    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player(id_);
+    if (!mp) {
+        LOGE("napi_proxy-->IjkMediaPlayer_pause mp NULL");
+        return;
+    }
     ijkmp_pause(mp);
 }
 
 void IJKPlayerNapiProxy::IjkMediaPlayer_seekTo(int64_t msec) {
-    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player();
+    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player(id_);
+    if (!mp) {
+        LOGE("napi_proxy-->IjkMediaPlayer_seekTo mp NULL");
+        return;
+    }
     ijkmp_seek_to(mp, msec);
 }
 
 bool IJKPlayerNapiProxy::IjkMediaPlayer_isPlaying() {
-    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player();
+    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player(id_);
+    if (!mp) {
+        LOGE("napi_proxy-->IjkMediaPlayer_isPlaying mp NULL");
+        return false;
+    }
     return ijkmp_is_playing(mp) ? true : false;
 }
 
 int IJKPlayerNapiProxy::IjkMediaPlayer_getCurrentPosition() {
     int retval = 0;
-    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player();
+    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player(id_);
+    if (!mp) {
+        LOGE("napi_proxy-->IjkMediaPlayer_getCurrentPosition mp NULL");
+        return retval;
+    }
     retval = ijkmp_get_current_position(mp);
     return retval;
 }
 
 int IJKPlayerNapiProxy::IjkMediaPlayer_getDuration() {
     int retval = 0;
-    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player();
+    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player(id_);
+    if (!mp) {
+        LOGE("napi_proxy-->IjkMediaPlayer_getDuration mp NULL");
+        return retval;
+    }
     retval = ijkmp_get_duration(mp);
     return retval;
 }
 
 void IJKPlayerNapiProxy::IjkMediaPlayer_stop() {
-    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player();
+    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player(id_);
+    if (!mp) {
+        LOGE("napi_proxy-->IjkMediaPlayer_stop mp NULL");
+        return;
+    }
     ijkmp_stop(mp);
 }
 
 void IJKPlayerNapiProxy::IjkMediaPlayer_release() {
-    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player();
-    if (!mp)
+    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player(id_);
+    if (!mp) {
+        LOGE("napi_proxy-->IjkMediaPlayer_release mp NULL");
         return;
+    }
     ijkmp_shutdown(mp);
     ijkmp_dec_ref_p(&mp);
 }
 
 void IJKPlayerNapiProxy::IjkMediaPlayer_reset() {
-    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player();
-    if (!mp)
+    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player(id_);
+    if (!mp) {
+        LOGE("napi_proxy-->IjkMediaPlayer_reset mp NULL");
         return;
+    }
     ijkmp_android_set_surface(mp, NULL);
     void *weak_thiz = ijkmp_set_weak_thiz(mp, NULL);
     IjkMediaPlayer_release();
     LOGI("napi_proxy-->IjkMediaPlayer_reset");
+    delete_media_player(id_);
     ijkmp_dec_ref_p(&mp);
 }
 
 void IJKPlayerNapiProxy::IjkMediaPlayer_setVolume(float leftVolume, float rightVolume) {
-    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player();
+    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player(id_);
+    if (!mp) {
+        LOGE("napi_proxy-->IjkMediaPlayer_setVolume mp NULL");
+        return;
+    }
     ijkmp_android_set_volume(mp, leftVolume, rightVolume);
 }
 
 void IJKPlayerNapiProxy::ijkMediaPlayer_setPropertyFloat(int id, float value) {
-    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player();
+    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player(id_);
+    if (!mp) {
+        LOGE("napi_proxy-->ijkMediaPlayer_setPropertyFloat mp NULL");
+        return;
+    }
     ijkmp_set_property_float(mp, id, value);
 }
 
 float IJKPlayerNapiProxy::ijkMediaPlayer_getPropertyFloat(int id, float default_value) {
-    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player();
+    float retval = 0;
+    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player(id_);
+    if (!mp) {
+        LOGE("napi_proxy-->ijkMediaPlayer_getPropertyFloat mp NULL");
+        return retval;
+    }
     return ijkmp_get_property_float(mp, id, default_value);
 }
 
 void IJKPlayerNapiProxy::ijkMediaPlayer_setPropertyLong(int id, long value) {
-    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player();
+    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player(id_);
+    if (!mp) {
+        LOGE("napi_proxy-->ijkMediaPlayer_setPropertyLong mp NULL");
+        return;
+    }
     ijkmp_set_property_int64(mp, id, value);
 }
 
 long IJKPlayerNapiProxy::ijkMediaPlayer_getPropertyLong(int id, long default_value) {
-    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player();
+    long retval = 0;
+    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player(id_);
+    if (!mp) {
+        LOGE("napi_proxy-->ijkMediaPlayer_getPropertyLong mp NULL");
+        return retval;
+    }
     return ijkmp_get_property_int64(mp, id, default_value);
 }
 
 int IJKPlayerNapiProxy::IjkMediaPlayer_getAudioSessionId() {
     int audio_session_id = 0;
-    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player();
+    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player(id_);
+    if (!mp) {
+        LOGE("napi_proxy-->IjkMediaPlayer_getAudioSessionId mp NULL");
+        return audio_session_id;
+    }
     audio_session_id = ijkmp_android_get_audio_session_id(mp);
     return audio_session_id;
 }
 
 void IJKPlayerNapiProxy::IjkMediaPlayer_setLoopCount(int loop_count) {
-    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player();
+    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player(id_);
+    if (!mp) {
+        LOGE("napi_proxy-->IjkMediaPlayer_setLoopCount mp NULL");
+        return;
+    }
     ijkmp_set_loop(mp, loop_count);
 }
 
 int IJKPlayerNapiProxy::IjkMediaPlayer_getLoopCount() {
-    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player();
-    int loop_count = ijkmp_get_loop(mp);
-    return loop_count;
+    int loopCount = 0;
+    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player(id_);
+    if (!mp) {
+        LOGE("napi_proxy-->IjkMediaPlayer_getLoopCount mp NULL");
+        return loopCount;
+    }
+    loopCount = ijkmp_get_loop(mp);
+    return loopCount;
 }
 
 char *IJKPlayerNapiProxy::IjkMediaPlayer_getVideoCodecInfo() {
     char *codec_info = NULL;
-    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player();
+    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player(id_);
+    if (!mp) {
+        LOGE("napi_proxy-->IjkMediaPlayer_getVideoCodecInfo mp NULL");
+        return codec_info;
+    }
     ijkmp_get_video_codec_info(mp, &codec_info);
     return codec_info;
 }
@@ -339,14 +441,21 @@ char *IJKPlayerNapiProxy::IjkMediaPlayer_getVideoCodecInfo() {
 char *IJKPlayerNapiProxy::IjkMediaPlayer_getAudioCodecInfo() {
     MPTRACE("%s\n", __func__);
     char *codec_info = NULL;
-    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player();
+    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player(id_);
+    if (!mp) {
+        LOGE("napi_proxy-->IjkMediaPlayer_getAudioCodecInfo mp NULL");
+        return codec_info;
+    }
     ijkmp_get_audio_codec_info(mp, &codec_info);
     return codec_info;
 }
 
 void IJKPlayerNapiProxy::ijkMediaPlayer_setStreamSelected(int stream, bool selected) {
-    return;
-    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player();
+    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player(id_);
+    if (!mp) {
+        LOGE("napi_proxy-->ijkMediaPlayer_setStreamSelected mp NULL");
+        return;
+    }
     int ret = 0;
     ret = ijkmp_set_stream_selected(mp, stream, selected);
     if (ret < 0) {
@@ -398,10 +507,14 @@ static void IjkMediaPlayerFillHashMap(const char *type, HashMap map, IjkMediaMet
 }
 
 HashMap IJKPlayerNapiProxy::IjkMediaPlayer_getMediaMeta() {
-    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player();
+    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player(id_);
+    HashMap map = hashmap_create();
+    if (!mp) {
+        LOGE("napi_proxy-->IjkMediaPlayer_getMediaMeta mp NULL");
+        return map;
+    }
     IjkMediaMeta *meta = ijkmp_get_meta_l(mp);
     size_t count = ijkmeta_get_children_count_l(meta);
-    HashMap map = hashmap_create();
     for (size_t i = 0; i < count; ++i) {
         IjkMediaMeta *streamRawMeta = ijkmeta_get_child_l(meta, i);
         if (streamRawMeta) {

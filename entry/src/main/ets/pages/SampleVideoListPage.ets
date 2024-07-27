@@ -19,7 +19,7 @@ import VideoNewsView from '../ListView/VideoNewsView';
 @Entry
 @Component
 struct SampleVideoListPage {
-  private items: Array<string> = ['1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1'];
+  private items: Array<string> = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13'];
   build() {
 
     Flex({ direction: FlexDirection.Column, alignItems: ItemAlign.Start, justifyContent: FlexAlign.Start }) {
@@ -48,7 +48,7 @@ struct SampleVideoListPage {
       List({space: 20}) {
         ForEach(this.items, (title: string) => {
           ListItem() {
-            VideoNewsView()
+            VideoNewsView({ title: title })
           }
         })
       }.margin({top: 30})

@@ -20,14 +20,14 @@ import { VideoSource } from './VideoSource';
 @Preview
 @Component
 export default struct VideoNewsView {
-  private title: string = "";
+  @State title: string = "";
   private radio: number =  1.77;
   private testUrl: string = "https://1251542705.vod2.myqcloud.com/4a8d9c67vodtransgzp1251542705/203109c63270835013529449619/v.f1419907.mp4";
 
   build() {
     Column() {
       CommonVideoView({
-        videoSource: new VideoSource(this.testUrl, '')
+        videoSource: new VideoSource(this.testUrl, '', this.title)
       }).width('100%').aspectRatio(this.radio)
         .borderRadius(10)
     }.width('100%').height('40%').padding({ 'right': 14, 'left': 14 })
