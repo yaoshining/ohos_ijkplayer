@@ -307,11 +307,8 @@ void ijkmp_shutdown_l(IjkMediaPlayer *mp)
     LOGI("ijkmp_shutdown_l()\n");
     pthread_mutex_lock(&mp->mutex);
     if (mp->ffplayer) {
-        LOGI("ijkmp_shutdown_l() mp->ffplayer\n");
         ffp_stop_l(mp->ffplayer);
-        LOGI("ijkmp_shutdown_l() ffp_stop_l\n");
         ffp_wait_stop_l(mp->ffplayer);
-        LOGI("ijkmp_shutdown_l() ffp_wait_stop_l\n");
     }
     pthread_mutex_unlock(&mp->mutex);
     LOGI("ijkmp_shutdown_l()=void\n");

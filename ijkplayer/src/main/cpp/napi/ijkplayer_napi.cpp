@@ -25,7 +25,6 @@ const int32_t PARAM_COUNT_2 = 2;
 const int32_t PARAM_COUNT_3 = 3;
 const int32_t PARAM_COUNT_4 = 4;
 
-IJKPlayerNapiProxy *IJKPlayerNapi::ijkPlayerNapiProxy_;
 OH_NativeXComponent_Callback IJKPlayerNapi::callback_;
 std::unordered_map<std::string, IJKPlayerNapi *> IJKPlayerNapi::ijkPlayerNapi_;
 napi_env envMessage_;
@@ -757,6 +756,7 @@ void onSurfaceDestroyedCB(OH_NativeXComponent *component, void *window) {
     }
     std::string id(idStr);
     auto ijkplayerNapi = IJKPlayerNapi::getInstance(id);
+    ijkplayerNapi->ijkPlayerNapiProxy_->delete_media_player(id);
     ijkplayerNapi->onSurfaceDestroyed(component, window);
 }
 

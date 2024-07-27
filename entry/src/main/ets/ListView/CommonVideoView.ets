@@ -41,51 +41,80 @@ export struct CommonVideoView {
   private videoSource: VideoSource | null = null;
   private pic = $r('app.media.icon');
   private xComponentContext: object | null = null;
-  private player: VideoPlayer = VideoPlayer.getInstance();
+  private player: VideoPlayer = new VideoPlayer();
   private isInit: boolean = false;
   private xComponentId = "xid" + Math.random();
   @State isPlaying: boolean = false;
 
   build() {
-    Stack() {
-      XComponent({
-        id: this.xComponentId,
-        type: 'surface',
-        libraryname: 'ijkplayer_napi'
-      })
-        .onLoad((context) => {
-          if(context){
-            this.xComponentContext = context;
-          }
+    Flex({ direction: FlexDirection.Column, alignItems: ItemAlign.Auto, justifyContent: FlexAlign.Start }) {
+      Stack() {
+        XComponent({
+          id: this.videoSource?.title + this.xComponentId,
+          type: 'surface',
+          libraryname: 'ijkplayer_napi'
         })
-        .onDestroy(() => {
+          .onLoad((context) => {
+            if (context) {
+              this.xComponentContext = context;
+            }
+          })
+          .onDestroy(() => {
 
-        })
-        .width('100%')
-        .height('100%')
-        .onClick(() => {
-          this.stop();
-        })
-      Image(this.pic)
-        .width('100%')
-        .height('100%')
-        .visibility(this.isPlaying ? Visibility.None : Visibility.Visible)
-        .onClick(() => {
-          this.play();
-        })
-      Image($r('app.media.icon_replay'))
-        .width(45).height(45)
-        .visibility(this.isPlaying ? Visibility.None : Visibility.Visible)
-        .onClick(() => {
-          this.play();
-        })
-    }.width('100%').height('100%')
+          })
+          .width('100%')
+          .height('100%')
+          .onClick(() => {
+            this.stop();
+          })
+        Image(this.pic)
+          .width('100%')
+          .height('100%')
+          .visibility(this.isPlaying ? Visibility.None : Visibility.Visible)
+          .onClick(() => {
+            this.play();
+          })
+        Image($r('app.media.icon_replay'))
+          .width(45).height(45)
+          .visibility(this.isPlaying ? Visibility.None : Visibility.Visible)
+          .onClick(() => {
+            this.play();
+          })
+      }.width('100%').height('100%')
+
+      Flex({ direction: FlexDirection.Row, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Start }) {
+        Button('播放')
+          .onClick(() => {
+            this.play();
+          })
+          .width('400px')
+          .height('80px')
+          .margin('15px')
+        Button('暂停')
+          .onClick(() => {
+            if(this.player != null) {
+              this.player.pause()
+            }
+          })
+          .width('400px')
+          .height('80px')
+          .margin('15px')
+
+        Button('销毁')
+          .onClick(() => {
+            this.release();
+          })
+          .width('400px')
+          .height('80px')
+          .margin('15px')
+      }
+    }
   }
 
   initPlayer(): void {
-    this.player = VideoPlayer.getInstance()
+    this.player = new VideoPlayer();
     let listener = new PlayerListenerClass();
-    this.player.setContext(this.xComponentContext!, this.xComponentId)
+    this.player.setContext(this.xComponentContext!, this.videoSource?.title + this.xComponentId)
       .setVideoSource(this.videoSource!)
       .setListener(listener);
   }
@@ -96,7 +125,7 @@ export struct CommonVideoView {
       this.initPlayer();
     }
     this.isPlaying = true;
-    this.player.play();
+    this.player?.play();
   }
 
   stop(): void {
@@ -104,5 +133,13 @@ export struct CommonVideoView {
       this.player.pause();
     }
     this.isPlaying = false;
+  }
+
+  release() {
+    if(this.player != null) {
+      this.player.stop();
+      this.player.release();
+      this.isInit = false;
+    }
   }
 }

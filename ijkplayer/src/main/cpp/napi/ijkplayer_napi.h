@@ -73,7 +73,7 @@ class IJKPlayerNapi {
     napi_value Export(napi_env env, napi_value exports);
 
   public:
-    static IJKPlayerNapiProxy *ijkPlayerNapiProxy_;
+    IJKPlayerNapiProxy *ijkPlayerNapiProxy_;
     static std::unordered_map<std::string, IJKPlayerNapi *> ijkPlayerNapi_;
     std::unordered_map<std::string, OH_NativeXComponent *> nativeXComponentMap_;
     std::unordered_map<std::string, void *> nativeWindowMap_;

@@ -39,11 +39,6 @@ static const char *TAG = "[Sample_audio]";
 static const int MS_TO_S = 1000;
 static const int US_TO_S = 1000000;
 
-SDL_Aout_Opaque *g_opaque = NULL;
-static OH_AudioRenderer *audioRenderer = NULL;
-static OH_AudioStreamBuilder *rendererBuilder = NULL;
-static OH_AudioRenderer *audioRendererNormal = NULL; // 生成音频播放对象
-
 static void AoutSetVolume(SDL_Aout *aout, float leftVolume, float rightVolume);
 
 static SDL_Class g_opensles_class = {
@@ -80,6 +75,10 @@ typedef struct SDL_Aout_Opaque {
     volatile bool  pause_on;
     volatile bool  need_flush;
     volatile bool  is_running;
+    
+    OH_AudioRenderer *audioRenderer;
+    OH_AudioStreamBuilder *rendererBuilder;
+    OH_AudioRenderer *audioRendererNormal; // 生成音频播放对象
 
     uint8_t       * buffer;
     size_t         buffer_capacity;
@@ -87,7 +86,7 @@ typedef struct SDL_Aout_Opaque {
 
 static int32_t AudioRendererOnWriteData(OH_AudioRenderer *renderer, void *userData, void *buffer, int32_t bufferLen)
 {
-    SDL_Aout_Opaque *opaque = g_opaque;
+    SDL_Aout_Opaque *opaque = (SDL_Aout_Opaque*)userData;
     if ((opaque == NULL) || opaque->abort_request || opaque->pause_on) {
         return 0;
     }
@@ -103,21 +102,23 @@ static int32_t AudioRendererOnInterrupt(OH_AudioRenderer *renderer, void *userDa
                                         OH_AudioInterrupt_Hint hint)
 {
     LOGI("AudioRendererOnInterrupt type:%d, hint:%d", type, hint);
-    if ((g_opaque == NULL) || (g_opaque->ffp == NULL)) {
+    SDL_Aout_Opaque *opaque = (SDL_Aout_Opaque*)userData;
+    if ((opaque == NULL) || (opaque->ffp == NULL)) {
         return -1;
     }
-    ffp_notify_msg3(g_opaque->ffp, FFP_MSG_AUDIO_INTERRUPT, type, hint);
+    ffp_notify_msg3(opaque->ffp, FFP_MSG_AUDIO_INTERRUPT, type, hint);
     return 0;
 }
 
 static int32_t AudioRendererOnError(OH_AudioRenderer *renderer, void *userData, OH_AudioStream_Result error)
 {
     LOGI("AudioRendererOnError result: %d", error);
-    if ((g_opaque == NULL) || (g_opaque->ffp == NULL)) {
+    SDL_Aout_Opaque *opaque = (SDL_Aout_Opaque*)userData;
+    if ((opaque == NULL) || (opaque->ffp == NULL)) {
         return -1;
     }
     if (error != AUDIOSTREAM_SUCCESS) {
-        ffp_notify_msg2(g_opaque->ffp, FFP_MSG_ERROR, error);
+        ffp_notify_msg2(opaque->ffp, FFP_MSG_ERROR, error);
     }
     return 0;
 }
@@ -138,13 +139,17 @@ static int AoutOpenAudio(SDL_Aout *aout, const SDL_AudioSpec *desired, SDL_Audio
 {
     LOGI("AoutOpenAudio channels:%d, freq:%d, samples:%d, format: %d", desired->channels, desired->freq,
          desired->samples, desired->format);
-    if (audioRendererNormal != NULL) {
-        OH_AudioRenderer_Release(audioRendererNormal);
-        OH_AudioStreamBuilder_Destroy(rendererBuilder);
-        audioRendererNormal = NULL;
-        rendererBuilder = NULL;
+    if ((aout == NULL) || (aout->opaque == NULL)) {
+        LOGE("audio->AoutOpenAudio opaque NULL");
+        return -1;
     }
     SDL_Aout_Opaque *opaque = aout->opaque;
+    if (opaque->audioRendererNormal != NULL) {
+        OH_AudioRenderer_Release(opaque->audioRendererNormal);
+        OH_AudioStreamBuilder_Destroy(opaque->rendererBuilder);
+        opaque->audioRendererNormal = NULL;
+        opaque->rendererBuilder = NULL;
+    }
 
     void *userdata = opaque->spec.userdata;
     OHDataFormatPcm *formatPcm = &opaque->formatPcm;
@@ -156,16 +161,16 @@ static int AoutOpenAudio(SDL_Aout *aout, const SDL_AudioSpec *desired, SDL_Audio
     formatPcm->containerSize = AUDIO_U16LSB;
 
     // create builder
-    OH_AudioStreamBuilder_Create(&rendererBuilder, AUDIOSTREAM_TYPE_RENDERER);
+    OH_AudioStreamBuilder_Create(&opaque->rendererBuilder, AUDIOSTREAM_TYPE_RENDERER);
     // set params and callbacks
-    OH_AudioStreamBuilder_SetSamplingRate(rendererBuilder, desired->freq);
-    OH_AudioStreamBuilder_SetChannelCount(rendererBuilder, desired->channels);
-    OH_AudioStreamBuilder_SetSampleFormat(rendererBuilder, AUDIOSTREAM_SAMPLE_S16LE);
-    OH_AudioStreamBuilder_SetEncodingType(rendererBuilder, AUDIOSTREAM_ENCODING_TYPE_RAW);
+    OH_AudioStreamBuilder_SetSamplingRate(opaque->rendererBuilder, desired->freq);
+    OH_AudioStreamBuilder_SetChannelCount(opaque->rendererBuilder, desired->channels);
+    OH_AudioStreamBuilder_SetSampleFormat(opaque->rendererBuilder, AUDIOSTREAM_SAMPLE_S16LE);
+    OH_AudioStreamBuilder_SetEncodingType(opaque->rendererBuilder, AUDIOSTREAM_ENCODING_TYPE_RAW);
     // 当设备支持低时延通路时，开发者可以使用低时延模式创建播放器
-    OH_AudioStreamBuilder_SetLatencyMode(rendererBuilder, AUDIOSTREAM_LATENCY_MODE_FAST);
+    OH_AudioStreamBuilder_SetLatencyMode(opaque->rendererBuilder, AUDIOSTREAM_LATENCY_MODE_FAST);
     // 关键参数，仅OHAudio支持，根据音频用途设置，系统会根据此参数实现音频策略自适应
-    OH_AudioStreamBuilder_SetRendererInfo(rendererBuilder, AUDIOSTREAM_USAGE_MOVIE);
+    OH_AudioStreamBuilder_SetRendererInfo(opaque->rendererBuilder, AUDIOSTREAM_USAGE_MOVIE);
 
     OH_AudioRenderer_Callbacks rendererCallbacks;
 
@@ -184,9 +189,9 @@ static int AoutOpenAudio(SDL_Aout *aout, const SDL_AudioSpec *desired, SDL_Audio
     rendererCallbacks.OH_AudioRenderer_OnError = AudioRendererOnError; // 自定义异常回调函数
 
     // 设置输出音频流的回调，在生成音频播放对象时自动注册
-    OH_AudioStreamBuilder_SetRendererCallback(rendererBuilder, rendererCallbacks, NULL);
+    OH_AudioStreamBuilder_SetRendererCallback(opaque->rendererBuilder, rendererCallbacks, opaque);
     // 构造播放音频流
-    OH_AudioStreamBuilder_GenerateRenderer(rendererBuilder, &audioRendererNormal);
+    OH_AudioStreamBuilder_GenerateRenderer(opaque->rendererBuilder, &opaque->audioRendererNormal);
     // 设置音频流音量
     AoutSetVolume(aout, aout->opaque->left_volume, aout->opaque->right_volume);
     
@@ -201,43 +206,66 @@ static int AoutOpenAudio(SDL_Aout *aout, const SDL_AudioSpec *desired, SDL_Audio
 
 static void AoutPauseAudio(SDL_Aout *aout, int pauseOn)
 {
-    if ((g_opaque == NULL) || (audioRendererNormal == NULL)) {
+    if ((aout == NULL) || (aout->opaque == NULL)) {
+        LOGE("audio->AoutPauseAudio opaque NULL");
         return;
     }
-    g_opaque->pause_on = pauseOn;
+    SDL_Aout_Opaque *opaque = aout->opaque;
+    if (!opaque->audioRendererNormal) {
+        LOGE("audio->AoutPauseAudio audioRendererNormal NULL");
+        return;
+    }
+    opaque->pause_on = pauseOn;
     // 非0表示暂停，0表示取消暂停继续播放
     if (pauseOn != 0) {
-        OH_AudioRenderer_Pause(audioRendererNormal);
+        OH_AudioRenderer_Pause(opaque->audioRendererNormal);
     } else {
-        OH_AudioRenderer_Start(audioRendererNormal);
+        OH_AudioRenderer_Start(opaque->audioRendererNormal);
     }
     return;
 }
 
 static void AudioRendererStop(SDL_Aout *aout)
 {
-    if ((g_opaque == NULL) || (audioRendererNormal == NULL)) {
+    if ((aout == NULL) || (aout->opaque == NULL)) {
+        LOGE("audio->AudioRendererStop opaque NULL");
         return;
     }
-    g_opaque->abort_request = true;
-    OH_AudioRenderer_Stop(audioRendererNormal);
+    SDL_Aout_Opaque *opaque = aout->opaque;
+    if (!opaque->audioRendererNormal) {
+        LOGE("audio->AudioRendererStop audioRendererNormal NULL");
+        return;
+    }
+    opaque->abort_request = true;
+    OH_AudioRenderer_Stop(opaque->audioRendererNormal);
 }
 
 static void AudioRendererFlush(SDL_Aout *aout)
 {
-    if (audioRendererNormal == NULL) {
+    if ((aout == NULL) || (aout->opaque == NULL)) {
+        LOGE("audio->AudioRendererFlush opaque NULL");
         return;
     }
-    OH_AudioRenderer_Flush(audioRendererNormal); // 丢弃已经写入的音频数据
+    SDL_Aout_Opaque *opaque = aout->opaque;
+    if (!opaque->audioRendererNormal) {
+        LOGE("audio->AudioRendererFlush audioRendererNormal NULL");
+        return;
+    }
+    OH_AudioRenderer_Flush(opaque->audioRendererNormal); // 丢弃已经写入的音频数据
 }
 
 static void AudioRendererRelease(SDL_Aout *aout)
 {
+    if ((aout == NULL) || (aout->opaque == NULL)) {
+        LOGE("audio->AoutSetVolume opaque NULL");
+        return;
+    }
+    SDL_Aout_Opaque *opaque = aout->opaque;
     AudioRendererStop(aout);
-    if (audioRendererNormal != NULL) {
-        OH_AudioStreamBuilder_Destroy(rendererBuilder);
-        OH_AudioRenderer_Release(audioRendererNormal);
-        audioRendererNormal = NULL;
+    if (opaque->audioRendererNormal) {
+        OH_AudioStreamBuilder_Destroy(opaque->rendererBuilder);
+        OH_AudioRenderer_Release(opaque->audioRendererNormal);
+        opaque->audioRendererNormal = NULL;
     }
 }
 
@@ -245,13 +273,14 @@ static void AoutSetVolume(SDL_Aout *aout, float leftVolume, float rightVolume)
 {
     LOGI("audio->aout_set_volume, leftVolume:%f, rightVolume:%f", leftVolume, rightVolume);
     if ((aout == NULL) || (aout->opaque == NULL)) {
+        LOGE("audio->AoutSetVolume opaque NULL");
         return;
     }
     SDL_Aout_Opaque *opaque = aout->opaque;
     opaque->left_volume = leftVolume;
     opaque->right_volume = rightVolume;
-    if (audioRendererNormal != NULL) {
-        OH_AudioStream_Result  ret = OH_AudioRenderer_SetVolume(audioRendererNormal, leftVolume);
+    if (opaque->audioRendererNormal != NULL) {
+        OH_AudioStream_Result  ret = OH_AudioRenderer_SetVolume(opaque->audioRendererNormal, leftVolume);
         LOGD("audio->aout_set_volume, OH_AudioRenderer_SetVolume ret:%d", ret);
     }
 }
@@ -266,7 +295,6 @@ SDL_Aout *SDLAoutCreateForOpenSLES(FFPlayer *ffp) // 实现音频播放功能；
     }
 
     SDL_Aout_Opaque *opaque = aout->opaque;
-    g_opaque = opaque;
     opaque->ffp = ffp;
 
     aout->free_l = AudioRendererRelease;

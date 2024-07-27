@@ -22,7 +22,7 @@ export class VideoPlayer implements PlayerInterface {
   private static instance: VideoPlayer;
   private player: PlayerInterface;
 
-  private constructor() {
+  public constructor() {
     this.player = new IjkPlayer();
   }
 

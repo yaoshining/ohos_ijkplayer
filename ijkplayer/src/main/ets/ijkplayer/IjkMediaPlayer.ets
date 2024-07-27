@@ -51,17 +51,6 @@ export interface InterruptEvent {
 
 export class IjkMediaPlayer {
   private static instance: IjkMediaPlayer;
-
-  private constructor() {
-  };
-
-  public static getInstance(): IjkMediaPlayer {
-    if (!IjkMediaPlayer.instance) {
-      IjkMediaPlayer.instance = new IjkMediaPlayer();
-    }
-    return IjkMediaPlayer.instance;
-  }
-
   public static OPT_CATEGORY_FORMAT: string = "1";
   public static OPT_CATEGORY_CODEC: string = "2";
   public static OPT_CATEGORY_SWS: string = "3";
@@ -82,6 +71,20 @@ export class IjkMediaPlayer {
   private ijkplayer_audio_napi: newIjkPlayerAudio | null = null;
   private id: string = '';
   private callback: Callback<InterruptEvent> | null = null;
+
+  public constructor(id?: string) {
+    if (id) {
+      this.id = id;
+    }
+  };
+
+  public static getInstance(): IjkMediaPlayer {
+    if (!IjkMediaPlayer.instance) {
+      IjkMediaPlayer.instance = new IjkMediaPlayer();
+    }
+    return IjkMediaPlayer.instance;
+  }
+
 
   setContext(context: object, id?: string): void {
     this.ijkplayer_napi = context as IjkPlayerNapi;

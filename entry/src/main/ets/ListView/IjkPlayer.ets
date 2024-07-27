@@ -32,7 +32,7 @@ export class IjkPlayer extends BasePlayer {
 
   constructor() {
     super();
-    this.mIjkMediaPlayer = IjkMediaPlayer.getInstance();
+    this.mIjkMediaPlayer = new IjkMediaPlayer();
   }
 
   init(): void {
