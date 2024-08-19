@@ -2491,6 +2491,7 @@ static int audio_decode_frame(FFPlayer *ffp)
     int wanted_nb_samples;
     Frame *af;
     int translate_time = 1;
+    int format = 0;
 
     if (is->paused || is->step)
         return -1;
@@ -2531,11 +2532,19 @@ reload:
         (af->frame->channel_layout && af->frame->channels == av_get_channel_layout_nb_channels(af->frame->channel_layout)) ?
         af->frame->channel_layout : av_get_default_channel_layout(af->frame->channels);
     wanted_nb_samples = synchronize_audio(is, af->frame->nb_samples);
-
+#ifdef __OHOS__
+    if(!is->swr_ctx && af->frame->format == is->audio_src.fmt) {
+        format = af->frame->format;
+        af->frame->format = AV_PIX_FMT_GRAY8;
+    }
+#endif
     if (af->frame->format        != is->audio_src.fmt            ||
         dec_channel_layout       != is->audio_src.channel_layout ||
         af->frame->sample_rate   != is->audio_src.freq           ||
         (wanted_nb_samples       != af->frame->nb_samples && !is->swr_ctx)) {
+#ifdef __OHOS__
+            af->frame->format = format;
+#endif
         AVDictionary *swr_opts = NULL;
         swr_free(&is->swr_ctx);
         is->swr_ctx = swr_alloc_set_opts(NULL,
