@@ -24,7 +24,6 @@
 
 #include "ijksdl_mutex.h"
 #include <errno.h>
-#include <assert.h>
 #include <sys/time.h>
 
 #include "ijksdl_inc_internal.h"
@@ -62,7 +61,6 @@ void SDL_DestroyMutexP(SDL_mutex **mutex)
 
 int SDL_LockMutex(SDL_mutex *mutex)
 {
-    assert(mutex);
     if (!mutex)
         return -1;
 
@@ -71,7 +69,6 @@ int SDL_LockMutex(SDL_mutex *mutex)
 
 int SDL_UnlockMutex(SDL_mutex *mutex)
 {
-    assert(mutex);
     if (!mutex)
         return -1;
 
@@ -112,7 +109,6 @@ void SDL_DestroyCondP(SDL_cond **cond)
 
 int SDL_CondSignal(SDL_cond *cond)
 {
-    assert(cond);
     if (!cond)
         return -1;
 
@@ -121,7 +117,6 @@ int SDL_CondSignal(SDL_cond *cond)
 
 int SDL_CondBroadcast(SDL_cond *cond)
 {
-    assert(cond);
     if (!cond)
         return -1;
 
@@ -134,9 +129,7 @@ int SDL_CondWaitTimeout(SDL_cond *cond, SDL_mutex *mutex, uint32_t ms)
     int retval;
     struct timeval delta;
     struct timespec abstime;
-
-    assert(cond);
-    assert(mutex);
+    
     if (!cond || !mutex) {
         return -1;
     }
@@ -168,8 +161,6 @@ int SDL_CondWaitTimeout(SDL_cond *cond, SDL_mutex *mutex, uint32_t ms)
 
 int SDL_CondWait(SDL_cond *cond, SDL_mutex *mutex)
 {
-    assert(cond);
-    assert(mutex);
     if (!cond || !mutex)
         return -1;
 

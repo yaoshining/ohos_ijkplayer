@@ -52,7 +52,6 @@
 #include "libavutil/dict.h"
 #include "libavutil/parseutils.h"
 #include "libavutil/samplefmt.h"
-#include "libavutil/avassert.h"
 #include "libavutil/time.h"
 #include "libavformat/avformat.h"
 #if CONFIG_AVDEVICE
@@ -349,9 +348,10 @@ static int packet_queue_get(PacketQueue *q, AVPacket *pkt, int block, int *seria
 
 static int packet_queue_get_or_buffering(FFPlayer *ffp, PacketQueue *q, AVPacket *pkt, int *serial, int *finished)
 {
-
-
-    assert(finished);
+    if (!finished) {
+        av_log(NULL, AV_LOG_ERROR, "packet_queue_get_or_buffering finished is null\n");
+        return EIJK_FAILED;
+    }
     if (!ffp->packet_buffering){
 
         return packet_queue_get(q, pkt, 1, serial);
@@ -383,9 +383,6 @@ static int packet_queue_get_or_buffering(FFPlayer *ffp, PacketQueue *q, AVPacket
 }
 
 static void decoder_init(Decoder *d, AVCodecContext *avctx, PacketQueue *queue, SDL_cond *empty_queue_cond) {
-
-
-
     memset(d, 0, sizeof(Decoder));
     d->avctx = avctx;
     d->queue = queue;
@@ -3354,7 +3351,7 @@ static int read_thread(void *arg)
         is->videoq.is_buffer_indicator = 1;
         is->buffer_indicator_queue = &is->videoq;
     } else {
-        assert("invalid streams");
+        av_log(NULL, AV_LOG_ERROR, "read_thread invalid streams null\n");
     }
 
     if (ffp->infinite_buffer < 0 && is->realtime)
@@ -3682,9 +3679,10 @@ static int video_refresh_thread(void *arg);
 //创建视频渲染线程video_refresh_thread
 static VideoState *stream_open(FFPlayer *ffp, const char *filename, AVInputFormat *iformat)
 {
-
-
-    assert(!ffp->is);
+    if (ffp->is) {
+        av_log(NULL, AV_LOG_ERROR, "stream_open ffp->is not null\n");
+        return NULL;
+    }
     VideoState *is;
 
     is = av_mallocz(sizeof(VideoState));
@@ -4078,8 +4076,10 @@ void ffp_destroy_p(FFPlayer **pffp)
 
 static AVDictionary **ffp_get_opt_dict(FFPlayer *ffp, int opt_category)
 {
-    assert(ffp);
-
+    if (!ffp) {
+        av_log(NULL, AV_LOG_ERROR, "ffp_get_opt_dict ffp is null\n");
+        return NULL;
+    }
     switch (opt_category) {
         case FFP_OPT_CATEGORY_FORMAT:   return &ffp->format_opts;
         case FFP_OPT_CATEGORY_CODEC:    return &ffp->codec_opts;
@@ -4291,10 +4291,10 @@ static void ffp_show_version_int(FFPlayer *ffp, const char *module, unsigned ver
 
 int ffp_prepare_async_l(FFPlayer *ffp, const char *file_name)
 {
-    assert(ffp);
-    assert(!ffp->is);
-    assert(file_name);
-
+    if (!ffp || ffp->is || !file_name) {
+        av_log(NULL, AV_LOG_ERROR, "ffp_prepare_async_l ffp is null\n");
+        return EIJK_FAILED;
+    }
     if (av_stristart(file_name, "rtmp", NULL) ||
         av_stristart(file_name, "rtsp", NULL)) {
         // There is total different meaning for 'timeout' option in rtmp
@@ -4355,7 +4355,10 @@ int ffp_prepare_async_l(FFPlayer *ffp, const char *file_name)
 
 int ffp_start_from_l(FFPlayer *ffp, long msec)
 {
-    assert(ffp);
+    if (!ffp) {
+        av_log(NULL, AV_LOG_ERROR, "ffp_start_from_l ffp is null\n");
+        return EIJK_FAILED;
+    }
     VideoState *is = ffp->is;
     if (!is)
         return EIJK_NULL_IS_PTR;
@@ -4368,7 +4371,10 @@ int ffp_start_from_l(FFPlayer *ffp, long msec)
 
 int ffp_start_l(FFPlayer *ffp)
 {
-    assert(ffp);
+    if (!ffp) {
+        av_log(NULL, AV_LOG_ERROR, "ffp_start_l ffp is null\n");
+        return EIJK_FAILED;
+    }
     VideoState *is = ffp->is;
     if (!is)
         return EIJK_NULL_IS_PTR;
@@ -4379,7 +4385,10 @@ int ffp_start_l(FFPlayer *ffp)
 
 int ffp_pause_l(FFPlayer *ffp)
 {
-    assert(ffp);
+    if (!ffp) {
+        av_log(NULL, AV_LOG_ERROR, "ffp_pause_l ffp is null\n");
+        return EIJK_FAILED;
+    }
     VideoState *is = ffp->is;
     if (!is)
         return EIJK_NULL_IS_PTR;
@@ -4390,7 +4399,10 @@ int ffp_pause_l(FFPlayer *ffp)
 
 int ffp_is_paused_l(FFPlayer *ffp)
 {
-    assert(ffp);
+    if (!ffp) {
+        av_log(NULL, AV_LOG_ERROR, "ffp_is_paused_l ffp is null\n");
+        return EIJK_FAILED;
+    }
     VideoState *is = ffp->is;
     if (!is)
         return 1;
@@ -4400,7 +4412,10 @@ int ffp_is_paused_l(FFPlayer *ffp)
 
 int ffp_stop_l(FFPlayer *ffp)
 {
-    assert(ffp);
+    if (!ffp) {
+        av_log(NULL, AV_LOG_ERROR, "ffp_stop_l ffp is null\n");
+        return EIJK_FAILED;
+    }
     VideoState *is = ffp->is;
     if (is) {
         is->abort_request = 1;
@@ -4422,7 +4437,10 @@ int ffp_stop_l(FFPlayer *ffp)
 
 int ffp_wait_stop_l(FFPlayer *ffp)
 {
-    assert(ffp);
+    if (!ffp) {
+        av_log(NULL, AV_LOG_ERROR, "ffp_wait_stop_l ffp is null\n");
+        return EIJK_FAILED;
+    }
     if (ffp->is) {
         ffp_stop_l(ffp);
         stream_close(ffp);
@@ -4433,7 +4451,10 @@ int ffp_wait_stop_l(FFPlayer *ffp)
 
 int ffp_seek_to_l(FFPlayer *ffp, long msec)
 {
-    assert(ffp);
+    if (!ffp) {
+        av_log(NULL, AV_LOG_ERROR, "ffp_seek_to_l ffp is null\n");
+        return EIJK_FAILED;
+    }
     VideoState *is = ffp->is;
     int64_t start_time = 0;
     int64_t seek_pos = milliseconds_to_fftime(msec);
@@ -4462,7 +4483,10 @@ int ffp_seek_to_l(FFPlayer *ffp, long msec)
 
 long ffp_get_current_position_l(FFPlayer *ffp)
 {
-    assert(ffp);
+    if (!ffp) {
+        av_log(NULL, AV_LOG_ERROR, "ffp_get_current_position_l ffp is null\n");
+        return 0;
+    }
     VideoState *is = ffp->is;
     if (!is || !is->ic)
         return 0;
@@ -4497,7 +4521,10 @@ long ffp_get_current_position_l(FFPlayer *ffp)
 
 long ffp_get_duration_l(FFPlayer *ffp)
 {
-    assert(ffp);
+    if (!ffp) {
+        av_log(NULL, AV_LOG_ERROR, "ffp_get_duration_l ffp is null\n");
+        return 0;
+    }
     VideoState *is = ffp->is;
     if (!is || !is->ic){
         return 0;
@@ -4510,7 +4537,10 @@ long ffp_get_duration_l(FFPlayer *ffp)
 
 long ffp_get_playable_duration_l(FFPlayer *ffp)
 {
-    assert(ffp);
+    if (!ffp) {
+        av_log(NULL, AV_LOG_ERROR, "ffp_get_playable_duration_l ffp is null\n");
+        return 0;
+    }
     if (!ffp)
         return 0;
 
@@ -4519,7 +4549,10 @@ long ffp_get_playable_duration_l(FFPlayer *ffp)
 
 void ffp_set_loop(FFPlayer *ffp, int loop)
 {
-    assert(ffp);
+    if (!ffp) {
+        av_log(NULL, AV_LOG_ERROR, "ffp_set_loop ffp is null\n");
+        return;
+    }
     if (!ffp)
         return;
     ffp->loop = loop;
@@ -4527,9 +4560,10 @@ void ffp_set_loop(FFPlayer *ffp, int loop)
 
 int ffp_get_loop(FFPlayer *ffp)
 {
-    assert(ffp);
-    if (!ffp)
-        return 1;
+    if (!ffp) {
+        av_log(NULL, AV_LOG_ERROR, "ffp_get_loop ffp is null\n");
+        return 1; // Return to default value 1
+    }
     return ffp->loop;
 }
 
@@ -4648,8 +4682,10 @@ void ffp_toggle_buffering(FFPlayer *ffp, int start_buffering)
 
 void ffp_track_statistic_l(FFPlayer *ffp, AVStream *st, PacketQueue *q, FFTrackCacheStatistic *cache)
 {
-    assert(cache);
-
+    if (!cache) {
+        av_log(NULL, AV_LOG_ERROR, "ffp_track_statistic_l cache is null\n");
+        return;
+    }
     if (q) {
         cache->bytes   = q->size;
         cache->packets = q->nb_packets;

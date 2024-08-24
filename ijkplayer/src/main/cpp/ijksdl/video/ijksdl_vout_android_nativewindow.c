@@ -24,7 +24,6 @@
 
 #include "ijksdl_vout_android_nativewindow.h"
 
-#include <assert.h>
 #include <stdio.h>
 
 #include "ijksdl_vout.h"

@@ -26,7 +26,6 @@
 #define FFPLAY__FF_FFINC_H
 
 #include <stdbool.h>
-#include <assert.h>
 #include "libavutil/avstring.h"
 #include "libavutil/time.h"
 #include "libavformat/avformat.h"

@@ -19,7 +19,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#include <assert.h>
 #include "ijkiourl.h"
 #include "ijkioprotocol.h"
 #include "ijkavutil/ijkutils.h"
@@ -123,8 +122,12 @@ static int ijkio_urlhook_reconnect(IjkURLContext *h, IjkAVDictionary *extra)
     IjkAVDictionary *inner_options = NULL;
 
     c->test_fail_point_next += c->test_fail_point;
-
-    assert(c->inner_options);
+    
+    if (!c->inner_options) {
+        ret = -1;
+        av_log(NULL, AV_LOG_ERROR, "ijkio_urlhook_reconnect inner_options is null\n");
+        goto fail0;
+    }
     ijk_av_dict_copy(&inner_options, c->inner_options, 0);
     if (extra)
         ijk_av_dict_copy(&inner_options, extra, 0);

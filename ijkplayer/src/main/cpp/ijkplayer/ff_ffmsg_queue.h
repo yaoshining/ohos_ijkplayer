@@ -55,7 +55,10 @@ inline static void msg_free_res(AVMessage *msg)
 {
     if (!msg || !msg->obj)
         return;
-    assert(msg->free_l);
+    if (!msg->free_l) {
+        ALOGE("msg_free_res free_l is null\n");
+        return;
+    }
     msg->free_l(msg->obj);
     msg->obj = NULL;
 }

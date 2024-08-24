@@ -29,11 +29,10 @@ static void message_loop_n(IjkMediaPlayer *mp) {
         AVMessage msg;
         LOGI("napi_proxy-->message_loop_n-->go");
         int retval = ijkmp_get_msg(mp, &msg, 1);
-        if (retval < 0)
+        LOGI("napi_proxy-->message_loop_n-->go retval = %d", retval);
+        if (retval <= 0) {
             break;
-
-        // block-get should never return 0
-        assert(retval > 0);
+        }
 
         switch (msg.what) {
             LOGI("napi_proxy-->message_loop_n-->go-->msg:%d", msg.what);
@@ -514,6 +513,10 @@ HashMap IJKPlayerNapiProxy::IjkMediaPlayer_getMediaMeta() {
         return map;
     }
     IjkMediaMeta *meta = ijkmp_get_meta_l(mp);
+    if (!meta) {
+        LOGE("napi_proxy-->IjkMediaPlayer_getMediaMeta meta NULL");
+        return map;
+    }
     size_t count = ijkmeta_get_children_count_l(meta);
     for (size_t i = 0; i < count; ++i) {
         IjkMediaMeta *streamRawMeta = ijkmeta_get_child_l(meta, i);

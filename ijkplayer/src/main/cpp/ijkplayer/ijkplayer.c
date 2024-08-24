@@ -22,6 +22,7 @@
  */
 
 #include "ijkplayer.h"
+#include "ff_fferror.h"
 #include "ijkplayer_internal.h"
 #include "../ijksdl/ijkversion.h"
 #include "stdatomic.h"
@@ -144,7 +145,10 @@ IjkMediaPlayer *ijkmp_create(int (*msg_loop)(void*))
 
 void *ijkmp_set_inject_opaque(IjkMediaPlayer *mp, void *opaque)
 {
-    assert(mp);
+    if (!mp) {
+        LOGE("ijkmp_set_inject_opaque mp is null\n");
+        return NULL;
+    }
 
     MPTRACE("%s(%p)\n", __func__, opaque);
     void *prev_weak_thiz = ffp_set_inject_opaque(mp->ffplayer, opaque);
@@ -154,7 +158,10 @@ void *ijkmp_set_inject_opaque(IjkMediaPlayer *mp, void *opaque)
 
 void ijkmp_set_frame_at_time(IjkMediaPlayer *mp, const char *path, int64_t start_time, int64_t end_time, int num, int definition)
 {
-    assert(mp);
+    if (!mp) {
+        LOGE("ijkmp_set_frame_at_time mp is null\n");
+        return;
+    }
 
     MPTRACE("%s(%s,%lld,%lld,%d,%d)\n", __func__, path, start_time, end_time, num, definition);
     ffp_set_frame_at_time(mp->ffplayer, path, start_time, end_time, num, definition);
@@ -164,7 +171,10 @@ void ijkmp_set_frame_at_time(IjkMediaPlayer *mp, const char *path, int64_t start
 
 void *ijkmp_set_ijkio_inject_opaque(IjkMediaPlayer *mp, void *opaque)
 {
-    assert(mp);
+    if (!mp) {
+        LOGE("ijkmp_set_ijkio_inject_opaque mp is null\n");
+        return NULL;
+    }
 
     MPTRACE("%s(%p)\n", __func__, opaque);
     void *prev_weak_thiz = ffp_set_ijkio_inject_opaque(mp->ffplayer, opaque);
@@ -174,7 +184,10 @@ void *ijkmp_set_ijkio_inject_opaque(IjkMediaPlayer *mp, void *opaque)
 
 void ijkmp_set_option(IjkMediaPlayer *mp, int opt_category, const char *name, const char *value)
 {
-    assert(mp);
+    if (!mp) {
+        LOGE("ijkmp_set_option mp is null\n");
+        return;
+    }
 
     // MPTRACE("%s(%s, %s)\n", __func__, name, value);
     pthread_mutex_lock(&mp->mutex);
@@ -185,7 +198,10 @@ void ijkmp_set_option(IjkMediaPlayer *mp, int opt_category, const char *name, co
 
 void ijkmp_set_option_int(IjkMediaPlayer *mp, int opt_category, const char *name, int64_t value)
 {
-    assert(mp);
+    if (!mp) {
+        LOGE("ijkmp_set_option_int mp is null\n");
+        return;
+    }
 
     // MPTRACE("%s(%s, %"PRId64")\n", __func__, name, value);
     pthread_mutex_lock(&mp->mutex);
@@ -196,7 +212,10 @@ void ijkmp_set_option_int(IjkMediaPlayer *mp, int opt_category, const char *name
 
 int ijkmp_get_video_codec_info(IjkMediaPlayer *mp, char **codec_info)
 {
-    assert(mp);
+    if (!mp) {
+        LOGE("ijkmp_get_video_codec_info mp is null\n");
+        return EIJK_FAILED;
+    }
 
     MPTRACE("%s\n", __func__);
     pthread_mutex_lock(&mp->mutex);
@@ -208,7 +227,10 @@ int ijkmp_get_video_codec_info(IjkMediaPlayer *mp, char **codec_info)
 
 int ijkmp_get_audio_codec_info(IjkMediaPlayer *mp, char **codec_info)
 {
-    assert(mp);
+    if (!mp) {
+        LOGE("ijkmp_get_audio_codec_info mp is null\n");
+        return EIJK_FAILED;
+    }
 
     MPTRACE("%s\n", __func__);
     pthread_mutex_lock(&mp->mutex);
@@ -220,7 +242,10 @@ int ijkmp_get_audio_codec_info(IjkMediaPlayer *mp, char **codec_info)
 
 void ijkmp_set_playback_rate(IjkMediaPlayer *mp, float rate)
 {
-    assert(mp);
+    if (!mp) {
+        LOGE("ijkmp_set_playback_rate mp is null\n");
+        return;
+    }
 
     MPTRACE("%s(%f)\n", __func__, rate);
     pthread_mutex_lock(&mp->mutex);
@@ -231,7 +256,10 @@ void ijkmp_set_playback_rate(IjkMediaPlayer *mp, float rate)
 
 void ijkmp_set_playback_volume(IjkMediaPlayer *mp, float volume)
 {
-    assert(mp);
+    if (!mp) {
+        LOGE("ijkmp_set_playback_volume mp is null\n");
+        return;
+    }
 
     MPTRACE("%s(%f)\n", __func__, volume);
     pthread_mutex_lock(&mp->mutex);
@@ -242,7 +270,10 @@ void ijkmp_set_playback_volume(IjkMediaPlayer *mp, float volume)
 
 int ijkmp_set_stream_selected(IjkMediaPlayer *mp, int stream, int selected)
 {
-    assert(mp);
+    if (!mp) {
+        LOGE("ijkmp_set_stream_selected mp is null\n");
+        return EIJK_FAILED;
+    }
 
     MPTRACE("%s(%d, %d)\n", __func__, stream, selected);
     pthread_mutex_lock(&mp->mutex);
@@ -254,7 +285,10 @@ int ijkmp_set_stream_selected(IjkMediaPlayer *mp, int stream, int selected)
 
 float ijkmp_get_property_float(IjkMediaPlayer *mp, int id, float default_value)
 {
-    assert(mp);
+    if (!mp) {
+        LOGE("ijkmp_get_property_float mp is null\n");
+        return EIJK_FAILED;
+    }
 
     pthread_mutex_lock(&mp->mutex);
     float ret = ffp_get_property_float(mp->ffplayer, id, default_value);
@@ -264,8 +298,10 @@ float ijkmp_get_property_float(IjkMediaPlayer *mp, int id, float default_value)
 
 void ijkmp_set_property_float(IjkMediaPlayer *mp, int id, float value)
 {
-    assert(mp);
-
+    if (!mp) {
+        LOGE("ijkmp_set_property_float mp is null\n");
+        return;
+    }
     pthread_mutex_lock(&mp->mutex);
     ffp_set_property_float(mp->ffplayer, id, value);
     pthread_mutex_unlock(&mp->mutex);
@@ -273,8 +309,11 @@ void ijkmp_set_property_float(IjkMediaPlayer *mp, int id, float value)
 
 int64_t ijkmp_get_property_int64(IjkMediaPlayer *mp, int id, int64_t default_value)
 {
-    assert(mp);
-
+    if (!mp) {
+        LOGE("ijkmp_get_property_int64 mp is null\n");
+        return EIJK_FAILED;
+    }
+    
     pthread_mutex_lock(&mp->mutex);
     int64_t ret = ffp_get_property_int64(mp->ffplayer, id, default_value);
     pthread_mutex_unlock(&mp->mutex);
@@ -283,8 +322,10 @@ int64_t ijkmp_get_property_int64(IjkMediaPlayer *mp, int id, int64_t default_val
 
 void ijkmp_set_property_int64(IjkMediaPlayer *mp, int id, int64_t value)
 {
-    assert(mp);
-
+    if (!mp) {
+        LOGE("ijkmp_set_property_int64 mp is null\n");
+        return;
+    }
     pthread_mutex_lock(&mp->mutex);
     ffp_set_property_int64(mp->ffplayer, id, value);
     pthread_mutex_unlock(&mp->mutex);
@@ -292,8 +333,10 @@ void ijkmp_set_property_int64(IjkMediaPlayer *mp, int id, int64_t value)
 
 IjkMediaMeta *ijkmp_get_meta_l(IjkMediaPlayer *mp)
 {
-    assert(mp);
-
+    if (!mp) {
+        LOGE("ijkmp_get_meta_l mp is null\n");
+        return NULL;
+    }
     MPTRACE("%s\n", __func__);
     IjkMediaMeta *ret = ffp_get_meta_l(mp->ffplayer);
     MPTRACE("%s()=void\n", __func__);
@@ -302,8 +345,10 @@ IjkMediaMeta *ijkmp_get_meta_l(IjkMediaPlayer *mp)
 
 void ijkmp_shutdown_l(IjkMediaPlayer *mp)
 {
-    assert(mp);
-
+    if (!mp) {
+        LOGE("ijkmp_shutdown_l mp is null\n");
+        return;
+    }
     LOGI("ijkmp_shutdown_l()\n");
     pthread_mutex_lock(&mp->mutex);
     if (mp->ffplayer) {
@@ -321,7 +366,10 @@ void ijkmp_shutdown(IjkMediaPlayer *mp)
 
 void ijkmp_inc_ref(IjkMediaPlayer *mp)
 {
-    assert(mp);
+    if (!mp) {
+        LOGE("ijkmp_inc_ref mp is null\n");
+        return;
+    }
     __atomic_fetch_add(&mp->ref_count, 1,memory_order_seq_cst);
 }
 
@@ -349,9 +397,10 @@ void ijkmp_dec_ref_p(IjkMediaPlayer **pmp)
 
 static int ijkmp_set_data_source_l(IjkMediaPlayer *mp, const char *url)
 {
-
-    assert(mp);
-    assert(url);
+    if (!mp || !url) {
+        LOGE("ijkmp_set_data_source_l mp or url is null\n");
+        return EIJK_FAILED;
+    }
     MPST_RET_IF_EQ(mp->mp_state, MP_STATE_INITIALIZED);
     MPST_RET_IF_EQ(mp->mp_state, MP_STATE_ASYNC_PREPARING);
     MPST_RET_IF_EQ(mp->mp_state, MP_STATE_PREPARED);
@@ -373,8 +422,10 @@ static int ijkmp_set_data_source_l(IjkMediaPlayer *mp, const char *url)
 
 int ijkmp_set_data_source(IjkMediaPlayer *mp, const char *url)
 {
-    assert(mp);
-    assert(url);
+    if (!mp || !url) {
+        LOGE("ijkmp_set_data_source mp or url is null\n");
+        return EIJK_FAILED;
+    }
     MPTRACE("ijkmp_set_data_source(url=\"%s\")\n", url);
     pthread_mutex_lock(&mp->mutex);
     int retval = ijkmp_set_data_source_l(mp, url);
@@ -395,9 +446,10 @@ static int ijkmp_msg_loop(void *arg)
 static int ijkmp_prepare_async_l(IjkMediaPlayer *mp)
 {
     MPTRACE("ijkmp_prepare_async_l start\n");
-
-    assert(mp);
-
+    if (!mp) {
+        LOGE("ijkmp_prepare_async_l mp is null\n");
+        return EIJK_FAILED;
+    }
     MPST_RET_IF_EQ(mp->mp_state, MP_STATE_IDLE);
     MPST_RET_IF_EQ(mp->mp_state, MP_STATE_ASYNC_PREPARING);
     MPST_RET_IF_EQ(mp->mp_state, MP_STATE_PREPARED);
@@ -406,8 +458,11 @@ static int ijkmp_prepare_async_l(IjkMediaPlayer *mp)
     MPST_RET_IF_EQ(mp->mp_state, MP_STATE_COMPLETED);
     MPST_RET_IF_EQ(mp->mp_state, MP_STATE_ERROR);
     MPST_RET_IF_EQ(mp->mp_state, MP_STATE_END);
-
-    assert(mp->data_source);
+    
+    if (!mp->data_source) {
+        LOGE("ijkmp_prepare_async_l data_source is null\n");
+        return EIJK_FAILED;
+    }
     MPTRACE("ijkmp_prepare_async_l ijkmp_change_state_l\n");
     ijkmp_change_state_l(mp, MP_STATE_ASYNC_PREPARING);
 
@@ -430,7 +485,10 @@ static int ijkmp_prepare_async_l(IjkMediaPlayer *mp)
 
 int ijkmp_prepare_async(IjkMediaPlayer *mp)
 {
-    assert(mp);
+    if (!mp) {
+        LOGE("ijkmp_prepare_async mp is null\n");
+        return EIJK_FAILED;
+    }
     MPTRACE("ijkmp_prepare_async()\n");
     pthread_mutex_lock(&mp->mutex);
     int retval = ijkmp_prepare_async_l(mp);
@@ -453,8 +511,10 @@ static int ikjmp_chkst_start_l(int mp_state)
 
 static int ijkmp_start_l(IjkMediaPlayer *mp)
 {
-    assert(mp);
-
+    if (!mp) {
+        LOGE("ijkmp_start_l mp is null\n");
+        return EIJK_FAILED;
+    }
     MP_RET_IF_FAILED(ikjmp_chkst_start_l(mp->mp_state));
 
     ffp_remove_msg(mp->ffplayer, FFP_REQ_START);
@@ -466,7 +526,10 @@ static int ijkmp_start_l(IjkMediaPlayer *mp)
 
 int ijkmp_start(IjkMediaPlayer *mp)
 {
-    assert(mp);
+    if (!mp) {
+        LOGE("ijkmp_start mp is null\n");
+        return EIJK_FAILED;
+    }
     MPTRACE("ijkmp_start()\n");
     pthread_mutex_lock(&mp->mutex);
     int retval = ijkmp_start_l(mp);
@@ -489,8 +552,10 @@ static int ikjmp_chkst_pause_l(int mp_state)
 
 static int ijkmp_pause_l(IjkMediaPlayer *mp)
 {
-    assert(mp);
-
+    if (!mp) {
+        LOGE("ijkmp_pause_l mp is null\n");
+        return EIJK_FAILED;
+    }
     MP_RET_IF_FAILED(ikjmp_chkst_pause_l(mp->mp_state));
 
     ffp_remove_msg(mp->ffplayer, FFP_REQ_START);
@@ -502,7 +567,10 @@ static int ijkmp_pause_l(IjkMediaPlayer *mp)
 
 int ijkmp_pause(IjkMediaPlayer *mp)
 {
-    assert(mp);
+    if (!mp) {
+        LOGE("ijkmp_pause mp is null\n");
+        return EIJK_FAILED;
+    }
     MPTRACE("ijkmp_pause()\n");
     pthread_mutex_lock(&mp->mutex);
     int retval = ijkmp_pause_l(mp);
@@ -513,8 +581,10 @@ int ijkmp_pause(IjkMediaPlayer *mp)
 
 static int ijkmp_stop_l(IjkMediaPlayer *mp)
 {
-    assert(mp);
-
+    if (!mp) {
+        LOGE("ijkmp_stop_l mp is null\n");
+        return EIJK_FAILED;
+    }
     MPST_RET_IF_EQ(mp->mp_state, MP_STATE_IDLE);
     MPST_RET_IF_EQ(mp->mp_state, MP_STATE_INITIALIZED);
     MPST_RET_IF_EQ(mp->mp_state, MP_STATE_ERROR);
@@ -533,7 +603,10 @@ static int ijkmp_stop_l(IjkMediaPlayer *mp)
 
 int ijkmp_stop(IjkMediaPlayer *mp)
 {
-    assert(mp);
+    if (!mp) {
+        LOGE("ijkmp_stop mp is null\n");
+        return EIJK_FAILED;
+    }
     MPTRACE("ijkmp_stop()\n");
     pthread_mutex_lock(&mp->mutex);
     int retval = ijkmp_stop_l(mp);
@@ -544,7 +617,10 @@ int ijkmp_stop(IjkMediaPlayer *mp)
 
 bool ijkmp_is_playing(IjkMediaPlayer *mp)
 {
-    assert(mp);
+    if (!mp) {
+        LOGE("ijkmp_is_playing mp is null\n");
+        return false;
+    }
     if (mp->mp_state == MP_STATE_PREPARED ||
         mp->mp_state == MP_STATE_STARTED) {
         return true;
@@ -567,7 +643,10 @@ static int ikjmp_chkst_seek_l(int mp_state)
 
 int ijkmp_seek_to_l(IjkMediaPlayer *mp, long msec)
 {
-    assert(mp);
+    if (!mp) {
+        LOGE("ijkmp_seek_to_l mp is null\n");
+        return EIJK_FAILED;
+    }
 
     MP_RET_IF_FAILED(ikjmp_chkst_seek_l(mp->mp_state));
 
@@ -582,7 +661,10 @@ int ijkmp_seek_to_l(IjkMediaPlayer *mp, long msec)
 
 int ijkmp_seek_to(IjkMediaPlayer *mp, long msec)
 {
-    assert(mp);
+    if (!mp) {
+        LOGE("ijkmp_seek_to mp is null\n");
+        return EIJK_FAILED;
+    }
     MPTRACE("ijkmp_seek_to(%ld)\n", msec);
     pthread_mutex_lock(&mp->mutex);
     int retval = ijkmp_seek_to_l(mp, msec);
@@ -610,7 +692,10 @@ static long ijkmp_get_current_position_l(IjkMediaPlayer *mp)
 long ijkmp_get_current_position(IjkMediaPlayer *mp)
 {
     LOGI("ijkmp_get_current_position");
-    assert(mp);
+    if (!mp) {
+        LOGE("ijkmp_get_current_position mp is null\n");
+        return 0;
+    }
     pthread_mutex_lock(&mp->mutex);
     long retval;
     if (mp->seek_req)
@@ -631,7 +716,10 @@ static long ijkmp_get_duration_l(IjkMediaPlayer *mp)
 long ijkmp_get_duration(IjkMediaPlayer *mp)
 {
     LOGI("ijkmp_get_duration start");
-    assert(mp);
+    if (!mp) {
+        LOGE("ijkmp_get_duration mp is null\n");
+        return 0;
+    }
     pthread_mutex_lock(&mp->mutex);
     long retval = ijkmp_get_duration_l(mp);
     LOGI("ijkmp_get_duration retval result:%d",retval);
@@ -646,7 +734,10 @@ static long ijkmp_get_playable_duration_l(IjkMediaPlayer *mp)
 
 long ijkmp_get_playable_duration(IjkMediaPlayer *mp)
 {
-    assert(mp);
+    if (!mp) {
+        LOGE("ijkmp_get_playable_duration mp is null\n");
+        return 0;
+    }
     pthread_mutex_lock(&mp->mutex);
     long retval = ijkmp_get_playable_duration_l(mp);
     pthread_mutex_unlock(&mp->mutex);
@@ -655,7 +746,10 @@ long ijkmp_get_playable_duration(IjkMediaPlayer *mp)
 
 void ijkmp_set_loop(IjkMediaPlayer *mp, int loop)
 {
-    assert(mp);
+    if (!mp) {
+        LOGE("ijkmp_set_loop mp is null\n");
+        return;
+    }
     pthread_mutex_lock(&mp->mutex);
     ffp_set_loop(mp->ffplayer, loop);
     pthread_mutex_unlock(&mp->mutex);
@@ -663,7 +757,10 @@ void ijkmp_set_loop(IjkMediaPlayer *mp, int loop)
 
 int ijkmp_get_loop(IjkMediaPlayer *mp)
 {
-    assert(mp);
+    if (!mp) {
+        LOGE("ijkmp_get_loop mp is null\n");
+        return 1; // Return to default value 1
+    }
     pthread_mutex_lock(&mp->mutex);
     int loop = ffp_get_loop(mp->ffplayer);
     pthread_mutex_unlock(&mp->mutex);
@@ -687,7 +784,10 @@ void *ijkmp_set_weak_thiz(IjkMediaPlayer *mp, void *weak_thiz)
 /* need to call msg_free_res for freeing the resouce obtained in msg */
 int ijkmp_get_msg(IjkMediaPlayer *mp, AVMessage *msg, int block)
 {
-    assert(mp);
+    if (!mp) {
+        LOGE("ijkmp_get_msg mp is null\n");
+        return EIJK_FAILED;
+    }
     while (1) {
         int continue_wait_next_msg = 0;
         int retval = msg_queue_get(&mp->ffplayer->msg_queue, msg, block);

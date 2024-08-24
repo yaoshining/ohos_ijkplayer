@@ -335,9 +335,10 @@ static EGLBoolean IJK_EGL_makeCurrent(IJK_EGL* egl, EGLNativeWindowType window)
 static EGLBoolean IJK_EGL_prepareRenderer(IJK_EGL* egl, SDL_VoutOverlay * overlay)
 {
     LOGI("IJK_EGL_prepareRenderer");
-    assert(egl);
-    assert(egl->opaque);
-
+    if (!egl || !egl->opaque) {
+        av_log(NULL, AV_LOG_ERROR, "IJK_EGL_prepareRenderer egl or egl->opaque is null");
+        return EGL_FALSE;
+    }
     IJK_EGL_Opaque * opaque = egl->opaque;
 
     if (!IJK_GLES2_Renderer_isValid(opaque->renderer) ||

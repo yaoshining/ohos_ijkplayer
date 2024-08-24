@@ -54,13 +54,14 @@ static void IJK_GLES2_printShaderInfo(GLuint shader)
 
 GLuint IJK_GLES2_loadShader(GLenum shader_type, const char *shader_source)
 {
-    assert(shader_source);
+    if (!shader_source) {
+        ALOGE("[GLES2][Shader] IJK_GLES2_loadShader shader_source is null\n");
+        return 0;
+    }
 
     GLuint shader = glCreateShader(shader_type);        IJK_GLES2_checkError("glCreateShader");
     if (!shader)
         return 0;
-
-    assert(shader_source);
 
     glShaderSource(shader, 1, &shader_source, NULL);    IJK_GLES2_checkError_TRACE("glShaderSource");
     glCompileShader(shader);                            IJK_GLES2_checkError_TRACE("glCompileShader");
