@@ -22,7 +22,6 @@
 #ifndef IJKSDL__IJKSDL_GLES2__INTERNAL__H
 #define IJKSDL__IJKSDL_GLES2__INTERNAL__H
 
-#include <assert.h>
 #include <stdlib.h>
 #include "ijksdl_fourcc.h"
 #include "ijksdl_log.h"

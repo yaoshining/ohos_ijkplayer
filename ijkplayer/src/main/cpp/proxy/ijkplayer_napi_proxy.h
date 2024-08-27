@@ -16,7 +16,6 @@
 #ifndef ijkplayer_ijkplayer_napi_proxy.h_H
 #define ijkplayer_ijkplayer_napi_proxy.h_H
 #include <string>
-#include <assert.h>
 #include <stdio.h>
 #include <pthread.h>
 #include <unistd.h>

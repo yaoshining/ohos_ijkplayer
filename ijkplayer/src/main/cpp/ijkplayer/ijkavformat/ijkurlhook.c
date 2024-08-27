@@ -19,7 +19,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#include <assert.h>
+#include "ff_fferror.h"
 #include "libavformat/avformat.h"
 #include "libavformat/url.h"
 #include "libavutil/avstring.h"
@@ -96,8 +96,11 @@ static int ijkurlhook_reconnect(URLContext *h, AVDictionary *extra)
     AVDictionary *inner_options = NULL;
 
     c->test_fail_point_next += c->test_fail_point;
-
-    assert(c->inner_options);
+    
+    if (!c->inner_options) {
+        av_log(NULL, AV_LOG_ERROR, "ijkurlhook_reconnect inner_options is null\n");
+        return EIJK_FAILED;
+    }
     av_dict_copy(&inner_options, c->inner_options, 0);
     if (extra)
         av_dict_copy(&inner_options, extra, 0);

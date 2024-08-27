@@ -114,7 +114,9 @@ void IJK_GLES2_Renderer_freeP(IJK_GLES2_Renderer **renderer)
 
 IJK_GLES2_Renderer *IJK_GLES2_Renderer_create_base(const char *fragment_shader_source)
 {
-    assert(fragment_shader_source);
+    if (!fragment_shader_source) {
+        goto fail;
+    }
 
     IJK_GLES2_Renderer *renderer = (IJK_GLES2_Renderer *)calloc(1, sizeof(IJK_GLES2_Renderer));
     if (!renderer)
@@ -350,8 +352,7 @@ GLboolean IJK_GLES2_Renderer_use(IJK_GLES2_Renderer *renderer)
 {
     if (!renderer)
         return GL_FALSE;
-
-    assert(renderer->func_use);
+    
     if (!renderer->func_use(renderer))
         return GL_FALSE;
 

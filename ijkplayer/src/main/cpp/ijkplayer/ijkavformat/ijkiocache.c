@@ -35,7 +35,6 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <assert.h>
 
 #define DEFAULT_CACHE_MAX_CAPACITY            (512 * 1024 * 1024)
 #define DEFAULT_CACHE_FILE_FORWARDS_CAPACITY  (8 * 1024 * 1024)
@@ -392,13 +391,19 @@ static int64_t ijkio_cache_write_file(IjkURLContext *h) {
 
     if (l_entry) {
         int64_t in_block_pos = c->file_logical_pos - l_entry->logical_pos;
-        assert(l_entry->logical_pos <= c->file_logical_pos);
+        if (l_entry->logical_pos > c->file_logical_pos) {
+            av_log(NULL, AV_LOG_ERROR, "ijkio_cache_write_file l_entry->logical_pos > file_logical_pos\n");
+            return FILE_RW_ERROR;
+        }
         if (in_block_pos < l_entry->size) {
             c->file_logical_pos = l_entry->logical_pos + l_entry->size;
         }
     } else if (root) {
         int64_t in_block_pos = c->file_logical_pos - root->logical_pos;
-        assert(root->logical_pos <= c->file_logical_pos);
+        if (root->logical_pos > c->file_logical_pos) {
+            av_log(NULL, AV_LOG_ERROR, "ijkio_cache_write_file root->logical_pos > file_logical_pos\n");
+            return FILE_RW_ERROR;
+        }
         if (in_block_pos < root->size) {
             c->file_logical_pos = root->logical_pos + root->size;
         }

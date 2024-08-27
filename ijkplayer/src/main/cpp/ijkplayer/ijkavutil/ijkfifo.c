@@ -22,9 +22,10 @@
 
 #include "ijkfifo.h"
 #include "ijkutils.h"
+#include "libavutil/log.h"
 #include <stdlib.h>
-#include <assert.h>
 #include <string.h>
+#include "ff_fferror.h"
 
 static IjkFifoBuffer *fifo_alloc_common(void *buffer, size_t size)
 {
@@ -153,15 +154,20 @@ int ijk_av_fifo_generic_write(IjkFifoBuffer *f, void *src, int size,
 int ijk_av_fifo_generic_peek_at(IjkFifoBuffer *f, void *dest, int offset, int buf_size, void (*func)(void*, void*, int))
 {
     uint8_t *rptr = f->rptr;
-
-    assert(offset >= 0);
+    
+    if (offset < 0) {
+        av_log(NULL, AV_LOG_ERROR, "ijk_av_fifo_generic_peek_at offset < 0");
+        return EIJK_FAILED;
+    }
 
     /*
      * *ndx are indexes modulo 2^32, they are intended to overflow,
      * to handle *ndx greater than 4gb.
      */
-    assert(buf_size + (unsigned)offset <= f->wndx - f->rndx);
-
+    if (buf_size + (unsigned)offset > f->wndx - f->rndx) {
+        av_log(NULL, AV_LOG_ERROR, "ijk_av_fifo_generic_peek_at buf_size");
+        return EIJK_FAILED;
+    }
     if (offset >= f->end - rptr)
         rptr += offset - (f->end - f->buffer);
     else
@@ -234,7 +240,10 @@ int ijk_av_fifo_generic_read(IjkFifoBuffer *f, void *dest, int buf_size,
 /** Discard data from the FIFO. */
 void ijk_av_fifo_drain(IjkFifoBuffer *f, int size)
 {
-    assert(ijk_av_fifo_size(f) >= size);
+    if (ijk_av_fifo_size(f) < size) {
+        av_log(NULL, AV_LOG_ERROR, "ijk_av_fifo_drain Discard data from the FIFO fail");
+        return;
+    }
     f->rptr += size;
     if (f->rptr >= f->end)
         f->rptr -= f->end - f->buffer;

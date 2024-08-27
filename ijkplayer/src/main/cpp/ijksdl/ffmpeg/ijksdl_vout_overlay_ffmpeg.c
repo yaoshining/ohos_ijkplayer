@@ -25,7 +25,6 @@
 #include "ijksdl_vout_overlay_ffmpeg.h"
 
 #include <stdbool.h>
-#include <assert.h>
 #include "../ijksdl_stdinc.h"
 #include "../ijksdl_misc.h"
 #include "../ijksdl_mutex.h"
@@ -164,7 +163,10 @@ static int func_fill_frame(SDL_VoutOverlay *overlay, const AVFrame *frame)
     AVBufferRef *tempbuf1=frame->buf;
     AVBufferRef *tempbuf2=frame->extended_buf;
     AVBufferRef *tempbuf3=frame->qp_table_buf;
-    assert(overlay);
+    if (!overlay) {
+        av_log(NULL, AV_LOG_ERROR, "func_fill_frame overlay is null");
+        return -1;
+    }
     SDL_VoutOverlay_Opaque *opaque = overlay->opaque;
     AVFrame swscale_dst_pic = { { 0 } };
 

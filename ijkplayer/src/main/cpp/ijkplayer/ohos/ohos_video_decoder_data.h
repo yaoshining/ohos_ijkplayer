@@ -57,4 +57,4 @@ private:
     std::queue<CodecBufferInfo> outputBufferInfoQueue_;
 };
 
-#endif DECODERDEMO_DECODERDATA_H
+#endif // DECODERDEMO_DECODERDATA_H

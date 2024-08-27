@@ -23,6 +23,7 @@
 #define IJKSDL__IJKSDL_CONTAINER_H
 
 #include <stdlib.h>
+#include "ijksdl_log.h"
 
 typedef int isdl_error;
 
@@ -39,7 +40,10 @@ typedef struct ISDL_Array
 
 inline static isdl_error ISDL_Array__grow(ISDL_Array *array, size_t new_capacity)
 {
-    assert(array);
+    if (!array) {
+        ALOGE("ISDL_Array__grow array is null\n");
+        return -1;
+    }
     if (array->capacity >= new_capacity)
         return 0;
 
@@ -54,7 +58,10 @@ inline static isdl_error ISDL_Array__grow(ISDL_Array *array, size_t new_capacity
 
 inline static isdl_error ISDL_Array__init(ISDL_Array *array, size_t capacity)
 {
-    assert(array);
+    if (!array) {
+        ALOGE("ISDL_Array__init array is null\n");
+        return -1;
+    }
     memset(array, 0, sizeof(ISDL_Array));
     if (ISDL_Array__grow(array, capacity))
         return -1;
@@ -64,7 +71,10 @@ inline static isdl_error ISDL_Array__init(ISDL_Array *array, size_t capacity)
 
 inline static isdl_error ISDL_Array__push_back(ISDL_Array *array, void *val)
 {
-    assert(array);
+    if (!array) {
+        ALOGE("ISDL_Array__push_back array is null\n");
+        return -1;
+    }
     if (array->size >= array->capacity) {
         if (ISDL_Array__grow(array, array->capacity * 2))
             return -1;
@@ -76,47 +86,64 @@ inline static isdl_error ISDL_Array__push_back(ISDL_Array *array, void *val)
 
 inline static void *ISDL_Array__pop_back(ISDL_Array *array)
 {
-    assert(array);
-    assert(array->size >= 1);
+    if (!array || array->size < 1) {
+        ALOGE("ISDL_Array__pop_back array is null\n");
+        return NULL;
+    }
     return array->elements[--array->size];
 }
 
 inline static void ISDL_Array__clear(ISDL_Array *array)
 {
-    assert(array);
+    if (!array) {
+        ALOGE("ISDL_Array__clear array is null\n");
+        return;
+    }
     array->size = 0;
 }
 
 inline static void *ISDL_Array__at(ISDL_Array *array, int pos)
 {
-    assert(array);
-    assert(pos >= 0);
-    assert(pos < array->size);
+    if (!array || pos < 0 || pos >= array->size) {
+        ALOGE("ISDL_Array__at array is null\n");
+        return NULL;
+    }
     return array->elements[pos];
 }
 
 inline static size_t ISDL_Array__size(ISDL_Array *array)
 {
-    assert(array);
+    if (!array) {
+        ALOGE("ISDL_Array__size array is null\n");
+        return 0;
+    }
     return array->size;
 }
 
 inline static void **ISDL_Array__begin(ISDL_Array *array)
 {
-    assert(array);
+    if (!array) {
+        ALOGE("ISDL_Array__begin array is null\n");
+        return NULL;
+    }
     return array->elements;
 }
 
 inline static void **ISDL_Array__end(ISDL_Array *array)
 {
-    assert(array);
+    if (!array) {
+        ALOGE("ISDL_Array__end array is null\n");
+        return NULL;
+    }
     return array->elements + array->size;
 }
 
 inline static void *ISDL_Array__back(ISDL_Array *array)
 {
-    assert(array);
-    assert(array->size >= 1);
+    if (!array || array->size < 1) {
+        ALOGE("ISDL_Array__back array is null\n");
+        return NULL;
+    }
     return array->elements[array->size - 1];
 }
 

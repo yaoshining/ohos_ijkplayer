@@ -1,3 +1,6 @@
+## 2.0.5-rc.3
+- assert异常崩溃改为异常return返回
+
 ## 2.0.5-rc.2
 - 修复bug,无法旋转带有rotation信息的视频
 

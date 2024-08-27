@@ -23,7 +23,6 @@
  */
 
 #include <errno.h>
-#include <assert.h>
 #include <unistd.h>
 #include "ijksdl_inc_internal.h"
 #include "ijksdl_thread.h"
@@ -87,8 +86,7 @@ void SDL_WaitThread(SDL_Thread *thread, int *status)
         ALOGD("SDL_WaitThread thread null");
         return;
     }
-
-    assert(thread);
+    
     if (!thread)
         return;
 
@@ -100,7 +98,6 @@ void SDL_WaitThread(SDL_Thread *thread, int *status)
 
 void SDL_DetachThread(SDL_Thread *thread)
 {
-    assert(thread);
     if (!thread)
         return;
 

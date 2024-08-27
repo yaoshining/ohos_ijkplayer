@@ -59,4 +59,4 @@ private:
     DecodeStat stat{DecodeStat::NONE};
 };
 
-#endif DECODERDEMO_DECODER_H
+#endif // DECODERDEMO_DECODER_H

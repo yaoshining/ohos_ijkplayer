@@ -28,7 +28,8 @@
  *      support work with concatdec, hls
  */
 
-#include "libavutil/avassert.h"
+#include <stdint.h>
+#include "ff_fferror.h"
 #include "libavutil/avstring.h"
 #include "libavutil/error.h"
 #include "libavutil/fifo.h"
@@ -37,7 +38,6 @@
 #include "libavutil/thread.h"
 #include "libavutil/time.h"
 #include "libavformat/url.h"
-#include <stdint.h>
 
 #include "libavutil/application.h"
 
@@ -123,8 +123,11 @@ static int ring_space(RingBuffer *ring)
 static int ring_generic_read(RingBuffer *ring, void *dest, int buf_size, void (*func)(void*, void*, int))
 {
     int ret;
-
-    av_assert2(buf_size <= ring_size(ring));
+    
+    if (buf_size > ring_size(ring)) {
+        av_log(NULL, AV_LOG_ERROR, "ring_generic_read error");
+        return EIJK_FAILED;
+    }
     ret = av_fifo_generic_peek_at(ring->fifo, dest, ring->read_pos, buf_size, func);
     ring->read_pos += buf_size;
 
@@ -138,7 +141,10 @@ static int ring_generic_read(RingBuffer *ring, void *dest, int buf_size, void (*
 
 static int ring_generic_write(RingBuffer *ring, void *src, int size, int (*func)(void*, void*, int))
 {
-    av_assert2(size <= ring_space(ring));
+    if (size > ring_space(ring)) {
+        av_log(NULL, AV_LOG_ERROR, "ring_generic_write error");
+        return EIJK_FAILED;
+    }
     return av_fifo_generic_write(ring->fifo, src, size, func);
 }
 
@@ -149,8 +155,10 @@ static int ring_size_of_read_back(RingBuffer *ring)
 
 static int ring_drain(RingBuffer *ring, int offset)
 {
-    av_assert2(offset >= -ring_size_of_read_back(ring));
-    av_assert2(offset <= -ring_size(ring));
+    if ((offset < -ring_size_of_read_back(ring)) || (offset > -ring_size(ring))) {
+        av_log(NULL, AV_LOG_ERROR, "ring_drain error");
+        return EIJK_FAILED;
+    }
     ring->read_pos += offset;
     return 0;
 }
