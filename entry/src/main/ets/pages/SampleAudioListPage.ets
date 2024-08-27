@@ -277,7 +277,11 @@ struct SampleAudioListPage {
       this.slideEnable = true;
       let curPercent = position / duration;
       pos = curPercent * 100;
-      this.progressValue = pos;
+      if (pos > PROGRESS_MAX_VALUE) {
+	    this.progressValue = PROGRESS_MAX_VALUE
+	  } else {
+	    this.progressValue = pos;
+	  }
     }
     LogUtils.getInstance()
       .LOGI("setProgress position:" + position + ",duration:" + duration + ",progressValue:" + pos);
