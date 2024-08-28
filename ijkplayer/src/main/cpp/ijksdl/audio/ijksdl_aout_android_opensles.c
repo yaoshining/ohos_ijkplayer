@@ -38,6 +38,8 @@ static const int GLOBAL_RESMGR = 0xFF00;
 static const char *TAG = "[Sample_audio]";
 static const int MS_TO_S = 1000;
 static const int US_TO_S = 1000000;
+static const int NS_TO_US = 1000;
+static const int MIN_CALC_INTERVAL_TIME = 1000000; /* us */
 
 static void AoutSetVolume(SDL_Aout *aout, float leftVolume, float rightVolume);
 
@@ -53,6 +55,7 @@ typedef struct DataFormatPcm {
     Sint32 containerSize;
     Sint32 channelMask;
     Sint32 endianness;
+    Sint32 samplesRate;
 } OHDataFormatPcm;
 
 typedef struct SDL_Aout_Opaque {
@@ -80,9 +83,47 @@ typedef struct SDL_Aout_Opaque {
     OH_AudioStreamBuilder *rendererBuilder;
     OH_AudioRenderer *audioRendererNormal; // 生成音频播放对象
 
+    volatile int64_t framesWrittenNeedTime; // us
+    volatile int64_t lastCalcTime; // us
+    volatile int64_t writtenLen;
+
     uint8_t       * buffer;
     size_t         buffer_capacity;
 } SDL_Aout_Opaque;
+
+static void AudioCalcFramesWrittenNeedTime(OH_AudioRenderer *renderer, SDL_Aout_Opaque *opaque)
+{
+    int64_t nowTime = av_gettime_relative();
+    if (nowTime - opaque->lastCalcTime < MIN_CALC_INTERVAL_TIME) {
+        return;
+    }
+    int64_t framePosition = 0;
+    int64_t timestamp = 0;
+    OH_AudioStream_Result ret = OH_AudioRenderer_GetTimestamp(renderer, CLOCK_MONOTONIC,  &framePosition, &timestamp);
+    if (ret != AUDIOSTREAM_SUCCESS) {
+        LOGE("OH_AudioRenderer_GetTimestamp failed, ret: %d", ret);
+        return;
+    }
+    nowTime = av_gettime_relative();
+    if ((timestamp == 0) || (framePosition == 0)) {
+        opaque->framesWrittenNeedTime = 0;
+        return;
+    }
+    int64_t deltaUs = nowTime - timestamp / NS_TO_US;
+
+    int64_t audioPlayedTime = framePosition * US_TO_S / opaque->formatPcm.samplesRate;
+
+    int64_t nowAudioPlayedTime = audioPlayedTime + deltaUs;
+    LOGD("AudioRendererOnWriteData nowTime:%ld, framePosition:%ld, timestamp:%ld, deltaUs:%ld, audioPlayedTime:%ld,"
+         " nowAudioPlayedTime:%ld", nowTime, framePosition, timestamp, deltaUs, audioPlayedTime, nowAudioPlayedTime);
+
+    int64_t writtenTime = opaque->writtenLen * US_TO_S / (opaque->formatPcm.samplesRate * opaque->bytes_per_frame);
+
+    opaque->framesWrittenNeedTime = writtenTime - nowAudioPlayedTime;
+    opaque->lastCalcTime = nowTime;
+    LOGD("AudioRendererOnWriteData writtenLen:%ld, framesWrittenTime:%ld, framesWrittenNeedTime:%ld",
+         opaque->writtenLen, writtenTime, opaque->framesWrittenNeedTime);
+}
 
 static int32_t AudioRendererOnWriteData(OH_AudioRenderer *renderer, void *userData, void *buffer, int32_t bufferLen)
 {
@@ -92,9 +133,12 @@ static int32_t AudioRendererOnWriteData(OH_AudioRenderer *renderer, void *userDa
     }
 
     SDL_AudioCallback audioCallback = opaque->spec.callback;
-    if (audioCallback != NULL) {
-        audioCallback(opaque->spec.userdata, (uint8_t *)buffer, bufferLen);
+    if (audioCallback == NULL) {
+        return 0;
     }
+    AudioCalcFramesWrittenNeedTime(renderer, opaque);
+    audioCallback(opaque->spec.userdata, (uint8_t *)buffer, bufferLen);
+    opaque->writtenLen += bufferLen;
     return 0;
 }
 
@@ -125,13 +169,27 @@ static int32_t AudioRendererOnError(OH_AudioRenderer *renderer, void *userData, 
 
 static double AoutGetLatencySeconds(SDL_Aout *aout)
 {
-    return 0;
+    if ((aout == NULL) || (aout->opaque == NULL)) {
+        LOGE("audio->AoutOpenAudio opaque NULL");
+        return 0;
+    }
+    double  latency = (double)aout->opaque->framesWrittenNeedTime / US_TO_S;
+    return latency;
 }
 
 static int32_t AudioRendererOnStreamEvent(OH_AudioRenderer *renderer, void *userData, OH_AudioStream_Event event)
 {
     LOGI("AudioRendererOnStreamEvent, event:%d", event);
     return 0;
+}
+
+static void AoutFillFormatPcm(OHDataFormatPcm *formatPcm, const SDL_AudioSpec *desired)
+{
+    formatPcm->numChannels = desired->channels;
+    formatPcm->samplesPerSec = desired->freq * MS_TO_S;
+    formatPcm->bitsPerSample = AUDIO_U16LSB;
+    formatPcm->containerSize = AUDIO_U16LSB;
+    formatPcm->samplesRate = desired->freq;
 }
 
 // 音频渲染器初始化
@@ -155,10 +213,7 @@ static int AoutOpenAudio(SDL_Aout *aout, const SDL_AudioSpec *desired, SDL_Audio
     OHDataFormatPcm *formatPcm = &opaque->formatPcm;
     opaque->spec = *desired;
 
-    formatPcm->numChannels = desired->channels;
-    formatPcm->samplesPerSec = desired->freq * MS_TO_S; // milli Hz 48000 * 1000
-    formatPcm->bitsPerSample = AUDIO_U16LSB;
-    formatPcm->containerSize = AUDIO_U16LSB;
+    AoutFillFormatPcm(formatPcm, desired);
 
     // create builder
     OH_AudioStreamBuilder_Create(&opaque->rendererBuilder, AUDIOSTREAM_TYPE_RENDERER);
@@ -167,8 +222,7 @@ static int AoutOpenAudio(SDL_Aout *aout, const SDL_AudioSpec *desired, SDL_Audio
     OH_AudioStreamBuilder_SetChannelCount(opaque->rendererBuilder, desired->channels);
     OH_AudioStreamBuilder_SetSampleFormat(opaque->rendererBuilder, AUDIOSTREAM_SAMPLE_S16LE);
     OH_AudioStreamBuilder_SetEncodingType(opaque->rendererBuilder, AUDIOSTREAM_ENCODING_TYPE_RAW);
-    // 当设备支持低时延通路时，开发者可以使用低时延模式创建播放器
-    OH_AudioStreamBuilder_SetLatencyMode(opaque->rendererBuilder, AUDIOSTREAM_LATENCY_MODE_FAST);
+    OH_AudioStreamBuilder_SetLatencyMode(opaque->rendererBuilder, AUDIOSTREAM_LATENCY_MODE_NORMAL);
     // 关键参数，仅OHAudio支持，根据音频用途设置，系统会根据此参数实现音频策略自适应
     OH_AudioStreamBuilder_SetRendererInfo(opaque->rendererBuilder, AUDIOSTREAM_USAGE_MOVIE);
 
@@ -182,6 +236,7 @@ static int AoutOpenAudio(SDL_Aout *aout, const SDL_AudioSpec *desired, SDL_Audio
     opaque->buffer_capacity = OPENSLES_BUFFERS * opaque->bytes_per_buffer;
     opaque->pause_on = true;
     opaque->abort_request = false;
+    opaque->writtenLen = 0;
 
     rendererCallbacks.OH_AudioRenderer_OnWriteData = AudioRendererOnWriteData; // 看下数据写入OnWriteData
     rendererCallbacks.OH_AudioRenderer_OnStreamEvent = AudioRendererOnStreamEvent;  // 自定义音频流事件函数
@@ -220,6 +275,8 @@ static void AoutPauseAudio(SDL_Aout *aout, int pauseOn)
     if (pauseOn != 0) {
         OH_AudioRenderer_Pause(opaque->audioRendererNormal);
     } else {
+        aout->opaque->framesWrittenNeedTime = 0;
+        aout->opaque->lastCalcTime = av_gettime_relative();
         OH_AudioRenderer_Start(opaque->audioRendererNormal);
     }
     return;
@@ -242,6 +299,7 @@ static void AudioRendererStop(SDL_Aout *aout)
 
 static void AudioRendererFlush(SDL_Aout *aout)
 {
+    LOGI("audio->AudioRendererFlush");
     if ((aout == NULL) || (aout->opaque == NULL)) {
         LOGE("audio->AudioRendererFlush opaque NULL");
         return;
@@ -252,6 +310,10 @@ static void AudioRendererFlush(SDL_Aout *aout)
         return;
     }
     OH_AudioRenderer_Flush(opaque->audioRendererNormal); // 丢弃已经写入的音频数据
+    // 清除音频时延所有参数
+    opaque->writtenLen = 0;
+    opaque->framesWrittenNeedTime = 0;
+    opaque->lastCalcTime = av_gettime_relative();
 }
 
 static void AudioRendererRelease(SDL_Aout *aout)
@@ -267,6 +329,7 @@ static void AudioRendererRelease(SDL_Aout *aout)
         OH_AudioRenderer_Release(opaque->audioRendererNormal);
         opaque->audioRendererNormal = NULL;
     }
+    SDL_Aout_FreeInternal(aout);
 }
 
 static void AoutSetVolume(SDL_Aout *aout, float leftVolume, float rightVolume)
