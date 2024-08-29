@@ -157,6 +157,7 @@ static int message_loop(void *arg) {
     LOGI("napi_proxy-->message_loop");
     IjkMediaPlayer *mp = (IjkMediaPlayer *)arg;
     message_loop_n(mp);
+    ijkmp_dec_ref_p(&mp);
     return 0;
 }
 
@@ -179,6 +180,12 @@ IjkMediaPlayer *IJKPlayerNapiProxy::set_media_player(std::string id, IjkMediaPla
     LOGI("napi_proxy-->set_media_player");
     if (mp) {
         ijkmp_inc_ref(mp);
+    } else {
+        std::unordered_map<std::string, IjkMediaPlayer *>::iterator it = GLOBAL_IJKMP.find(id);
+        if (it != GLOBAL_IJKMP.end()) {
+            mp = it->second;
+        }
+        ijkmp_dec_ref_p(&mp);
     }
     GLOBAL_IJKMP.insert(std::make_pair(id, mp));
     return GLOBAL_IJKMP[id];
@@ -206,6 +213,7 @@ void IJKPlayerNapiProxy::IjkMediaPlayer_native_setup(void *weak_this, void *nati
     ijkmp_set_weak_thiz(mp, weak_this);
     ijkmp_set_inject_opaque(mp, ijkmp_get_weak_thiz(mp));
     ijkmp_set_ijkio_inject_opaque(mp, ijkmp_get_weak_thiz(mp));
+    ijkmp_dec_ref_p(&mp);
 }
 
 void IJKPlayerNapiProxy::IjkMediaPlayer_native_setup_audio() {
@@ -219,6 +227,7 @@ void IJKPlayerNapiProxy::IjkMediaPlayer_native_setup_audio() {
     IJKPlayerNapiProxy::set_media_player(id_, mp);
     ijkmp_set_inject_opaque(mp, ijkmp_get_weak_thiz(mp));
     ijkmp_set_ijkio_inject_opaque(mp, ijkmp_get_weak_thiz(mp));
+    ijkmp_dec_ref_p(&mp);
 }
 
 void IJKPlayerNapiProxy::IjkMediaPlayer_setDataSource(char *url) {
@@ -228,6 +237,7 @@ void IJKPlayerNapiProxy::IjkMediaPlayer_setDataSource(char *url) {
         return;
     }
     ijkmp_set_data_source(mp, url);
+    ijkmp_dec_ref_p(&mp);
 }
 
 void IJKPlayerNapiProxy::IjkMediaPlayer_setOption(int category, char *name, char *value) {
@@ -237,6 +247,7 @@ void IJKPlayerNapiProxy::IjkMediaPlayer_setOption(int category, char *name, char
         return;
     }
     ijkmp_set_option(mp, category, name, value);
+    ijkmp_dec_ref_p(&mp);
 }
 
 void IJKPlayerNapiProxy::IjkMediaPlayer_setOptionLong(int category, char *name, int64_t value) {
@@ -246,6 +257,7 @@ void IJKPlayerNapiProxy::IjkMediaPlayer_setOptionLong(int category, char *name, 
         return;
     }
     ijkmp_set_option_int(mp, category, name, value);
+    ijkmp_dec_ref_p(&mp);
 }
 
 void IJKPlayerNapiProxy::IjkMediaPlayer_prepareAsync() {
@@ -255,6 +267,7 @@ void IJKPlayerNapiProxy::IjkMediaPlayer_prepareAsync() {
         return;
     }
     ijkmp_prepare_async(mp);
+    ijkmp_dec_ref_p(&mp);
 }
 
 void IJKPlayerNapiProxy::IjkMediaPlayer_start() {
@@ -264,6 +277,7 @@ void IJKPlayerNapiProxy::IjkMediaPlayer_start() {
         return;
     }
     ijkmp_start(mp);
+    ijkmp_dec_ref_p(&mp);
 }
 
 void IJKPlayerNapiProxy::IjkMediaPlayer_pause() {
@@ -273,6 +287,7 @@ void IJKPlayerNapiProxy::IjkMediaPlayer_pause() {
         return;
     }
     ijkmp_pause(mp);
+    ijkmp_dec_ref_p(&mp);
 }
 
 void IJKPlayerNapiProxy::IjkMediaPlayer_seekTo(int64_t msec) {
@@ -282,6 +297,7 @@ void IJKPlayerNapiProxy::IjkMediaPlayer_seekTo(int64_t msec) {
         return;
     }
     ijkmp_seek_to(mp, msec);
+    ijkmp_dec_ref_p(&mp);
 }
 
 bool IJKPlayerNapiProxy::IjkMediaPlayer_isPlaying() {
@@ -290,7 +306,9 @@ bool IJKPlayerNapiProxy::IjkMediaPlayer_isPlaying() {
         LOGE("napi_proxy-->IjkMediaPlayer_isPlaying mp NULL");
         return false;
     }
-    return ijkmp_is_playing(mp) ? true : false;
+    bool bol = ijkmp_is_playing(mp) ? true : false;
+    ijkmp_dec_ref_p(&mp);
+    return bol;
 }
 
 int IJKPlayerNapiProxy::IjkMediaPlayer_getCurrentPosition() {
@@ -301,6 +319,7 @@ int IJKPlayerNapiProxy::IjkMediaPlayer_getCurrentPosition() {
         return retval;
     }
     retval = ijkmp_get_current_position(mp);
+    ijkmp_dec_ref_p(&mp);
     return retval;
 }
 
@@ -312,6 +331,7 @@ int IJKPlayerNapiProxy::IjkMediaPlayer_getDuration() {
         return retval;
     }
     retval = ijkmp_get_duration(mp);
+    ijkmp_dec_ref_p(&mp);
     return retval;
 }
 
@@ -322,6 +342,7 @@ void IJKPlayerNapiProxy::IjkMediaPlayer_stop() {
         return;
     }
     ijkmp_stop(mp);
+    ijkmp_dec_ref_p(&mp);
 }
 
 void IJKPlayerNapiProxy::IjkMediaPlayer_release() {
@@ -331,6 +352,8 @@ void IJKPlayerNapiProxy::IjkMediaPlayer_release() {
         return;
     }
     ijkmp_shutdown(mp);
+    IJKPlayerNapiProxy::set_media_player(id_, NULL);
+    delete_media_player(id_);
     ijkmp_dec_ref_p(&mp);
 }
 
@@ -344,7 +367,6 @@ void IJKPlayerNapiProxy::IjkMediaPlayer_reset() {
     void *weak_thiz = ijkmp_set_weak_thiz(mp, NULL);
     IjkMediaPlayer_release();
     LOGI("napi_proxy-->IjkMediaPlayer_reset");
-    delete_media_player(id_);
     ijkmp_dec_ref_p(&mp);
 }
 
@@ -355,6 +377,7 @@ void IJKPlayerNapiProxy::IjkMediaPlayer_setVolume(float leftVolume, float rightV
         return;
     }
     ijkmp_android_set_volume(mp, leftVolume, rightVolume);
+    ijkmp_dec_ref_p(&mp);
 }
 
 void IJKPlayerNapiProxy::ijkMediaPlayer_setPropertyFloat(int id, float value) {
@@ -364,6 +387,7 @@ void IJKPlayerNapiProxy::ijkMediaPlayer_setPropertyFloat(int id, float value) {
         return;
     }
     ijkmp_set_property_float(mp, id, value);
+    ijkmp_dec_ref_p(&mp);
 }
 
 float IJKPlayerNapiProxy::ijkMediaPlayer_getPropertyFloat(int id, float default_value) {
@@ -373,7 +397,13 @@ float IJKPlayerNapiProxy::ijkMediaPlayer_getPropertyFloat(int id, float default_
         LOGE("napi_proxy-->ijkMediaPlayer_getPropertyFloat mp NULL");
         return retval;
     }
-    return ijkmp_get_property_float(mp, id, default_value);
+    retval = ijkmp_get_property_float(mp, id, default_value);
+    if (retval == -1) {
+        LOGE("napi_proxy-->ijkMediaPlayer_getPropertyFloat fail");
+        retval = 0;
+    }
+    ijkmp_dec_ref_p(&mp);
+    return retval;
 }
 
 void IJKPlayerNapiProxy::ijkMediaPlayer_setPropertyLong(int id, long value) {
@@ -383,6 +413,7 @@ void IJKPlayerNapiProxy::ijkMediaPlayer_setPropertyLong(int id, long value) {
         return;
     }
     ijkmp_set_property_int64(mp, id, value);
+    ijkmp_dec_ref_p(&mp);
 }
 
 long IJKPlayerNapiProxy::ijkMediaPlayer_getPropertyLong(int id, long default_value) {
@@ -392,7 +423,13 @@ long IJKPlayerNapiProxy::ijkMediaPlayer_getPropertyLong(int id, long default_val
         LOGE("napi_proxy-->ijkMediaPlayer_getPropertyLong mp NULL");
         return retval;
     }
-    return ijkmp_get_property_int64(mp, id, default_value);
+    retval = ijkmp_get_property_int64(mp, id, default_value);
+    if (retval == -1) {
+        LOGE("napi_proxy-->ijkMediaPlayer_getPropertyLong fail");
+        retval = 0;
+    }
+    ijkmp_dec_ref_p(&mp);
+    return retval;
 }
 
 int IJKPlayerNapiProxy::IjkMediaPlayer_getAudioSessionId() {
@@ -403,6 +440,7 @@ int IJKPlayerNapiProxy::IjkMediaPlayer_getAudioSessionId() {
         return audio_session_id;
     }
     audio_session_id = ijkmp_android_get_audio_session_id(mp);
+    ijkmp_dec_ref_p(&mp);
     return audio_session_id;
 }
 
@@ -413,6 +451,7 @@ void IJKPlayerNapiProxy::IjkMediaPlayer_setLoopCount(int loop_count) {
         return;
     }
     ijkmp_set_loop(mp, loop_count);
+    ijkmp_dec_ref_p(&mp);
 }
 
 int IJKPlayerNapiProxy::IjkMediaPlayer_getLoopCount() {
@@ -423,6 +462,7 @@ int IJKPlayerNapiProxy::IjkMediaPlayer_getLoopCount() {
         return loopCount;
     }
     loopCount = ijkmp_get_loop(mp);
+    ijkmp_dec_ref_p(&mp);
     return loopCount;
 }
 
@@ -434,6 +474,7 @@ char *IJKPlayerNapiProxy::IjkMediaPlayer_getVideoCodecInfo() {
         return codec_info;
     }
     ijkmp_get_video_codec_info(mp, &codec_info);
+    ijkmp_dec_ref_p(&mp);
     return codec_info;
 }
 
@@ -446,6 +487,7 @@ char *IJKPlayerNapiProxy::IjkMediaPlayer_getAudioCodecInfo() {
         return codec_info;
     }
     ijkmp_get_audio_codec_info(mp, &codec_info);
+    ijkmp_dec_ref_p(&mp);
     return codec_info;
 }
 
@@ -459,8 +501,8 @@ void IJKPlayerNapiProxy::ijkMediaPlayer_setStreamSelected(int stream, bool selec
     ret = ijkmp_set_stream_selected(mp, stream, selected);
     if (ret < 0) {
         LOGI("failed to %s %d", selected ? "select" : "deselect", stream);
-        ijkmp_dec_ref_p(&mp);
     }
+    ijkmp_dec_ref_p(&mp);
 }
 
 const char *getFromMediaMetaByKey(IjkMediaMeta *meta, char *key) {
@@ -515,6 +557,7 @@ HashMap IJKPlayerNapiProxy::IjkMediaPlayer_getMediaMeta() {
     IjkMediaMeta *meta = ijkmp_get_meta_l(mp);
     if (!meta) {
         LOGE("napi_proxy-->IjkMediaPlayer_getMediaMeta meta NULL");
+        ijkmp_dec_ref_p(&mp);
         return map;
     }
     size_t count = ijkmeta_get_children_count_l(meta);
@@ -530,6 +573,7 @@ HashMap IJKPlayerNapiProxy::IjkMediaPlayer_getMediaMeta() {
             }
         }
     }
+    ijkmp_dec_ref_p(&mp);
     return map;
 }
 
