@@ -114,15 +114,11 @@ static void AudioCalcFramesWrittenNeedTime(OH_AudioRenderer *renderer, SDL_Aout_
     int64_t audioPlayedTime = framePosition * US_TO_S / opaque->formatPcm.samplesRate;
 
     int64_t nowAudioPlayedTime = audioPlayedTime + deltaUs;
-    LOGD("AudioRendererOnWriteData nowTime:%ld, framePosition:%ld, timestamp:%ld, deltaUs:%ld, audioPlayedTime:%ld,"
-         " nowAudioPlayedTime:%ld", nowTime, framePosition, timestamp, deltaUs, audioPlayedTime, nowAudioPlayedTime);
 
     int64_t writtenTime = opaque->writtenLen * US_TO_S / (opaque->formatPcm.samplesRate * opaque->bytes_per_frame);
 
     opaque->framesWrittenNeedTime = writtenTime - nowAudioPlayedTime;
     opaque->lastCalcTime = nowTime;
-    LOGD("AudioRendererOnWriteData writtenLen:%ld, framesWrittenTime:%ld, framesWrittenNeedTime:%ld",
-         opaque->writtenLen, writtenTime, opaque->framesWrittenNeedTime);
 }
 
 static int32_t AudioRendererOnWriteData(OH_AudioRenderer *renderer, void *userData, void *buffer, int32_t bufferLen)
