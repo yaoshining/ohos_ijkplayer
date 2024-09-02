@@ -13,10 +13,13 @@
  * limitations under the License.
  */
 
+import hilog from '@ohos.hilog';
+
 export class LogUtils {
   private  mLogOpen: boolean= false;
-  private TAG: string= "ijkplayer:js";
+  public static readonly TAG: string= "ijkplayer:js";
   private static instance: LogUtils;
+  public static readonly DOMAIN: number = 0xD002220;
   private constructor() {
   };
 
@@ -31,9 +34,19 @@ export class LogUtils {
     this.mLogOpen = logOpen;
   }
 
-  LOGI(info: string) {
-    if (this.mLogOpen) {
-      console.info(this.TAG + "-->"+ info);
-    }
+  LOGI(message: string, ...args: Object[]) {
+    hilog.info(LogUtils.DOMAIN, LogUtils.TAG, message, args)
+  }
+  debug(message: string, ...args: Object[]) {
+    hilog.debug(LogUtils.DOMAIN, LogUtils.TAG, message, args)
+  }
+  info(message: string, ...args: Object[]) {
+    hilog.info(LogUtils.DOMAIN, LogUtils.TAG, message, args)
+  }
+  warn(message: string, ...args: Object[]) {
+    hilog.warn(LogUtils.DOMAIN, LogUtils.TAG, message, args)
+  }
+  error(message: string, ...args: Object[]) {
+    hilog.error(LogUtils.DOMAIN, LogUtils.TAG, message, args)
   }
 }
