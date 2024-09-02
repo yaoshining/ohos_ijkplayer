@@ -242,7 +242,10 @@ ohpm install @ohos/ijkplayer
 
 ### 开启硬解码
 ```
-   ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec_all_videos", "1");
+   // 开启h264与h265硬解码
+   ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-all-videos", "1");
+   // 开启h265硬解码
+   ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-hevc", "1");
 ```
 
 ## 接口说明

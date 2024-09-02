@@ -25,15 +25,6 @@ import { LogUtils } from '@ohos/ijkplayer';
 import { PlayStatus } from '../common/PlayStatus';
 import prompt from '@ohos.promptAction';
 
-let CONTROL_PlayStatus = PlayStatus.INIT;
-let PROGRESS_MAX_VALUE: number = 100;
-let mIjkMediaPlayer = IjkMediaPlayer.getInstance();
-let updateProgressTimer: number = 0;
-let videoUrls: string[] = ["http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8",
-  "http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8"
-];
-let curIndex: number = 0;
-
 @Entry
 @Component
 struct SampleAudioListPage {
@@ -52,10 +43,18 @@ struct SampleAudioListPage {
   @State isSeekTo: boolean = false;
   @State isCurrentTime: boolean = false;
   private videoUrl: string = '';
+  private  CONTROL_PlayStatus = PlayStatus.INIT;
+  @State PROGRESS_MAX_VALUE: number = 100;
+  private mIjkMediaPlayer = IjkMediaPlayer.getInstance();
+  @State updateProgressTimer: number = 0;
+  @State videoUrls: string[] = ["http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8",
+  "http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8"
+];
+  @State curIndex: number = 0;
 
   aboutToAppear() {
     LogUtils.getInstance().LOGI("aboutToAppear");
-    this.videoUrl = videoUrls[0]
+    this.videoUrl = this.videoUrls[0]
     this.initDelayPlay();
     let event: Callback<InterruptEvent> = (event) => {
       LogUtils.getInstance().LOGI(`event: ${JSON.stringify(event)}`);
@@ -67,17 +66,17 @@ struct SampleAudioListPage {
         this.stop();
       }
     }
-    mIjkMediaPlayer.on('audioInterrupt', event);
+    this.mIjkMediaPlayer.on('audioInterrupt', event);
   }
 
   aboutToDisappear() {
     LogUtils.getInstance().LOGI("aboutToDisappear");
     this.mDestroyPage = true;
-    mIjkMediaPlayer.setScreenOnWhilePlaying(false);
-    if (CONTROL_PlayStatus != PlayStatus.INIT) {
+    this.mIjkMediaPlayer.setScreenOnWhilePlaying(false);
+    if (this.CONTROL_PlayStatus != PlayStatus.INIT) {
       this.stop();
     }
-    mIjkMediaPlayer.off('audioInterrupt');
+    this.mIjkMediaPlayer.off('audioInterrupt');
   }
 
   onPageShow() {
@@ -107,7 +106,7 @@ struct SampleAudioListPage {
         Slider({
           value: this.progressValue,
           min: 0,
-          max: PROGRESS_MAX_VALUE,
+          max: this.PROGRESS_MAX_VALUE,
           step: 1,
           style: SliderStyle.OutSet
         })
@@ -124,7 +123,7 @@ struct SampleAudioListPage {
               this.mDestroyPage = false;
               this.showLoadIng();
               LogUtils.getInstance().LOGI("slider-->seekValue start:" + value);
-              let seekValue = value * (mIjkMediaPlayer.getDuration() / 100);
+              let seekValue = value * (this.mIjkMediaPlayer.getDuration() / 100);
               this.seekTo(seekValue + "");
               this.setProgress()
               LogUtils.getInstance().LOGI("slider-->seekValue end:" + seekValue);
@@ -208,7 +207,7 @@ struct SampleAudioListPage {
           .onChange((value: number, mode: SliderChangeMode) => {
             if (mode == SliderChangeMode.End) {
               this.volume = value;
-              mIjkMediaPlayer.setVolume(this.volume.toString(), this.volume.toString());
+              this.mIjkMediaPlayer.setVolume(this.volume.toString(), this.volume.toString());
             }
           })
       }
@@ -225,14 +224,14 @@ struct SampleAudioListPage {
 
   private startPlayOrResumePlay() {
     this.mDestroyPage = false;
-    LogUtils.getInstance().LOGI("startPlayOrResumePlay start CONTROL_PlayStatus:" + CONTROL_PlayStatus)
-    if (CONTROL_PlayStatus == PlayStatus.INIT) {
+    LogUtils.getInstance().LOGI("startPlayOrResumePlay start this.CONTROL_PlayStatus:" + this.CONTROL_PlayStatus)
+    if (this.CONTROL_PlayStatus == PlayStatus.INIT) {
       this.stopProgressTask();
       this.startProgressTask();
       this.play(this.videoUrl.toString());
     }
-    if (CONTROL_PlayStatus == PlayStatus.PAUSE) {
-      mIjkMediaPlayer.start();
+    if (this.CONTROL_PlayStatus == PlayStatus.PAUSE) {
+      this.mIjkMediaPlayer.start();
       this.setProgress()
     }
   }
@@ -270,15 +269,15 @@ struct SampleAudioListPage {
   }
 
   private setProgress() {
-    let position = mIjkMediaPlayer.getCurrentPosition();
-    let duration = mIjkMediaPlayer.getDuration();
+    let position = this.mIjkMediaPlayer.getCurrentPosition();
+    let duration = this.mIjkMediaPlayer.getDuration();
     let pos = 0;
     if (duration > 0) {
       this.slideEnable = true;
       let curPercent = position / duration;
       pos = curPercent * 100;
-      if (pos > PROGRESS_MAX_VALUE) {
-	    this.progressValue = PROGRESS_MAX_VALUE
+      if (pos > this.PROGRESS_MAX_VALUE) {
+	    this.progressValue = this.PROGRESS_MAX_VALUE
 	  } else {
 	    this.progressValue = pos;
 	  }
@@ -296,7 +295,7 @@ struct SampleAudioListPage {
 
   private startProgressTask() {
     let that = this;
-    updateProgressTimer = setInterval(() => {
+    this.updateProgressTimer = setInterval(() => {
       LogUtils.getInstance().LOGI("startProgressTask");
       if (!that.mDestroyPage) {
         that.setProgress();
@@ -306,7 +305,7 @@ struct SampleAudioListPage {
 
   private stopProgressTask() {
     LogUtils.getInstance().LOGI("stopProgressTask");
-    clearInterval(updateProgressTimer);
+    clearInterval(this.updateProgressTimer);
   }
 
   private showLoadIng() {
@@ -328,94 +327,94 @@ struct SampleAudioListPage {
     let that = this;
     that.showLoadIng();
 
-    mIjkMediaPlayer.setAudioId('audioIjkId');
-    if (CONTROL_PlayStatus == PlayStatus.INIT) {
-      mIjkMediaPlayer.reset();
+    this.mIjkMediaPlayer.setAudioId('audioIjkId');
+    if (this.CONTROL_PlayStatus == PlayStatus.INIT) {
+      this.mIjkMediaPlayer.reset();
     }
-    CONTROL_PlayStatus = PlayStatus.PLAY;
+    this.CONTROL_PlayStatus = PlayStatus.PLAY;
     //设置debug模式
-    mIjkMediaPlayer.setDebug(true);
+    this.mIjkMediaPlayer.setDebug(true);
     //初始化配置
-    mIjkMediaPlayer.native_setup();
+    this.mIjkMediaPlayer.native_setup();
     // 初始化配置后需要重新设置音频流音量，否则音量为默认值1.0
-    mIjkMediaPlayer.setVolume(this.volume.toString(), this.volume.toString());
+    this.mIjkMediaPlayer.setVolume(this.volume.toString(), this.volume.toString());
     //设置视频源
-    mIjkMediaPlayer.setDataSource(url);
+    this.mIjkMediaPlayer.setDataSource(url);
     //设置视频源http请求头
     let headers = new Map([
       ["user_agent", "Mozilla/5.0 BiliDroid/7.30.0 (bbcallen@gmail.com)"],
       ["referer", "https://www.bilibili.com"]
     ]);
-    mIjkMediaPlayer.setDataSourceHeader(headers);
+    this.mIjkMediaPlayer.setDataSourceHeader(headers);
     //使用精确寻帧 例如，拖动播放后，会寻找最近的关键帧进行播放，很有可能关键帧的位置不是拖动后的位置，而是较前的位置.可以设置这个参数来解决问题
-    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "enable-accurate-seek", "1");
+    this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "enable-accurate-seek", "1");
     //预读数据的缓冲区大小
-    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "max-buffer-size", "102400");
+    this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "max-buffer-size", "102400");
     //停止预读的最小帧数
-    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "min-frames", "100");
+    this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "min-frames", "100");
     //启动预加载
-    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "start-on-prepared", "1");
+    this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "start-on-prepared", "1");
     // 设置无缓冲，这是播放器的缓冲区，有数据就播放
-    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "packet-buffering", "0");
+    this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "packet-buffering", "0");
     //跳帧处理,放CPU处理较慢时，进行跳帧处理，保证播放流程，画面和声音同步
-    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "framedrop", "5");
+    this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "framedrop", "5");
     // 最大缓冲cache是3s， 有时候网络波动，会突然在短时间内收到好几秒的数据
     // 因此需要播放器丢包，才不会累积延时
     // 这个和第三个参数packet-buffering无关。
-    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "max_cached_duration", "3000");
+    this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "max_cached_duration", "3000");
     // 无限制收流
-    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "infbuf", "1");
-    mIjkMediaPlayer.setOptionLong(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "infbuf", "1")
+    this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "infbuf", "1");
+    this.mIjkMediaPlayer.setOptionLong(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "infbuf", "1")
     // 屏幕常亮
-    mIjkMediaPlayer.setScreenOnWhilePlaying(true);
+    this.mIjkMediaPlayer.setScreenOnWhilePlaying(true);
     // 设置超时
-    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "timeout", "10000000");
-    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "connect_timeout", "10000000");
-    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "addrinfo_timeout", "10000000");
-    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "dns_cache_timeout", "10000000");
+    this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "timeout", "10000000");
+    this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "connect_timeout", "10000000");
+    this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "addrinfo_timeout", "10000000");
+    this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "dns_cache_timeout", "10000000");
     // 变速播放
-    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "soundtouch", "1");
-    mIjkMediaPlayer.setSpeed(this.playSpeed);
-    let Speed = mIjkMediaPlayer.getSpeed()
+    this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "soundtouch", "1");
+    this.mIjkMediaPlayer.setSpeed(this.playSpeed);
+    let Speed = this.mIjkMediaPlayer.getSpeed()
     LogUtils.getInstance().LOGI('getSpeed--' + Speed)
     //是否开启循环播放
-    mIjkMediaPlayer.setLoopCount(true);
+    this.mIjkMediaPlayer.setLoopCount(true);
     let mOnPreparedListener: OnPreparedListener = {
       onPrepared: () => {
         LogUtils.getInstance().LOGI("setOnPreparedListener-->go");
       }
     }
-    mIjkMediaPlayer.setOnPreparedListener(mOnPreparedListener);
+    this.mIjkMediaPlayer.setOnPreparedListener(mOnPreparedListener);
 
     let mOnTimedTextListener: OnTimedTextListener = {
       onTimedText: () => {
       }
     }
-    mIjkMediaPlayer.setOnTimedTextListener(mOnTimedTextListener)
+    this.mIjkMediaPlayer.setOnTimedTextListener(mOnTimedTextListener)
 
     let mOnCompletionListener: OnCompletionListener = {
       onCompletion: () => {
         LogUtils.getInstance().LOGI("OnCompletionListener-->go")
         that.showRePlay();
-        that.currentTime = that.stringForTime(mIjkMediaPlayer.getDuration());
-        that.progressValue = PROGRESS_MAX_VALUE;
+        that.currentTime = that.stringForTime(this.mIjkMediaPlayer.getDuration());
+        that.progressValue = this.PROGRESS_MAX_VALUE;
         that.slideEnable = false;
         that.stop();
       }
     }
-    mIjkMediaPlayer.setOnCompletionListener(mOnCompletionListener);
+    this.mIjkMediaPlayer.setOnCompletionListener(mOnCompletionListener);
 
     let mOnBufferingUpdateListener: OnBufferingUpdateListener = {
       onBufferingUpdate: (percent: number) => {
         LogUtils.getInstance().LOGI("OnBufferingUpdateListener-->go:" + percent);
-        let MediaInfo = mIjkMediaPlayer.getMediaInfo()
+        let MediaInfo = this.mIjkMediaPlayer.getMediaInfo()
         LogUtils.getInstance().LOGI('getMediaInfo---' + MediaInfo);
 
-        let Looping = mIjkMediaPlayer.isLooping()
+        let Looping = this.mIjkMediaPlayer.isLooping()
         LogUtils.getInstance().LOGI('isLooping---' + Looping);
       }
     }
-    mIjkMediaPlayer.setOnBufferingUpdateListener(mOnBufferingUpdateListener);
+    this.mIjkMediaPlayer.setOnBufferingUpdateListener(mOnBufferingUpdateListener);
 
     let mOnSeekCompleteListener: OnSeekCompleteListener = {
       onSeekComplete: () => {
@@ -423,7 +422,7 @@ struct SampleAudioListPage {
         that.startPlayOrResumePlay();
       }
     }
-    mIjkMediaPlayer.setOnSeekCompleteListener(mOnSeekCompleteListener);
+    this.mIjkMediaPlayer.setOnSeekCompleteListener(mOnSeekCompleteListener);
 
     let mOnInfoListener: OnInfoListener = {
       onInfo: (what: number, extra: number) => {
@@ -431,7 +430,7 @@ struct SampleAudioListPage {
         that.hideLoadIng();
       }
     }
-    mIjkMediaPlayer.setOnInfoListener(mOnInfoListener);
+    this.mIjkMediaPlayer.setOnInfoListener(mOnInfoListener);
 
 
     let mOnErrorListener: OnErrorListener = {
@@ -446,46 +445,46 @@ struct SampleAudioListPage {
     }
 
 
-    mIjkMediaPlayer.setOnErrorListener(mOnErrorListener);
+    this.mIjkMediaPlayer.setOnErrorListener(mOnErrorListener);
 
-    mIjkMediaPlayer.setMessageListener();
+    this.mIjkMediaPlayer.setMessageListener();
 
-    mIjkMediaPlayer.prepareAsync();
+    this.mIjkMediaPlayer.prepareAsync();
 
-    mIjkMediaPlayer.start();
+    this.mIjkMediaPlayer.start();
   }
 
   private pause() {
-    if (mIjkMediaPlayer.isPlaying()) {
-      mIjkMediaPlayer.pause();
+    if (this.mIjkMediaPlayer.isPlaying()) {
+      this.mIjkMediaPlayer.pause();
       this.setProgress();
       this.mDestroyPage = true;
-      CONTROL_PlayStatus = PlayStatus.PAUSE;
+      this.CONTROL_PlayStatus = PlayStatus.PAUSE;
     }
   }
 
   private stop() {
 
-    CONTROL_PlayStatus = PlayStatus.INIT;
-    mIjkMediaPlayer.stop();
-    mIjkMediaPlayer.release();
+    this.CONTROL_PlayStatus = PlayStatus.INIT;
+    this.mIjkMediaPlayer.stop();
+    this.mIjkMediaPlayer.release();
     this.stopProgressTask();
   }
 
   private seekTo(value: string) {
-    mIjkMediaPlayer.seekTo(value);
+    this.mIjkMediaPlayer.seekTo(value);
 
   }
 
   private playNext() {
-    if (curIndex == videoUrls.length - 1) {
-      curIndex = 0;
+    if (this.curIndex == this.videoUrls.length - 1) {
+      this.curIndex = 0;
     } else {
-      curIndex++;
+      this.curIndex++;
     }
-    CONTROL_PlayStatus = PlayStatus.INIT;
+    this.CONTROL_PlayStatus = PlayStatus.INIT;
     this.stop();
-    this.videoUrl = videoUrls[curIndex];
+    this.videoUrl = this.videoUrls[this.curIndex];
     this.startPlayOrResumePlay()
   }
 }

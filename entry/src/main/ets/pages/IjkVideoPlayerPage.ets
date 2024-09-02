@@ -28,17 +28,6 @@ import prompt from '@ohos.promptAction';
 import { PlayStatus } from '../common/PlayStatus';
 import { RouterParam } from './RouterParam';
 
-let CONTROL_PlayStatus = PlayStatus.INIT;
-let PROGRESS_MAX_VALUE: number = 100;
-let mIjkMediaPlayer = IjkMediaPlayer.getInstance();
-let updateProgressTimer: number = 0;
-let videoUrls: string[] =
-  ["https://1251542705.vod2.myqcloud.com/4a8d9c67vodtransgzp1251542705/203109c63270835013529449619/v.f1419907.mp4",
-    "https://getsamplefiles.com/download/mp4/sample-5.mp4",
-  ];
-let curIndex: number = 0;
-const initAspectRatio = 1;
-
 @Entry
 @Component
 struct IjkVideoPlayerPage {
@@ -58,10 +47,20 @@ struct IjkVideoPlayerPage {
   @State isSeekTo: boolean = false;
   @State isCurrentTime: boolean = false;
   @State videoWidth: string = '100%';
-  @State videoAspectRatio: number = initAspectRatio;
+  @State initAspectRatio: number = 1;
+  @State videoAspectRatio: number = this.initAspectRatio;
   private videoUrl: string = '';
   private last: number = 0;
-  @State videoParentAspectRatio: number = initAspectRatio;
+  @State videoParentAspectRatio: number = this.initAspectRatio;
+  private mIjkMediaPlayer = IjkMediaPlayer.getInstance();
+  private CONTROL_PlayStatus = PlayStatus.INIT;
+  @State PROGRESS_MAX_VALUE: number = 100;
+  @State updateProgressTimer: number = 0;
+  @State curIndex: number = 0;
+  private videoUrls: string[] =
+  ["https://1251542705.vod2.myqcloud.com/4a8d9c67vodtransgzp1251542705/203109c63270835013529449619/v.f1419907.mp4",
+    "https://getsamplefiles.com/download/mp4/sample-5.mp4",
+  ];
 
   aboutToAppear() {
     LogUtils.getInstance().LOGI("aboutToAppear");
@@ -76,17 +75,17 @@ struct IjkVideoPlayerPage {
         this.stop();
       }
     }
-    mIjkMediaPlayer.on('audioInterrupt', event);
+    this.mIjkMediaPlayer.on('audioInterrupt', event);
   }
 
   aboutToDisappear() {
     LogUtils.getInstance().LOGI("aboutToDisappear");
     this.mDestroyPage = true;
-    mIjkMediaPlayer.setScreenOnWhilePlaying(false);
-    if (CONTROL_PlayStatus != PlayStatus.INIT) {
+    this.mIjkMediaPlayer.setScreenOnWhilePlaying(false);
+    if (this.CONTROL_PlayStatus != PlayStatus.INIT) {
       this.stop();
     }
-    mIjkMediaPlayer.off('audioInterrupt');
+    this.mIjkMediaPlayer.off('audioInterrupt');
   }
 
   onPageShow() {
@@ -155,7 +154,7 @@ struct IjkVideoPlayerPage {
         Slider({
           value: this.progressValue,
           min: 0,
-          max: PROGRESS_MAX_VALUE,
+          max: this.PROGRESS_MAX_VALUE,
           step: 1,
           style: SliderStyle.OutSet
         })
@@ -172,7 +171,7 @@ struct IjkVideoPlayerPage {
               this.mDestroyPage = false;
               this.showLoadIng();
               LogUtils.getInstance().LOGI("slider-->seekValue start:" + value);
-              let seekValue = value * (mIjkMediaPlayer.getDuration() / 100);
+              let seekValue = value * (this.mIjkMediaPlayer.getDuration() / 100);
               this.seekTo(seekValue + "");
               this.setProgress()
               LogUtils.getInstance().LOGI("slider-->seekValue end:" + seekValue);
@@ -213,7 +212,7 @@ struct IjkVideoPlayerPage {
               return;
             }
             this.playSpeed = '1f'
-            mIjkMediaPlayer.setSpeed("1f");
+            this.mIjkMediaPlayer.setSpeed("1f");
           })
           .width('400px')
           .height('80px')
@@ -225,7 +224,7 @@ struct IjkVideoPlayerPage {
               return;
             }
             this.playSpeed = '1.5f'
-            mIjkMediaPlayer.setSpeed("1.5f");
+            this.mIjkMediaPlayer.setSpeed("1.5f");
           })
           .width('400px')
           .height('80px')
@@ -234,7 +233,7 @@ struct IjkVideoPlayerPage {
         Button('2 倍速')
           .onClick(() => {
             this.playSpeed = '2f'
-            mIjkMediaPlayer.setSpeed("2f");
+            this.mIjkMediaPlayer.setSpeed("2f");
           })
           .width('400px')
           .height('80px')
@@ -258,7 +257,7 @@ struct IjkVideoPlayerPage {
           .onChange((value: number, mode: SliderChangeMode) => {
             if (mode == SliderChangeMode.End) {
               this.volume = value;
-              mIjkMediaPlayer.setVolume(this.volume.toString(), this.volume.toString());
+              this.mIjkMediaPlayer.setVolume(this.volume.toString(), this.volume.toString());
             }
           })
       }
@@ -276,14 +275,14 @@ struct IjkVideoPlayerPage {
 
   private startPlayOrResumePlay() {
     this.mDestroyPage = false;
-    LogUtils.getInstance().LOGI("startPlayOrResumePlay start CONTROL_PlayStatus:" + CONTROL_PlayStatus)
-    if (CONTROL_PlayStatus == PlayStatus.INIT) {
+    LogUtils.getInstance().LOGI("startPlayOrResumePlay start this.CONTROL_PlayStatus:" + this.CONTROL_PlayStatus)
+    if (this.CONTROL_PlayStatus == PlayStatus.INIT) {
       this.stopProgressTask();
       this.startProgressTask();
       this.play(this.videoUrl.toString());
     }
-    if (CONTROL_PlayStatus == PlayStatus.PAUSE) {
-      mIjkMediaPlayer.start();
+    if (this.CONTROL_PlayStatus == PlayStatus.PAUSE) {
+      this.mIjkMediaPlayer.start();
       this.setProgress()
     }
   }
@@ -321,15 +320,15 @@ struct IjkVideoPlayerPage {
   }
 
   private setProgress() {
-    let position = mIjkMediaPlayer.getCurrentPosition();
-    let duration = mIjkMediaPlayer.getDuration();
+    let position = this.mIjkMediaPlayer.getCurrentPosition();
+    let duration = this.mIjkMediaPlayer.getDuration();
     let pos = 0;
     if (duration > 0) {
       this.slideEnable = true;
       let curPercent = position / duration;
       pos = curPercent * 100;
-	  if (pos > PROGRESS_MAX_VALUE) {
-	    this.progressValue = PROGRESS_MAX_VALUE
+	  if (pos > this.PROGRESS_MAX_VALUE) {
+	    this.progressValue = this.PROGRESS_MAX_VALUE
 	  } else {
 	    this.progressValue = pos;
 	  }
@@ -347,7 +346,7 @@ struct IjkVideoPlayerPage {
 
   private startProgressTask() {
     let that = this;
-    updateProgressTimer = setInterval(() => {
+    this.updateProgressTimer = setInterval(() => {
       LogUtils.getInstance().LOGI("startProgressTask");
       if (!that.mDestroyPage) {
         that.setProgress();
@@ -357,7 +356,7 @@ struct IjkVideoPlayerPage {
 
   private stopProgressTask() {
     LogUtils.getInstance().LOGI("stopProgressTask");
-    clearInterval(updateProgressTimer);
+    clearInterval(this.updateProgressTimer);
   }
 
   private showLoadIng() {
@@ -380,59 +379,59 @@ struct IjkVideoPlayerPage {
     that.showLoadIng();
     //设置XComponent回调的context
     if (!!this.mContext) {
-      mIjkMediaPlayer.setContext(this.mContext, 'xcomponentId');
+      this.mIjkMediaPlayer.setContext(this.mContext, 'xcomponentId');
     }
-    if (CONTROL_PlayStatus == PlayStatus.INIT) {
-      mIjkMediaPlayer.reset();
+    if (this.CONTROL_PlayStatus == PlayStatus.INIT) {
+      this.mIjkMediaPlayer.reset();
     }
-    CONTROL_PlayStatus = PlayStatus.PLAY;
+    this.CONTROL_PlayStatus = PlayStatus.PLAY;
     //设置debug模式
-    mIjkMediaPlayer.setDebug(true);
+    this.mIjkMediaPlayer.setDebug(true);
     //初始化配置
-    mIjkMediaPlayer.native_setup();
+    this.mIjkMediaPlayer.native_setup();
     // 初始化配置后需要重新设置音频流音量，否则音量为默认值1.0
-    mIjkMediaPlayer.setVolume(this.volume.toString(), this.volume.toString());
+    this.mIjkMediaPlayer.setVolume(this.volume.toString(), this.volume.toString());
     //设置视频源
-    mIjkMediaPlayer.setDataSource(url);
+    this.mIjkMediaPlayer.setDataSource(url);
     //设置视频源http请求头
     let headers = new Map([
       ["user_agent", "Mozilla/5.0 BiliDroid/7.30.0 (bbcallen@gmail.com)"],
       ["referer", "https://www.bilibili.com"]
     ]);
-    mIjkMediaPlayer.setDataSourceHeader(headers);
+    this.mIjkMediaPlayer.setDataSourceHeader(headers);
     //使用精确寻帧 例如，拖动播放后，会寻找最近的关键帧进行播放，很有可能关键帧的位置不是拖动后的位置，而是较前的位置.可以设置这个参数来解决问题
-    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "enable-accurate-seek", "1");
+    this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "enable-accurate-seek", "1");
     //预读数据的缓冲区大小
-    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "max-buffer-size", "102400");
+    this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "max-buffer-size", "102400");
     //停止预读的最小帧数
-    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "min-frames", "100");
+    this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "min-frames", "100");
     //启动预加载
-    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "start-on-prepared", "1");
+    this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "start-on-prepared", "1");
     // 设置无缓冲，这是播放器的缓冲区，有数据就播放
-    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "packet-buffering", "0");
+    this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "packet-buffering", "0");
     //跳帧处理,放CPU处理较慢时，进行跳帧处理，保证播放流程，画面和声音同步
-    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "framedrop", "5");
+    this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "framedrop", "5");
     // 最大缓冲cache是3s， 有时候网络波动，会突然在短时间内收到好几秒的数据
     // 因此需要播放器丢包，才不会累积延时
     // 这个和第三个参数packet-buffering无关。
-    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "max_cached_duration", "3000");
+    this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "max_cached_duration", "3000");
     // 无限制收流
-    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "infbuf", "1");
-    mIjkMediaPlayer.setOptionLong(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "infbuf", "1")
+    this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "infbuf", "1");
+    this.mIjkMediaPlayer.setOptionLong(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "infbuf", "1")
     // 屏幕常亮
-    mIjkMediaPlayer.setScreenOnWhilePlaying(true);
+    this.mIjkMediaPlayer.setScreenOnWhilePlaying(true);
     // 设置超时
-    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "timeout", "10000000");
-    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "connect_timeout", "10000000");
-    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "addrinfo_timeout", "10000000");
-    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "dns_cache_timeout", "10000000");
+    this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "timeout", "10000000");
+    this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "connect_timeout", "10000000");
+    this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "addrinfo_timeout", "10000000");
+    this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "dns_cache_timeout", "10000000");
     // 变速播放
-    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "soundtouch", "1");
-    mIjkMediaPlayer.setSpeed(this.playSpeed);
-    let Speed = mIjkMediaPlayer.getSpeed()
+    this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "soundtouch", "1");
+    this.mIjkMediaPlayer.setSpeed(this.playSpeed);
+    let Speed = this.mIjkMediaPlayer.getSpeed()
     LogUtils.getInstance().LOGI('getSpeed--' + Speed)
     //是否开启循环播放
-    mIjkMediaPlayer.setLoopCount(true);
+    this.mIjkMediaPlayer.setLoopCount(true);
     let mOnVideoSizeChangedListener: OnVideoSizeChangedListener = {
       onVideoSizeChanged: (width: number, height: number, sar_num: number, sar_den: number) => {
         if (height === 0) {
@@ -454,57 +453,57 @@ struct IjkVideoPlayerPage {
         that.hideLoadIng();
       }
     }
-    mIjkMediaPlayer.setOnVideoSizeChangedListener(mOnVideoSizeChangedListener);
+    this.mIjkMediaPlayer.setOnVideoSizeChangedListener(mOnVideoSizeChangedListener);
     let mOnPreparedListener: OnPreparedListener = {
       onPrepared: () => {
         LogUtils.getInstance().LOGI("setOnPreparedListener-->go");
       }
     }
-    mIjkMediaPlayer.setOnPreparedListener(mOnPreparedListener);
+    this.mIjkMediaPlayer.setOnPreparedListener(mOnPreparedListener);
 
     let mOnTimedTextListener: OnTimedTextListener = {
       onTimedText: () => {
       }
     }
-    mIjkMediaPlayer.setOnTimedTextListener(mOnTimedTextListener)
+    this.mIjkMediaPlayer.setOnTimedTextListener(mOnTimedTextListener)
 
     let mOnCompletionListener: OnCompletionListener = {
       onCompletion: () => {
         LogUtils.getInstance().LOGI("OnCompletionListener-->go")
         that.showRePlay();
-        that.currentTime = that.stringForTime(mIjkMediaPlayer.getDuration());
-        that.progressValue = PROGRESS_MAX_VALUE;
+        that.currentTime = that.stringForTime(this.mIjkMediaPlayer.getDuration());
+        that.progressValue = this.PROGRESS_MAX_VALUE;
         that.slideEnable = false;
         that.stop();
       }
     }
-    mIjkMediaPlayer.setOnCompletionListener(mOnCompletionListener);
+    this.mIjkMediaPlayer.setOnCompletionListener(mOnCompletionListener);
 
     let mOnBufferingUpdateListener: OnBufferingUpdateListener = {
       onBufferingUpdate: (percent: number) => {
         LogUtils.getInstance().LOGI("OnBufferingUpdateListener-->go:" + percent);
-        let MediaInfo = mIjkMediaPlayer.getMediaInfo()
+        let MediaInfo = this.mIjkMediaPlayer.getMediaInfo()
         LogUtils.getInstance().LOGI('getMediaInfo---' + MediaInfo);
-        let VideoWidth = mIjkMediaPlayer.getVideoWidth()
+        let VideoWidth = this.mIjkMediaPlayer.getVideoWidth()
         LogUtils.getInstance().LOGI('getVideoWidth---' + VideoWidth);
 
-        let VideoHeight = mIjkMediaPlayer.getVideoHeight()
+        let VideoHeight = this.mIjkMediaPlayer.getVideoHeight()
         LogUtils.getInstance().LOGI('getVideoHeight---' + VideoHeight);
 
-        let VideoSarNum = mIjkMediaPlayer.getVideoSarNum()
+        let VideoSarNum = this.mIjkMediaPlayer.getVideoSarNum()
         LogUtils.getInstance().LOGI('getVideoSarNum---' + VideoSarNum);
 
-        let VideoSarDen = mIjkMediaPlayer.getVideoSarDen()
+        let VideoSarDen = this.mIjkMediaPlayer.getVideoSarDen()
         LogUtils.getInstance().LOGI('getVideoSarDen---' + VideoSarDen);
 
-        let AudioSessionId = mIjkMediaPlayer.getAudioSessionId()
+        let AudioSessionId = this.mIjkMediaPlayer.getAudioSessionId()
         LogUtils.getInstance().LOGI('getAudioSessionId---' + AudioSessionId);
 
-        let Looping = mIjkMediaPlayer.isLooping()
+        let Looping = this.mIjkMediaPlayer.isLooping()
         LogUtils.getInstance().LOGI('isLooping---' + Looping);
       }
     }
-    mIjkMediaPlayer.setOnBufferingUpdateListener(mOnBufferingUpdateListener);
+    this.mIjkMediaPlayer.setOnBufferingUpdateListener(mOnBufferingUpdateListener);
 
     let mOnSeekCompleteListener: OnSeekCompleteListener = {
       onSeekComplete: () => {
@@ -512,7 +511,7 @@ struct IjkVideoPlayerPage {
         that.startPlayOrResumePlay();
       }
     }
-    mIjkMediaPlayer.setOnSeekCompleteListener(mOnSeekCompleteListener);
+    this.mIjkMediaPlayer.setOnSeekCompleteListener(mOnSeekCompleteListener);
 
     let mOnInfoListener: OnInfoListener = {
       onInfo: (what: number, extra: number) => {
@@ -520,7 +519,7 @@ struct IjkVideoPlayerPage {
         that.hideLoadIng();
       }
     }
-    mIjkMediaPlayer.setOnInfoListener(mOnInfoListener);
+    this.mIjkMediaPlayer.setOnInfoListener(mOnInfoListener);
 
 
     let mOnErrorListener: OnErrorListener = {
@@ -535,43 +534,43 @@ struct IjkVideoPlayerPage {
     }
 
 
-    mIjkMediaPlayer.setOnErrorListener(mOnErrorListener);
+    this.mIjkMediaPlayer.setOnErrorListener(mOnErrorListener);
 
-    mIjkMediaPlayer.setMessageListener();
+    this.mIjkMediaPlayer.setMessageListener();
 
-    mIjkMediaPlayer.prepareAsync();
+    this.mIjkMediaPlayer.prepareAsync();
 
-    mIjkMediaPlayer.start();
+    this.mIjkMediaPlayer.start();
   }
 
   private getVideoSize() {
-    let VideoWidth = mIjkMediaPlayer.getVideoWidth();
+    let VideoWidth = this.mIjkMediaPlayer.getVideoWidth();
     LogUtils.getInstance().LOGI("getVideoWidth---" + VideoWidth);
 
-    let VideoHeight = mIjkMediaPlayer.getVideoHeight();
+    let VideoHeight = this.mIjkMediaPlayer.getVideoHeight();
     LogUtils.getInstance().LOGI("getVideoHeight---" + VideoHeight);
   }
 
 
   private pause() {
-    if (mIjkMediaPlayer.isPlaying()) {
-      mIjkMediaPlayer.pause();
+    if (this.mIjkMediaPlayer.isPlaying()) {
+      this.mIjkMediaPlayer.pause();
       this.setProgress();
       this.mDestroyPage = true;
-      CONTROL_PlayStatus = PlayStatus.PAUSE;
+      this.CONTROL_PlayStatus = PlayStatus.PAUSE;
     }
   }
 
   private stop() {
 
-    CONTROL_PlayStatus = PlayStatus.INIT;
-    mIjkMediaPlayer.stop();
-    mIjkMediaPlayer.release();
+    this.CONTROL_PlayStatus = PlayStatus.INIT;
+    this.mIjkMediaPlayer.stop();
+    this.mIjkMediaPlayer.release();
     this.stopProgressTask();
   }
 
   private seekTo(value: string) {
-    mIjkMediaPlayer.seekTo(value);
+    this.mIjkMediaPlayer.seekTo(value);
 
   }
 
@@ -579,14 +578,14 @@ struct IjkVideoPlayerPage {
     if (!this.debounce()) {
       return;
     }
-    if (curIndex == videoUrls.length - 1) {
-      curIndex = 0;
+    if (this.curIndex == this.videoUrls.length - 1) {
+      this.curIndex = 0;
     } else {
-      curIndex++;
+      this.curIndex++;
     }
-    CONTROL_PlayStatus = PlayStatus.INIT;
+    this.CONTROL_PlayStatus = PlayStatus.INIT;
     this.stop();
-    this.videoUrl = videoUrls[curIndex];
+    this.videoUrl = this.videoUrls[this.curIndex];
     this.startPlayOrResumePlay()
   }
 
