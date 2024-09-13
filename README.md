@@ -327,6 +327,7 @@ ohpm install @ohos/ijkplayer
 ## 约束与限制
 
 在下述版本验证通过：
+- DevEco Studio: NEXT Beta1-5.0.3.806, SDK: API12 Release (5.0.0.66)
 - DevEco Studio NEXT 5.0（5.0.3.427）--SDK:API12
 
  监听音频中断事件需保证设备系统版本在22以上。
