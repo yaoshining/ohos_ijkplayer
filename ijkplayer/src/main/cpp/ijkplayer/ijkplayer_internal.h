@@ -46,6 +46,7 @@ struct IjkMediaPlayer {
     int restart_from_beginning;
     int seek_req;
     long seek_msec;
+    char *id;
 };
 
 #endif

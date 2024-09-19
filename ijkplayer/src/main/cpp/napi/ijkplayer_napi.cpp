@@ -27,8 +27,6 @@ const int32_t PARAM_COUNT_4 = 4;
 
 OH_NativeXComponent_Callback IJKPlayerNapi::callback_;
 std::unordered_map<std::string, IJKPlayerNapi *> IJKPlayerNapi::ijkPlayerNapi_;
-napi_env envMessage_;
-napi_ref callBackRefMessage_;
 std::string xcomponentId_;
 bool destroyResource;
 bool IJKPlayerNapi::gIsVideo = true;
@@ -42,10 +40,12 @@ struct CallbackContext {
     char *obj;
 };
 
-void messageCallBack(int what, int arg1, int arg2, char *obj) {
+void messageCallBack(int what, int arg1, int arg2, char *obj, std::string id)
+{
     LOGI("napi-->messageCallBack");
     struct CallbackContext *context = new CallbackContext();
-    context->env = envMessage_;
+    IJKPlayerNapi *instance = IJKPlayerNapi::getInstance(id);
+    context->env = instance->envMessage_;
     uv_loop_s *loopMessage = nullptr;
     napi_get_uv_event_loop(context->env, &loopMessage);
     if (loopMessage == nullptr) {
@@ -61,7 +61,7 @@ void messageCallBack(int what, int arg1, int arg2, char *obj) {
     context->arg1 = arg1;
     context->arg2 = arg2;
     context->obj = obj;
-    context->callbackRef = callBackRefMessage_;
+    context->callbackRef = instance->callBackRefMessage_;
     work->data = (void *)context;
     uv_queue_work(
         loopMessage, work, [](uv_work_t *work) {},
@@ -94,17 +94,20 @@ void messageCallBack(int what, int arg1, int arg2, char *obj) {
         });
 }
 
-void post_event(void *weak_this, int what, int arg1, int arg2, char *obj) {
+void post_event(int what, int arg1, int arg2, char *obj, std::string id)
+{
     LOGI("napi-->post_event-->what:%d", what);
-    messageCallBack(what, arg1, arg2, obj);
+    messageCallBack(what, arg1, arg2, obj, id);
 }
 
-void setEnvMessage(const napi_env &env) {
-    envMessage_ = env;
+void setEnvMessage(const napi_env &env, std::string id)
+{
+    IJKPlayerNapi::getInstance(id)->envMessage_ = env;
 }
 
-void setCallBackRefMessage(const napi_ref &callbackRef) {
-    callBackRefMessage_ = callbackRef;
+void setCallBackRefMessage(const napi_ref &callbackRef, std::string id)
+{
+    IJKPlayerNapi::getInstance(id)->callBackRefMessage_ = callbackRef;
 }
 
 void setXComponentId(std::string &id) {
@@ -161,13 +164,13 @@ napi_value IJKPlayerNapi::setMessageListener(napi_env env, napi_callback_info in
     napi_value callback = args[1];
     napi_ref callBackRefMessage_;
     napi_create_reference(env, callback, 1, &callBackRefMessage_);
-    setCallBackRefMessage(callBackRefMessage_);
-    setEnvMessage(env);
     std::string xcomponentId;
     NapiUtil::JsValueToString(env, args[INDEX_0], STR_DEFAULT_SIZE, xcomponentId);
     if (xcomponentId == "") {
         xcomponentId = IJKPlayerNapi::getXComponentId(env, info);
     }
+    setCallBackRefMessage(callBackRefMessage_, xcomponentId);
+    setEnvMessage(env, xcomponentId);
     IJKPlayerNapi::getInstance(xcomponentId)->ijkPlayerNapiProxy_->message_loop_callback(post_event);
     return nullptr;
 }

@@ -56,6 +56,7 @@ inline static void ijkmp_destroy(IjkMediaPlayer *mp)
     pthread_mutex_destroy(&mp->mutex);
 
     freep((void**)&mp->data_source);
+    freep((void**)&mp->id);
     memset(mp, 0, sizeof(IjkMediaPlayer));
     freep((void**)&mp);
 }
@@ -123,7 +124,7 @@ IjkMediaPlayer *ijkmp_create(int (*msg_loop)(void*))
     IjkMediaPlayer *mp = (IjkMediaPlayer *) mallocz(sizeof(IjkMediaPlayer));
     if (!mp)
         goto fail;
-
+    mp->id = NULL;
     mp->ffplayer = ffp_create();
 
     if (!mp->ffplayer)
@@ -779,6 +780,19 @@ void *ijkmp_set_weak_thiz(IjkMediaPlayer *mp, void *weak_thiz)
     mp->weak_thiz = weak_thiz;
 
     return prev_weak_thiz;
+}
+
+char *ijkmp_get_id(IjkMediaPlayer *mp)
+{
+    return mp->id;
+}
+void ijkmp_set_id(IjkMediaPlayer *mp, char *id)
+{
+    if (!mp) {
+        return;
+    }
+    freep((void **)&mp->id);
+    mp->id = strdup(id);
 }
 
 /* need to call msg_free_res for freeing the resouce obtained in msg */

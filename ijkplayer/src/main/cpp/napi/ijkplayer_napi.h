@@ -84,6 +84,8 @@ class IJKPlayerNapi {
     uint64_t height_ = 0;
     OH_NativeXComponent_TouchEvent touchEvent_;
     static bool gIsVideo;
+    napi_env envMessage_;
+    napi_ref callBackRefMessage_;
 };
 
 #endif //ijkplayer_ijkplayer_napi.h_H
