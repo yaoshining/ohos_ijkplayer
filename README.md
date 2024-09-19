@@ -258,8 +258,8 @@ ohpm install @ohos/ijkplayer
 | native_setup                  | 无                                                            | void              | 初始化配置                                                        |
 | setDataSource                 | url: string                                                  | void              | 设置视频源地址                                                      |
 | setDataSourceHeader           | headers: Map<string, string>                                 | void              | 设置视频源的HTTP请求头                                                |
-| setOption                     | category:string, key: string, value: string                  | void              | 设置播放前预设参数                                                    |
-| setOptionLong                 | category:string, key: string, value: string                  | void              | 设置播放前预设参数                                                    |
+| setOption                     | category:string, key: string, value: string                  | void              | 设置播放前预设参数(用于设置char类型参数)                                      |
+| setOptionLong                 | category:string, key: string, value: string                  | void              | 设置播放前预设参数(用于设置int类型参数)                                       |
 | prepareAsync                  | 无                                                            | void              | 加载视频                                                         |
 | start                         | 无                                                            | void              | 播放视频                                                         |
 | stop                          | 无                                                            | void              | 停止播放                                                         |
@@ -280,8 +280,8 @@ ohpm install @ohos/ijkplayer
 | setMessageListener            | 无                                                            | void              | 设置视频监听器到napi用于接收回调                                           |
 | getVideoWidth                 | 无                                                            | number            | 获取视频宽度                                                       |
 | getVideoHeight                | 无                                                            | number            | 获取视频高度                                                       |
-| getVideoSarNum                | 无                                                            | number            | 获取视频高度                                                       |
-| getVideoSarDen                | 无                                                            | number            | 获取视频高度                                                       |
+| getVideoSarNum                | 无                                                            | number            | 获取视频宽高比的分子                                                   |
+| getVideoSarDen                | 无                                                            | number            | 获取视频宽高比的分母                                                   |
 | getDuration                   | 无                                                            | number            | 获取视频总的时长                                                     |
 | getCurrentPosition            | 无                                                            | number            | 获取视频播放当前位置                                                   |
 | getAudioSessionId             | 无                                                            | number            | 获取音频sessionID                                                |
