@@ -23,9 +23,13 @@
 #include "ffpipenode_ohos_mediacodec_vdec.h"
 
 #include <chrono>
+#include <unistd.h>
 #include "libswscale/swscale.h"
 #include "ohos_video_decoder_data.h"
 #include "ohos_video_decoder.h"
+
+static const int NS_TO_US = 1000;
+static const int MILLISECOND = 7;
 
 class IJKFF_Pipenode_Opaque {
 public:
@@ -174,6 +178,7 @@ static int decoder_decode_ohos_frame(FFPlayer *ffp, Decoder *d, AVFrame *frame, 
     av_packet_unref(&pkt);
     std::thread DecoderOutputThread(&IJKFF_Pipenode_Opaque::DecoderOutput, opaque, frame);
     DecoderOutputThread.detach();
+    usleep(MILLISECOND * NS_TO_US);
     if (frame->pts < 1) {
         return 0;
     }
