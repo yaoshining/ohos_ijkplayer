@@ -15,9 +15,11 @@
 
 #include "ijkplayer_napi_proxy.h"
 static std::unordered_map<std::string, IjkMediaPlayer *> GLOBAL_IJKMP;
-static void (*post_event)(void *weak_this, int what, int arg1, int arg2, char *obj);
+void (*post_event)(int what, int arg1, int arg2, char *obj, std::string id);
 
-void IJKPlayerNapiProxy::message_loop_callback(void (*pe)(void *weak_this, int what, int arg1, int arg2, char *obj)) {
+void IJKPlayerNapiProxy::message_loop_callback(void (*pe)(int what, int arg1, int arg2, char *obj,
+                                               std::string id))
+{
     post_event = pe;
 }
 
@@ -33,75 +35,80 @@ static void message_loop_n(IjkMediaPlayer *mp) {
         if (retval <= 0) {
             break;
         }
+        char *id = ijkmp_get_id(mp);
+        if (!id) {
+            break;
+        }
+        std::string idStr(id);
 
         switch (msg.what) {
             LOGI("napi_proxy-->message_loop_n-->go-->msg:%d", msg.what);
             case FFP_MSG_FLUSH:
                 MPTRACE("FFP_MSG_FLUSH:\n");
-                post_event(weak_thiz, MEDIA_NOP, 0, 0, nullptr);
+                post_event(MEDIA_NOP, 0, 0, nullptr, idStr);
                 break;
             case FFP_MSG_ERROR:
                 MPTRACE("FFP_MSG_ERROR: %d\n", msg.arg1);
-                post_event(weak_thiz, MEDIA_ERROR, MEDIA_ERROR_IJK_PLAYER, msg.arg1, nullptr);
+                post_event(MEDIA_ERROR, MEDIA_ERROR_IJK_PLAYER, msg.arg1, nullptr, idStr);
                 break;
             case FFP_MSG_PREPARED:
                 MPTRACE("FFP_MSG_PREPARED:\n");
-                post_event(weak_thiz, MEDIA_PREPARED, 0, 0, nullptr);
+                post_event(MEDIA_PREPARED, 0, 0, nullptr, idStr);
                 break;
             case FFP_MSG_COMPLETED:
                 MPTRACE("FFP_MSG_COMPLETED:\n");
-                post_event(weak_thiz, MEDIA_PLAYBACK_COMPLETE, 0, 0, nullptr);
+                post_event(MEDIA_PLAYBACK_COMPLETE, 0, 0, nullptr, idStr);
                 break;
             case FFP_MSG_VIDEO_SIZE_CHANGED:
                 MPTRACE("FFP_MSG_VIDEO_SIZE_CHANGED: %d, %d\n", msg.arg1, msg.arg2);
-                post_event(weak_thiz, MEDIA_SET_VIDEO_SIZE, msg.arg1, msg.arg2, nullptr);
+                post_event(MEDIA_SET_VIDEO_SIZE, msg.arg1, msg.arg2, nullptr, idStr);
                 break;
             case FFP_MSG_SAR_CHANGED:
                 MPTRACE("FFP_MSG_SAR_CHANGED: %d, %d\n", msg.arg1, msg.arg2);
-                post_event(weak_thiz, MEDIA_SET_VIDEO_SAR, msg.arg1, msg.arg2, nullptr);
+                post_event(MEDIA_SET_VIDEO_SAR, msg.arg1, msg.arg2, nullptr, idStr);
                 break;
             case FFP_MSG_VIDEO_RENDERING_START:
                 MPTRACE("FFP_MSG_VIDEO_RENDERING_START:\n");
-                post_event(weak_thiz, MEDIA_INFO, MEDIA_INFO_VIDEO_RENDERING_START, 0, nullptr);
+                post_event(MEDIA_INFO, MEDIA_INFO_VIDEO_RENDERING_START, 0, nullptr, idStr);
                 break;
             case FFP_MSG_AUDIO_RENDERING_START:
                 MPTRACE("FFP_MSG_AUDIO_RENDERING_START:\n");
-                post_event(weak_thiz, MEDIA_INFO, MEDIA_INFO_AUDIO_RENDERING_START, 0, nullptr);
+                post_event(MEDIA_INFO, MEDIA_INFO_AUDIO_RENDERING_START, 0, nullptr, idStr);
                 break;
             case FFP_MSG_VIDEO_ROTATION_CHANGED:
                 MPTRACE("FFP_MSG_VIDEO_ROTATION_CHANGED: %d\n", msg.arg1);
-                post_event(weak_thiz, MEDIA_INFO, MEDIA_INFO_VIDEO_ROTATION_CHANGED, msg.arg1, nullptr);
+                post_event(MEDIA_INFO, MEDIA_INFO_VIDEO_ROTATION_CHANGED, msg.arg1, nullptr, idStr);
                 break;
             case FFP_MSG_AUDIO_DECODED_START:
                 MPTRACE("FFP_MSG_AUDIO_DECODED_START:\n");
-                post_event(weak_thiz, MEDIA_INFO, MEDIA_INFO_AUDIO_DECODED_START, 0, nullptr);
+                post_event(MEDIA_INFO, MEDIA_INFO_AUDIO_DECODED_START, 0, nullptr, idStr);
                 break;
             case FFP_MSG_VIDEO_DECODED_START:
                 MPTRACE("FFP_MSG_VIDEO_DECODED_START:\n");
-                post_event(weak_thiz, MEDIA_INFO, MEDIA_INFO_VIDEO_DECODED_START, 0, nullptr);
+                post_event(MEDIA_INFO, MEDIA_INFO_VIDEO_DECODED_START, 0, nullptr, idStr);
                 break;
             case FFP_MSG_OPEN_INPUT:
                 MPTRACE("FFP_MSG_OPEN_INPUT:\n");
-                post_event(weak_thiz, MEDIA_INFO, MEDIA_INFO_OPEN_INPUT, 0, nullptr);
+                post_event(MEDIA_INFO, MEDIA_INFO_OPEN_INPUT, 0, nullptr, idStr);
                 break;
             case FFP_MSG_FIND_STREAM_INFO:
                 MPTRACE("FFP_MSG_FIND_STREAM_INFO:\n");
-                post_event(weak_thiz, MEDIA_INFO, MEDIA_INFO_FIND_STREAM_INFO, 0, nullptr);
+                post_event(MEDIA_INFO, MEDIA_INFO_FIND_STREAM_INFO, 0, nullptr, idStr);
                 break;
             case FFP_MSG_COMPONENT_OPEN:
                 MPTRACE("FFP_MSG_COMPONENT_OPEN:\n");
-                post_event(weak_thiz, MEDIA_INFO, MEDIA_INFO_COMPONENT_OPEN, 0, nullptr);
+                post_event(MEDIA_INFO, MEDIA_INFO_COMPONENT_OPEN, 0, nullptr, idStr);
                 break;
             case FFP_MSG_BUFFERING_START:
                 MPTRACE("FFP_MSG_BUFFERING_START:\n");
-                post_event(weak_thiz, MEDIA_INFO, MEDIA_INFO_BUFFERING_START, msg.arg1, nullptr);
+                post_event(MEDIA_INFO, MEDIA_INFO_BUFFERING_START, msg.arg1, nullptr, idStr);
                 break;
             case FFP_MSG_BUFFERING_END:
                 MPTRACE("FFP_MSG_BUFFERING_END:\n");
-                post_event(weak_thiz, MEDIA_INFO, MEDIA_INFO_BUFFERING_END, msg.arg1, nullptr);
+                post_event(MEDIA_INFO, MEDIA_INFO_BUFFERING_END, msg.arg1, nullptr, idStr);
                 break;
             case FFP_MSG_BUFFERING_UPDATE:
-                post_event(weak_thiz, MEDIA_BUFFERING_UPDATE, msg.arg1, msg.arg2, nullptr);
+                post_event(MEDIA_BUFFERING_UPDATE, msg.arg1, msg.arg2, nullptr, idStr);
                 break;
             case FFP_MSG_BUFFERING_BYTES_UPDATE:
                 break;
@@ -109,39 +116,39 @@ static void message_loop_n(IjkMediaPlayer *mp) {
                 break;
             case FFP_MSG_SEEK_COMPLETE:
                 MPTRACE("FFP_MSG_SEEK_COMPLETE:\n");
-                post_event(weak_thiz, MEDIA_SEEK_COMPLETE, 0, 0, nullptr);
+                post_event(MEDIA_SEEK_COMPLETE, 0, 0, nullptr, idStr);
                 break;
             case FFP_MSG_ACCURATE_SEEK_COMPLETE:
                 MPTRACE("FFP_MSG_ACCURATE_SEEK_COMPLETE:\n");
-                post_event(weak_thiz, MEDIA_INFO, MEDIA_INFO_MEDIA_ACCURATE_SEEK_COMPLETE, msg.arg1, nullptr);
+                post_event(MEDIA_INFO, MEDIA_INFO_MEDIA_ACCURATE_SEEK_COMPLETE, msg.arg1, nullptr, idStr);
                 break;
             case FFP_MSG_PLAYBACK_STATE_CHANGED:
                 break;
             case FFP_MSG_TIMED_TEXT:
                 if (msg.obj) {
-                    post_event(weak_thiz, MEDIA_TIMED_TEXT, 0, 0, (char *)msg.obj);
+                    post_event(MEDIA_TIMED_TEXT, 0, 0, (char *)msg.obj, idStr);
                 } else {
-                    post_event(weak_thiz, MEDIA_TIMED_TEXT, 0, 0, nullptr);
+                    post_event(MEDIA_TIMED_TEXT, 0, 0, nullptr, idStr);
                 }
                 break;
             case FFP_MSG_GET_IMG_STATE:
                 if (msg.obj) {
-                    post_event(weak_thiz, MEDIA_GET_IMG_STATE, msg.arg1, msg.arg2, (char *)msg.obj);
+                    post_event(MEDIA_GET_IMG_STATE, msg.arg1, msg.arg2, (char *)msg.obj, idStr);
                 } else {
-                    post_event(weak_thiz, MEDIA_GET_IMG_STATE, msg.arg1, msg.arg2, nullptr);
+                    post_event(MEDIA_GET_IMG_STATE, msg.arg1, msg.arg2, nullptr, idStr);
                 }
                 break;
             case FFP_MSG_VIDEO_SEEK_RENDERING_START:
                 MPTRACE("FFP_MSG_VIDEO_SEEK_RENDERING_START:\n");
-                post_event(weak_thiz, MEDIA_INFO, MEDIA_INFO_VIDEO_SEEK_RENDERING_START, msg.arg1, nullptr);
+                post_event(MEDIA_INFO, MEDIA_INFO_VIDEO_SEEK_RENDERING_START, msg.arg1, nullptr, idStr);
                 break;
             case FFP_MSG_AUDIO_SEEK_RENDERING_START:
                 MPTRACE("FFP_MSG_AUDIO_SEEK_RENDERING_START:\n");
-                post_event(weak_thiz, MEDIA_INFO, MEDIA_INFO_AUDIO_SEEK_RENDERING_START, msg.arg1, nullptr);
+                post_event(MEDIA_INFO, MEDIA_INFO_AUDIO_SEEK_RENDERING_START, msg.arg1, nullptr, idStr);
                 break;
             case FFP_MSG_AUDIO_INTERRUPT:
                 MPTRACE("FFP_MSG_AUDIO_INTERRUPT:\n");
-                post_event(weak_thiz, MEDIA_AUDIO_INTERRUPT, msg.arg1, msg.arg2, nullptr);
+                post_event(MEDIA_AUDIO_INTERRUPT, msg.arg1, msg.arg2, nullptr, idStr);
                 break;
             default:
                 ALOGE("unknown FFP_MSG_xxx(%d)\n", msg.what);
@@ -211,6 +218,7 @@ void IJKPlayerNapiProxy::IjkMediaPlayer_native_setup(void *weak_this, void *nati
     IJKPlayerNapiProxy::set_media_player(id_, mp);
     ijkmp_android_set_surface(mp, native_window);
     ijkmp_set_weak_thiz(mp, weak_this);
+    ijkmp_set_id(mp, (char *)id_.c_str());
     ijkmp_set_inject_opaque(mp, ijkmp_get_weak_thiz(mp));
     ijkmp_set_ijkio_inject_opaque(mp, ijkmp_get_weak_thiz(mp));
     ijkmp_dec_ref_p(&mp);
@@ -225,6 +233,7 @@ void IJKPlayerNapiProxy::IjkMediaPlayer_native_setup_audio() {
     IJKMP_GLOABL_INIT = true;
     IjkMediaPlayer *mp = ijkmp_android_create(message_loop);
     IJKPlayerNapiProxy::set_media_player(id_, mp);
+    ijkmp_set_id(mp, (char *)id_.c_str());
     ijkmp_set_inject_opaque(mp, ijkmp_get_weak_thiz(mp));
     ijkmp_set_ijkio_inject_opaque(mp, ijkmp_get_weak_thiz(mp));
     ijkmp_dec_ref_p(&mp);

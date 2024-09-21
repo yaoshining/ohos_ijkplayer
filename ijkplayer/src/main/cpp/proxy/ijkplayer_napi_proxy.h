@@ -33,7 +33,7 @@ class IJKPlayerNapiProxy {
 
   public:
     IJKPlayerNapiProxy(std::string &id) : id_(id){};
-    void message_loop_callback(void (*pe)(void *weak_this, int what, int arg1, int arg2, char *obj));
+    void message_loop_callback(void (*pe)(int what, int arg1, int arg2, char *obj, std::string id));
     void IjkMediaPlayer_native_setup(void *weak_this, void *native_window);
     void IjkMediaPlayer_native_setup_audio();
     void IjkMediaPlayer_setDataSource(char *url);
