@@ -103,7 +103,7 @@ struct IjkVideoPlayerPage {
   build() {
     Flex({ direction: FlexDirection.Column, alignItems: ItemAlign.Auto, justifyContent: FlexAlign.Start }) {
       Flex({ direction: FlexDirection.Column, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Center }) {
-        Text("ijkplayer播放器")
+        Text($r('app.string.ijk_player'))
           .fontSize('30px')
           .fontColor(Color.White)
           .margin('10px')
@@ -182,21 +182,21 @@ struct IjkVideoPlayerPage {
       }
 
       Flex({ direction: FlexDirection.Row, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Start }) {
-        Button('播放')
+        Button($r('app.string.Play'))
           .onClick(() => {
             this.startPlayOrResumePlay();
           })
           .width('400px')
           .height('80px')
           .margin('15px')
-        Button('暂停')
+        Button($r('app.string.Pause'))
           .onClick(() => {
             this.pause();
           })
           .width('400px')
           .height('80px')
           .margin('15px')
-        Button('切换')
+        Button($r('app.string.page_show'))
           .onClick(() => {
             this.playNext();
           })
@@ -206,7 +206,7 @@ struct IjkVideoPlayerPage {
       }
 
       Flex({ direction: FlexDirection.Row, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Start }) {
-        Button('1倍速')
+        Button($r('app.string.1x'))
           .onClick(() => {
             if (!this.debounce()) {
               return;
@@ -218,7 +218,7 @@ struct IjkVideoPlayerPage {
           .height('80px')
           .margin('15px')
 
-        Button('1.5倍速')
+        Button($r('app.string.1_5x'))
           .onClick(() => {
             if (!this.debounce()) {
               return;
@@ -230,7 +230,7 @@ struct IjkVideoPlayerPage {
           .height('80px')
           .margin('15px')
 
-        Button('2 倍速')
+        Button($r('app.string.2x'))
           .onClick(() => {
             this.playSpeed = '2f'
             this.mIjkMediaPlayer.setSpeed("2f");
@@ -240,7 +240,7 @@ struct IjkVideoPlayerPage {
           .margin('15px')
       }
       Flex({ direction: FlexDirection.Row, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Start }) {
-        Text("视频音量").width('120px').fontSize('30px').margin('15px')
+        Text($r('app.string.Video_volume')).width('120px').fontSize('30px').margin('15px')
         Slider({
           value: this.volume,
           min: 0.0,
@@ -528,7 +528,7 @@ struct IjkVideoPlayerPage {
         LogUtils.getInstance().LOGI("OnErrorListener-->go:" + what + "===" + extra)
         that.hideLoadIng();
         prompt.showToast({
-          message: "亲，视频播放异常，系统开小差咯"
+          message: getContext().resourceManager.getStringByNameSync("Honey_the_video_is_playing_errant_The_system_is_wandering")
         });
       }
     }

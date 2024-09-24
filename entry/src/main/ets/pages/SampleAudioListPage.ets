@@ -92,7 +92,7 @@ struct SampleAudioListPage {
   build() {
     Flex({ direction: FlexDirection.Column, alignItems: ItemAlign.Auto, justifyContent: FlexAlign.Start }) {
       Flex({ direction: FlexDirection.Column, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Center }) {
-        Text("ijkplayer音频播放器")
+        Text($r('app.string.ijkplayer_Audio_player'))
           .fontSize('30px')
           .fontColor(Color.White)
           .margin('10px')
@@ -134,14 +134,14 @@ struct SampleAudioListPage {
       }
 
       Flex({ direction: FlexDirection.Row, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Start }) {
-        Button('播放')
+        Button($r('app.string.Play'))
           .onClick(() => {
             this.startPlayOrResumePlay();
           })
           .width('400px')
           .height('80px')
           .margin('15px')
-        Button('暂停')
+        Button($r('app.string.Pause'))
           .onClick(() => {
             this.pause();
           })
@@ -151,7 +151,7 @@ struct SampleAudioListPage {
       }
 
       Flex({ direction: FlexDirection.Row, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Start }) {
-        Button('停止')
+        Button($r('app.string.Stop'))
           .onClick(() => {
             this.stop();
           })
@@ -159,7 +159,7 @@ struct SampleAudioListPage {
           .height('80px')
           .margin('15px')
 
-        Button('切换')
+        Button($r('app.string.Switch'))
           .onClick(() => {
             this.playNext();
           })
@@ -169,7 +169,7 @@ struct SampleAudioListPage {
       }
 
       Flex({ direction: FlexDirection.Row, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Start }) {
-        Button('1.5倍速')
+        Button($r('app.string.1_5x'))
           .onClick(() => {
             this.playSpeed = '1.5f'
             this.stop();
@@ -179,7 +179,7 @@ struct SampleAudioListPage {
           .height('80px')
           .margin('15px')
 
-        Button('2 倍速')
+        Button($r('app.string.2x'))
           .onClick(() => {
             this.playSpeed = '2f'
             this.stop();
@@ -190,7 +190,7 @@ struct SampleAudioListPage {
           .margin('15px')
       }
       Flex({ direction: FlexDirection.Row, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Start }) {
-        Text("音频音量").width('120px').fontSize('30px').margin('15px')
+        Text($r('app.string.Video_volume')).width('120px').fontSize('30px').margin('15px')
         Slider({
           value: this.volume,
           min: 0.0,
@@ -439,7 +439,7 @@ struct SampleAudioListPage {
         LogUtils.getInstance().LOGI("OnErrorListener-->go:" + what + "===" + extra)
         that.hideLoadIng();
         prompt.showToast({
-          message: "亲，音频播放异常，系统开小差咯"
+          message: getContext().resourceManager.getStringByNameSync("Honey_the_video_is_playing_errant_The_system_is_wandering")
         });
       }
     }
