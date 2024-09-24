@@ -24,7 +24,7 @@ struct SampleVideoListPage {
 
     Flex({ direction: FlexDirection.Column, alignItems: ItemAlign.Start, justifyContent: FlexAlign.Start }) {
       Flex({ direction: FlexDirection.Column, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Center }) {
-        Text("ijkplayer播放器示例")
+        Text($r('app.string.ijkplayer_Example'))
           .fontSize(26)
           .fontColor(Color.White)
           .margin(10)
@@ -33,7 +33,7 @@ struct SampleVideoListPage {
 
       List({ space: 20, initialIndex: 0 }) {
         ListItem() {
-          Text("测试地址:https://1251542705.vod2.myqcloud.com/4a8d9c67vodtransgzp1251542705/203109c63270835013529449619/v.f1419907.mp4")
+          Text(getContext().resourceManager.getStringByNameSync("Test_address")+"https://1251542705.vod2.myqcloud.com/4a8d9c67vodtransgzp1251542705/203109c63270835013529449619/v.f1419907.mp4")
             .fontSize(20)
             .fontWeight(FontWeight.Bold)
             .fontColor(Color.Black)

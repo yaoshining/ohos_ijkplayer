@@ -83,14 +83,14 @@ export struct CommonVideoView {
       }.width('100%').height('100%')
 
       Flex({ direction: FlexDirection.Row, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Start }) {
-        Button('播放')
+        Button($r('app.string.Play'))
           .onClick(() => {
             this.play();
           })
           .width('400px')
           .height('80px')
           .margin('15px')
-        Button('暂停')
+        Button($r('app.string.Pause'))
           .onClick(() => {
             if(this.player != null) {
               this.player.pause()
@@ -100,7 +100,7 @@ export struct CommonVideoView {
           .height('80px')
           .margin('15px')
 
-        Button('销毁')
+        Button($r('app.string.destroy'))
           .onClick(() => {
             this.release();
           })

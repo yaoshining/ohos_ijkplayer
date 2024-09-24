@@ -20,13 +20,13 @@ import router from '@ohos.router'
 struct indexPage {
   build() {
     Column() {
-      Button('视频demo')
+      Button($r('app.string.video_demo'))
         .margin({ bottom: 20 })
         .width(200)
         .onClick(() => {
           router.pushUrl({ url: 'pages/SampleVideoListPage' })
         })
-      Button('音频demo')
+      Button($r('app.string.audio_demo'))
         .width(200)
         .onClick(() => {
           router.pushUrl({ url: 'pages/SampleAudioListPage' })

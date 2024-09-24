@@ -15,6 +15,70 @@
     {
       "name": "NET_REQUEST_PERMISSION",
       "value": "api apply net request permission."
+    },
+    {
+      "name": "video_demo",
+      "value": "视频demo"
+    },
+    {
+      "name": "audio_demo",
+      "value": "音频demo"
+    },
+    {
+      "name": "ijk_player",
+      "value": "ijkplaye播放器"
+    },
+    {
+      "name": "Play",
+      "value": "播放"
+    },
+    {
+      "name": "Pause",
+      "value": "暂停"
+    },
+    {
+      "name": "Switch",
+      "value": "切换"
+    },
+    {
+      "name": "Stop",
+      "value": "停止"
+    },
+    {
+      "name": "1x",
+      "value": "1倍速"
+    },
+    {
+      "name": "1_5x",
+      "value": "1.5倍速"
+    },
+    {
+      "name": "2x",
+      "value": "2 倍速"
+    },
+    {
+      "name": "Video_volume",
+      "value": "视频音量"
+    },
+    {
+      "name": "Honey_the_video_is_playing_errant_The_system_is_wandering",
+      "value": "亲，视频播放异常，系统开小差咯"
+    },
+    {
+      "name": "ijkplayer_Audio_player",
+      "value": "ijkplayer音频播放器"
+    },
+    {
+      "name": "ijkplayer_Example",
+      "value": "ijkplayer播放器示例"
+    },
+    {
+      "name": "Test_address",
+      "value": "测试地址:"
+    },
+    {
+      "name": "destroy",
+      "value": "销毁"
     }
   ]
 }
