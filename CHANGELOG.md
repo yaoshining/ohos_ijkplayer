@@ -1,3 +1,6 @@
+## 2.0.6-rc.0
+- Fix release crash issue
+
 ## 2.0.5
 - 在DevEco Studio: NEXT Beta1-5.0.3.806, SDK: API12 Release (5.0.0.66)上验证通过
 
