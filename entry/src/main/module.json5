@@ -21,6 +21,13 @@
       {
         "name": "ohos.permission.INTERNET",
         "reason": "$string:NET_REQUEST_PERMISSION"
+      },
+      {
+        "name": "ohos.permission.WRITE_IMAGEVIDEO",
+        "reason": "$string:IMAGEVIDEO_REQUEST_PERMISSION",
+        "usedScene": {
+          "when": "always"
+        }
       }
     ],
     "abilities": [

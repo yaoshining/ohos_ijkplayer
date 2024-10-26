@@ -50,6 +50,7 @@
 #include "libavutil/opt.h"
 #include "libavcodec/avfft.h"
 #include "libswresample/swresample.h"
+#include "record/ijkplayer_record.h"
 
 #if CONFIG_AVFILTER
 # include "libavfilter/avfilter.h"
@@ -725,6 +726,9 @@ typedef struct FFPlayer {
     char *mediacodec_default_name;
     int ijkmeta_delay_init;
     int render_wait_start;
+    RecordWriteData record_write_data;
+    int is_screenshot;
+    char *screen_file_name;
 } FFPlayer;
 
 #define fftime_to_milliseconds(ts) (av_rescale(ts, 1000, AV_TIME_BASE))

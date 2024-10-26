@@ -116,6 +116,67 @@ static int qsvenc_get_continuous_buffer(AVFrame *frame, OH_AVFormat *format, Cod
     return 0;
 }
 
+int Nv12ToYuv420p(AVFrame *&yuv420p_frame, AVFrame *&nv12_frame, int width, int height)
+{
+    yuv420p_frame = av_frame_alloc();
+    if (!yuv420p_frame) {
+        LOGE("nv12_to_yuv420p yuv420p_frame av_frame_alloc failed");
+        return -1;
+    }
+    yuv420p_frame->format = AV_PIX_FMT_YUV420P;
+    yuv420p_frame->width = width;
+    yuv420p_frame->height = height;
+    av_image_alloc(yuv420p_frame->data, yuv420p_frame->linesize, width, height, AV_PIX_FMT_YUV420P, 1);
+    struct SwsContext *swsCtx =
+        sws_getContext(width, height, AV_PIX_FMT_NV12, width, height, AV_PIX_FMT_YUV420P, 0, nullptr, nullptr, nullptr);
+    if (!swsCtx) {
+        av_frame_free(&yuv420p_frame);
+        LOGE("nv12_to_yuv420p sws_ctx null");
+        return -1;
+    }
+    sws_scale(swsCtx, nv12_frame->data, nv12_frame->linesize, 0, height, yuv420p_frame->data, yuv420p_frame->linesize);
+    sws_freeContext(swsCtx);
+    return 0;
+}
+
+void RecordMediaCodecVideoFrame(FFPlayer *ffp, AVFrame *frame)
+{
+    if (frame->format == AV_PIX_FMT_NV12 && ffp->record_write_data.isInRecord == OHOS_RECORD_STATUS_ON &&
+        ffp->record_write_data.recordFramesQueue && frame->width > 0 && frame->height > 0) {
+        AVFrame *yuv420p_frame;
+        int result = Nv12ToYuv420p(yuv420p_frame, frame, frame->width, frame->height);
+        if (result < 0) {
+            return;
+        }
+        RecordFrameData frData;
+        frData.data0 = (uint8_t *)malloc((size_t)yuv420p_frame->linesize[DATA_NUM_0] * yuv420p_frame->height);
+        frData.data1 =
+            (uint8_t *)malloc((size_t)yuv420p_frame->linesize[DATA_NUM_1] * yuv420p_frame->height / DATA_NUM_2);
+        frData.data2 =
+            (uint8_t *)malloc((size_t)yuv420p_frame->linesize[DATA_NUM_1] * yuv420p_frame->height / DATA_NUM_2);
+        frData.dataNum = FRAME_DATA_NUM_3;
+        frData.frameType = OHOS_FRAME_TYPE_VIDEO;
+        frData.lineSize0 = yuv420p_frame->linesize[DATA_NUM_0];
+        frData.lineSize1 = yuv420p_frame->linesize[DATA_NUM_1];
+        frData.lineSize2 = yuv420p_frame->linesize[DATA_NUM_2];
+        frData.format = AV_PIX_FMT_YUV420P;
+        frData.writeFileStatus = DATA_NUM_0;
+        memcpy(frData.data0, yuv420p_frame->data[DATA_NUM_0],
+               yuv420p_frame->linesize[DATA_NUM_0] * yuv420p_frame->height);
+        memcpy(frData.data1, yuv420p_frame->data[DATA_NUM_1],
+               yuv420p_frame->linesize[DATA_NUM_1] * yuv420p_frame->height / DATA_NUM_2);
+        memcpy(frData.data2, yuv420p_frame->data[DATA_NUM_2],
+               yuv420p_frame->linesize[DATA_NUM_2] * yuv420p_frame->height / DATA_NUM_2);
+        int windex = ffp->record_write_data.windex;
+        ffp->record_write_data.recordFramesQueue[windex] = frData;
+        ffp->record_write_data.windex += DATA_NUM_1;
+        ffp->record_write_data.srcFormat.height = yuv420p_frame->height;
+        ffp->record_write_data.srcFormat.width = yuv420p_frame->width;
+        av_freep(yuv420p_frame->data);
+        av_frame_free(&yuv420p_frame);
+    }
+}
+
 void IJKFF_Pipenode_Opaque::DecoderOutput(AVFrame *frame)
 {
     CodecBufferInfo codecBufferInfoReceive;
@@ -136,6 +197,20 @@ void IJKFF_Pipenode_Opaque::DecoderOutput(AVFrame *frame)
         if (codecBufferInfoReceive.attr.flags == AVCODEC_BUFFER_FLAGS_EOS) {
             this->codecData.ShutDown();
         }
+    if (ffp->is_screenshot) {
+        AVFrame *yuv420p_frame;
+        int result = Nv12ToYuv420p(yuv420p_frame, frame, frame->width, frame->height);
+        if (result < 0) {
+            return;
+        }
+        ffp->is_screenshot = 0;
+        SaveCurrentFramePicture(yuv420p_frame, ffp->screen_file_name);
+        free(ffp->screen_file_name);
+        av_freep(yuv420p_frame->data);
+        av_frame_free(&yuv420p_frame);
+        ffp->screen_file_name = NULL;
+    }
+    RecordMediaCodecVideoFrame(ffp, frame);
 }
 
 

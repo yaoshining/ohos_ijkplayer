@@ -638,5 +638,38 @@ export class IjkMediaPlayer {
       this.ijkplayer_audio_napi._native_setup_audio(this.id);
     }
   }
+
+  startRecord(saveFilePath: string): boolean {
+    if (!!this.ijkplayer_napi) {
+      return this.ijkplayer_napi._startRecord(this.id, saveFilePath);
+    }
+    return false;
+  }
+
+  stopRecord(): Promise<boolean> {
+    if (!!this.ijkplayer_napi) {
+      return this.ijkplayer_napi._stopRecord(this.id);
+    }
+    return new Promise((resolve) => {
+      resolve(false);
+    });
+  }
+
+  isRecord(): boolean {
+    if (!!this.ijkplayer_napi) {
+      return this.ijkplayer_napi._isRecord(this.id);
+    }
+    return false;
+  }
+
+  public screenshot(saveFilePath: string): Promise<boolean>  {
+    if (!!this.ijkplayer_napi) {
+      return this.ijkplayer_napi._getCurrentFrame(this.id,saveFilePath);
+    }
+    return new Promise((resolve) => {
+      resolve(false);
+    });
+  }
+
 }
 

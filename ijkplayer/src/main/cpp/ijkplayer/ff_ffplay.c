@@ -584,6 +584,57 @@ fail0:
     return ret;
 }
 
+static void record_video_frame(FFPlayer *ffp, AVFrame *frame)
+{
+    if (frame->format == AV_PIX_FMT_YUV420P && ffp->record_write_data.isInRecord == OHOS_RECORD_STATUS_ON &&
+        ffp->record_write_data.recordFramesQueue && frame->width > 0 && frame->height > 0) {
+        RecordFrameData frData;
+        frData.data0 = (uint8_t *)malloc((size_t)frame->linesize[0] * frame->height);
+        frData.data1 = (uint8_t *)malloc((size_t)frame->linesize[1] * frame->height / DATA_NUM_2);
+        frData.data2 = (uint8_t *)malloc((size_t)frame->linesize[1] * frame->height / DATA_NUM_2);
+        frData.dataNum = FRAME_DATA_NUM_3;
+        frData.frameType = OHOS_FRAME_TYPE_VIDEO;
+        frData.lineSize0 = frame->linesize[DATA_NUM_0];
+        frData.lineSize1 = frame->linesize[DATA_NUM_1];
+        frData.lineSize2 = frame->linesize[DATA_NUM_2];
+        frData.format = frame->format;
+        frData.writeFileStatus = DATA_NUM_0;
+        memcpy(frData.data0, frame->data[DATA_NUM_0], frame->linesize[DATA_NUM_0] * frame->height);
+        memcpy(frData.data1, frame->data[DATA_NUM_1], frame->linesize[DATA_NUM_1] * frame->height / DATA_NUM_2);
+        memcpy(frData.data2, frame->data[DATA_NUM_2], frame->linesize[DATA_NUM_2] * frame->height / DATA_NUM_2);
+        int windex = ffp->record_write_data.windex;
+        ffp->record_write_data.recordFramesQueue[windex] = frData;
+        ffp->record_write_data.windex += DATA_NUM_1;
+        ffp->record_write_data.srcFormat.height = frame->height;
+        ffp->record_write_data.srcFormat.width = frame->width;
+    }
+}
+
+static void record_audio_frame(FFPlayer *ffp, AVFrame *frame)
+{
+    if (ffp->record_write_data.isInRecord == OHOS_RECORD_STATUS_ON && frame->format == AV_SAMPLE_FMT_FLTP &&
+        ffp->record_write_data.recordFramesQueue && frame->linesize[0] > 0) {
+        RecordFrameData frData;
+        frData.data0 = (uint8_t *)av_malloc(frame->linesize[DATA_NUM_0]);
+        memcpy(frData.data0, frame->data[DATA_NUM_0], frame->linesize[DATA_NUM_0]);
+        frData.data1 = (uint8_t *)av_malloc(frame->linesize[DATA_NUM_0]);
+        memcpy(frData.data1, frame->data[DATA_NUM_1], frame->linesize[DATA_NUM_0]);
+        frData.frameType = OHOS_FRAME_TYPE_AUDIO;
+        frData.dataNum = FRAME_DATA_NUM_2;
+        frData.nb_samples = frame->nb_samples;
+        frData.channel_layout = frame->channel_layout;
+        frData.channels = frame->channels;
+        frData.lineSize0 = frame->linesize[DATA_NUM_0];
+        frData.lineSize1 = frame->linesize[DATA_NUM_0];
+        frData.format = frame->format;
+        frData.writeFileStatus = DATA_NUM_0;
+        int windex = ffp->record_write_data.windex;
+        ffp->record_write_data.recordFramesQueue[windex] = frData;
+        ffp->record_write_data.windex += DATA_NUM_1;
+        ffp->record_write_data.sampleRate = frame->sample_rate;
+    }
+}
+
 static int decoder_decode_frame(FFPlayer *ffp, Decoder *d, AVFrame *frame, AVSubtitle *sub) {
     int ret = AVERROR(EAGAIN);
     for (;;) {
@@ -603,6 +654,7 @@ static int decoder_decode_frame(FFPlayer *ffp, Decoder *d, AVFrame *frame, AVSub
                             } else if (!ffp->decoder_reorder_pts) {
                                 frame->pts = frame->pkt_dts;
                             }
+                            record_video_frame(ffp, frame);
                         }
                         break;
                     case AVMEDIA_TYPE_AUDIO:
@@ -617,6 +669,7 @@ static int decoder_decode_frame(FFPlayer *ffp, Decoder *d, AVFrame *frame, AVSub
                                 d->next_pts = frame->pts + frame->nb_samples;
                                 d->next_pts_tb = tb;
                             }
+                            record_audio_frame(ffp, frame);
                         }
                         break;
                     default:
@@ -2340,6 +2393,12 @@ static int ffplay_video_thread(void *arg)
 #endif
             duration = (frame_rate.num && frame_rate.den ? av_q2d((AVRational){frame_rate.den, frame_rate.num}) : 0);
             pts = (frame->pts == AV_NOPTS_VALUE) ? NAN : frame->pts * av_q2d(tb);
+            if (ffp->is_screenshot) {
+                ffp->is_screenshot = 0;
+                SaveCurrentFramePicture(frame, ffp->screen_file_name);
+                free(ffp->screen_file_name);
+                ffp->screen_file_name = NULL;
+            }
             ret = queue_picture(ffp, frame, pts, duration, frame->pkt_pos, is->viddec.pkt_serial);
             av_frame_unref(frame);
 #if CONFIG_AVFILTER
@@ -5118,4 +5177,45 @@ IjkMediaMeta *ffp_get_meta_l(FFPlayer *ffp)
         return NULL;
 
     return ffp->meta;
+}
+
+int ffp_start_record(FFPlayer *ffp, const char *recordFilePath)
+{
+    ffp->record_write_data.windex = 0;
+    ffp->record_write_data.rindex = 0;
+    ffp->record_write_data.recordFramesQueue = (RecordFrameData*)malloc(OHOS_MAX_DECODE_FRAME_SIZE * sizeof(int));
+    char* filePath = (char*)malloc(strlen(recordFilePath) + 1);
+    memcpy(filePath, recordFilePath, strlen(recordFilePath) + 1);
+    ffp->record_write_data.recordFilePath = filePath;
+    ffp->record_write_data.isInRecord = OHOS_RECORD_STATUS_ON;
+    UpdateRecordStatus(ffp, OHOS_RECORD_STATUS_ON);
+    pthread_create(&(ffp->record_write_data.recThreadid), NULL, WriteRecordFile, (void *)(ffp));
+    return OHOS_RECORD_CALLBACK_STATUS_SUCCESS;
+}
+
+int ffp_stop_record(FFPlayer *ffp)
+{
+    ffp->record_write_data.isInRecord = OHOS_RECORD_STATUS_OFF;
+    UpdateRecordStatus(ffp, OHOS_RECORD_STATUS_OFF);
+    return FindRecordResult(ffp);
+}
+
+int ffp_is_record(FFPlayer *ffp)
+{
+    return ffp->record_write_data.isInRecord;
+}
+
+int ffp_get_current_frame(FFPlayer *ffp, const char *saveFilePath)
+{
+    if (!ffp->is_screenshot) {
+        ffp->is_screenshot = 1;
+        if (ffp->screen_file_name != NULL) {
+            free(ffp->screen_file_name);
+            ffp->screen_file_name = NULL;
+        }
+        ffp->screen_file_name = (char *)malloc(sizeof(char) * strlen(saveFilePath) + 1);
+        strcpy(ffp->screen_file_name, saveFilePath);
+        return OHOS_CALLBACK_RESULT_STATUS_SUCCESS;
+    }
+    return OHOS_CALLBACK_RESULT_STATUS_FAILED;
 }

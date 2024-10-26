@@ -590,3 +590,47 @@ void IJKPlayerNapiProxy::IjkMediaPlayer_native_openlog() {
     OHOS_LOG_ON = true;
     open_custom_ffmpeg_log_print();
 }
+
+int IJKPlayerNapiProxy::IjkMediaPlayer_startRecord(const char *recordFilePath)
+{
+    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player(id_);
+    int retval = 0;
+    if (mp) {
+        retval = ijkmp_start_record(mp, recordFilePath);
+    }
+    ijkmp_dec_ref_p(&mp);
+    return retval;
+}
+int IJKPlayerNapiProxy::IjkMediaPlayer_stopRecord()
+{
+    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player(id_);
+    int retval = 0;
+    if (mp) {
+        retval = ijkmp_stop_record(mp);
+    }
+    ijkmp_dec_ref_p(&mp);
+    return retval;
+}
+
+int IJKPlayerNapiProxy::IjkMediaPlayer_isRecord()
+{
+    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player(id_);
+    int retval = 0;
+    if (mp) {
+        retval = ijkmp_is_record(mp);
+    }
+    ijkmp_dec_ref_p(&mp);
+    return retval;
+}
+
+int IJKPlayerNapiProxy::IjkMediaPlayer_getCurrentFrame(const char *saveFilePath)
+{
+    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player(id_);
+    int retval = 0;
+    if (mp) {
+        retval = ijkmp_get_current_frame(mp, saveFilePath);
+    }
+    ijkmp_dec_ref_p(&mp);
+    return retval;
+}
+

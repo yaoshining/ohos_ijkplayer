@@ -909,3 +909,28 @@ int ijkmp_get_msg(IjkMediaPlayer *mp, AVMessage *msg, int block)
 
     return -1;
 }
+
+
+int ijkmp_start_record(IjkMediaPlayer *mp, const char *recordFilePath)
+{
+    return ffp_start_record(mp->ffplayer, recordFilePath);
+}
+
+int ijkmp_stop_record(IjkMediaPlayer *mp)
+{
+    return ffp_stop_record(mp->ffplayer);
+}
+
+int ijkmp_is_record(IjkMediaPlayer *mp)
+{
+    return ffp_is_record(mp->ffplayer);
+}
+
+int ijkmp_get_current_frame(IjkMediaPlayer *mp, const char *saveFilePath)
+{
+    pthread_mutex_lock(&mp->mutex);
+    int retval = ffp_get_current_frame(mp->ffplayer, saveFilePath);
+    pthread_mutex_unlock(&mp->mutex);
+    return retval;
+}
+

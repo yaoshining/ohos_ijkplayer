@@ -55,7 +55,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../third_party/soundtouch/${OHOS
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../third_party/yuv/${OHOS_ARCH}/include)
 
 target_link_directories(ijksdl PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/ffmpeg/ffmpeg/${OHOS_ARCH}/lib
-${CMAKE_CURRENT_SOURCE_DIR}/../third_party/openssl/${OHOS_ARCH}/lib)
+${CMAKE_CURRENT_SOURCE_DIR}/../third_party/openssl/${OHOS_ARCH}/lib ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/soundtouch/${OHOS_ARCH}/lib
+${CMAKE_CURRENT_SOURCE_DIR}/../third_party/yuv/${OHOS_ARCH}/lib ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/openh264/${OHOS_ARCH}/lib)
 
 target_link_libraries(ijksdl yuv)
 target_link_libraries(ijksdl EGL)
@@ -73,3 +74,4 @@ target_link_libraries(ijksdl avdevice)
 target_link_libraries(ijksdl crypto)
 target_link_libraries(ijksdl ssl)
 target_link_libraries(ijksdl libohaudio.so)
+target_link_libraries(ijksdl openh264)

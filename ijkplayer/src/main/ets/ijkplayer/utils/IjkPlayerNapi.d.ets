@@ -41,4 +41,8 @@ export declare class IjkPlayerNapi {
   _getAudioCodecInfo(xcomponentId: string): string;
   _getMediaMeta(xcomponentId: string): string;
   _native_setup(xcomponentId: string): void;
+  _startRecord(xcomponentId: string,saveFilePath:string): boolean;
+  _stopRecord(xcomponentId: string):Promise<boolean>;
+  _isRecord(xcomponentId: string): boolean;
+  _getCurrentFrame(xcomponentId: string,saveFilePath:string): Promise<boolean>;
 }

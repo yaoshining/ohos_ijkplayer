@@ -79,6 +79,54 @@
     {
       "name": "destroy",
       "value": "destroy"
+    },
+    {
+      "name": "startRecord",
+      "value": "startRecord"
+    },
+    {
+      "name": "stopRecord",
+      "value": "stopRecord"
+    },
+    {
+      "name": "screenshot",
+      "value": "screenshot"
+    },
+    {
+      "name": "recordIng",
+      "value": "recordIng"
+    },
+    {
+      "name": "start_record_success",
+      "value": "start record success"
+    },
+    {
+      "name": "start_record_failed",
+      "value": "start record failed"
+    },
+    {
+      "name": "record_not_enabled",
+      "value": "record not enabled"
+    },
+    {
+      "name": "stop_record_success",
+      "value": "stop record success"
+    },
+    {
+      "name": "stop_record_failed",
+      "value": "stop record failed"
+    },
+    {
+      "name": "screenshot_success",
+      "value": "screenshot success"
+    },
+    {
+      "name": "screenshot_failed",
+      "value": "screenshot failed"
+    },
+    {
+      "name": "IMAGEVIDEO_REQUEST_PERMISSION",
+      "value": "api apply image video request permission."
     }
   ]
 }

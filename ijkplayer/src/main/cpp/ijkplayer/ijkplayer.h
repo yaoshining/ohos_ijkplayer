@@ -221,4 +221,8 @@ void            ijkmp_set_id(IjkMediaPlayer *mp, char *id);
 int             ijkmp_get_msg(IjkMediaPlayer *mp, AVMessage *msg, int block);
 void            ijkmp_set_frame_at_time(IjkMediaPlayer *mp, const char *path, int64_t start_time, int64_t end_time, int num, int definition);
 
+int             ijkmp_start_record(IjkMediaPlayer *mp, const char *recordFilePath);
+int             ijkmp_stop_record(IjkMediaPlayer *mp);
+int             ijkmp_is_record(IjkMediaPlayer *mp);
+int             ijkmp_get_current_frame(IjkMediaPlayer *mp, const char *saveFilePath);
 #endif
