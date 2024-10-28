@@ -40,6 +40,25 @@ struct CallbackContext {
     char *obj;
 };
 
+struct RecordCallBackInfo {
+    napi_env env = nullptr;
+    napi_async_work asyncWork = nullptr;
+    napi_deferred deferred = nullptr;
+    napi_ref callbackRef = nullptr;
+    std::string xcomponentId;
+    int code;
+};
+
+struct GetCurrentFrameCallBackInfo {
+    napi_env env = nullptr;
+    napi_async_work asyncWork = nullptr;
+    napi_deferred deferred = nullptr;
+    napi_ref callbackRef = nullptr;
+    std::string xcomponentId;
+    std::string filePath;
+    int code;
+};
+
 void messageCallBack(int what, int arg1, int arg2, char *obj, std::string id)
 {
     LOGI("napi-->messageCallBack");
@@ -674,6 +693,128 @@ napi_value IJKPlayerNapi::JsConstructor(napi_env env, napi_callback_info info) {
     return targetObj;
 }
 
+napi_value IJKPlayerNapi::startRecord(napi_env env, napi_callback_info info)
+{
+    LOGI("napi-->startRecord");
+    size_t argc = PARAM_COUNT_2;
+    napi_value args[PARAM_COUNT_2] = {nullptr};
+    napi_get_cb_info(env, info, &argc, args, nullptr, nullptr);
+    std::string xcomponentId;
+    NapiUtil::JsValueToString(env, args[INDEX_0], STR_DEFAULT_SIZE, xcomponentId);
+    std::string filePath;
+    NapiUtil::JsValueToString(env, args[INDEX_1], STR_DEFAULT_SIZE, filePath);
+    if (xcomponentId == "") {
+        xcomponentId = IJKPlayerNapi::getXComponentId(env, info);
+    }
+    int result = IJKPlayerNapi::getInstance(xcomponentId)->ijkPlayerNapiProxy_
+    ->IjkMediaPlayer_startRecord(filePath.c_str());
+    return NapiUtil::SetNapiCallInt32(env, result);
+}
+
+napi_value IJKPlayerNapi::stopRecord(napi_env env, napi_callback_info info)
+{
+    LOGI("napi-->stopRecord");
+    size_t argc = PARAM_COUNT_1;
+    napi_value args[PARAM_COUNT_1] = {nullptr};
+    napi_get_cb_info(env, info, &argc, args, nullptr, nullptr);
+    std::string xcomponentId;
+    NapiUtil::JsValueToString(env, args[INDEX_0], STR_DEFAULT_SIZE, xcomponentId);
+    if (xcomponentId == "") {
+        xcomponentId = IJKPlayerNapi::getXComponentId(env, info);
+    }
+    napi_deferred deferred;
+    napi_value promise;
+    NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
+    RecordCallBackInfo *recordCallBackInfo = new RecordCallBackInfo{
+        .env = env,
+        .asyncWork = nullptr,
+        .deferred = deferred,
+        .xcomponentId = xcomponentId
+    };
+    napi_value resourceName;
+    napi_create_string_latin1(env, "stopRecord", NAPI_AUTO_LENGTH, &resourceName);
+    napi_create_async_work(
+        env, nullptr, resourceName,
+        [](napi_env env, void *data) {
+            RecordCallBackInfo *recordCallBackInfo = (RecordCallBackInfo *)data;
+            recordCallBackInfo->code = IJKPlayerNapi::getInstance(recordCallBackInfo->xcomponentId)
+            ->ijkPlayerNapiProxy_->IjkMediaPlayer_stopRecord();
+        },
+        [](napi_env env, napi_status status, void *data) {
+            RecordCallBackInfo *recordCallBackInfo = (RecordCallBackInfo *)data;
+            napi_value result;
+            napi_create_int32(env, recordCallBackInfo->code, &result);
+            napi_resolve_deferred(recordCallBackInfo->env, recordCallBackInfo->deferred, result);
+            napi_delete_async_work(env, recordCallBackInfo->asyncWork);
+            delete recordCallBackInfo;
+        },
+        (void *)recordCallBackInfo, &recordCallBackInfo->asyncWork);
+    napi_queue_async_work(env, recordCallBackInfo->asyncWork);
+    return promise;
+}
+
+napi_value IJKPlayerNapi::isRecord(napi_env env, napi_callback_info info)
+{
+    LOGI("napi-->isRecord");
+    size_t argc = PARAM_COUNT_1;
+    napi_value args[PARAM_COUNT_1] = {nullptr};
+    napi_get_cb_info(env, info, &argc, args, nullptr, nullptr);
+    std::string xcomponentId;
+    NapiUtil::JsValueToString(env, args[INDEX_0], STR_DEFAULT_SIZE, xcomponentId);
+    if (xcomponentId == "") {
+        xcomponentId = IJKPlayerNapi::getXComponentId(env, info);
+    }
+    int result = IJKPlayerNapi::getInstance(xcomponentId)->ijkPlayerNapiProxy_->IjkMediaPlayer_isRecord();
+    return NapiUtil::SetNapiCallInt32(env, result);
+}
+
+napi_value IJKPlayerNapi::getCurrentFrame(napi_env env, napi_callback_info info)
+{
+    LOGI("napi-->getCurrentFrame");
+    size_t argc = PARAM_COUNT_2;
+    napi_value args[PARAM_COUNT_2] = {nullptr};
+    napi_get_cb_info(env, info, &argc, args, nullptr, nullptr);
+    std::string xcomponentId;
+    NapiUtil::JsValueToString(env, args[INDEX_0], STR_DEFAULT_SIZE, xcomponentId);
+    std::string filePath;
+    NapiUtil::JsValueToString(env, args[INDEX_1], STR_DEFAULT_SIZE, filePath);
+    if (xcomponentId == "") {
+        xcomponentId = IJKPlayerNapi::getXComponentId(env, info);
+    }
+    napi_deferred deferred;
+    napi_value promise;
+    NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
+    GetCurrentFrameCallBackInfo *getCurrentFrameCallBackInfo = new GetCurrentFrameCallBackInfo{
+        .env = env,
+        .asyncWork = nullptr,
+        .deferred = deferred,
+        .xcomponentId = xcomponentId,
+        .filePath = filePath
+    };
+    napi_value resourceName;
+    napi_create_string_latin1(env, "getCurrentFrame", NAPI_AUTO_LENGTH, &resourceName);
+    napi_create_async_work(
+        env, nullptr, resourceName,
+        [](napi_env env, void *data) {
+            GetCurrentFrameCallBackInfo *getCurrentFrameCallBackInfo = (GetCurrentFrameCallBackInfo *)data;
+            getCurrentFrameCallBackInfo->code = IJKPlayerNapi::getInstance(getCurrentFrameCallBackInfo->xcomponentId)
+            ->ijkPlayerNapiProxy_->IjkMediaPlayer_getCurrentFrame(getCurrentFrameCallBackInfo->filePath.c_str());
+            sleep(1);
+        },
+        [](napi_env env, napi_status status, void *data) {
+            GetCurrentFrameCallBackInfo *getCurrentFrameCallBackInfo = (GetCurrentFrameCallBackInfo *)data;
+            napi_value result;
+            napi_create_int32(env, getCurrentFrameCallBackInfo->code, &result);
+            napi_resolve_deferred(getCurrentFrameCallBackInfo->env, getCurrentFrameCallBackInfo->deferred, result);
+            napi_delete_async_work(env, getCurrentFrameCallBackInfo->asyncWork);
+            delete getCurrentFrameCallBackInfo;
+        },
+        (void *)getCurrentFrameCallBackInfo, &getCurrentFrameCallBackInfo->asyncWork);
+    napi_queue_async_work(env, getCurrentFrameCallBackInfo->asyncWork);
+    return promise;
+}
+
+
 /////////////////////////////XComponent////////////////////////////////
 
 void IJKPlayerNapi::setXComponentAndNativeWindow(std::string &id, OH_NativeXComponent *component, void *window) {
@@ -868,6 +1009,10 @@ napi_value IJKPlayerNapi::Export(napi_env env, napi_value exports) {
         DECLARE_NAPI_FUNCTION("_getMediaMeta", IJKPlayerNapi::getMediaMeta),
         DECLARE_NAPI_FUNCTION("_nativeOpenlog", IJKPlayerNapi::nativeOpenlog),
         DECLARE_NAPI_FUNCTION("_native_setup", IJKPlayerNapi::native_setup),
+        DECLARE_NAPI_FUNCTION("_startRecord", IJKPlayerNapi::startRecord),
+        DECLARE_NAPI_FUNCTION("_stopRecord", IJKPlayerNapi::stopRecord),
+        DECLARE_NAPI_FUNCTION("_isRecord", IJKPlayerNapi::isRecord),
+        DECLARE_NAPI_FUNCTION("_getCurrentFrame", IJKPlayerNapi::getCurrentFrame),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
     return exports;

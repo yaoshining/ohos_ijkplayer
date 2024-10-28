@@ -66,7 +66,11 @@ class IJKPlayerNapiProxy {
     IjkMediaPlayer *set_media_player(std::string id, IjkMediaPlayer *mp);
     IjkMediaPlayer *get_media_player(std::string id);
     void delete_media_player(std::string id);
-
+    
+    int IjkMediaPlayer_startRecord(const char *recordFilePath);
+    int IjkMediaPlayer_stopRecord();
+    int IjkMediaPlayer_isRecord();
+    int IjkMediaPlayer_getCurrentFrame(const char *saveFilePath);
   public:
     std::string id_;
     void *GLOBAL_NATIVE_WINDOW = nullptr;

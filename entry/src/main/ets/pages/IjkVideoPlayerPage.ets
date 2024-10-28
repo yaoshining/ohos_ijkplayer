@@ -27,6 +27,9 @@ import { LogUtils } from '@ohos/ijkplayer';
 import prompt from '@ohos.promptAction';
 import { PlayStatus } from '../common/PlayStatus';
 import { RouterParam } from './RouterParam';
+import abilityAccessCtrl from '@ohos.abilityAccessCtrl';
+import photoAccessHelper from '@ohos.file.photoAccessHelper';
+import fs from '@ohos.file.fs';
 
 @Entry
 @Component
@@ -57,6 +60,9 @@ struct IjkVideoPlayerPage {
   @State PROGRESS_MAX_VALUE: number = 100;
   @State updateProgressTimer: number = 0;
   @State curIndex: number = 0;
+  @State recordProgressVisible: Visibility = Visibility.None;
+  @State screenshotProgressVisible: Visibility = Visibility.None;
+  @State recordSaveFilePath: string = "";
   private videoUrls: string[] =
   ["https://1251542705.vod2.myqcloud.com/4a8d9c67vodtransgzp1251542705/203109c63270835013529449619/v.f1419907.mp4",
     "https://getsamplefiles.com/download/mp4/sample-5.mp4",
@@ -82,6 +88,7 @@ struct IjkVideoPlayerPage {
     LogUtils.getInstance().LOGI("aboutToDisappear");
     this.mDestroyPage = true;
     this.mIjkMediaPlayer.setScreenOnWhilePlaying(false);
+    this.stopRecord(false);
     if (this.CONTROL_PlayStatus != PlayStatus.INIT) {
       this.stop();
     }
@@ -128,6 +135,7 @@ struct IjkVideoPlayerPage {
             .width('100%')
             .width(this.videoWidth)
             .aspectRatio(this.videoAspectRatio)
+            .id('xcomponentId')
         }.aspectRatio(this.videoAspectRatio)
 
         Image($r('app.media.icon_replay'))
@@ -260,6 +268,42 @@ struct IjkVideoPlayerPage {
               this.mIjkMediaPlayer.setVolume(this.volume.toString(), this.volume.toString());
             }
           })
+      }
+
+      Flex({ direction: FlexDirection.Row, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Start }) {
+        Button($r('app.string.startRecord'))
+          .onClick(() => {
+            this.startRecord()
+          })
+          .width('400px')
+          .height('80px')
+          .margin('15px')
+
+        Progress({ value: 0, total: 100, type: ProgressType.Ring })
+          .width(50).color(Color.Blue)
+          .style({ strokeWidth: 10, status: ProgressStatus.LOADING }).visibility(this.recordProgressVisible)
+
+        Button($r('app.string.stopRecord'))
+          .visibility(this.recordProgressVisible == Visibility.Visible ? Visibility.None : Visibility.Visible)
+          .onClick(() => {
+            this.stopRecord(true)
+          })
+          .width('400px')
+          .height('80px')
+          .margin('15px')
+
+        Progress({ value: 0, total: 100, type: ProgressType.Ring })
+          .width(50).color(Color.Blue)
+          .style({ strokeWidth: 10, status: ProgressStatus.LOADING }).visibility(this.screenshotProgressVisible)
+
+        Button($r('app.string.screenshot'))
+          .visibility(this.screenshotProgressVisible == Visibility.Visible ? Visibility.None : Visibility.Visible)
+          .onClick(() => {
+            this.screenshot()
+          })
+          .width('400px')
+          .height('80px')
+          .margin('15px')
       }
     }
   }
@@ -562,7 +606,6 @@ struct IjkVideoPlayerPage {
   }
 
   private stop() {
-
     this.CONTROL_PlayStatus = PlayStatus.INIT;
     this.mIjkMediaPlayer.stop();
     this.mIjkMediaPlayer.release();
@@ -597,6 +640,113 @@ struct IjkVideoPlayerPage {
       return true;
     }
     return false;
+  }
+
+  private startRecord() {
+    let isRecord = this.mIjkMediaPlayer.isRecord()
+    if (isRecord) {
+      prompt.showToast({
+        message: $r('app.string.recordIng')
+      });
+      return
+    }
+    this.recordSaveFilePath = getContext(this).cacheDir + "/record.mp4";
+    let result = this.mIjkMediaPlayer.startRecord(this.recordSaveFilePath);
+    prompt.showToast({
+      message: result ? $r('app.string.start_record_success') : $r('app.string.start_record_failed')
+    });
+  }
+
+  private stopRecord(isShowTip: boolean) {
+    let isRecord = this.mIjkMediaPlayer.isRecord()
+    if (!isRecord) {
+      if (isShowTip) {
+        prompt.showToast({
+          message:  $r('app.string.record_not_enabled')
+        });
+      }
+      return
+    }
+    this.recordProgressVisible = Visibility.Visible;
+    let that = this;
+    this.mIjkMediaPlayer.stopRecord().then((result) => {
+      that.recordProgressVisible = Visibility.None;
+      if(!result){
+        prompt.showToast({
+          message: $r('app.string.stop_record_failed')
+        });
+        return;
+      }
+      let atManager = abilityAccessCtrl.createAtManager();
+      atManager.requestPermissionsFromUser(getContext(that), ['ohos.permission.WRITE_IMAGEVIDEO']).then(async () => {
+        let photoType: photoAccessHelper.PhotoType = photoAccessHelper.PhotoType.VIDEO;
+        let extension:string = 'mp4';
+        let options: photoAccessHelper.CreateOptions = {
+          title: "record_"+new Date().getTime()+""
+        }
+        let phAccessHelper = photoAccessHelper.getPhotoAccessHelper(getContext(that));
+        phAccessHelper.createAsset(photoType, extension, options, (err, uri) => {
+          LogUtils.getInstance().LOGI(`createAsset success uri:${uri}`)
+          if (uri !== undefined) {
+            let recordFile = fs.openSync(that.recordSaveFilePath);
+            let albumFile = fs.openSync(uri,fs.OpenMode.READ_WRITE);
+            fs.copyFileSync(recordFile.fd,albumFile.fd);
+            fs.closeSync(recordFile);
+            fs.closeSync(albumFile);
+            prompt.showToast({
+              message: $r('app.string.stop_record_success')
+            });
+          } else {
+            prompt.showToast({
+              message: $r('app.string.stop_record_failed')
+            });
+            LogUtils.getInstance().LOGI(`createAsset failed, error: ${err.code}, ${err.message}`)
+          }
+        });
+      })
+    })
+  }
+
+  private screenshot() {
+    let that = this;
+    let saveFilePath = getContext(this).cacheDir + "/screen.jpg";
+    this.screenshotProgressVisible = Visibility.Visible;
+    this.mIjkMediaPlayer.screenshot(saveFilePath).then((result) => {
+      that.screenshotProgressVisible = Visibility.None;
+      if(!result) {
+        prompt.showToast({
+          message: $r('app.string.screenshot_failed')
+        });
+        return;
+      }
+      let atManager = abilityAccessCtrl.createAtManager();
+      atManager.requestPermissionsFromUser(getContext(that), ['ohos.permission.WRITE_IMAGEVIDEO']).then(async () => {
+        let photoType: photoAccessHelper.PhotoType = photoAccessHelper.PhotoType.IMAGE;
+        let extension:string = 'jpg';
+        let options: photoAccessHelper.CreateOptions = {
+          title: "screenshot_"+new Date().getTime()+""
+        }
+        let phAccessHelper = photoAccessHelper.getPhotoAccessHelper(getContext(that));
+        phAccessHelper.createAsset(photoType, extension, options, (err, uri) => {
+          LogUtils.getInstance().LOGI(`createAsset success uri:${uri}`)
+          if (uri !== undefined) {
+            let screenshotFile = fs.openSync(saveFilePath);
+            let albumFile = fs.openSync(uri,fs.OpenMode.READ_WRITE);
+            fs.copyFileSync(screenshotFile.fd,albumFile.fd);
+            fs.closeSync(screenshotFile);
+            fs.closeSync(albumFile);
+            prompt.showToast({
+              message: $r('app.string.screenshot_success')
+            });
+          } else {
+            prompt.showToast({
+              message: $r('app.string.screenshot_failed')
+            });
+            LogUtils.getInstance().LOGI(`createAsset failed, error: ${err.code}, ${err.message}`)
+          }
+        });
+      })
+    });
   }
 
 }

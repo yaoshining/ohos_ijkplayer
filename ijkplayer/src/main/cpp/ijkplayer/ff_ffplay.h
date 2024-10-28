@@ -120,4 +120,8 @@ int convert_image(FFPlayer *ffp, AVFrame *src_frame, int64_t src_frame_pts, int 
 // must be freed with free();
 struct IjkMediaMeta *ffp_get_meta_l(FFPlayer *ffp);
 
+int      ffp_start_record(FFPlayer *ffp, const char *recordFilePath);
+int      ffp_stop_record(FFPlayer *ffp);
+int      ffp_is_record(FFPlayer *ffp);
+int      ffp_get_current_frame(FFPlayer *ffp, const char *saveFilePath);
 #endif

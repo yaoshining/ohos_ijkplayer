@@ -8,7 +8,7 @@
 
 ## 编译运行
 
-### ffmpeg soundtouch yuv依赖
+### ffmpeg soundtouch yuv openh264依赖
 
 1. FFmpeg:基于B站的FFmpeg版本(ff4.0--ijk0.8.8--20210426--001):[FFmpeg源码链接](https://github.com/bilibili/FFmpeg/tags)， [FFmpeg](https://gitee.com/openharmony-sig/tpc_c_cplusplus/tree/support_x86/thirdparty/FFmpeg-ff4.0)可以在交叉编译出库文件和头文件，编译可参考[FFmpeg-ff4.0编译指导](https://gitee.com/openharmony-sig/tpc_c_cplusplus/blob/support_x86/thirdparty/FFmpeg-ff4.0/README_zh.md)。
 
@@ -21,9 +21,11 @@
 3. yuv:基于B站的yuv版本(ijk-r0.2.1-dev):[yuv源码链接](https://github.com/bilibili/libyuv/branches)，yuv须在交叉编译出库文件和头文件。
    1. 把doc目录下的libyuv-ijk文件夹拷贝到thirdparty下在lycium文件夹执行./build.sh libyuv-ijk可以在lycium\usr目录下编译出yuv的静态库和头文件
 
-4. 把编译生成的ffmpeg文件夹拷贝到ijkplayer/src/main/cpp/third_party/ffmpeg下
+4. openh264:基于版本(openh264-2.4.1):[openh264源码链接](https://github.com/cisco/openh264/releases),openh264须在交叉编译出库文件和头文件。编译脚本可参考[openh264](https://gitee.com/openharmony-sig/tpc_c_cplusplus/blob/support_x86/thirdparty/openh264)。编译完成后，输出文件在lycium\usr目录下openh264文件夹。    
 
-5. 把编译生成的openssl、soundtouch、yuv的文件夹，拷贝到工程的ijkplayer/src/main/cpp/third_party下，如图所示：
+5. 把编译生成的ffmpeg文件夹拷贝到ijkplayer/src/main/cpp/third_party/ffmpeg下
+
+6. 把编译生成的openssl、soundtouch、yuv、openh264的文件夹，拷贝到工程的ijkplayer/src/main/cpp/third_party下，如图所示：
 
 ![img.png](image/img.png)
 
@@ -248,6 +250,102 @@ ohpm install @ohos/ijkplayer
    ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-hevc", "1");
 ```
 
+
+### 开启视频录制
+```
+    let recordSaveFilePath = getContext(this).cacheDir + "/record.mp4";
+    let result = this.mIjkMediaPlayer.startRecord(recordSaveFilePath);
+    prompt.showToast({
+      message: result ? "开启录制成功" : "开启录制失败"
+    });
+```
+
+### 获取视频录制状态
+```
+    let isRecord = this.mIjkMediaPlayer.isRecord();
+    prompt.showToast({
+      message: isRecord ? "正在录制中" : "录制没有开启哦！"
+    });
+```
+
+### 停止视频录制
+```
+    // 保存相册需要申请权限: ohos.permission.WRITE_IMAGEVIDEO
+    this.mIjkMediaPlayer.stopRecord().then((result) => {
+      if(!result){
+        prompt.showToast({
+          message: "停止录制失败"
+        });
+        return;
+      }
+      let atManager = abilityAccessCtrl.createAtManager();
+      atManager.requestPermissionsFromUser(getContext(that), ['ohos.permission.WRITE_IMAGEVIDEO']).then(async () => {
+        let photoType: photoAccessHelper.PhotoType = photoAccessHelper.PhotoType.VIDEO;
+        let extension:string = 'mp4';
+        let options: photoAccessHelper.CreateOptions = {
+          title: "record_"+new Date().getTime()+""
+        }
+        let phAccessHelper = photoAccessHelper.getPhotoAccessHelper(getContext(that));
+        phAccessHelper.createAsset(photoType, extension, options, (err, uri) => {
+          if (uri !== undefined) {
+            let recordFile = fs.openSync(that.recordSaveFilePath);
+            let albumFile = fs.openSync(uri,fs.OpenMode.READ_WRITE);
+            fs.copyFileSync(recordFile.fd,albumFile.fd);
+            fs.closeSync(recordFile);
+            fs.closeSync(albumFile);
+            prompt.showToast({
+              message: "停止录制成功"
+            });
+          } else {
+            prompt.showToast({
+              message: "停止录制失败"
+            });
+          }
+        });
+      })
+    })
+```
+
+### 截屏
+```
+    // 保存相册需要申请权限: ohos.permission.WRITE_IMAGEVIDEO
+    let saveFilePath = getContext(this).cacheDir + "/screen.jpg";
+    this.mIjkMediaPlayer.screenshot(saveFilePath).then((result) => {
+      if(!result) {
+        prompt.showToast({
+          message: "截屏失败"
+        });
+        return;
+      }
+      let atManager = abilityAccessCtrl.createAtManager();
+      atManager.requestPermissionsFromUser(getContext(that), ['ohos.permission.WRITE_IMAGEVIDEO']).then(async () => {
+        let photoType: photoAccessHelper.PhotoType = photoAccessHelper.PhotoType.IMAGE;
+        let extension:string = 'jpg';
+        let options: photoAccessHelper.CreateOptions = {
+          title: "screenshot_"+new Date().getTime()+""
+        }
+        let phAccessHelper = photoAccessHelper.getPhotoAccessHelper(getContext(that));
+        phAccessHelper.createAsset(photoType, extension, options, (err, uri) => {
+          if (uri !== undefined) {
+            let screenshotFile = fs.openSync(saveFilePath);
+            let albumFile = fs.openSync(uri,fs.OpenMode.READ_WRITE);
+            fs.copyFileSync(screenshotFile.fd,albumFile.fd);
+            fs.closeSync(screenshotFile);
+            fs.closeSync(albumFile);
+            prompt.showToast({
+              message: "截屏成功"
+            });
+          } else {
+            prompt.showToast({
+              message: "截屏失败"
+            });
+          }
+        });
+      })
+    });
+```
+
+
 ## 接口说明
 
 ### IjkMediaPlayer.getInstance()
@@ -294,7 +392,10 @@ ohpm install @ohos/ijkplayer
 | setAudioId                    | id: string                                                   | void              | 设置创建音频对象，设置id                                                |
 | on                            | type: ‘audioInterrupt’, callback: Callback< InterruptEvent > | void              | 监听音频中断事件，使用callback方式返回结果                                    |
 | off                           | type: ‘audioInterrupt’                                       | void              | 取消订阅音频中断事件                                                   |
-
+| startRecord                           | saveFilePath: string                                       | boolean              | 开启视频录制                                                  |
+| isRecord                           | 无                                      | boolean              | 获取视频录制状态                                                  |
+| stopRecord                           | 无                                      | Promise<boolean>              | 停止视频录制                                                  |
+| screenshot                           | saveFilePath: string                                      | Promise<boolean>               | 截屏                                                  |
 ### 参数说明
 1.	InterruptEvent
 播放中断时，应用接收的中断事件。

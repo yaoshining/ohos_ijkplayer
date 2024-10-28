@@ -58,6 +58,10 @@ class IJKPlayerNapi {
     static napi_value native_setup(napi_env env, napi_callback_info info);
     static napi_value native_setup_audio(napi_env env, napi_callback_info info);
     static napi_value JsConstructor(napi_env env, napi_callback_info info);
+    static napi_value startRecord(napi_env env, napi_callback_info info);
+    static napi_value stopRecord(napi_env env, napi_callback_info info);
+    static napi_value isRecord(napi_env env, napi_callback_info info);
+    static napi_value getCurrentFrame(napi_env env, napi_callback_info info);
 
     ////////////////////////XComponent////////////////////////////
     static OH_NativeXComponent_Callback *getNXComponentCallback();

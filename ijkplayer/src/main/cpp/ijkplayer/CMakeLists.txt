@@ -40,6 +40,7 @@ add_library(ijkplayer  SHARED
                                  ohos/ohos_video_decoder_data.cpp
                                  ohos/ohos_video_decoder_Info.cpp
                                  ohos/ohos_video_decoder.cpp
+                                 record/ijkplayer_record.cpp
                                 )
 
 
@@ -59,7 +60,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../third_party/soundtouch/${OHOS
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../third_party/yuv/${OHOS_ARCH}/include)
 
 target_link_directories(ijkplayer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/ffmpeg/ffmpeg/${OHOS_ARCH}/lib
-${CMAKE_CURRENT_SOURCE_DIR}/../third_party/openssl/${OHOS_ARCH}/lib)
+${CMAKE_CURRENT_SOURCE_DIR}/../third_party/openssl/${OHOS_ARCH}/lib ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/openh264/${OHOS_ARCH}/lib)
 
 target_link_libraries(ijkplayer ijksdl_so)
 target_link_libraries(ijkplayer EGL)
@@ -81,3 +82,4 @@ target_link_libraries(ijkplayer libnative_media_core.so)
 target_link_libraries(ijkplayer libnative_media_vdec.so)
 target_link_libraries(ijkplayer libnative_window.so)
 target_link_libraries(ijkplayer libnative_buffer.so)
+target_link_libraries(ijkplayer openh264)

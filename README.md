@@ -8,7 +8,7 @@
 
 ## How to Build
 
-### FFmpeg soundtouch YUV dependency
+### FFmpeg soundtouch YUV openh264 dependency
 
 1. FFmpeg: FFmpeg version (ff4.0--ijk0.8.8--20210426--001)[FFmpeg source code link](https://github.com/bilibili/FFmpeg/tags) based on BiliBili supports the cross-compilation of library and header files. For details about the compilation, see [FFmpeg-ff4.0 Compilation Guide](https://gitee.com/openharmony-sig/tpc_c_cplusplus/blob/support_x86/thirdparty/FFmpeg-ff4.0/README_en.md).
 
@@ -21,9 +21,11 @@
 3. YUV: YUV version (ijk-r0.2.1-dev):[YUV source code link](https://github.com/bilibili/libyuv/branches) based on BiliBili supports the cross-compilation of library and header files.
    1. Copy the **libyuv-ijk** folder in the **doc** directory to the **thirdparty** directory. In the **lycium** folder, run the **./build.sh libyuv-ijk** command to compile the YUV static library and header file in the **lycium\usr** directory.
 
-4. Copy the **ffmpeg** folder generated after compilation to **ijkplayer/src/main/cpp/third_party/ffmpeg**.
+4. openh264: Based on version (openh264-2.4.1): [openh264 source code link](https://github.com/cisco/openh264/releases) OpenH264 requires cross compilation of the outbound and header files. Compile script can refer to [openh264](https://gitee.com/openharmony-sig/tpc_c_cplusplus/blob/support_x86/thirdparty/openh264) After compilation, the output file is located in the openh264 folder in the **lycium\usr** directory.
 
-5. Copy the **openssl**, **soundtouch**, and **yuv** folders generated after compilation to the **ijkplayer/src/main/cpp/third_party** directory of the project, as shown in the following figure.
+5. Copy the **ffmpeg** folder generated after compilation to **ijkplayer/src/main/cpp/third_party/ffmpeg**.
+
+6. Copy the **openssl**, **soundtouch**, **yuv**, and **openh264** folders generated after compilation to the **ijkplayer/src/main/cpp/third_party** directory of the project, as shown in the following figure.
 
 ![img.png](image/img.png)
 
@@ -248,6 +250,100 @@ ohpm install @ohos/ijkplayer
    ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-hevc", "1");
 ```
 
+### Enable video recording
+```
+    let recordSaveFilePath = getContext(this).cacheDir + "/record.mp4";
+    let result = this.mIjkMediaPlayer.startRecord(recordSaveFilePath);
+    prompt.showToast({
+      message: result ? "start record success" : "start record failed"
+    });
+```
+
+### Get recording status
+```
+    let isRecord = this.mIjkMediaPlayer.isRecord();
+    prompt.showToast({
+      message: isRecord ? "recordIng" : "record not enabled"
+    });
+```
+
+### Stop video recording
+```
+    // Permission is required to save the album: ohos.permission.WRITE_IMAGEVIDEO
+    this.mIjkMediaPlayer.stopRecord().then((result) => {
+      if(!result){
+        prompt.showToast({
+          message: "stop record failed"
+        });
+        return;
+      }
+      let atManager = abilityAccessCtrl.createAtManager();
+      atManager.requestPermissionsFromUser(getContext(that), ['ohos.permission.WRITE_IMAGEVIDEO']).then(async () => {
+        let photoType: photoAccessHelper.PhotoType = photoAccessHelper.PhotoType.VIDEO;
+        let extension:string = 'mp4';
+        let options: photoAccessHelper.CreateOptions = {
+          title: "record_"+new Date().getTime()+""
+        }
+        let phAccessHelper = photoAccessHelper.getPhotoAccessHelper(getContext(that));
+        phAccessHelper.createAsset(photoType, extension, options, (err, uri) => {
+          if (uri !== undefined) {
+            let recordFile = fs.openSync(that.recordSaveFilePath);
+            let albumFile = fs.openSync(uri,fs.OpenMode.READ_WRITE);
+            fs.copyFileSync(recordFile.fd,albumFile.fd);
+            fs.closeSync(recordFile);
+            fs.closeSync(albumFile);
+            prompt.showToast({
+              message: "stop record success"
+            });
+          } else {
+            prompt.showToast({
+              message: "stop record failed"
+            });
+          }
+        });
+      })
+    })
+```
+
+### screenshot
+```
+    // Permission is required to save the album: ohos.permission.WRITE_IMAGEVIDEO
+    let saveFilePath = getContext(this).cacheDir + "/screen.jpg";
+    this.mIjkMediaPlayer.screenshot(saveFilePath).then((result) => {
+      if(!result) {
+        prompt.showToast({
+          message: "screenshot failed"
+        });
+        return;
+      }
+      let atManager = abilityAccessCtrl.createAtManager();
+      atManager.requestPermissionsFromUser(getContext(that), ['ohos.permission.WRITE_IMAGEVIDEO']).then(async () => {
+        let photoType: photoAccessHelper.PhotoType = photoAccessHelper.PhotoType.IMAGE;
+        let extension:string = 'jpg';
+        let options: photoAccessHelper.CreateOptions = {
+          title: "screenshot_"+new Date().getTime()+""
+        }
+        let phAccessHelper = photoAccessHelper.getPhotoAccessHelper(getContext(that));
+        phAccessHelper.createAsset(photoType, extension, options, (err, uri) => {
+          if (uri !== undefined) {
+            let screenshotFile = fs.openSync(saveFilePath);
+            let albumFile = fs.openSync(uri,fs.OpenMode.READ_WRITE);
+            fs.copyFileSync(screenshotFile.fd,albumFile.fd);
+            fs.closeSync(screenshotFile);
+            fs.closeSync(albumFile);
+            prompt.showToast({
+              message: "screenshot success"
+            });
+          } else {
+            prompt.showToast({
+              message: "screenshot failed"
+            });
+          }
+        });
+      })
+    });
+```
+
 ## Available APIs
 
 ### IjkMediaPlayer.getInstance()
@@ -294,7 +390,10 @@ ohpm install @ohos/ijkplayer
 | setAudioId                    | id: string                                                   | void              | Sets the ID of the audio to be created.                                               |
 | on                            | type: 'audioInterrupt', callback: Callback< InterruptEvent >| void              | Subscribes to audio interruption events. This API uses an asynchronous callback to return the result.                                   |
 | off                           | type: 'audioInterrupt'                                      | void              | Unsubscribes from audio interruption events.                                                  |
-
+| startRecord                           | saveFilePath: string                                       | boolean              | Enable video recording                                                  |
+| isRecord                           | 无                                      | boolean              | Get recording status                                                  |
+| stopRecord                           | 无                                      | Promise<boolean>              | Stop video recording                                                  |
+| screenshot                           | saveFilePath: string     | Promise<boolean>               | screenshot                                                  |
 ### Parameter Description
 1.	InterruptEvent
 Describes the interruption event received by the application when playback is interrupted.

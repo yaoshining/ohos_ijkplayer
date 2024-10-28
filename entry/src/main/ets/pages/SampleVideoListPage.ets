@@ -20,6 +20,7 @@ import VideoNewsView from '../ListView/VideoNewsView';
 @Component
 struct SampleVideoListPage {
   private items: Array<string> = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13'];
+
   build() {
 
     Flex({ direction: FlexDirection.Column, alignItems: ItemAlign.Start, justifyContent: FlexAlign.Start }) {
@@ -33,25 +34,30 @@ struct SampleVideoListPage {
 
       List({ space: 20, initialIndex: 0 }) {
         ListItem() {
-          Text(getContext().resourceManager.getStringByNameSync("Test_address")+"https://1251542705.vod2.myqcloud.com/4a8d9c67vodtransgzp1251542705/203109c63270835013529449619/v.f1419907.mp4")
+          Text(getContext().resourceManager.getStringByNameSync("Test_address") +
+            "https://1251542705.vod2.myqcloud.com/4a8d9c67vodtransgzp1251542705/203109c63270835013529449619/v.f1419907.mp4")
             .fontSize(20)
             .fontWeight(FontWeight.Bold)
             .fontColor(Color.Black)
             .margin(10)
             .onClick(() => {
-              router.pushUrl({ url: "pages/IjkVideoPlayerPage", params: {
-                videoUrl: "https://1251542705.vod2.myqcloud.com/4a8d9c67vodtransgzp1251542705/203109c63270835013529449619/v.f1419907.mp4"
-              } });
+              router.pushUrl({
+                url: "pages/IjkVideoPlayerPage", params: {
+                  videoUrl: "https://1251542705.vod2.myqcloud.com/4a8d9c67vodtransgzp1251542705/203109c63270835013529449619/v.f1419907.mp4"
+                }
+              });
             })
         }
+
       }.height('30%')
-      List({space: 20}) {
+
+      List({ space: 20 }) {
         ForEach(this.items, (title: string) => {
           ListItem() {
             VideoNewsView({ title: title })
           }
         })
-      }.margin({top: 30})
+      }.margin({ top: 30 })
     }
   }
 }

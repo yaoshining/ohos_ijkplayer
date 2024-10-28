@@ -79,6 +79,54 @@
     {
       "name": "destroy",
       "value": "销毁"
+    },
+    {
+      "name": "startRecord",
+      "value": "开始录制"
+    },
+    {
+      "name": "stopRecord",
+      "value": "停止录制"
+    },
+    {
+      "name": "screenshot",
+      "value": "截屏"
+    },
+    {
+      "name": "recordIng",
+      "value": "正在录制中"
+    },
+    {
+      "name": "start_record_success",
+      "value": "开启录制成功"
+    },
+    {
+      "name": "start_record_failed",
+      "value": "开启录制失败"
+    },
+    {
+      "name": "record_not_enabled",
+      "value": "录制没有开启哦！"
+    },
+    {
+      "name": "stop_record_success",
+      "value": "停止录制成功"
+    },
+    {
+      "name": "stop_record_failed",
+      "value": "停止录制失败"
+    },
+    {
+      "name": "screenshot_success",
+      "value": "截屏成功"
+    },
+    {
+      "name": "screenshot_failed",
+      "value": "截屏失败"
+    },
+    {
+      "name": "IMAGEVIDEO_REQUEST_PERMISSION",
+      "value": "api apply image video request permission."
     }
   ]
 }

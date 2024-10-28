@@ -26,11 +26,12 @@ FFMPEG_NAME=FFmpeg-ff4.0                                                    # �
 LIBYUV_NAME=libyuv-ijk                                                      # 依赖库名
 SOUNDTOUCH_NAME=soundtouch-ijk                                              # 依赖库名
 OPESSL_NAME=openssl_1_1_1w                                                  # FFmpeg的依赖库名，需和依赖库一起安装
+OPENH264_NAME=openh264                                                      # FFmpeg的依赖库名，需和依赖库一起安装
 
 CI_OUTPUT_DIR=$ROOT_DIR/../out/tpc/                                         # hap/har安装目录
 
-LIBS_NAME=("FFmpeg-ff4.0" "libyuv-ijk" "soundtouch-ijk" "openssl_1_1_1w")
-PACKAGE_NAME=("FFmpeg-ff4.0-ijk0.8.8-20210426-001.tar.gz" "yuv-ijk-r0.2.1-dev.zip" "soundtouch-ijk-r0.1.2-dev.zip" "openssl-OpenSSL_1_1_1w.zip")
+LIBS_NAME=("FFmpeg-ff4.0" "libyuv-ijk" "soundtouch-ijk" "openssl_1_1_1w" "openh264")
+PACKAGE_NAME=("FFmpeg-ff4.0-ijk0.8.8-20210426-001.tar.gz" "yuv-ijk-r0.2.1-dev.zip" "soundtouch-ijk-r0.1.2-dev.zip" "openssl-OpenSSL_1_1_1w.zip" "openh264-2.4.1.tar.gz")
 
 function prepare_lycium_tools()
 {
@@ -136,6 +137,7 @@ function install_shasum()
     check_copy_shasum $LIBYUV_NAME ${PACKAGE_NAME[1]} yuv
     check_copy_shasum $SOUNDTOUCH_NAME ${PACKAGE_NAME[2]} soundtouch
     check_copy_shasum $OPESSL_NAME ${PACKAGE_NAME[3]} $OPESSL_NAME
+    check_copy_shasum $OPENH264_NAME ${PACKAGE_NAME[4]} $OPENH264_NAME
 }
 function start_build()
 {
@@ -179,6 +181,12 @@ function install_depends()
         echo "soundtouch build failed!"
         return 1
     fi
+    cp -arf $LYCIUM_TOOLS_DIR/usr/openh264 $install_dir/openh264
+    if [ $? -ne 0 ]
+    then
+        echo "FFmpeg depends openh264 build failed!"
+        return 1
+    fi
 
     if [ -d $CI_OUTPUT_DIR ]
     then
@@ -186,6 +194,7 @@ function install_depends()
         cp -arf $LYCIUM_TOOLS_DIR/usr/yuv $CI_OUTPUT_DIR
         cp -arf $LYCIUM_TOOLS_DIR/usr/$OPESSL_NAME $CI_OUTPUT_DIR
         cp -arf $LYCIUM_TOOLS_DIR/usr/soundtouch $CI_OUTPUT_DIR
+        cp -arf $LYCIUM_TOOLS_DIR/usr/openh264 $CI_OUTPUT_DIR
     fi
 
     return 0
