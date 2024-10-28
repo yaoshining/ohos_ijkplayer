@@ -48,6 +48,11 @@ public:
     void DecoderOutput(AVFrame *frame);
 };
 
+static void func_destroy(IJKFF_Pipenode *node)
+{
+    IJKFF_Pipenode_Opaque *opaque = static_cast<IJKFF_Pipenode_Opaque *>(node->opaque);
+    opaque->decoder.Release();
+}
 void IJKFF_Pipenode_Opaque::DecoderInput(AVPacket pkt)
 {
     int32_t ret = 0;
@@ -318,7 +323,6 @@ static int ffplay_video_ohos_thread(FFPlayer *ffp, IJKFF_Pipenode_Opaque *opaque
  the_end:
     av_log(NULL, AV_LOG_INFO, "convert image convertFrameCount = %d\n", convertFrameCount);
     av_bsf_free(&opaque->avbsfContext);
-    opaque->decoder.Release();
     av_frame_free(&frame);
     return 0;
 }
@@ -412,6 +416,7 @@ IJKFF_Pipenode *ffpipenode_create_video_decoder_from_ohos_mediacodec(FFPlayer *f
         int fmt = get_img_info->frame_img_codec_ctx->pix_fmt;
     }
 
+    node->func_destroy = func_destroy;
     node->func_run_sync = func_run_sync;
     return node;
 }
