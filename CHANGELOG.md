@@ -1,3 +1,6 @@
+## 2.0.6-rc.1
+- Add support for video recording and screenshot functionality
+
 ## 2.0.6-rc.0
 - Fix release crash issue
 
