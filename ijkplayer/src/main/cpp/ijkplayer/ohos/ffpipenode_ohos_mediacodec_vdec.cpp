@@ -230,6 +230,7 @@ static int decoder_decode_ohos_frame(FFPlayer *ffp, Decoder *d, AVFrame *frame, 
         }
 
         if (ffp_packet_queue_get_or_buffering(ffp, d->queue, &pkt, &d->pkt_serial, &d->finished) < 0) {
+            av_packet_unref(&pkt);
             return -1;
         }
         if (ffp_is_flush_packet(&pkt)) {
@@ -239,18 +240,18 @@ static int decoder_decode_ohos_frame(FFPlayer *ffp, Decoder *d, AVFrame *frame, 
         }
     } while (d->queue->serial != d->pkt_serial);
 
-    if (ret == AVERROR_EOF) {
-        d->finished = d->pkt_serial;
-        avcodec_flush_buffers(d->avctx);
-        return 0;
-    }
-
     ret = av_bsf_send_packet(opaque->avbsfContext, &pkt);
     if (ret < 0) {
         LOGE("av_bsf_send_packet failed");
     }
     while (ret >= 0) {
         ret = av_bsf_receive_packet(opaque->avbsfContext, &pkt);
+        if (ret == AVERROR_EOF) {
+            d->finished = d->pkt_serial;
+            avcodec_flush_buffers(d->avctx);
+            av_packet_unref(&pkt);
+            return 0;
+        }
     }
 
     std::thread DecoderInputThread(&IJKFF_Pipenode_Opaque::DecoderInput, opaque, pkt);
