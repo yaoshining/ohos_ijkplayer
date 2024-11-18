@@ -1,3 +1,6 @@
+## 2.0.6-rc.2
+- Fixed the issue of callback not triggering after hard decoding playback completion
+
 ## 2.0.6-rc.1
 - Add support for video recording and screenshot functionality
 
