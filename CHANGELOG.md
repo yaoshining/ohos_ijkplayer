@@ -1,5 +1,6 @@
 ## 2.0.6-rc.1
 - Add support for video recording and screenshot functionality
+- Switch openssl version 3.4.0
 
 ## 2.0.6-rc.0
 - Fix release crash issue

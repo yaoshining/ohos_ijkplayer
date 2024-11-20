@@ -21,7 +21,7 @@
         "Name": "openssl",
         "License": "Apache License 2.0",
         "License File": "notes.txt",
-        "Version Number": "OpenSSL_1_1_1w",
+        "Version Number": "3.4.0",
         "Owner": "xiafeng@huawei.com",
         "Upstream URL": "https://github.com/openssl/openssl",
         "Description": "OpenSSL is a robust, commercial-grade, full-featured Open Source Toolkit for the Transport Layer Security (TLS) protocol formerly known as the Secure Sockets Layer (SSL) protocol."
