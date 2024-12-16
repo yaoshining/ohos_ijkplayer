@@ -3480,7 +3480,7 @@ static int read_thread(void *arg)
                     packet_queue_flush(&is->audioq);
                     packet_queue_put(&is->audioq, &flush_pkt);
                     // TODO: clear invaild audio data
-                    // SDL_AoutFlushAudio(ffp->aout);
+                    SDL_AoutFlushAudio(ffp->aout);
                 }
                 if (is->subtitle_stream >= 0) {
                     packet_queue_flush(&is->subtitleq);
