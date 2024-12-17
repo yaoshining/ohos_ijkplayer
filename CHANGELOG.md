@@ -1,3 +1,6 @@
+## 2.0.6-rc.3
+- fix:clear invaild audio data
+
 ## 2.0.6-rc.2
 - Fixed the issue of callback not triggering after hard decoding playback completion
 - Switch openssl version 3.4.0
