@@ -554,7 +554,8 @@ RecordWriteData* WaitCacheVideoFrames(FFPlayer *mFFPlayer)
         RecordWriteData *recordWriteData;
         while (true) {
             recordWriteData = &mFFPlayer->record_write_data;
-            if ((&mFFPlayer->record_write_data)->windex > DATA_NUM_50) {
+            if ((&mFFPlayer->record_write_data)->windex > DATA_NUM_50
+                || GetRecordStatus(mFFPlayer) != OHOS_RECORD_STATUS_ON) {
                 break;
             }
             usleep(SLEEP_TIME);
@@ -568,47 +569,47 @@ int WriteRecordFile(void *recordData)
     RecordWriteData *recordWriteData = &mFFPlayer->record_write_data;
     const char *fileName = recordWriteData->recordFilePath;
     recordWriteData = WaitCacheVideoFrames(mFFPlayer);
-    AVFormatContext *oc;
+    if (recordWriteData->windex == 0) {
+        LOGE("Error check no frame");
+        UpdateRecordResult(mFFPlayer, OHOS_RECORD_CALLBACK_STATUS_FAILED);
+        return OHOS_RECORD_CALLBACK_STATUS_FAILED;
+    }
     AVOutputFormat *fmt;
     OutputStream *videoStPtr;
     OutputStream *audioStPtr;
     int ret;
-    int haveVideo = 0, haveAudio = 0;
     AVDictionary *opt = NULL;
     av_dict_set(&opt, "preset", "veryfast", 0);
     av_dict_set(&opt, "tune", "zerolatency", 0);
     avformat_alloc_output_context2(&(recordWriteData->oc), NULL, NULL, fileName);
-    oc = recordWriteData->oc;
-    int checkResult = CheckAVFormatContext(oc, mFFPlayer, fileName);
+    int checkResult = CheckAVFormatContext(recordWriteData->oc, mFFPlayer, fileName);
     if (!checkResult) {
         return OHOS_RECORD_CALLBACK_STATUS_FAILED;
     }
-    fmt = recordWriteData->oc->oformat;
     auto vaAvcodec = VideoAudioStreamAndAvcodecOpen(recordWriteData, mFFPlayer, opt);
     if (!vaAvcodec.result) {
         return OHOS_RECORD_CALLBACK_STATUS_FAILED;
     }
-    haveVideo = vaAvcodec.haveVideo;
-    haveAudio = vaAvcodec.haveAudio;
     videoStPtr = &recordWriteData->video_st;
     audioStPtr = &recordWriteData->audio_st;
     av_dump_format(recordWriteData->oc, 0, fileName, 1);
-    if (!(fmt->flags & AVFMT_NOFILE)) {
-        ret = avio_open(&oc->pb, fileName, AVIO_FLAG_WRITE);
+    if (!(recordWriteData->oc->oformat->flags & AVFMT_NOFILE)) {
+        ret = avio_open(&recordWriteData->oc->pb, fileName, AVIO_FLAG_WRITE);
         if (ret < 0) {
             LOGE("Could not open %s", fileName);
             UpdateRecordResult(mFFPlayer, OHOS_RECORD_CALLBACK_STATUS_FAILED);
             return OHOS_RECORD_CALLBACK_STATUS_FAILED;
         }
     }
-    ret = avformat_write_header(oc, &opt);
+    ret = avformat_write_header(recordWriteData->oc, &opt);
     if (ret < 0) {
         LOGE("Error occurred when opening output file %s", av_err2str(ret));
         UpdateRecordResult(mFFPlayer, OHOS_RECORD_CALLBACK_STATUS_FAILED);
         return OHOS_RECORD_CALLBACK_STATUS_FAILED;
     }
-    StartEncoderWrite(oc, recordWriteData, mFFPlayer, audioStPtr);
-    ReleaseResources(oc, recordWriteData, fmt, haveVideo, haveAudio, videoStPtr, audioStPtr);
+    StartEncoderWrite(recordWriteData->oc, recordWriteData, mFFPlayer, audioStPtr);
+    ReleaseResources(recordWriteData->oc, recordWriteData, recordWriteData->oc->oformat,
+                     vaAvcodec.haveVideo, vaAvcodec.haveAudio, videoStPtr, audioStPtr);
     UpdateRecordResult(mFFPlayer, OHOS_RECORD_CALLBACK_STATUS_SUCCESS);
     return OHOS_RECORD_CALLBACK_STATUS_SUCCESS;
 }
