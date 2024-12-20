@@ -1,3 +1,6 @@
+## 2.0.6-rc.4
+- Fix video recording crash issue
+
 ## 2.0.6-rc.3
 - fix:clear invaild audio data
 

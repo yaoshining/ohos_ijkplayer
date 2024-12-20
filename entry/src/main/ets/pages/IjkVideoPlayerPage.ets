@@ -272,6 +272,7 @@ struct IjkVideoPlayerPage {
 
       Flex({ direction: FlexDirection.Row, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Start }) {
         Button($r('app.string.startRecord'))
+          .visibility(this.recordProgressVisible == Visibility.Visible ? Visibility.None : Visibility.Visible)
           .onClick(() => {
             this.startRecord()
           })
