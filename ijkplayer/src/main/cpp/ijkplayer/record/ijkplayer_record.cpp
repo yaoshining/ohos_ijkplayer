@@ -61,14 +61,14 @@ void handleCodecAudioStream(AVCodecContext *c, OutputStream *ost, AVCodec **code
     ost->st->time_base = (AVRational){1, c->sample_rate};
 }
 
-void handleCodecVideoStream(AVCodecContext *c, OutputStream *ost, AVCodec **codec, enum AVCodecID codec_id,
-                            InputSourceInfo inpSrcInfo)
+void handleCodecVideoStream(AVCodecContext *c, OutputStream *ost, enum AVCodecID codec_id,
+                            InputSourceInfo inpSrcInfo, int frameRate)
 {
     c->codec_id = codec_id;
     c->bit_rate = VIDEO_BIT_RATE;
     c->width = inpSrcInfo.width;
     c->height = inpSrcInfo.height;
-    ost->st->time_base = (AVRational){1, STREAM_FRAME_RATE};
+    ost->st->time_base = (AVRational){1, frameRate};
     c->time_base = ost->st->time_base;
     c->gop_size = DATA_NUM_12;
     c->pix_fmt = STREAM_PIX_FMT;
@@ -81,7 +81,7 @@ void handleCodecVideoStream(AVCodecContext *c, OutputStream *ost, AVCodec **code
 }
 
 int AddStream(OutputStream *ost, AVFormatContext *oc, AVCodec **codec, enum AVCodecID codec_id,
-              InputSourceInfo inpSrcInfo, int sample_rate)
+              InputSourceInfo inpSrcInfo, int sampleRate, int frameRate)
 {
     AVCodecContext *c;
     int i;
@@ -102,10 +102,10 @@ int AddStream(OutputStream *ost, AVFormatContext *oc, AVCodec **codec, enum AVCo
     c = ost->st->codec;
     switch ((*codec)->type) {
         case AVMEDIA_TYPE_AUDIO:
-            handleCodecAudioStream(c, ost, codec, sample_rate);
+            handleCodecAudioStream(c, ost, codec, sampleRate);
             break;
         case AVMEDIA_TYPE_VIDEO:
-            handleCodecVideoStream(c, ost, codec, codec_id, inpSrcInfo);
+            handleCodecVideoStream(c, ost, codec_id, inpSrcInfo, frameRate);
             break;
         default:
             break;
@@ -357,14 +357,14 @@ int GetRecordStatus(FFPlayer *ffp)
 VideoAudioAvCodec VideoAudioStreamAndAvcodecOpen(RecordWriteData *recordWriteData, FFPlayer *mFFPlayer,
                                                  AVDictionary *opt)
 {
-    AVOutputFormat *fmt;
     int haveVideo = 0, haveAudio = 0;
     VideoAudioAvCodec vaAvcodec;
-    fmt = recordWriteData->oc->oformat;
+    AVOutputFormat *fmt = recordWriteData->oc->oformat;
+    int frameRate = av_q2d(mFFPlayer->is->video_st->avg_frame_rate);
     if (fmt->video_codec != AV_CODEC_ID_NONE) {
         int addStreamResult =
             AddStream(&(recordWriteData->video_st), recordWriteData->oc, &(recordWriteData->video_codec),
-                      fmt->video_codec, recordWriteData->srcFormat, recordWriteData->sampleRate);
+                      fmt->video_codec, recordWriteData->srcFormat, recordWriteData->sampleRate, frameRate);
         if (addStreamResult == 0) {
             UpdateRecordResult(mFFPlayer, OHOS_RECORD_CALLBACK_STATUS_FAILED);
             vaAvcodec.result = OHOS_RECORD_CALLBACK_STATUS_FAILED;
@@ -375,7 +375,7 @@ VideoAudioAvCodec VideoAudioStreamAndAvcodecOpen(RecordWriteData *recordWriteDat
     if (fmt->audio_codec != AV_CODEC_ID_NONE) {
         int addStreamResult =
             AddStream(&(recordWriteData->audio_st), recordWriteData->oc, &recordWriteData->audio_codec,
-                      fmt->audio_codec, recordWriteData->srcFormat, recordWriteData->sampleRate);
+                      fmt->audio_codec, recordWriteData->srcFormat, recordWriteData->sampleRate, frameRate);
         if (addStreamResult == 0) {
             UpdateRecordResult(mFFPlayer, OHOS_RECORD_CALLBACK_STATUS_FAILED);
             vaAvcodec.result = OHOS_RECORD_CALLBACK_STATUS_FAILED;
