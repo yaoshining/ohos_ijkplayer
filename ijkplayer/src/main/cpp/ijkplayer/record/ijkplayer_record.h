@@ -127,7 +127,7 @@ typedef struct RecordWriteData {
 
 int AddStream(OutputStream *ost, AVFormatContext *oc,
               AVCodec **codec, enum AVCodecID codec_id,
-              InputSourceInfo inputSrcInfo, int sample_rate);
+              InputSourceInfo inputSrcInfo, int sampleRate, int frameRate);
 int OpenVideo(AVFormatContext *oc, AVCodec *codec, OutputStream *ost, AVDictionary *opt_arg);
 int OpenAudio(AVFormatContext *oc, AVCodec *codec, OutputStream *ost, AVDictionary *opt_arg);
 AVFrame *RecordAllocPicture(enum AVPixelFormat pix_fmt, int width, int height);
