@@ -1,3 +1,6 @@
+## 2.0.6-rc.5
+- Provides interfaces for plugging and disconnecting audio devices for listening
+
 ## 2.0.6-rc.4
 - Fix video recording crash issue
 - Fix the problem of unsynchronized recording of video audio and image

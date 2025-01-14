@@ -42,6 +42,7 @@
 #define FFP_MSG_VIDEO_SEEK_RENDERING_START  410
 #define FFP_MSG_AUDIO_SEEK_RENDERING_START  411
 #define FFP_MSG_AUDIO_INTERRUPT             412     /* arg1 = force type, arg2 = interrupt hint */
+#define FFP_MSG_AUDIO_DEVICE_CHANGE         413     /* arg1 = reason */
 
 #define FFP_MSG_BUFFERING_START             500
 #define FFP_MSG_BUFFERING_END               501

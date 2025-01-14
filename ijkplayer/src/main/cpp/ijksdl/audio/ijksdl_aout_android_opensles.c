@@ -150,6 +150,18 @@ static int32_t AudioRendererOnInterrupt(OH_AudioRenderer *renderer, void *userDa
     return 0;
 }
 
+static void outputDeviceChangeCallback(OH_AudioRenderer *renderer, void *userData,
+                                       OH_AudioStream_DeviceChangeReason reason)
+{
+    LOGI("outputDeviceChangeCallback reason: %d", reason);
+    SDL_Aout_Opaque *opaque = (SDL_Aout_Opaque *)userData;
+    if ((opaque == NULL) || (opaque->ffp == NULL)) {
+        return;
+    }
+
+    ffp_notify_msg2(opaque->ffp, FFP_MSG_AUDIO_DEVICE_CHANGE, reason);
+}
+
 static int32_t AudioRendererOnError(OH_AudioRenderer *renderer, void *userData, OH_AudioStream_Result error)
 {
     LOGI("AudioRendererOnError result: %d", error);
@@ -188,6 +200,23 @@ static void AoutFillFormatPcm(OHDataFormatPcm *formatPcm, const SDL_AudioSpec *d
     formatPcm->samplesRate = desired->freq;
 }
 
+static void AoutSetParams(SDL_Aout *aout, const SDL_AudioSpec *desired)
+{
+    if ((aout == NULL) || (aout->opaque == NULL)) {
+        LOGE("audio->AoutSetParamd opaque NULL");
+        return;
+    }
+    SDL_Aout_Opaque *opaque = aout->opaque;
+    // set params and callbacks
+    OH_AudioStreamBuilder_SetSamplingRate(opaque->rendererBuilder, desired->freq);
+    OH_AudioStreamBuilder_SetChannelCount(opaque->rendererBuilder, desired->channels);
+    OH_AudioStreamBuilder_SetSampleFormat(opaque->rendererBuilder, AUDIOSTREAM_SAMPLE_S16LE);
+    OH_AudioStreamBuilder_SetEncodingType(opaque->rendererBuilder, AUDIOSTREAM_ENCODING_TYPE_RAW);
+    OH_AudioStreamBuilder_SetLatencyMode(opaque->rendererBuilder, AUDIOSTREAM_LATENCY_MODE_NORMAL);
+    // 关键参数，仅OHAudio支持，根据音频用途设置，系统会根据此参数实现音频策略自适应
+    OH_AudioStreamBuilder_SetRendererInfo(opaque->rendererBuilder, AUDIOSTREAM_USAGE_MOVIE);
+}
+
 // 音频渲染器初始化
 static int AoutOpenAudio(SDL_Aout *aout, const SDL_AudioSpec *desired, SDL_AudioSpec *obtained)
 {
@@ -214,11 +243,7 @@ static int AoutOpenAudio(SDL_Aout *aout, const SDL_AudioSpec *desired, SDL_Audio
     // create builder
     OH_AudioStreamBuilder_Create(&opaque->rendererBuilder, AUDIOSTREAM_TYPE_RENDERER);
     // set params and callbacks
-    OH_AudioStreamBuilder_SetSamplingRate(opaque->rendererBuilder, desired->freq);
-    OH_AudioStreamBuilder_SetChannelCount(opaque->rendererBuilder, desired->channels);
-    OH_AudioStreamBuilder_SetSampleFormat(opaque->rendererBuilder, AUDIOSTREAM_SAMPLE_S16LE);
-    OH_AudioStreamBuilder_SetEncodingType(opaque->rendererBuilder, AUDIOSTREAM_ENCODING_TYPE_RAW);
-    OH_AudioStreamBuilder_SetLatencyMode(opaque->rendererBuilder, AUDIOSTREAM_LATENCY_MODE_NORMAL);
+    AoutSetParams(aout, desired);
     // 关键参数，仅OHAudio支持，根据音频用途设置，系统会根据此参数实现音频策略自适应
     OH_AudioStreamBuilder_SetRendererInfo(opaque->rendererBuilder, AUDIOSTREAM_USAGE_MOVIE);
 
@@ -241,6 +266,11 @@ static int AoutOpenAudio(SDL_Aout *aout, const SDL_AudioSpec *desired, SDL_Audio
 
     // 设置输出音频流的回调，在生成音频播放对象时自动注册
     OH_AudioStreamBuilder_SetRendererCallback(opaque->rendererBuilder, rendererCallbacks, opaque);
+	// 设置输出音频流设备变更的回调
+    OH_AudioStream_Result ret = OH_AudioStreamBuilder_SetRendererOutputDeviceChangeCallback(opaque->rendererBuilder,
+        outputDeviceChangeCallback, opaque);
+    LOGI("audio->AoutOpenAudio set device change callback ret: %d", ret);
+
     // 构造播放音频流
     OH_AudioStreamBuilder_GenerateRenderer(opaque->rendererBuilder, &opaque->audioRendererNormal);
     // 设置音频流音量

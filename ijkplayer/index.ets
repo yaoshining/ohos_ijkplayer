@@ -23,6 +23,8 @@ export { InterruptForceType } from "./src/main/ets/ijkplayer/IjkMediaPlayer";
 
 export { AudioInterrupt } from "./src/main/ets/ijkplayer/IjkMediaPlayer";
 
+export { DeviceChangeReason } from "./src/main/ets/ijkplayer/IjkMediaPlayer";
+
 export { OnPreparedListener } from "./src/main/ets/ijkplayer/callback/OnPreparedListener";
 
 export { OnCompletionListener } from "./src/main/ets/ijkplayer/callback/OnCompletionListener";
