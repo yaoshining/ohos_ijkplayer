@@ -15,7 +15,7 @@
 
 import router from '@ohos.router';
 import { Callback } from '@ohos.base';
-import { IjkMediaPlayer, InterruptEvent, InterruptHintType } from '@ohos/ijkplayer';
+import { IjkMediaPlayer, InterruptEvent, InterruptHintType, DeviceChangeReason } from '@ohos/ijkplayer';
 import { OnPreparedListener } from '@ohos/ijkplayer';
 import { OnVideoSizeChangedListener } from '@ohos/ijkplayer';
 import { OnCompletionListener } from '@ohos/ijkplayer';
@@ -82,6 +82,15 @@ struct IjkVideoPlayerPage {
       }
     }
     this.mIjkMediaPlayer.on('audioInterrupt', event);
+    let deviceChangeEvent: Callback<InterruptEvent> = (event) => {
+      LogUtils.getInstance().LOGI(`deviceChange event: ${JSON.stringify(event)}`);
+      if (event.reason === DeviceChangeReason.REASON_NEW_DEVICE_AVAILABLE) {
+        this.pause();
+      } else if (event.reason === DeviceChangeReason.REASON_OLD_DEVICE_UNAVAILABLE) {
+        this.pause();
+      } 
+    }
+    this.mIjkMediaPlayer.on('deviceChange', deviceChangeEvent);
   }
 
   aboutToDisappear() {
@@ -93,6 +102,7 @@ struct IjkVideoPlayerPage {
       this.stop();
     }
     this.mIjkMediaPlayer.off('audioInterrupt');
+    this.mIjkMediaPlayer.off('deviceChange');
   }
 
   onPageShow() {

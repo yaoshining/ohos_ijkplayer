@@ -150,6 +150,10 @@ static void message_loop_n(IjkMediaPlayer *mp) {
                 MPTRACE("FFP_MSG_AUDIO_INTERRUPT:\n");
                 post_event(MEDIA_AUDIO_INTERRUPT, msg.arg1, msg.arg2, nullptr, idStr);
                 break;
+            case FFP_MSG_AUDIO_DEVICE_CHANGE:
+                MPTRACE("FFP_MSG_AUDIO_DEVICE_CHANGE:\n");
+                post_event(MEDIA_AUDIO_DEVICE_CHANGE, msg.arg1, msg.arg2, nullptr, idStr);
+                break;
             default:
                 ALOGE("unknown FFP_MSG_xxx(%d)\n", msg.what);
                 break;

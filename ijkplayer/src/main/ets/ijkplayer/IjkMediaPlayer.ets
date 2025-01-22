@@ -29,6 +29,7 @@ import { BusinessError, Callback } from '@ohos.base';
 import { newIjkPlayerAudio } from 'libijkplayer_audio_napi.so';
 
 export type AudioInterrupt = 'audioInterrupt';
+export type AudioDeviceChange = 'deviceChange';
 
 export enum InterruptHintType {
   INTERRUPT_HINT_NONE = 0,
@@ -45,9 +46,22 @@ export enum InterruptForceType {
 }
 
 export interface InterruptEvent {
-  forceType: InterruptForceType;
-  hintType: InterruptHintType;
+  forceType?: InterruptForceType;
+  hintType?: InterruptHintType;
+  reason?: DeviceChangeReason;
 }
+
+export enum DeviceChangeReason {
+  /* Unknown. */
+  REASON_UNKNOWN = 0,
+  /* New Device available. */
+  REASON_NEW_DEVICE_AVAILABLE = 1,
+  /* Old Device unavailable. Applications should consider to pause the audio playback when this reason is
+  reported. */
+  REASON_OLD_DEVICE_UNAVAILABLE = 2,
+  /* Device is overrode by user or system. */
+  REASON_OVERRODE = 3,
+};
 
 export class IjkMediaPlayer {
   private static instance: IjkMediaPlayer;
@@ -70,7 +84,8 @@ export class IjkMediaPlayer {
   private ijkplayer_napi: IjkPlayerNapi | null = null;
   private ijkplayer_audio_napi: newIjkPlayerAudio | null = null;
   private id: string = '';
-  private callback: Callback<InterruptEvent> | null = null;
+  private interruptCallback: Callback<InterruptEvent> | null = null;
+  private deviceChangeCallback: Callback<InterruptEvent> | null = null;
 
   public constructor(id?: string) {
     if (id) {
@@ -236,12 +251,20 @@ export class IjkMediaPlayer {
     }
   }
 
-  public on(type: AudioInterrupt,  callback: Callback<InterruptEvent>) : void {
-    this.callback= callback;
+  public on(type: AudioInterrupt|AudioDeviceChange,  callback: Callback<InterruptEvent>) : void {
+    if(type == 'audioInterrupt') {
+      this.interruptCallback= callback;
+    } else if(type == "deviceChange") {
+      this.deviceChangeCallback = callback
+    }
   }
 
-  public off(type: AudioInterrupt): void {
-    this.callback = null;
+  public off(type: AudioInterrupt|AudioDeviceChange): void {
+    if(type == 'audioInterrupt') {
+      this.interruptCallback= null;
+    } else if(type == "deviceChange") {
+      this.deviceChangeCallback = null
+    }
   }
 
   setOnVideoSizeChangedListener(listener: OnVideoSizeChangedListener): void {
@@ -347,14 +370,22 @@ export class IjkMediaPlayer {
         onTimedTextListener.onTimedText(obj);
       }
       if (what == MessageType.MEDIA_AUDIO_INTERRUPT && onCompletionListener != null) {
-        if (this.callback){
+        if (this.interruptCallback){
           let event: InterruptEvent = {
             forceType: arg1,
             hintType: arg2,
           }
-          this.callback(event);
+          this.interruptCallback(event);
         }
       }
+      if (what == MessageType.MEDIA_AUDIO_DEVICE_CHANGE && onCompletionListener != null) {
+          if (this.deviceChangeCallback){
+            let event: InterruptEvent = {
+              reason: arg1,
+            }
+            this.deviceChangeCallback(event);
+          }
+       }
     };
     if (!!this.ijkplayer_napi) {
       this.ijkplayer_napi._setMessageListener(this.id, messageCallBack);

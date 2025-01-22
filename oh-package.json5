@@ -12,6 +12,6 @@
   "name": "ijkplayer",
   "description": "一款基于FFmpeg的视频播放器。",
   "repository": {},
-  "version": "2.0.6-rc.4",
+  "version": "2.0.6-rc.5",
   "dependencies": {}
 }
