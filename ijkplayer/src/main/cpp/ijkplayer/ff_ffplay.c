@@ -1620,7 +1620,12 @@ static int queue_picture(FFPlayer *ffp, AVFrame *src_frame, double pts, double d
                     if (deviation2 > -100 * 1000 && deviation3 < 0) {
                         break;
                     } else {
-                        av_usleep(20 * 1000);
+                        if (ffp->mediacodec_all_videos || ffp->mediacodec_avc || ffp->mediacodec_hevc || ffp->mediacodec_mpeg2) {
+                            av_log(NULL, AV_LOG_INFO, "seek video, hard decoding break out\n");
+                            break;
+                        } else {
+                            av_usleep(20 * 1000);
+                        }
                     }
                     now = av_gettime_relative() / 1000;
                     if ((now - is->accurate_seek_start_time) > ffp->accurate_seek_timeout) {

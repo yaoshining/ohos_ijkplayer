@@ -214,7 +214,7 @@ struct IjkVideoPlayerPage {
           .width('400px')
           .height('80px')
           .margin('15px')
-        Button($r('app.string.page_show'))
+        Button($r('app.string.Switch'))
           .onClick(() => {
             this.playNext();
           })
@@ -486,7 +486,7 @@ struct IjkVideoPlayerPage {
     let Speed = this.mIjkMediaPlayer.getSpeed()
     LogUtils.getInstance().LOGI('getSpeed--' + Speed)
     //是否开启循环播放
-    this.mIjkMediaPlayer.setLoopCount(true);
+    this.mIjkMediaPlayer.setLoopCount(false);
     let mOnVideoSizeChangedListener: OnVideoSizeChangedListener = {
       onVideoSizeChanged: (width: number, height: number, sar_num: number, sar_den: number) => {
         if (height === 0) {

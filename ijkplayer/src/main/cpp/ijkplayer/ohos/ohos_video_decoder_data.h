@@ -55,6 +55,7 @@ private:
     std::mutex outputMutex_;
     std::condition_variable outputCond_;
     std::queue<CodecBufferInfo> outputBufferInfoQueue_;
+    int awaitTime_ = 4;
 };
 
 #endif // DECODERDEMO_DECODERDATA_H
