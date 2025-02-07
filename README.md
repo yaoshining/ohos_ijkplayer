@@ -344,6 +344,26 @@ ohpm install @ohos/ijkplayer
     });
 ```
 
+### Audio device disconnection and connection monitoring
+```
+   import { InterruptEvent, InterruptHintType } from '@ohos/ijkplayer/src/main/ets/ijkplayer/IjkMediaPlayer';
+   import { Callback } from '@ohos.base';
+   // Handling callbacks for audio device disconnection
+   let deviceChangeEvent: Callback<InterruptEvent> = (event) => {
+      LogUtils.getInstance().LOGI(`deviceChange event: ${JSON.stringify(event)}`);
+      if (event.reason === DeviceChangeReason.REASON_NEW_DEVICE_AVAILABLE) { // Audio device connection
+        this.pause();
+      } else if (event.reason === DeviceChangeReason.REASON_OLD_DEVICE_UNAVAILABLE) { // Audio device is disconnected
+        this.pause();
+      } 
+    }
+    // Subscribe to audio device disconnect and connection events
+    this.mIjkMediaPlayer.on('deviceChange', deviceChangeEvent);
+
+   // Unsubscribe from audio device disconnect and connection events
+   mIjkMediaPlayer.off('audioInterrupt');
+```
+
 ## Available APIs
 
 ### IjkMediaPlayer.getInstance()
@@ -389,7 +409,9 @@ ohpm install @ohos/ijkplayer
 | getMediaInfo                  | N/A                                                           | object            | Obtains media stream information.                                                      |
 | setAudioId                    | id: string                                                   | void              | Sets the ID of the audio to be created.                                               |
 | on                            | type: 'audioInterrupt', callback: Callback< InterruptEvent >| void              | Subscribes to audio interruption events. This API uses an asynchronous callback to return the result.                                   |
+| on                            | type: 'deviceChange', callback: Callback< InterruptEvent >| void              | Subscribes to audio disconnect and connect events. This API uses an asynchronous callback to return the result.                                   |
 | off                           | type: 'audioInterrupt'                                      | void              | Unsubscribes from audio interruption events.                                                  |
+| off                           | type: 'deviceChange'                                      | void              | Unsubscribes from audio disconnect and connect events events.                                                  |
 | startRecord                           | saveFilePath: string                                       | boolean              | Enable video recording                                                  |
 | isRecord                           | 无                                      | boolean              | Get recording status                                                  |
 | stopRecord                           | 无                                      | Promise<boolean>              | Stop video recording                                                  |

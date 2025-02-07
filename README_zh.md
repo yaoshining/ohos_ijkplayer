@@ -345,6 +345,25 @@ ohpm install @ohos/ijkplayer
     });
 ```
 
+### 音频设备断开和连接监控
+```
+   import { InterruptEvent, InterruptHintType } from '@ohos/ijkplayer/src/main/ets/ijkplayer/IjkMediaPlayer';
+   import { Callback } from '@ohos.base';
+   // 音频设备断连回调处理
+   let deviceChangeEvent: Callback<InterruptEvent> = (event) => {
+      LogUtils.getInstance().LOGI(`deviceChange event: ${JSON.stringify(event)}`);
+      if (event.reason === DeviceChangeReason.REASON_NEW_DEVICE_AVAILABLE) { // 音频设备连接
+        this.pause();
+      } else if (event.reason === DeviceChangeReason.REASON_OLD_DEVICE_UNAVAILABLE) { // 音频设备断开连接
+        this.pause();
+      } 
+    }
+    // 订阅音频设备断开和连接事件
+    this.mIjkMediaPlayer.on('deviceChange', deviceChangeEvent);
+
+   // 取消订阅音频设备断开和连接事件
+   mIjkMediaPlayer.off('audioInterrupt');
+```
 
 ## 接口说明
 
@@ -391,7 +410,9 @@ ohpm install @ohos/ijkplayer
 | getMediaInfo                  | 无                                                            | object            | 获取媒体信息                                                       |
 | setAudioId                    | id: string                                                   | void              | 设置创建音频对象，设置id                                                |
 | on                            | type: ‘audioInterrupt’, callback: Callback< InterruptEvent > | void              | 监听音频中断事件，使用callback方式返回结果                                    |
+| on                            | type: ‘deviceChange’, callback: Callback< InterruptEvent >     | void             | 监听音频设备断开和连接事件，使用callback方式返回结果                                    |
 | off                           | type: ‘audioInterrupt’                                       | void              | 取消订阅音频中断事件                                                   |
+| off                           | type: ‘deviceChange’                                       | void              | 取消订阅音频断开和连接事件                                                   |
 | startRecord                           | saveFilePath: string                                       | boolean              | 开启视频录制                                                  |
 | isRecord                           | 无                                      | boolean              | 获取视频录制状态                                                  |
 | stopRecord                           | 无                                      | Promise<boolean>              | 停止视频录制                                                  |
