@@ -187,16 +187,17 @@ void IJKFF_Pipenode_Opaque::DecoderOutput(AVFrame *frame)
     CodecBufferInfo codecBufferInfoReceive;
         bool ret = false;
         ret = this->codecData.OutputData(codecBufferInfoReceive);
-        OH_AVBuffer_GetBufferAttr(codecBufferInfoReceive.buff_, &codecBufferInfoReceive.attr);
-        if (ret) {
-            OH_AVFormat *format = OH_VideoDecoder_GetOutputDescription(this->decoder.decoder_);
-            if (qsvenc_get_continuous_buffer(frame, format, &codecBufferInfoReceive) < 0) {
-                OH_AVBuffer_Destroy(codecBufferInfoReceive.buff_);
-                OH_AVFormat_Destroy(format);
-                return;
-            }
-            OH_AVFormat_Destroy(format);
+        if (!ret) {
+            return;
         }
+        OH_AVBuffer_GetBufferAttr(codecBufferInfoReceive.buff_, &codecBufferInfoReceive.attr);
+        OH_AVFormat *format = OH_VideoDecoder_GetOutputDescription(this->decoder.decoder_);
+        if (qsvenc_get_continuous_buffer(frame, format, &codecBufferInfoReceive) < 0) {
+            OH_AVBuffer_Destroy(codecBufferInfoReceive.buff_);
+            OH_AVFormat_Destroy(format);
+            return;
+        }
+        OH_AVFormat_Destroy(format);
         this->decoder.FreeOutputData(codecBufferInfoReceive.bufferIndex);
         OH_AVBuffer_Destroy(codecBufferInfoReceive.buff_);
         if (codecBufferInfoReceive.attr.flags == AVCODEC_BUFFER_FLAGS_EOS) {

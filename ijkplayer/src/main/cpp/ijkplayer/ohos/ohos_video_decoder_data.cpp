@@ -82,7 +82,13 @@ int32_t CodecData::InputData(CodecBufferInfo &info, std::chrono::milliseconds ti
 bool CodecData::OutputData(CodecBufferInfo &receiveInfo)
 {
     std::unique_lock<std::mutex> lock(this->outputMutex_);
-    this->outputCond_.wait(lock, [this]() { return !this->outputBufferInfoQueue_.empty();});
+    bool ret = this->outputCond_.wait_for(lock, std::chrono::milliseconds(awaitTime_), [this]() {
+                                              return !this->outputBufferInfoQueue_.empty();
+                                          });
+    if (!ret) {
+        LOGE("OutputData outputBufferInfoQueue_ is empty");
+        return false;
+    }
 
     receiveInfo = this->outputBufferInfoQueue_.front();
     this->outputBufferInfoQueue_.pop();

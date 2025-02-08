@@ -125,7 +125,6 @@ int SDL_CondBroadcast(SDL_cond *cond)
 
 int SDL_CondWaitTimeout(SDL_cond *cond, SDL_mutex *mutex, uint32_t ms)
 {
-    LOGI("audio->SDL_CondWaitTimeout");
     int retval;
     struct timeval delta;
     struct timespec abstime;
@@ -133,7 +132,6 @@ int SDL_CondWaitTimeout(SDL_cond *cond, SDL_mutex *mutex, uint32_t ms)
     if (!cond || !mutex) {
         return -1;
     }
-    LOGI("audio->gettimeofday");
 
     gettimeofday(&delta, NULL);
 
