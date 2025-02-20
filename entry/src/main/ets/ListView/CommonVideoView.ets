@@ -38,7 +38,7 @@ class PlayerListenerClass implements PlayerListener{
 }
 @Component
 export struct CommonVideoView {
-  private videoSource: VideoSource | null = null;
+  public videoSource: VideoSource | null = null;
   private pic = $r('app.media.icon');
   private xComponentContext: object | null = null;
   private player: VideoPlayer = new VideoPlayer();
