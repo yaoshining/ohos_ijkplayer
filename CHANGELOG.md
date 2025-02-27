@@ -1,3 +1,6 @@
+## 2.0.6
+- HLS start broadcasting optimization
+
 ## 2.0.6-rc.6
 - Fix the black screen issue caused by the use of hard decoding buffer
 
