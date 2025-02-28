@@ -10,7 +10,7 @@
 
 ### ffmpeg soundtouch yuv openh264依赖
 
-1. FFmpeg:基于B站的FFmpeg版本(ff4.0--ijk0.8.8--20210426--001):[FFmpeg源码链接](https://github.com/bilibili/FFmpeg/tags)， [FFmpeg](https://gitee.com/openharmony-sig/tpc_c_cplusplus/tree/support_x86/thirdparty/FFmpeg-ff4.0)可以在交叉编译出库文件和头文件，编译可参考[FFmpeg-ff4.0编译指导](https://gitee.com/openharmony-sig/tpc_c_cplusplus/blob/support_x86/thirdparty/FFmpeg-ff4.0/README_zh.md)。
+1. FFmpeg:基于B站的FFmpeg版本(ff4.0--ijk0.8.8--20210426--001):[FFmpeg源码链接](https://github.com/bilibili/FFmpeg/tags)， [FFmpeg](https://gitee.com/openharmony-sig/tpc_c_cplusplus/tree/support_x86/thirdparty/FFmpeg-ff4.0)可以在交叉编译出库文件和头文件，编译可参考[FFmpeg-ff4.0编译指导](https://gitcode.com/openharmony-sig/tpc_c_cplusplus/blob/support_x86/thirdparty/FFmpeg-ff4.0/README_zh.md)。
 
    1. 编译成功后会在lycium\usr生成FFmpeg-ff4.0文件夹改名为ffmpeg。
 
@@ -21,7 +21,7 @@
 3. yuv:基于B站的yuv版本(ijk-r0.2.1-dev):[yuv源码链接](https://github.com/bilibili/libyuv/branches)，yuv须在交叉编译出库文件和头文件。
    1. 把doc目录下的libyuv-ijk文件夹拷贝到thirdparty下在lycium文件夹执行./build.sh libyuv-ijk可以在lycium\usr目录下编译出yuv的静态库和头文件
 
-4. openh264:基于版本(openh264-2.4.1):[openh264源码链接](https://github.com/cisco/openh264/releases),openh264须在交叉编译出库文件和头文件。编译脚本可参考[openh264](https://gitee.com/openharmony-sig/tpc_c_cplusplus/blob/support_x86/thirdparty/openh264)。编译完成后，输出文件在lycium\usr目录下openh264文件夹。    
+4. openh264:基于版本(openh264-2.4.1):[openh264源码链接](https://github.com/cisco/openh264/releases),openh264须在交叉编译出库文件和头文件。编译脚本可参考[openh264](https://gitcode.com/openharmony-sig/tpc_c_cplusplus/blob/support_x86/thirdparty/openh264)。编译完成后，输出文件在lycium\usr目录下openh264文件夹。    
 
 5. 把编译生成的ffmpeg文件夹拷贝到ijkplayer/src/main/cpp/third_party/ffmpeg下
 
@@ -365,6 +365,12 @@ ohpm install @ohos/ijkplayer
    mIjkMediaPlayer.off('audioInterrupt');
 ```
 
+### hls起播优化
+```
+// 开启hls起播优化 默认是关闭的
+this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "fetch_first", "on");
+```
+
 ## 接口说明
 
 ### IjkMediaPlayer.getInstance()
@@ -478,7 +484,7 @@ ohpm install @ohos/ijkplayer
 
 ## 贡献代码
 
-使用过程中发现任何问题都可以提[Issue](https://gitee.com/openharmony-sig/ijkplayer/issues) 给组件，当然，也非常欢迎发[PR](https://gitee.com/openharmony-sig/ijkplayer/pulls)共建。
+使用过程中发现任何问题都可以提[Issue](https://gitcode.com/openharmony-sig/ohos_ijkplayer/issues) 给组件，当然，也非常欢迎发[PR](https://gitcode.com/openharmony-sig/ohos_ijkplayer/pulls)共建。
 
 ## 开源协议
 

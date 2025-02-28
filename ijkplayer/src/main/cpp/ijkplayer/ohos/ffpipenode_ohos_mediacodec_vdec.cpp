@@ -41,7 +41,8 @@ public:
     AVCodecParameters *codecpar;
     AVPacket *pkt;
     SDL_Vout *weakVout;
-    const AVBitStreamFilter *aVBitStreamFilter = {nullptr};
+    OhosVideoCodecWrapper *codecWrapper {nullptr};
+    const AVBitStreamFilter *aVBitStreamFilter {nullptr};
     AVBSFContext *avbsfContext {nullptr};
     std::atomic_int64_t frameCount {0};
     void DecoderInput(AVPacket pkt);
@@ -51,6 +52,10 @@ public:
 static void func_destroy(IJKFF_Pipenode *node)
 {
     IJKFF_Pipenode_Opaque *opaque = static_cast<IJKFF_Pipenode_Opaque *>(node->opaque);
+    if (opaque->codecWrapper) {
+        delete opaque->codecWrapper;
+        opaque->codecWrapper = nullptr;
+    }
     opaque->decoder.Release();
 }
 void IJKFF_Pipenode_Opaque::DecoderInput(AVPacket pkt)
@@ -76,39 +81,105 @@ void IJKFF_Pipenode_Opaque::DecoderInput(AVPacket pkt)
     OH_AVBuffer_Destroy(codecBufferInfo.buff_);
 }
 
-static int qsvenc_get_continuous_buffer(AVFrame *frame, OH_AVFormat *format, CodecBufferInfo*  codecBufferInfoReceive)
+int32_t GetFormatInfo(OH_AVFormat *format, FormatType type)
 {
-    int32_t currentWidth = 0;
-    int32_t currentHeight = 0;
-    int32_t displayWidth = 0;
-    int32_t displayHeight = 0;
-    int index = 0;
-    int pixelFormat[] = {AV_PIX_FMT_NONE, AV_PIX_FMT_YUV420P, AV_PIX_FMT_NV12, AV_PIX_FMT_NV21};
-    OH_AVFormat_GetIntValue(format, OH_MD_KEY_PIXEL_FORMAT, &index);
-    OH_AVFormat_GetIntValue(format, OH_MD_KEY_WIDTH, &currentWidth);
-    OH_AVFormat_GetIntValue(format, OH_MD_KEY_HEIGHT, &currentHeight);
-    OH_AVFormat_GetIntValue(format, "display_width", &displayWidth);
-    OH_AVFormat_GetIntValue(format, "display_height", &displayHeight);
+    int result = 0;
 
-    if (index > sizeof(pixelFormat) / sizeof(pixelFormat[0])) {
+    const char * const formatKeys[FORMAT_TYPE_NBR] = {
+        OH_MD_KEY_VIDEO_PIC_WIDTH,
+        OH_MD_KEY_VIDEO_PIC_HEIGHT,
+        OH_MD_KEY_VIDEO_STRIDE,
+        OH_MD_KEY_VIDEO_SLICE_HEIGHT,
+        OH_MD_KEY_PIXEL_FORMAT,
+        OH_MD_KEY_VIDEO_CROP_TOP,
+        OH_MD_KEY_VIDEO_CROP_BOTTOM,
+        OH_MD_KEY_VIDEO_CROP_LEFT,
+        OH_MD_KEY_VIDEO_CROP_RIGHT,
+        OH_MD_KEY_WIDTH,
+        OH_MD_KEY_HEIGHT,
+    };
+
+    bool ret = OH_AVFormat_GetIntValue(format, formatKeys[type], &result);
+    
+    return ret ? result : -1;
+}
+
+static void ff_mediacodec_buffer_copy_nv21(OhosVideoCodecWrapper *codecWrapper,
+                                           uint8_t *data,
+                                           AVFrame *frame)
+{
+    int i;
+    uint8_t *src = nullptr;
+    OhosVideoCodecWrapper *codec = codecWrapper;
+    for (i = DATA_NUM_0; i < DATA_NUM_2; i++) {
+        int height;
+
+        src = data;
+        if (i == 0) {
+            height = codec->height;
+        } else if (i == 1) {
+            height = codec->height / DATA_NUM_2;
+            src += codec->crop_top * codec->stride;
+            src += codec->slice_height * codec->stride;
+            src += codec->crop_left;
+        }
+
+        if (frame->linesize[i] == codec->stride) {
+            memcpy(frame->data[i], src, height * codec->stride);
+        } else {
+            int j = DATA_NUM_0;
+            int width = DATA_NUM_0;
+            uint8_t *dst = frame->data[i];
+
+            if (i == DATA_NUM_0) {
+                width = codec->width;
+            } else if (i == DATA_NUM_1) {
+                width = FFMIN(frame->linesize[i], FFALIGN(codec->width, DATA_NUM_2));
+            }
+            for (j = DATA_NUM_0; j < height; j++) {
+                memcpy(dst, src, width);
+                src += codec->stride;
+                dst += frame->linesize[i];
+            }
+        }
+    }
+}
+
+static int qsvenc_get_continuous_buffer(AVFrame *frame, OH_AVFormat *format, CodecBufferInfo*  codecBufferInfoReceive,
+                                        OhosVideoCodecWrapper* codecWrapper)
+{
+    int pixelFormat[] = {AV_PIX_FMT_NONE, AV_PIX_FMT_YUV420P, AV_PIX_FMT_NV12, AV_PIX_FMT_NV21};
+    codecWrapper->height = GetFormatInfo(format, FormatType::FORMAT_TYPE_IMAGE_HEIGHT);
+    codecWrapper->width = GetFormatInfo(format, FormatType::FORMAT_TYPE_IMAGE_WIDTH);
+    codecWrapper->stride = GetFormatInfo(format, FormatType::FORMAT_TYPE_VIDEO_STRIDE);
+    codecWrapper->slice_height = GetFormatInfo(format, FormatType::FORMAT_TYPE_SLICE_HEIGHT);
+    codecWrapper->crop_top = GetFormatInfo(format, FormatType::FORMAT_TYPE_CROP_TOP);
+    codecWrapper->crop_bottom = GetFormatInfo(format, FormatType::FORMAT_TYPE_CROP_BOTTOM);
+    codecWrapper->crop_left = GetFormatInfo(format, FormatType::FORMAT_TYPE_CROP_LEFT);
+    codecWrapper->crop_right = GetFormatInfo(format, FormatType::FORMAT_TYPE_CROP_RIGHT);
+    codecWrapper->display_width = GetFormatInfo(format, FormatType::FORMAT_TYPE_VIDEO_WIDTH);
+    codecWrapper->display_height = GetFormatInfo(format, FormatType::FORMAT_TYPE_VIDEO_HEIGHT);
+    codecWrapper->color_format = GetFormatInfo(format, FormatType::FORMAT_TYPE_PIXEL_FORMAT);
+
+    if (codecWrapper->color_format > sizeof(pixelFormat) / sizeof(pixelFormat[0])) {
         return -1;
     }
     uint8_t *bufferAddr = OH_AVBuffer_GetAddr(codecBufferInfoReceive->buff_);
     frame->pts = codecBufferInfoReceive->attr.pts;
     frame->pkt_dts = codecBufferInfoReceive->attr.pts;
-    frame->width = displayWidth;
-    frame->height = displayHeight;
-    frame->format = pixelFormat[index];
-
-    int indexY;
+    frame->width = codecWrapper->width;
+    frame->height = codecWrapper->height;
+    frame->format = pixelFormat[codecWrapper->color_format];
+    
+    int ret = av_frame_get_buffer(frame, 64);
+    if (ret < 0) {
+        LOGE("Could not allocate frame data\n");
+        return -1;
+    }
     switch (frame->format) {
         case AV_PIX_FMT_NV12:
         case AV_PIX_FMT_NV21:
-            frame->linesize[0] = currentWidth;
-            frame->linesize[1] = currentWidth;
-            indexY = sizeof(uint8_t) * currentWidth * currentHeight;
-            frame->data[0] = bufferAddr;
-            frame->data[1] = bufferAddr + indexY;
+            ff_mediacodec_buffer_copy_nv21(codecWrapper, bufferAddr, frame);
             break;
         case AV_PIX_FMT_YUV420P:
             break;
@@ -185,6 +256,7 @@ void RecordMediaCodecVideoFrame(FFPlayer *ffp, AVFrame *frame)
 void IJKFF_Pipenode_Opaque::DecoderOutput(AVFrame *frame)
 {
     CodecBufferInfo codecBufferInfoReceive;
+    OhosVideoCodecWrapper *codec = this->codecWrapper;
         bool ret = false;
         ret = this->codecData.OutputData(codecBufferInfoReceive);
         if (!ret) {
@@ -192,7 +264,7 @@ void IJKFF_Pipenode_Opaque::DecoderOutput(AVFrame *frame)
         }
         OH_AVBuffer_GetBufferAttr(codecBufferInfoReceive.buff_, &codecBufferInfoReceive.attr);
         OH_AVFormat *format = OH_VideoDecoder_GetOutputDescription(this->decoder.decoder_);
-        if (qsvenc_get_continuous_buffer(frame, format, &codecBufferInfoReceive) < 0) {
+        if (qsvenc_get_continuous_buffer(frame, format, &codecBufferInfoReceive, codec) < 0) {
             OH_AVBuffer_Destroy(codecBufferInfoReceive.buff_);
             OH_AVFormat_Destroy(format);
             return;
@@ -450,6 +522,7 @@ IJKFF_Pipenode *ffpipenode_create_video_decoder_from_ohos_mediacodec(FFPlayer *f
     decoderSample->pipeline = pipeline;
     decoderSample->weakVout = vout;
     decoderSample->codecpar = avcodec_parameters_alloc();
+    decoderSample->codecWrapper = new OhosVideoCodecWrapper();
     if (!decoderSample->codecpar) {
         return nullptr;
     }
