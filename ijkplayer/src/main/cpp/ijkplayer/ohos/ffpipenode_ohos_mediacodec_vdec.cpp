@@ -116,9 +116,9 @@ static void ff_mediacodec_buffer_copy_nv21(OhosVideoCodecWrapper *codecWrapper,
 
         src = data;
         if (i == 0) {
-            height = codec->height;
+            height = codec->display_height;
         } else if (i == 1) {
-            height = codec->height / DATA_NUM_2;
+            height = codec->display_height / DATA_NUM_2;
             src += codec->crop_top * codec->stride;
             src += codec->slice_height * codec->stride;
             src += codec->crop_left;
@@ -132,9 +132,9 @@ static void ff_mediacodec_buffer_copy_nv21(OhosVideoCodecWrapper *codecWrapper,
             uint8_t *dst = frame->data[i];
 
             if (i == DATA_NUM_0) {
-                width = codec->width;
+                width = codec->display_width;
             } else if (i == DATA_NUM_1) {
-                width = FFMIN(frame->linesize[i], FFALIGN(codec->width, DATA_NUM_2));
+                width = FFMIN(frame->linesize[i], FFALIGN(codec->display_width, DATA_NUM_2));
             }
             for (j = DATA_NUM_0; j < height; j++) {
                 memcpy(dst, src, width);
@@ -167,8 +167,8 @@ static int qsvenc_get_continuous_buffer(AVFrame *frame, OH_AVFormat *format, Cod
     uint8_t *bufferAddr = OH_AVBuffer_GetAddr(codecBufferInfoReceive->buff_);
     frame->pts = codecBufferInfoReceive->attr.pts;
     frame->pkt_dts = codecBufferInfoReceive->attr.pts;
-    frame->width = codecWrapper->width;
-    frame->height = codecWrapper->height;
+    frame->width = codecWrapper->display_width;
+    frame->height = codecWrapper->display_height;
     frame->format = pixelFormat[codecWrapper->color_format];
     
     int ret = av_frame_get_buffer(frame, 64);
