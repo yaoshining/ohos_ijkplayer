@@ -10,7 +10,7 @@
 
 ### FFmpeg soundtouch YUV openh264 dependency
 
-1. FFmpeg: FFmpeg version (ff4.0--ijk0.8.8--20210426--001)[FFmpeg source code link](https://github.com/bilibili/FFmpeg/tags) based on BiliBili supports the cross-compilation of library and header files. For details about the compilation, see [FFmpeg-ff4.0 Compilation Guide](https://gitee.com/openharmony-sig/tpc_c_cplusplus/blob/support_x86/thirdparty/FFmpeg-ff4.0/README_en.md).
+1. FFmpeg: FFmpeg version (ff4.0--ijk0.8.8--20210426--001)[FFmpeg source code link](https://github.com/bilibili/FFmpeg/tags) based on BiliBili supports the cross-compilation of library and header files. For details about the compilation, see [FFmpeg-ff4.0 Compilation Guide](https://gitcode.com/openharmony-sig/tpc_c_cplusplus/blob/support_x86/thirdparty/FFmpeg-ff4.0/README_zh.md).
 
    1. After the compilation is successful, the **FFmpeg-ff4.0 folder** is generated in **lycium\usr** and renamed **ffmpeg**.
 
@@ -21,7 +21,7 @@
 3. YUV: YUV version (ijk-r0.2.1-dev):[YUV source code link](https://github.com/bilibili/libyuv/branches) based on BiliBili supports the cross-compilation of library and header files.
    1. Copy the **libyuv-ijk** folder in the **doc** directory to the **thirdparty** directory. In the **lycium** folder, run the **./build.sh libyuv-ijk** command to compile the YUV static library and header file in the **lycium\usr** directory.
 
-4. openh264: Based on version (openh264-2.4.1): [openh264 source code link](https://github.com/cisco/openh264/releases) OpenH264 requires cross compilation of the outbound and header files. Compile script can refer to [openh264](https://gitee.com/openharmony-sig/tpc_c_cplusplus/blob/support_x86/thirdparty/openh264) After compilation, the output file is located in the openh264 folder in the **lycium\usr** directory.
+4. openh264: Based on version (openh264-2.4.1): [openh264 source code link](https://github.com/cisco/openh264/releases) OpenH264 requires cross compilation of the outbound and header files. Compile script can refer to [openh264](https://gitcode.com/openharmony-sig/tpc_c_cplusplus/blob/support_x86/thirdparty/openh264) After compilation, the output file is located in the openh264 folder in the **lycium\usr** directory.
 
 5. Copy the **ffmpeg** folder generated after compilation to **ijkplayer/src/main/cpp/third_party/ffmpeg**.
 
@@ -364,6 +364,12 @@ ohpm install @ohos/ijkplayer
    mIjkMediaPlayer.off('audioInterrupt');
 ```
 
+### HLS start broadcasting optimization
+```
+// Enabling hls start optimization is turned off by default
+this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "fetch_first", "on");
+```
+
 ## Available APIs
 
 ### IjkMediaPlayer.getInstance()
@@ -477,7 +483,7 @@ This project has been verified in the following version:
 
 ## How to Contribute
 
-If you find any problem during the use, submit an [Issue](https://gitee.com/openharmony-sig/ijkplayer/issues) or a [PR](https://gitee.com/openharmony-sig/ijkplayer/pulls) to us.
+If you find any problem during the use, submit an [Issue](https://gitcode.com/openharmony-sig/ohos_ijkplayer/issues) or a [PR](https://gitcode.com/openharmony-sig/ohos_ijkplayer/pulls) to us.
 
 ## License
 

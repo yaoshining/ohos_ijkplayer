@@ -36,6 +36,35 @@ enum AVCodecSampleError : int {
     AVCODEC_SAMPLE_ERR_ERROR = -1,
 };
 
+typedef struct OhosVideoCodecWrapper {
+    int width;
+    int height;
+    int stride;
+    int slice_height;
+    int color_format;
+    int crop_top;
+    int crop_bottom;
+    int crop_left;
+    int crop_right;
+    int display_width;
+    int display_height;
+} OhosVideoCodecWrapper;
+
+enum FormatType {
+    FORMAT_TYPE_IMAGE_WIDTH,
+    FORMAT_TYPE_IMAGE_HEIGHT,
+    FORMAT_TYPE_VIDEO_STRIDE,
+    FORMAT_TYPE_SLICE_HEIGHT,
+    FORMAT_TYPE_PIXEL_FORMAT,
+    FORMAT_TYPE_CROP_TOP,
+    FORMAT_TYPE_CROP_BOTTOM,
+    FORMAT_TYPE_CROP_LEFT,
+    FORMAT_TYPE_CROP_RIGHT,
+    FORMAT_TYPE_VIDEO_WIDTH,
+    FORMAT_TYPE_VIDEO_HEIGHT,
+    FORMAT_TYPE_NBR
+};
+
 extern "C" {
 IJKFF_Pipenode *ffpipenode_create_video_decoder_from_ohos_mediacodec(FFPlayer *ffp, IJKFF_Pipeline *pipeline,
     SDL_Vout *vout);
