@@ -529,6 +529,7 @@ struct IjkVideoPlayerPage {
         that.currentTime = that.stringForTime(this.mIjkMediaPlayer.getDuration());
         that.progressValue = this.PROGRESS_MAX_VALUE;
         that.slideEnable = false;
+        this.stopRecord(false);
         that.stop();
       }
     }
@@ -638,6 +639,7 @@ struct IjkVideoPlayerPage {
       this.curIndex++;
     }
     this.CONTROL_PlayStatus = PlayStatus.INIT;
+    this.stopRecord(false);
     this.stop();
     this.videoUrl = this.videoUrls[this.curIndex];
     this.startPlayOrResumePlay()
