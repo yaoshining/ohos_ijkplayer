@@ -1,3 +1,6 @@
+## 2.0.7-rc.0
+- Fix hardware decoder render bug
+
 ## 2.0.6
 - HLS start broadcasting optimization
 - Fix playback jitter issue
