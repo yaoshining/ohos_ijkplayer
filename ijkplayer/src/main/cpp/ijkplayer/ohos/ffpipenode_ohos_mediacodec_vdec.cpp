@@ -149,8 +149,8 @@ static int qsvenc_get_continuous_buffer(AVFrame *frame, OH_AVFormat *format, Cod
                                         OhosVideoCodecWrapper* codecWrapper)
 {
     int pixelFormat[] = {AV_PIX_FMT_NONE, AV_PIX_FMT_YUV420P, AV_PIX_FMT_NV12, AV_PIX_FMT_NV21};
-    codecWrapper->height = GetFormatInfo(format, FormatType::FORMAT_TYPE_IMAGE_HEIGHT);
     codecWrapper->width = GetFormatInfo(format, FormatType::FORMAT_TYPE_IMAGE_WIDTH);
+    codecWrapper->height = GetFormatInfo(format, FormatType::FORMAT_TYPE_IMAGE_HEIGHT);
     codecWrapper->stride = GetFormatInfo(format, FormatType::FORMAT_TYPE_VIDEO_STRIDE);
     codecWrapper->slice_height = GetFormatInfo(format, FormatType::FORMAT_TYPE_SLICE_HEIGHT);
     codecWrapper->crop_top = GetFormatInfo(format, FormatType::FORMAT_TYPE_CROP_TOP);
@@ -167,8 +167,8 @@ static int qsvenc_get_continuous_buffer(AVFrame *frame, OH_AVFormat *format, Cod
     uint8_t *bufferAddr = OH_AVBuffer_GetAddr(codecBufferInfoReceive->buff_);
     frame->pts = codecBufferInfoReceive->attr.pts;
     frame->pkt_dts = codecBufferInfoReceive->attr.pts;
-    frame->width = codecWrapper->display_width;
-    frame->height = codecWrapper->display_height;
+    frame->width = codecWrapper->width;
+    frame->height = codecWrapper->height;
     frame->format = pixelFormat[codecWrapper->color_format];
     
     int ret = av_frame_get_buffer(frame, 64);
