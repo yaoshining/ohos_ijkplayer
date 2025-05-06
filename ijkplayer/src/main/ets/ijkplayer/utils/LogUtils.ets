@@ -16,10 +16,11 @@
 import hilog from '@ohos.hilog';
 
 export class LogUtils {
-  private  mLogOpen: boolean= false;
-  public static readonly TAG: string= "ijkplayer:js";
+  private mLogOpen: boolean = false;
+  public static readonly TAG: string = "ijkplayer:js";
   private static instance: LogUtils;
   public static readonly DOMAIN: number = 0xD002220;
+
   private constructor() {
   };
 
@@ -35,18 +36,37 @@ export class LogUtils {
   }
 
   LOGI(message: string, ...args: Object[]) {
+    if (!this.mLogOpen) {
+      return;
+    }
     hilog.info(LogUtils.DOMAIN, LogUtils.TAG, message, args)
   }
+
   debug(message: string, ...args: Object[]) {
+    if (!this.mLogOpen) {
+      return;
+    }
     hilog.debug(LogUtils.DOMAIN, LogUtils.TAG, message, args)
   }
+
   info(message: string, ...args: Object[]) {
+    if (!this.mLogOpen) {
+      return;
+    }
     hilog.info(LogUtils.DOMAIN, LogUtils.TAG, message, args)
   }
+
   warn(message: string, ...args: Object[]) {
+    if (!this.mLogOpen) {
+      return;
+    }
     hilog.warn(LogUtils.DOMAIN, LogUtils.TAG, message, args)
   }
+
   error(message: string, ...args: Object[]) {
+    if (!this.mLogOpen) {
+      return;
+    }
     hilog.error(LogUtils.DOMAIN, LogUtils.TAG, message, args)
   }
 }

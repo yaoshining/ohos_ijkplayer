@@ -30,6 +30,7 @@
         }
       }
     ],
+    "routerMap": "$profile:router_map",
     "abilities": [
       {
         "name": "EntryAbility",

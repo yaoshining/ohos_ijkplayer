@@ -416,13 +416,16 @@ this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "fetch_first"
 | getMediaInfo                  | 无                                                            | object            | 获取媒体信息                                                       |
 | setAudioId                    | id: string                                                   | void              | 设置创建音频对象，设置id                                                |
 | on                            | type: ‘audioInterrupt’, callback: Callback< InterruptEvent > | void              | 监听音频中断事件，使用callback方式返回结果                                    |
-| on                            | type: ‘deviceChange’, callback: Callback< InterruptEvent >     | void             | 监听音频设备断开和连接事件，使用callback方式返回结果                                    |
+| on                            | type: ‘deviceChange’, callback: Callback< InterruptEvent >   | void             | 监听音频设备断开和连接事件，使用callback方式返回结果                               |
 | off                           | type: ‘audioInterrupt’                                       | void              | 取消订阅音频中断事件                                                   |
-| off                           | type: ‘deviceChange’                                       | void              | 取消订阅音频断开和连接事件                                                   |
-| startRecord                           | saveFilePath: string                                       | boolean              | 开启视频录制                                                  |
-| isRecord                           | 无                                      | boolean              | 获取视频录制状态                                                  |
-| stopRecord                           | 无                                      | Promise<boolean>              | 停止视频录制                                                  |
-| screenshot                           | saveFilePath: string                                      | Promise<boolean>               | 截屏                                                  |
+| off                           | type: ‘deviceChange’                                         | void              | 取消订阅音频断开和连接事件                                                |
+| startRecord                           | saveFilePath: string                                         | boolean              | 开启视频录制                                                       |
+| isRecord                           | 无                                                            | boolean              | 获取视频录制状态                                                     |
+| stopRecord                           | 无                                                            | Promise<boolean>              | 停止视频录制                                                       |
+| screenshot                           | saveFilePath: string                                         | Promise<boolean>               | 截屏                                                           |
+| stopAsync                           | 无                                                            | Promise<boolean>               | 停止播放异步方法                                                     |
+| releaseAsync                           | 无                                                            | Promise<boolean>               | 释放资源异步方法                                                     |
+
 ### 参数说明
 1.	InterruptEvent
 播放中断时，应用接收的中断事件。

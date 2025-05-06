@@ -5187,6 +5187,9 @@ IjkMediaMeta *ffp_get_meta_l(FFPlayer *ffp)
 
 int ffp_start_record(FFPlayer *ffp, const char *recordFilePath)
 {
+    if (!ffp) {
+        return OHOS_RECORD_CALLBACK_STATUS_FAILED;
+    }
     ffp->record_write_data.windex = 0;
     ffp->record_write_data.rindex = 0;
     ffp->record_write_data.recordFramesQueue = (RecordFrameData*)malloc(OHOS_MAX_DECODE_FRAME_SIZE * sizeof(int));
@@ -5201,6 +5204,9 @@ int ffp_start_record(FFPlayer *ffp, const char *recordFilePath)
 
 int ffp_stop_record(FFPlayer *ffp)
 {
+    if (!ffp) {
+        return OHOS_RECORD_STATUS_OFF;
+    }
     ffp->record_write_data.isInRecord = OHOS_RECORD_STATUS_OFF;
     UpdateRecordStatus(ffp, OHOS_RECORD_STATUS_OFF);
     return FindRecordResult(ffp);
@@ -5208,11 +5214,17 @@ int ffp_stop_record(FFPlayer *ffp)
 
 int ffp_is_record(FFPlayer *ffp)
 {
+    if (!ffp) {
+        return OHOS_RECORD_STATUS_OFF;
+    }
     return ffp->record_write_data.isInRecord;
 }
 
 int ffp_get_current_frame(FFPlayer *ffp, const char *saveFilePath)
 {
+    if (!ffp) {
+        return OHOS_RECORD_CALLBACK_STATUS_FAILED;
+    }
     if (!ffp->is_screenshot) {
         ffp->is_screenshot = 1;
         if (ffp->screen_file_name != NULL) {

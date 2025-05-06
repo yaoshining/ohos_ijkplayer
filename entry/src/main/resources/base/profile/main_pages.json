@@ -3,6 +3,7 @@
     "pages/index",
     "pages/SampleVideoListPage",
     "pages/IjkVideoPlayerPage",
-    "pages/SampleAudioListPage"
+    "pages/SampleAudioListPage",
+    "pages/IjkVideoPlayerNavigationExample"
   ]
 }

@@ -45,4 +45,6 @@ export declare class IjkPlayerNapi {
   _stopRecord(xcomponentId: string):Promise<boolean>;
   _isRecord(xcomponentId: string): boolean;
   _getCurrentFrame(xcomponentId: string,saveFilePath:string): Promise<boolean>;
+  _stopAsync(xcomponentId: string): Promise<boolean>;
+  _releaseAsync(xcomponentId: string): Promise<boolean>;
 }

@@ -28,8 +28,14 @@ struct indexPage {
         })
       Button($r('app.string.audio_demo'))
         .width(200)
+        .margin({ bottom: 20 })
         .onClick(() => {
           router.pushUrl({ url: 'pages/SampleAudioListPage' })
+        })
+      Button('Navigation')
+        .width(200)
+        .onClick(() => {
+          router.pushUrl({ url: 'pages/IjkVideoPlayerNavigationExample' })
         })
     }
     .width('100%')

@@ -59,6 +59,14 @@ struct GetCurrentFrameCallBackInfo {
     int code;
 };
 
+struct CommonCallBackInfo {
+    napi_env env = nullptr;
+    napi_async_work asyncWork = nullptr;
+    napi_deferred deferred = nullptr;
+    napi_ref callbackRef = nullptr;
+    std::string xcomponentId;
+};
+
 void messageCallBack(int what, int arg1, int arg2, char *obj, std::string id)
 {
     LOGI("napi-->messageCallBack");
@@ -815,6 +823,90 @@ napi_value IJKPlayerNapi::getCurrentFrame(napi_env env, napi_callback_info info)
 }
 
 
+napi_value IJKPlayerNapi::stopAsync(napi_env env, napi_callback_info info)
+{
+    LOGI("napi-->stopAsync");
+    size_t argc = PARAM_COUNT_1;
+    napi_value args[PARAM_COUNT_1] = {nullptr};
+    napi_get_cb_info(env, info, &argc, args, nullptr, nullptr);
+    std::string xcomponentId;
+    NapiUtil::JsValueToString(env, args[INDEX_0], STR_DEFAULT_SIZE, xcomponentId);
+    if (xcomponentId == "") {
+        xcomponentId = IJKPlayerNapi::getXComponentId(env, info);
+    }
+    napi_deferred deferred;
+    napi_value promise;
+    NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
+    CommonCallBackInfo *commonCallBackInfo = new CommonCallBackInfo{
+        .env = env,
+        .asyncWork = nullptr,
+        .deferred = deferred,
+        .xcomponentId = xcomponentId,
+    };
+    napi_value resourceName;
+    napi_create_string_latin1(env, "stopAsync", NAPI_AUTO_LENGTH, &resourceName);
+    napi_create_async_work(
+        env, nullptr, resourceName,
+        [](napi_env env, void *data) {
+            CommonCallBackInfo *commonCallBackInfo = (CommonCallBackInfo *)data;
+            IJKPlayerNapi::getInstance(commonCallBackInfo->xcomponentId)->
+            ijkPlayerNapiProxy_->IjkMediaPlayer_stop();
+        },
+        [](napi_env env, napi_status status, void *data) {
+            CommonCallBackInfo *commonCallBackInfo = (CommonCallBackInfo *)data;
+            napi_value result;
+            napi_create_int32(env, 1, &result);
+            napi_resolve_deferred(commonCallBackInfo->env, commonCallBackInfo->deferred, result);
+            napi_delete_async_work(env, commonCallBackInfo->asyncWork);
+            delete commonCallBackInfo;
+        },
+        (void *)commonCallBackInfo, &commonCallBackInfo->asyncWork);
+    napi_queue_async_work(env, commonCallBackInfo->asyncWork);
+    return promise;
+}
+
+napi_value IJKPlayerNapi::releaseAsync(napi_env env, napi_callback_info info)
+{
+    LOGI("napi-->releaseAsync");
+    size_t argc = PARAM_COUNT_1;
+    napi_value args[PARAM_COUNT_1] = {nullptr};
+    napi_get_cb_info(env, info, &argc, args, nullptr, nullptr);
+    std::string xcomponentId;
+    NapiUtil::JsValueToString(env, args[INDEX_0], STR_DEFAULT_SIZE, xcomponentId);
+    if (xcomponentId == "") {
+        xcomponentId = IJKPlayerNapi::getXComponentId(env, info);
+    }
+    napi_deferred deferred;
+    napi_value promise;
+    NAPI_CALL(env, napi_create_promise(env, &deferred, &promise));
+    CommonCallBackInfo *commonCallBackInfo = new CommonCallBackInfo{
+        .env = env,
+        .asyncWork = nullptr,
+        .deferred = deferred,
+        .xcomponentId = xcomponentId,
+    };
+    napi_value resourceName;
+    napi_create_string_latin1(env, "releaseAsync", NAPI_AUTO_LENGTH, &resourceName);
+    napi_create_async_work(
+        env, nullptr, resourceName,
+        [](napi_env env, void *data) {
+            CommonCallBackInfo *commonCallBackInfo = (CommonCallBackInfo *)data;
+            IJKPlayerNapi::getInstance(commonCallBackInfo->xcomponentId)->
+            ijkPlayerNapiProxy_->IjkMediaPlayer_release();
+        },
+        [](napi_env env, napi_status status, void *data) {
+            CommonCallBackInfo *commonCallBackInfo = (CommonCallBackInfo *)data;
+            napi_value result;
+            napi_create_int32(env, 1, &result);
+            napi_resolve_deferred(commonCallBackInfo->env, commonCallBackInfo->deferred, result);
+            napi_delete_async_work(env, commonCallBackInfo->asyncWork);
+            delete commonCallBackInfo;
+        },
+        (void *)commonCallBackInfo, &commonCallBackInfo->asyncWork);
+    napi_queue_async_work(env, commonCallBackInfo->asyncWork);
+    return promise;
+}
+
 /////////////////////////////XComponent////////////////////////////////
 
 void IJKPlayerNapi::setXComponentAndNativeWindow(std::string &id, OH_NativeXComponent *component, void *window) {
@@ -900,7 +992,6 @@ void onSurfaceDestroyedCB(OH_NativeXComponent *component, void *window) {
     }
     std::string id(idStr);
     auto ijkplayerNapi = IJKPlayerNapi::getInstance(id);
-    ijkplayerNapi->ijkPlayerNapiProxy_->delete_media_player(id);
     ijkplayerNapi->onSurfaceDestroyed(component, window);
 }
 
@@ -1013,6 +1104,8 @@ napi_value IJKPlayerNapi::Export(napi_env env, napi_value exports) {
         DECLARE_NAPI_FUNCTION("_stopRecord", IJKPlayerNapi::stopRecord),
         DECLARE_NAPI_FUNCTION("_isRecord", IJKPlayerNapi::isRecord),
         DECLARE_NAPI_FUNCTION("_getCurrentFrame", IJKPlayerNapi::getCurrentFrame),
+        DECLARE_NAPI_FUNCTION("_stopAsync", IJKPlayerNapi::stopAsync),
+        DECLARE_NAPI_FUNCTION("_releaseAsync", IJKPlayerNapi::releaseAsync),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
     return exports;

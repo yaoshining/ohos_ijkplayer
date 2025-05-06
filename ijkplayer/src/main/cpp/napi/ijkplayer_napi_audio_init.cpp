@@ -46,7 +46,9 @@ static napi_value Init(napi_env env, napi_value exports) {
         DECLARE_NAPI_FUNCTION("_getMediaMeta", IJKPlayerNapi::getMediaMeta),
         DECLARE_NAPI_FUNCTION("_nativeOpenlog", IJKPlayerNapi::nativeOpenlog),
         DECLARE_NAPI_FUNCTION("_native_setup", IJKPlayerNapi::native_setup),
-        DECLARE_NAPI_FUNCTION("_native_setup_audio", IJKPlayerNapi::native_setup_audio)
+        DECLARE_NAPI_FUNCTION("_native_setup_audio", IJKPlayerNapi::native_setup_audio),
+        DECLARE_NAPI_FUNCTION("_stopAsync", IJKPlayerNapi::stopAsync),
+        DECLARE_NAPI_FUNCTION("_releaseAsync", IJKPlayerNapi::releaseAsync),
     };
     napi_value ijkAudio = nullptr;
     const char *classBindName = "IJKPlayerNapi";
