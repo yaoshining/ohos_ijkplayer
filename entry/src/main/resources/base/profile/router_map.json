@@ -1,0 +1,20 @@
+{
+  "routerMap": [
+    {
+      "name": "IjkVideoPlayer",
+      "pageSourceFile": "src/main/ets/pages/IjkVideoPlayerNavigationComponent.ets",
+      "buildFunction": "IjkVideoPlayerNavigationComponentBuilder",
+      "data": {
+        "description": "this is IjkVideoPlayerNavigationComponent"
+      }
+    },
+    {
+      "name": "IjkAudioPlayer",
+      "pageSourceFile": "src/main/ets/pages/IjkAudioPlayerNavigationComponent.ets",
+      "buildFunction": "IjkAudioPlayerNavigationComponentBuilder",
+      "data": {
+        "description": "this is IjkAudioPlayerNavigationComponent"
+      }
+    }
+  ]
+}

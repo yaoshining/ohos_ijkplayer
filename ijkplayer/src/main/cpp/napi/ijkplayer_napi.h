@@ -62,7 +62,9 @@ class IJKPlayerNapi {
     static napi_value stopRecord(napi_env env, napi_callback_info info);
     static napi_value isRecord(napi_env env, napi_callback_info info);
     static napi_value getCurrentFrame(napi_env env, napi_callback_info info);
-
+    static napi_value stopAsync(napi_env env, napi_callback_info info);
+    static napi_value releaseAsync(napi_env env, napi_callback_info info);
+    
     ////////////////////////XComponent////////////////////////////
     static OH_NativeXComponent_Callback *getNXComponentCallback();
     void setNativeXComponent(OH_NativeXComponent *component);

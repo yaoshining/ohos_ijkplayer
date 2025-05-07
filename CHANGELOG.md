@@ -1,3 +1,6 @@
+## 2.0.7-rc.1
+- Add support for stopAsynchronous and releaseAsynchronous interfaces
+
 ## 2.0.7-rc.0
 - Fix hardware decoder render bug
 

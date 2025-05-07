@@ -45,4 +45,6 @@ export declare class newIjkPlayerAudio {
   _getAudioCodecInfo(xcomponentId: string): string;
   _getMediaMeta(xcomponentId: string): string;
   _native_setup(xcomponentId: string): void;
+  _stopAsync(xcomponentId: string): Promise<boolean>;
+  _releaseAsync(xcomponentId: string): Promise<boolean>;
 }

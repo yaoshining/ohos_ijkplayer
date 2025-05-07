@@ -702,5 +702,27 @@ export class IjkMediaPlayer {
     });
   }
 
+  stopAsync(): Promise<boolean>  {
+    if (!!this.ijkplayer_napi) {
+      return this.ijkplayer_napi._stopAsync(this.id);
+    } else if (!!this.ijkplayer_audio_napi) {
+      this.ijkplayer_audio_napi._stopAsync(this.id);
+    }
+    return new Promise((resolve) => {
+      resolve(false);
+    });
+  }
+
+  releaseAsync(): Promise<boolean>  {
+    if (!!this.ijkplayer_napi) {
+      return this.ijkplayer_napi._releaseAsync(this.id);
+    } else if (!!this.ijkplayer_audio_napi) {
+      this.ijkplayer_audio_napi._releaseAsync(this.id);
+    }
+    return new Promise((resolve) => {
+      resolve(false);
+    });
+  }
+
 }
 
