@@ -15,6 +15,7 @@
 
 import router from '@ohos.router';
 import VideoNewsView from '../ListView/VideoNewsView';
+import { IjkplayerMapManager } from './IjkplayerMapManager';
 
 @Entry
 @Component
@@ -59,5 +60,9 @@ struct SampleVideoListPage {
         })
       }.margin({ top: 30 })
     }
+  }
+
+  aboutToDisappear(): void {
+    IjkplayerMapManager.getInstance().clearAll();
   }
 }

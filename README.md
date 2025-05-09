@@ -454,6 +454,12 @@ Enumerates the hints provided along with audio interruption.
 | INTERRUPT_HINT_DUCK   | 4  | Ducks the playback. (In ducking, the audio volume is reduced, but not silenced.)|
 | INTERRUPT_HINT_UNDUCK | 5  | Unducks the playback.                              |
 
+## Notes
+- State management is required for implementation,[Refer to the Demo](https://gitcode.com/openharmony-sig/ohos_ijkplayer/blob/master/entry/src/main/ets/pages/IjkplayerMapManager.ts)
+- [Refer to the Navigation Example](https://gitcode.com/openharmony-sig/ohos_ijkplayer/blob/master/entry/src/main/ets/pages/IjkVideoPlayerNavigationExample.ets)
+- [Refer to the Not Navigation Example](https://gitcode.com/openharmony-sig/ohos_ijkplayer/blob/master/entry/src/main/ets/pages/IjkVideoPlayerPage.ets)
+
+
 ## About obfuscation
 - Code obfuscation, please see[Code Obfuscation](https://docs.openharmony.cn/pages/v5.0/zh-cn/application-dev/arkts-utils/source-obfuscation.md)
 - If you want the ijkplayer library not to be obfuscated during code obfuscation, you need to add corresponding exclusion rules in the obfuscation rule configuration file obfuscation-rules.txt：
