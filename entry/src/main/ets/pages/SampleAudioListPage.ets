@@ -24,6 +24,7 @@ import { OnSeekCompleteListener } from '@ohos/ijkplayer';
 import { LogUtils } from '@ohos/ijkplayer';
 import { PlayStatus } from '../common/PlayStatus';
 import prompt from '@ohos.promptAction';
+import { IjkplayerMapManager } from './IjkplayerMapManager';
 
 @Entry
 @Component
@@ -51,9 +52,11 @@ struct SampleAudioListPage {
   "http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8"
 ];
   @State curIndex: number = 0;
+  private xcomponentId: string = ""
 
   aboutToAppear() {
     LogUtils.getInstance().LOGI("aboutToAppear");
+    this.xcomponentId = "xcomponentId_" + IjkplayerMapManager.generateId();
     this.videoUrl = this.videoUrls[0]
     this.initDelayPlay();
     let event: Callback<InterruptEvent> = (event) => {
@@ -71,9 +74,10 @@ struct SampleAudioListPage {
 
   aboutToDisappear() {
     LogUtils.getInstance().LOGI("aboutToDisappear");
+    IjkplayerMapManager.getInstance().destroyStatusMap.set(this.xcomponentId, true);
     this.mDestroyPage = true;
     this.mIjkMediaPlayer.setScreenOnWhilePlaying(false);
-    if (this.CONTROL_PlayStatus != PlayStatus.INIT) {
+    if (this.CONTROL_PlayStatus !== PlayStatus.INIT) {
       this.stop();
     }
     this.mIjkMediaPlayer.off('audioInterrupt');
@@ -118,7 +122,7 @@ struct SampleAudioListPage {
           .showTips(true)
           .enabled(this.slideEnable)
           .onChange((value: number, mode: SliderChangeMode) => {
-            if (mode == 2) {
+            if (mode === 2) {
               this.isSeekTo = true;
               this.mDestroyPage = false;
               this.showLoadIng();
@@ -205,7 +209,7 @@ struct SampleAudioListPage {
           .showSteps(true)
           .showTips(true)
           .onChange((value: number, mode: SliderChangeMode) => {
-            if (mode == SliderChangeMode.End) {
+            if (mode === SliderChangeMode.End) {
               this.volume = value;
               this.mIjkMediaPlayer.setVolume(this.volume.toString(), this.volume.toString());
             }
@@ -215,22 +219,21 @@ struct SampleAudioListPage {
   }
 
   private initDelayPlay() {
-    let that = this;
     setTimeout(() => {
-      that.startPlayOrResumePlay();
-      that.mFirst = false;
+      this.startPlayOrResumePlay();
+      this.mFirst = false;
     }, 300)
   }
 
   private startPlayOrResumePlay() {
     this.mDestroyPage = false;
     LogUtils.getInstance().LOGI("startPlayOrResumePlay start this.CONTROL_PlayStatus:" + this.CONTROL_PlayStatus)
-    if (this.CONTROL_PlayStatus == PlayStatus.INIT) {
+    if (this.CONTROL_PlayStatus === PlayStatus.INIT) {
       this.stopProgressTask();
       this.startProgressTask();
       this.play(this.videoUrl.toString());
     }
-    if (this.CONTROL_PlayStatus == PlayStatus.PAUSE) {
+    if (this.CONTROL_PlayStatus === PlayStatus.PAUSE) {
       this.mIjkMediaPlayer.start();
       this.setProgress()
     }
@@ -269,6 +272,12 @@ struct SampleAudioListPage {
   }
 
   private setProgress() {
+    if (IjkplayerMapManager.getInstance().destroyStatusMap.get(this.xcomponentId)) {
+      return;
+    }
+    if (!IjkplayerMapManager.getInstance().playStatusMap.get(this.xcomponentId)) {
+      return;
+    }
     let position = this.mIjkMediaPlayer.getCurrentPosition();
     let duration = this.mIjkMediaPlayer.getDuration();
     let pos = 0;
@@ -294,11 +303,14 @@ struct SampleAudioListPage {
   }
 
   private startProgressTask() {
-    let that = this;
     this.updateProgressTimer = setInterval(() => {
       LogUtils.getInstance().LOGI("startProgressTask");
-      if (!that.mDestroyPage) {
-        that.setProgress();
+      if (IjkplayerMapManager.getInstance().destroyStatusMap.get(this.xcomponentId)) {
+        clearInterval(this.updateProgressTimer);
+        return;
+      }
+      if (!this.mDestroyPage) {
+        this.setProgress();
       }
     }, 300);
   }
@@ -324,11 +336,13 @@ struct SampleAudioListPage {
   }
 
   private play(url: string) {
-    let that = this;
-    that.showLoadIng();
+    if (IjkplayerMapManager.getInstance().destroyStatusMap.get(this.xcomponentId)) {
+      return;
+    }
+    this.showLoadIng();
 
-    this.mIjkMediaPlayer.setAudioId('audioIjkId');
-    if (this.CONTROL_PlayStatus == PlayStatus.INIT) {
+    this.mIjkMediaPlayer.setAudioId(this.xcomponentId);
+    if (this.CONTROL_PlayStatus === PlayStatus.INIT) {
       this.mIjkMediaPlayer.reset();
     }
     this.CONTROL_PlayStatus = PlayStatus.PLAY;
@@ -395,11 +409,11 @@ struct SampleAudioListPage {
     let mOnCompletionListener: OnCompletionListener = {
       onCompletion: () => {
         LogUtils.getInstance().LOGI("OnCompletionListener-->go")
-        that.showRePlay();
-        that.currentTime = that.stringForTime(this.mIjkMediaPlayer.getDuration());
-        that.progressValue = this.PROGRESS_MAX_VALUE;
-        that.slideEnable = false;
-        that.stop();
+        this.showRePlay();
+        this.currentTime = this.stringForTime(this.mIjkMediaPlayer.getDuration());
+        this.progressValue = this.PROGRESS_MAX_VALUE;
+        this.slideEnable = false;
+        this.stop();
       }
     }
     this.mIjkMediaPlayer.setOnCompletionListener(mOnCompletionListener);
@@ -419,7 +433,7 @@ struct SampleAudioListPage {
     let mOnSeekCompleteListener: OnSeekCompleteListener = {
       onSeekComplete: () => {
         LogUtils.getInstance().LOGI("OnSeekCompleteListener-->go");
-        that.startPlayOrResumePlay();
+        this.startPlayOrResumePlay();
       }
     }
     this.mIjkMediaPlayer.setOnSeekCompleteListener(mOnSeekCompleteListener);
@@ -427,7 +441,7 @@ struct SampleAudioListPage {
     let mOnInfoListener: OnInfoListener = {
       onInfo: (what: number, extra: number) => {
         LogUtils.getInstance().LOGI("OnInfoListener-->go:" + what + "===" + extra);
-        that.hideLoadIng();
+        this.hideLoadIng();
       }
     }
     this.mIjkMediaPlayer.setOnInfoListener(mOnInfoListener);
@@ -437,7 +451,7 @@ struct SampleAudioListPage {
       onError: (what: number, extra: number) => {
         this.stopProgressTask();
         LogUtils.getInstance().LOGI("OnErrorListener-->go:" + what + "===" + extra)
-        that.hideLoadIng();
+        this.hideLoadIng();
         prompt.showToast({
           message: getContext().resourceManager.getStringByNameSync("Honey_the_video_is_playing_errant_The_system_is_wandering")
         });
@@ -452,6 +466,9 @@ struct SampleAudioListPage {
     this.mIjkMediaPlayer.prepareAsync();
 
     this.mIjkMediaPlayer.start();
+
+    IjkplayerMapManager.getInstance().playStatusMap.set(this.xcomponentId, true);
+
   }
 
   private pause() {
@@ -464,7 +481,9 @@ struct SampleAudioListPage {
   }
 
   private stop() {
-
+    if (!IjkplayerMapManager.getInstance().playStatusMap.get(this.xcomponentId)) {
+      return;
+    }
     this.CONTROL_PlayStatus = PlayStatus.INIT;
     this.mIjkMediaPlayer.stop();
     this.mIjkMediaPlayer.release();
@@ -477,7 +496,7 @@ struct SampleAudioListPage {
   }
 
   private playNext() {
-    if (this.curIndex == this.videoUrls.length - 1) {
+    if (this.curIndex === this.videoUrls.length - 1) {
       this.curIndex = 0;
     } else {
       this.curIndex++;

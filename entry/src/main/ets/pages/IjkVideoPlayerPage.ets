@@ -30,6 +30,7 @@ import { RouterParam } from './RouterParam';
 import abilityAccessCtrl from '@ohos.abilityAccessCtrl';
 import photoAccessHelper from '@ohos.file.photoAccessHelper';
 import fs from '@ohos.file.fs';
+import { IjkplayerMapManager } from './IjkplayerMapManager';
 
 @Entry
 @Component
@@ -67,9 +68,11 @@ struct IjkVideoPlayerPage {
   ["https://1251542705.vod2.myqcloud.com/4a8d9c67vodtransgzp1251542705/203109c63270835013529449619/v.f1419907.mp4",
     "https://getsamplefiles.com/download/mp4/sample-5.mp4",
   ];
+  private xcomponentId: string = ""
 
   aboutToAppear() {
     LogUtils.getInstance().LOGI("aboutToAppear");
+    this.xcomponentId = "xcomponentId_" + IjkplayerMapManager.generateId();
     this.videoUrl = (router.getParams() as RouterParam).videoUrl;
     let event: Callback<InterruptEvent> = (event) => {
       LogUtils.getInstance().LOGI(`event: ${JSON.stringify(event)}`);
@@ -95,10 +98,11 @@ struct IjkVideoPlayerPage {
 
   aboutToDisappear() {
     LogUtils.getInstance().LOGI("aboutToDisappear");
+    IjkplayerMapManager.getInstance().destroyStatusMap.set(this.xcomponentId, true);
     this.mDestroyPage = true;
     this.mIjkMediaPlayer.setScreenOnWhilePlaying(false);
     this.stopRecord(false);
-    if (this.CONTROL_PlayStatus != PlayStatus.INIT) {
+    if (this.CONTROL_PlayStatus !== PlayStatus.INIT) {
       this.stop();
     }
     this.mIjkMediaPlayer.off('audioInterrupt');
@@ -131,7 +135,7 @@ struct IjkVideoPlayerPage {
       Stack({ alignContent: Alignment.Center }) {
         Column(){
           XComponent({
-            id: 'xcomponentId',
+            id: this.xcomponentId,
             type: 'surface',
             libraryname: 'ijkplayer_napi'
           })
@@ -145,7 +149,7 @@ struct IjkVideoPlayerPage {
             .width('100%')
             .width(this.videoWidth)
             .aspectRatio(this.videoAspectRatio)
-            .id('xcomponentId')
+            .id(this.xcomponentId)
         }.aspectRatio(this.videoAspectRatio)
 
         Image($r('app.media.icon_replay'))
@@ -184,7 +188,7 @@ struct IjkVideoPlayerPage {
           .showTips(true)
           .enabled(this.slideEnable)
           .onChange((value: number, mode: SliderChangeMode) => {
-            if (mode == 2) {
+            if (mode === 2) {
               this.isSeekTo = true;
               this.mDestroyPage = false;
               this.showLoadIng();
@@ -273,7 +277,7 @@ struct IjkVideoPlayerPage {
           .showSteps(true)
           .showTips(true)
           .onChange((value: number, mode: SliderChangeMode) => {
-            if (mode == SliderChangeMode.End) {
+            if (mode === SliderChangeMode.End) {
               this.volume = value;
               this.mIjkMediaPlayer.setVolume(this.volume.toString(), this.volume.toString());
             }
@@ -282,7 +286,7 @@ struct IjkVideoPlayerPage {
 
       Flex({ direction: FlexDirection.Row, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Start }) {
         Button($r('app.string.startRecord'))
-          .visibility(this.recordProgressVisible == Visibility.Visible ? Visibility.None : Visibility.Visible)
+          .visibility(this.recordProgressVisible === Visibility.Visible ? Visibility.None : Visibility.Visible)
           .onClick(() => {
             this.startRecord()
           })
@@ -295,7 +299,7 @@ struct IjkVideoPlayerPage {
           .style({ strokeWidth: 10, status: ProgressStatus.LOADING }).visibility(this.recordProgressVisible)
 
         Button($r('app.string.stopRecord'))
-          .visibility(this.recordProgressVisible == Visibility.Visible ? Visibility.None : Visibility.Visible)
+          .visibility(this.recordProgressVisible === Visibility.Visible ? Visibility.None : Visibility.Visible)
           .onClick(() => {
             this.stopRecord(true)
           })
@@ -308,7 +312,7 @@ struct IjkVideoPlayerPage {
           .style({ strokeWidth: 10, status: ProgressStatus.LOADING }).visibility(this.screenshotProgressVisible)
 
         Button($r('app.string.screenshot'))
-          .visibility(this.screenshotProgressVisible == Visibility.Visible ? Visibility.None : Visibility.Visible)
+          .visibility(this.screenshotProgressVisible === Visibility.Visible ? Visibility.None : Visibility.Visible)
           .onClick(() => {
             this.screenshot()
           })
@@ -321,22 +325,21 @@ struct IjkVideoPlayerPage {
 
   private initDelayPlay(context: object) {
     this.mContext = context;
-    let that = this;
     setTimeout(() => {
-      that.startPlayOrResumePlay();
-      that.mFirst = false;
+      this.startPlayOrResumePlay();
+      this.mFirst = false;
     }, 300)
   }
 
   private startPlayOrResumePlay() {
     this.mDestroyPage = false;
     LogUtils.getInstance().LOGI("startPlayOrResumePlay start this.CONTROL_PlayStatus:" + this.CONTROL_PlayStatus)
-    if (this.CONTROL_PlayStatus == PlayStatus.INIT) {
+    if (this.CONTROL_PlayStatus === PlayStatus.INIT) {
       this.stopProgressTask();
       this.startProgressTask();
       this.play(this.videoUrl.toString());
     }
-    if (this.CONTROL_PlayStatus == PlayStatus.PAUSE) {
+    if (this.CONTROL_PlayStatus === PlayStatus.PAUSE) {
       this.mIjkMediaPlayer.start();
       this.setProgress()
     }
@@ -375,6 +378,12 @@ struct IjkVideoPlayerPage {
   }
 
   private setProgress() {
+    if (IjkplayerMapManager.getInstance().destroyStatusMap.get(this.xcomponentId)) {
+      return;
+    }
+    if (!IjkplayerMapManager.getInstance().playStatusMap.get(this.xcomponentId)) {
+      return;
+    }
     let position = this.mIjkMediaPlayer.getCurrentPosition();
     let duration = this.mIjkMediaPlayer.getDuration();
     let pos = 0;
@@ -400,11 +409,14 @@ struct IjkVideoPlayerPage {
   }
 
   private startProgressTask() {
-    let that = this;
     this.updateProgressTimer = setInterval(() => {
       LogUtils.getInstance().LOGI("startProgressTask");
-      if (!that.mDestroyPage) {
-        that.setProgress();
+      if (IjkplayerMapManager.getInstance().destroyStatusMap.get(this.xcomponentId)) {
+        clearInterval(this.updateProgressTimer);
+        return;
+      }
+      if (!this.mDestroyPage) {
+        this.setProgress();
       }
     }, 300);
   }
@@ -430,13 +442,15 @@ struct IjkVideoPlayerPage {
   }
 
   private play(url: string) {
-    let that = this;
-    that.showLoadIng();
+    if (IjkplayerMapManager.getInstance().destroyStatusMap.get(this.xcomponentId)) {
+      return;
+    }
+    this.showLoadIng();
     //设置XComponent回调的context
     if (!!this.mContext) {
-      this.mIjkMediaPlayer.setContext(this.mContext, 'xcomponentId');
+      this.mIjkMediaPlayer.setContext(this.mContext, this.xcomponentId);
     }
-    if (this.CONTROL_PlayStatus == PlayStatus.INIT) {
+    if (this.CONTROL_PlayStatus === PlayStatus.INIT) {
       this.mIjkMediaPlayer.reset();
     }
     this.CONTROL_PlayStatus = PlayStatus.PLAY;
@@ -493,19 +507,19 @@ struct IjkVideoPlayerPage {
           return;
         }
         const va = width / height;
-        const vpa = that.videoParentAspectRatio;
+        const vpa = this.videoParentAspectRatio;
         if (vpa > va) {
-          that.videoWidth = (width / (height * vpa)) * 100 + '%';
+          this.videoWidth = (width / (height * vpa)) * 100 + '%';
         } else {
-          that.videoWidth = '100%';
+          this.videoWidth = '100%';
         }
         if (width && height) {
-          that.videoAspectRatio = width / height;
+          this.videoAspectRatio = width / height;
         }
         LogUtils.getInstance()
           .LOGI("setOnVideoSizeChangedListener-->go:" + width + "," + height + "," + sar_num + "," + sar_den);
-        that.getVideoSize();
-        that.hideLoadIng();
+        this.getVideoSize();
+        this.hideLoadIng();
       }
     }
     this.mIjkMediaPlayer.setOnVideoSizeChangedListener(mOnVideoSizeChangedListener);
@@ -525,12 +539,12 @@ struct IjkVideoPlayerPage {
     let mOnCompletionListener: OnCompletionListener = {
       onCompletion: () => {
         LogUtils.getInstance().LOGI("OnCompletionListener-->go")
-        that.showRePlay();
-        that.currentTime = that.stringForTime(this.mIjkMediaPlayer.getDuration());
-        that.progressValue = this.PROGRESS_MAX_VALUE;
-        that.slideEnable = false;
+        this.showRePlay();
+        this.currentTime = this.stringForTime(this.mIjkMediaPlayer.getDuration());
+        this.progressValue = this.PROGRESS_MAX_VALUE;
+        this.slideEnable = false;
         this.stopRecord(false);
-        that.stop();
+        this.stop();
       }
     }
     this.mIjkMediaPlayer.setOnCompletionListener(mOnCompletionListener);
@@ -564,7 +578,7 @@ struct IjkVideoPlayerPage {
     let mOnSeekCompleteListener: OnSeekCompleteListener = {
       onSeekComplete: () => {
         LogUtils.getInstance().LOGI("OnSeekCompleteListener-->go");
-        that.startPlayOrResumePlay();
+        this.startPlayOrResumePlay();
       }
     }
     this.mIjkMediaPlayer.setOnSeekCompleteListener(mOnSeekCompleteListener);
@@ -572,7 +586,7 @@ struct IjkVideoPlayerPage {
     let mOnInfoListener: OnInfoListener = {
       onInfo: (what: number, extra: number) => {
         LogUtils.getInstance().LOGI("OnInfoListener-->go:" + what + "===" + extra);
-        that.hideLoadIng();
+        this.hideLoadIng();
       }
     }
     this.mIjkMediaPlayer.setOnInfoListener(mOnInfoListener);
@@ -582,7 +596,7 @@ struct IjkVideoPlayerPage {
       onError: (what: number, extra: number) => {
         this.stopProgressTask();
         LogUtils.getInstance().LOGI("OnErrorListener-->go:" + what + "===" + extra)
-        that.hideLoadIng();
+        this.hideLoadIng();
         prompt.showToast({
           message: getContext().resourceManager.getStringByNameSync("Honey_the_video_is_playing_errant_The_system_is_wandering")
         });
@@ -597,6 +611,9 @@ struct IjkVideoPlayerPage {
     this.mIjkMediaPlayer.prepareAsync();
 
     this.mIjkMediaPlayer.start();
+
+    IjkplayerMapManager.getInstance().playStatusMap.set(this.xcomponentId, true);
+
   }
 
   private getVideoSize() {
@@ -618,6 +635,9 @@ struct IjkVideoPlayerPage {
   }
 
   private stop() {
+    if (!IjkplayerMapManager.getInstance().playStatusMap.get(this.xcomponentId)) {
+      return;
+    }
     this.CONTROL_PlayStatus = PlayStatus.INIT;
     this.mIjkMediaPlayer.stop();
     this.mIjkMediaPlayer.release();
@@ -633,7 +653,7 @@ struct IjkVideoPlayerPage {
     if (!this.debounce()) {
       return;
     }
-    if (this.curIndex == this.videoUrls.length - 1) {
+    if (this.curIndex === this.videoUrls.length - 1) {
       this.curIndex = 0;
     } else {
       this.curIndex++;
@@ -681,9 +701,8 @@ struct IjkVideoPlayerPage {
       return
     }
     this.recordProgressVisible = Visibility.Visible;
-    let that = this;
     this.mIjkMediaPlayer.stopRecord().then((result) => {
-      that.recordProgressVisible = Visibility.None;
+      this.recordProgressVisible = Visibility.None;
       if(!result){
         prompt.showToast({
           message: $r('app.string.stop_record_failed')
@@ -691,17 +710,17 @@ struct IjkVideoPlayerPage {
         return;
       }
       let atManager = abilityAccessCtrl.createAtManager();
-      atManager.requestPermissionsFromUser(getContext(that), ['ohos.permission.WRITE_IMAGEVIDEO']).then(async () => {
+      atManager.requestPermissionsFromUser(getContext(this), ['ohos.permission.WRITE_IMAGEVIDEO']).then(async () => {
         let photoType: photoAccessHelper.PhotoType = photoAccessHelper.PhotoType.VIDEO;
         let extension:string = 'mp4';
         let options: photoAccessHelper.CreateOptions = {
           title: "record_"+new Date().getTime()+""
         }
-        let phAccessHelper = photoAccessHelper.getPhotoAccessHelper(getContext(that));
+        let phAccessHelper = photoAccessHelper.getPhotoAccessHelper(getContext(this));
         phAccessHelper.createAsset(photoType, extension, options, (err, uri) => {
           LogUtils.getInstance().LOGI(`createAsset success uri:${uri}`)
           if (uri !== undefined) {
-            let recordFile = fs.openSync(that.recordSaveFilePath);
+            let recordFile = fs.openSync(this.recordSaveFilePath);
             let albumFile = fs.openSync(uri,fs.OpenMode.READ_WRITE);
             fs.copyFileSync(recordFile.fd,albumFile.fd);
             fs.closeSync(recordFile);
@@ -721,11 +740,10 @@ struct IjkVideoPlayerPage {
   }
 
   private screenshot() {
-    let that = this;
     let saveFilePath = getContext(this).cacheDir + "/screen.jpg";
     this.screenshotProgressVisible = Visibility.Visible;
     this.mIjkMediaPlayer.screenshot(saveFilePath).then((result) => {
-      that.screenshotProgressVisible = Visibility.None;
+      this.screenshotProgressVisible = Visibility.None;
       if(!result) {
         prompt.showToast({
           message: $r('app.string.screenshot_failed')
@@ -733,13 +751,13 @@ struct IjkVideoPlayerPage {
         return;
       }
       let atManager = abilityAccessCtrl.createAtManager();
-      atManager.requestPermissionsFromUser(getContext(that), ['ohos.permission.WRITE_IMAGEVIDEO']).then(async () => {
+      atManager.requestPermissionsFromUser(getContext(this), ['ohos.permission.WRITE_IMAGEVIDEO']).then(async () => {
         let photoType: photoAccessHelper.PhotoType = photoAccessHelper.PhotoType.IMAGE;
         let extension:string = 'jpg';
         let options: photoAccessHelper.CreateOptions = {
           title: "screenshot_"+new Date().getTime()+""
         }
-        let phAccessHelper = photoAccessHelper.getPhotoAccessHelper(getContext(that));
+        let phAccessHelper = photoAccessHelper.getPhotoAccessHelper(getContext(this));
         phAccessHelper.createAsset(photoType, extension, options, (err, uri) => {
           LogUtils.getInstance().LOGI(`createAsset success uri:${uri}`)
           if (uri !== undefined) {

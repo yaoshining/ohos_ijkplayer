@@ -364,7 +364,7 @@ struct IjkAudioPlayerNavigationComponent {
     }
     this.showLoadIng();
 
-    this.mIjkMediaPlayer.setAudioId('audioIjkId');
+    this.mIjkMediaPlayer.setAudioId(this.xcomponentId);
     if (this.CONTROL_PlayStatus === PlayStatus.INIT) {
       this.mIjkMediaPlayer.reset();
     }

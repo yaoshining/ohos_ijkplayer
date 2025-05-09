@@ -455,6 +455,12 @@ this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "fetch_first"
 | INTERRUPT_HINT_DUCK   | 4  | 提示音频躲避。（躲避：音量减弱，而不会停止） |
 | INTERRUPT_HINT_UNDUCK | 5  | 提示音量恢复。                               |
 
+
+## 注意事项
+- 在使用时需要添加状态管理，[参考Demo](https://gitcode.com/openharmony-sig/ohos_ijkplayer/blob/master/entry/src/main/ets/pages/IjkplayerMapManager.ts)
+- [参考结合Navigation示例](https://gitcode.com/openharmony-sig/ohos_ijkplayer/blob/master/entry/src/main/ets/pages/IjkVideoPlayerNavigationExample.ets)
+- [参考非Navigation示例](https://gitcode.com/openharmony-sig/ohos_ijkplayer/blob/master/entry/src/main/ets/pages/IjkVideoPlayerPage.ets)
+
 ## 关于混淆
 - 代码混淆，请查看[代码混淆简介](https://docs.openharmony.cn/pages/v5.0/zh-cn/application-dev/arkts-utils/source-obfuscation.md)
 - 如果希望ijkplayer库在代码混淆过程中不会被混淆，需要在混淆规则配置文件obfuscation-rules.txt中添加相应的排除规则：
