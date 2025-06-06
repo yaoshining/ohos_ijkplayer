@@ -1,3 +1,6 @@
+## 2.0.7-rc.2
+- Fix abnormal issues with RTMP video recording
+
 ## 2.0.7-rc.1
 - Add support for stopAsynchronous and releaseAsynchronous interfaces
 
