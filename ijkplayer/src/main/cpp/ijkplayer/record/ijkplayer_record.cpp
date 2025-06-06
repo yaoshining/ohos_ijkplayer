@@ -84,7 +84,6 @@ int AddStream(OutputStream *ost, AVFormatContext *oc, AVCodec **codec, enum AVCo
               InputSourceInfo inpSrcInfo, int sampleRate, int frameRate)
 {
     AVCodecContext *c;
-    int i;
     if (codec_id == AV_CODEC_ID_MPEG4) {
         codec_id = AV_CODEC_ID_H264;
     }
@@ -116,12 +115,20 @@ int AddStream(OutputStream *ost, AVFormatContext *oc, AVCodec **codec, enum AVCo
     return OHOS_RECORD_CALLBACK_STATUS_SUCCESS;
 }
 
-int OpenVideo(AVFormatContext *oc, AVCodec *codec, OutputStream *ost, AVDictionary *opt_arg)
+int OpenVideo(AVFormatContext *oc, AVCodec *codec, OutputStream *ost, AVDictionary *opt_arg, int frameRate)
 {
     int ret;
     AVCodecContext *c = ost->st->codec;
     AVDictionary *opt = NULL;
     av_dict_copy(&opt, opt_arg, 0);
+    if ((c->time_base.num <= 0) || (c->time_base.den <= 0)) {
+        if (frameRate <= 0) {
+            // 如果输入帧率不存在，则默认编码帧率30
+            c->time_base = (AVRational){1, STREAM_FRAME_RATE};
+        } else {
+            c->time_base = (AVRational){1, frameRate};
+        }
+    }
     ret = avcodec_open2(c, codec, &opt);
     av_dict_free(&opt);
     if (ret < 0) {
@@ -385,7 +392,7 @@ VideoAudioAvCodec VideoAudioStreamAndAvcodecOpen(RecordWriteData *recordWriteDat
     }
     if (haveVideo) {
         int openVideoResult =
-            OpenVideo(recordWriteData->oc, recordWriteData->video_codec, &recordWriteData->video_st, opt);
+            OpenVideo(recordWriteData->oc, recordWriteData->video_codec, &recordWriteData->video_st, opt, frameRate);
         if (openVideoResult == 0) {
             UpdateRecordResult(mFFPlayer, OHOS_RECORD_CALLBACK_STATUS_FAILED);
             vaAvcodec.result = OHOS_RECORD_CALLBACK_STATUS_FAILED;
@@ -401,7 +408,7 @@ VideoAudioAvCodec VideoAudioStreamAndAvcodecOpen(RecordWriteData *recordWriteDat
             return vaAvcodec;
         }
     }
-    vaAvcodec.haveAudio = haveVideo;
+    vaAvcodec.haveVideo = haveVideo;
     vaAvcodec.haveAudio = haveAudio;
     vaAvcodec.result = OHOS_RECORD_CALLBACK_STATUS_SUCCESS;
     return vaAvcodec;
@@ -574,7 +581,6 @@ int WriteRecordFile(void *recordData)
         UpdateRecordResult(mFFPlayer, OHOS_RECORD_CALLBACK_STATUS_FAILED);
         return OHOS_RECORD_CALLBACK_STATUS_FAILED;
     }
-    AVOutputFormat *fmt;
     OutputStream *videoStPtr;
     OutputStream *audioStPtr;
     int ret;
@@ -601,6 +607,8 @@ int WriteRecordFile(void *recordData)
             return OHOS_RECORD_CALLBACK_STATUS_FAILED;
         }
     }
+    int frameRate = av_q2d(mFFPlayer->is->video_st->avg_frame_rate);
+    av_dict_set_int(&opt, "video_track_timescale", frameRate == 0 ? STREAM_FRAME_RATE : frameRate, 0);
     ret = avformat_write_header(recordWriteData->oc, &opt);
     if (ret < 0) {
         LOGE("Error occurred when opening output file %s", av_err2str(ret));
