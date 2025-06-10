@@ -127,6 +127,26 @@
     {
       "name": "IMAGEVIDEO_REQUEST_PERMISSION",
       "value": "api apply image video request permission."
+    },
+    {
+      "name": "router",
+      "value": "router"
+    },
+    {
+      "name": "Navigation",
+      "value": "Navigation"
+    },
+    {
+      "name": "PictureInPicture",
+      "value": "PictureInPicture"
+    },
+    {
+      "name": "typeNode",
+      "value": "typeNode"
+    },
+    {
+      "name": "startPip",
+      "value": "startPip"
     }
   ]
 }
