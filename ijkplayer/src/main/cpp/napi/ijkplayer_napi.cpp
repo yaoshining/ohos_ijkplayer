@@ -14,6 +14,7 @@
  */
 
 #include "ijkplayer_napi.h"
+#include "native_window/external_window.h"
 
 const int32_t STR_DEFAULT_SIZE = 2048;
 const int32_t INDEX_0 = 0;
@@ -975,6 +976,14 @@ void onSurfaceChangedCB(OH_NativeXComponent *component, void *window) {
     if (ret != OH_NATIVEXCOMPONENT_RESULT_SUCCESS) {
         return;
     }
+    uint64_t width = 0;
+    uint64_t height = 0;
+    ret = OH_NativeXComponent_GetXComponentSize(component, window, &width, &height);
+    if (ret != OH_NATIVEXCOMPONENT_RESULT_SUCCESS) {
+        return;
+    }
+    ret = OH_NativeWindow_NativeWindowHandleOpt((OHNativeWindow*)window, SET_BUFFER_GEOMETRY, width, height);
+    LOGI("napi-->OnSurfaceChangedCB window %p width %d height %d ret %d", window, width, height, ret);
     std::string id(idStr);
     auto ijkplayerNapi = IJKPlayerNapi::getInstance(id);
     ijkplayerNapi->onSurfaceChanged(component, window);

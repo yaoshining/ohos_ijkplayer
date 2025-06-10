@@ -175,12 +175,11 @@ static EGLBoolean IJK_EGL_makeCurrent(IJK_EGL* egl, EGLNativeWindowType window)
             egl->surface &&
             egl->context) {
         if (!eglMakeCurrent(egl->display, egl->surface, egl->surface, egl->context)) {
-
-            ALOGE("[EGL] elgMakeCurrent() failed (cached)\n");
-            return EGL_FALSE;
+            ALOGE("IJK_EGL_makeCurrent error %d window %p w %d h %d\n", eglGetError(), window, egl->width, egl->height);
+            //去除拦截:当eglMakeCurrent异常时,执行下面程序,防止nativewindow尺寸不停的变化时,出现渲染异常场景.
+        } else {
+            return EGL_TRUE;
         }
-
-        return EGL_TRUE;
     }
 
     IJK_EGL_terminate(egl);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Huawei Device Co., Ltd.
+ * Copyright (C) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,37 +12,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import router from '@ohos.router'
 
 @Entry
 @Component
-struct indexPage {
+struct IjkVideoPlayerTypeNodeIndex {
   build() {
     Column() {
-      Button($r('app.string.video_demo'))
+      Button($r('app.string.router'))
         .margin({ bottom: 20 })
         .width(200)
         .onClick(() => {
-          router.pushUrl({ url: 'pages/SampleVideoListPage' })
-        })
-      Button($r('app.string.audio_demo'))
-        .width(200)
-        .margin({ bottom: 20 })
-        .onClick(() => {
-          router.pushUrl({ url: 'pages/SampleAudioListPage' })
+          router.pushUrl({ url: 'pages/typeNode/IjkVideoPlayerTypeNodePage', params: {
+            videoUrl: "https://1251542705.vod2.myqcloud.com/4a8d9c67vodtransgzp1251542705/203109c63270835013529449619/v.f1419907.mp4"
+          } })
         })
       Button($r('app.string.Navigation'))
         .width(200)
         .margin({ bottom: 20 })
         .onClick(() => {
-          router.pushUrl({ url: 'pages/IjkVideoPlayerNavigationExample' })
+          router.pushUrl({ url: 'pages/typeNode/IjkVideoPlayerTypeNodeNavigationExample' })
         })
-      Button($r('app.string.typeNode'))
+
+      Button($r('app.string.PictureInPicture'))
         .width(200)
-        .margin({ bottom: 20 })
         .onClick(() => {
-          router.pushUrl({ url: 'pages/typeNode/IjkVideoPlayerTypeNodeIndex' })
+          router.pushUrl({ url: 'pages/typeNode/IjkVideoPlayerPipIndex' })
         })
     }
     .width('100%')

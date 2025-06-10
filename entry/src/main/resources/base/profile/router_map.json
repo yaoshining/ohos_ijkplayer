@@ -15,6 +15,14 @@
       "data": {
         "description": "this is IjkAudioPlayerNavigationComponent"
       }
+    },
+    {
+      "name": "IjkVideoPlayerTypeNode",
+      "pageSourceFile": "src/main/ets/pages/typeNode/IjkVideoPlayerNavigationTypeNodeComponent.ets",
+      "buildFunction": "IjkVideoPlayerTypeNodeNavigationComponentBuilder",
+      "data": {
+        "description": "this is IjkVideoPlayerNavigationTypeNodeComponent"
+      }
     }
   ]
 }

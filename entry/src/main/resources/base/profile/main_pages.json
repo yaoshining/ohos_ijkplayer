@@ -4,6 +4,11 @@
     "pages/SampleVideoListPage",
     "pages/IjkVideoPlayerPage",
     "pages/SampleAudioListPage",
-    "pages/IjkVideoPlayerNavigationExample"
+    "pages/IjkVideoPlayerNavigationExample",
+    "pages/typeNode/IjkVideoPlayerTypeNodeNavigationExample",
+    "pages/typeNode/IjkVideoPlayerTypeNodeIndex",
+    "pages/typeNode/IjkVideoPlayerTypeNodePage",
+    "pages/typeNode/IjkVideoPlayerPipIndex",
+    "pages/typeNode/IjkVideoPlayerPipPage"
   ]
 }

@@ -1,3 +1,6 @@
+## 2.0.7-rc.3
+- Fix blue screen rendering issue in typeNode picture in picture scene
+
 ## 2.0.7-rc.2
 - Fix abnormal issues with RTMP video recording
 
