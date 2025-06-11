@@ -145,7 +145,7 @@ export struct IjkVideoPlayerPipPage {
     this.mDestroyPage = true;
     PipManager.getInstance().ijkMediaPlayer.off('audioInterrupt');
     PipManager.getInstance().ijkMediaPlayer.off('deviceChange');
-    if (PipManager.getInstance().isHasStartPip) {
+    if (PipManager.getInstance().isHasStartPip && (PipManager.getInstance().pipState !== PiPWindow.PiPState.STOPPED)) {
       return;
     }
     PipManager.getInstance().ijkMediaPlayer.setScreenOnWhilePlaying(false);
@@ -153,6 +153,7 @@ export struct IjkVideoPlayerPipPage {
     if (this.CONTROL_PlayStatus !== PlayStatus.INIT) {
       this.stop();
     }
+    PipManager.getInstance().setAutoStart(false);
     PipManager.getInstance().stopPip();
   }
 
@@ -171,7 +172,6 @@ export struct IjkVideoPlayerPipPage {
     }
 
     PipManager.getInstance().initPipController(getContext(this));
-    PipManager.getInstance().setAutoStart(true);
     if (PipManager.getInstance().isHasStartPip) {
       this.videoWidth = PipManager.getInstance().videoWidth;
       this.videoAspectRatio = PipManager.getInstance().videoAspectRatio;
@@ -179,7 +179,9 @@ export struct IjkVideoPlayerPipPage {
         this.startProgressTask();
       }
     }
+
     if (this.mContext && !this.mFirst) {
+      PipManager.getInstance().addNode();
       this.startPlayOrResumePlay();
     }
 
@@ -188,7 +190,6 @@ export struct IjkVideoPlayerPipPage {
   onPageHide() {
     LogUtils.getInstance()
       .LOGI("onPageHide id " + this.xcomponentId + " isHasStartPip " + PipManager.getInstance().isHasStartPip);
-    PipManager.getInstance().setAutoStart(false);
     PipManager.getInstance().removeNode();
     if (!PipManager.getInstance().isHasStartPip) {
       this.pause();
@@ -384,7 +385,7 @@ export struct IjkVideoPlayerPipPage {
       }
 
       Flex({ direction: FlexDirection.Row, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Start }) {
-        Button('startPip')
+        Button($r('app.string.startPip'))
           .onClick(() => {
             this.startPip();
           })
@@ -409,6 +410,9 @@ export struct IjkVideoPlayerPipPage {
             if (PipManager.getInstance().xcomponentId) {
               IjkplayerMapManager.getInstance().destroyStatusMap.set(PipManager.getInstance().xcomponentId, false)
             }
+            if(_this.CONTROL_PlayStatus === PlayStatus.PLAY) {
+               _this.CONTROL_PlayStatus = PlayStatus.INIT;
+            }
             //播放视频
             _this.startPlayOrResumePlay();
             if (PipManager.getInstance().xcomponentId) {
@@ -416,13 +420,9 @@ export struct IjkVideoPlayerPipPage {
             }
           }
         }
-      },
-      onStateChange(state: PiPWindow.PiPState) {
-        if (state == PiPWindow.PiPState.STOPPED) {
-          PipManager.getInstance().isHasStartPip = false;
-        }
       }
     }
+    PipManager.getInstance().setAutoStart(true);
     PipManager.getInstance().startPip(callBack);
   }
 

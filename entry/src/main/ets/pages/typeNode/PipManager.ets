@@ -32,12 +32,13 @@ export class PipManager {
   isHasStartPip: boolean = false;
   videoWidth: string = '100%';
   videoAspectRatio: number = 1;
-  xcomponentId:string = "";
-  playStatusMap: Map<string, PlayStatus|undefined> = new Map();
+  xcomponentId: string = "";
+  playStatusMap: Map<string, PlayStatus | undefined> = new Map();
   ijkMediaPlayer: IjkMediaPlayer = IjkMediaPlayer.getInstance();
   volume: number = 1.0;
   isPlayDone: boolean = false;
-  videoUrl:string = "";
+  videoUrl: string = "";
+  pipState: PiPWindow.PiPState = PiPWindow.PiPState.STOPPED
 
   public static getInstance(): PipManager {
     return PipManager.instance;
@@ -66,7 +67,7 @@ export class PipManager {
 
 
   onActionEvent(control: PiPWindow.ControlEventParam) {
-    if(this.onActionEventCallBack) {
+    if (this.onActionEventCallBack) {
       this.onActionEventCallBack.onActionEvent(control);
     }
     LogUtils.getInstance().LOGI('onActionEvent, controlType:' + control.controlType + ', status' + control.status);
@@ -75,11 +76,7 @@ export class PipManager {
 
   onStateChange(state: PiPWindow.PiPState, reason: string) {
     let curState: string = '';
-    if(this.onActionEventCallBack) {
-      this.onActionEventCallBack.onStateChange(state);
-    }
-    this.xcNodeController.setCanAddNode(
-      state === PiPWindow.PiPState.ABOUT_TO_STOP || state === PiPWindow.PiPState.STOPPED)
+    this.pipState = state;
     if (this.lifeCycleCallback !== null) {
       this.lifeCycleCallback.forEach((fun) => {
         fun(state)
@@ -126,7 +123,7 @@ export class PipManager {
       return;
     }
     if (!PiPWindow.isPiPEnabled()) {
-      LogUtils.getInstance().error(TAG, `picture in picture disabled for current OS`);
+      LogUtils.getInstance().error(`picture in picture disabled for current OS`);
       return;
     }
     let config: PiPWindow.PiPConfiguration = {
@@ -147,7 +144,7 @@ export class PipManager {
         this.onActionEvent(control);
       });
     }).catch((err: BusinessError) => {
-      LogUtils.getInstance().error(TAG, `Failed to create pip controller. Cause:${err.code}, message:${err.message}`);
+      LogUtils.getInstance().error(`Failed to create pip controller. Cause:${err.code}, message:${err.message}`);
     });
   }
 
@@ -156,9 +153,9 @@ export class PipManager {
     this.onActionEventCallBack = callback;
     this.isHasStartPip = true;
     this.pipController?.startPiP().then(() => {
-      LogUtils.getInstance().LOGI(TAG, `Succeeded in starting pip.`);
+      LogUtils.getInstance().LOGI(`Succeeded in starting pip.`);
     }).catch((err: BusinessError) => {
-      LogUtils.getInstance().error(TAG, `Failed to start pip. Cause:${err.code}, message:${err.message}`);
+      LogUtils.getInstance().error(`Failed to start pip. Cause:${err.code}, message:${err.message}`);
     });
   }
 
@@ -168,17 +165,17 @@ export class PipManager {
       let promise: Promise<void> = this.pipController.stopPiP();
       promise.then(() => {
         this.pipController = undefined;
-        LogUtils.getInstance().LOGI(TAG, `Succeeded in stopping pip.`);
+        LogUtils.getInstance().LOGI(`Succeeded in stopping pip.`);
       }).catch((err: BusinessError) => {
         this.pipController = undefined;
-        LogUtils.getInstance().error(TAG, `Failed to stop pip. Cause:${err.code}, message:${err.message}`);
+        LogUtils.getInstance().error(`Failed to stop pip. Cause:${err.code}, message:${err.message}`);
       });
     }
   }
 
 
   getNodeController(): XComponentNodeController {
-    LogUtils.getInstance().LOGI(TAG, `getNodeController.`);
+    LogUtils.getInstance().LOGI(`getNodeController.`);
     return this.xcNodeController;
   }
 
@@ -200,6 +197,4 @@ export class PipManager {
   createXComponentNode(context: UIContext, xcomponentId: string, xcomponentLoadCallBack: XComponentLoadCallBack) {
     this.xcNodeController.createXComponentNode(context, xcomponentId, xcomponentLoadCallBack);
   }
-
-
 }

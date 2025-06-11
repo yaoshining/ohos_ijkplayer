@@ -21,11 +21,6 @@ import { XComponentLoadCallBack } from './XComponentLoadCallBack';
 export class XComponentNodeController extends NodeController {
   xcomponentNode: typeNode.XComponent | null = null;
   private node: FrameNode | null = null;
-  private canAddNode: boolean = true;
-
-  setCanAddNode(canAddNode: boolean) {
-    this.canAddNode = canAddNode;
-  }
 
   makeNode(uiContext: UIContext): FrameNode | null {
     if (!this.node) {
@@ -38,11 +33,9 @@ export class XComponentNodeController extends NodeController {
 
   addNode() {
     if (this.node !== null && this.node !== undefined) {
-      LogUtils.getInstance().LOGI("addNode");
-      if (this.canAddNode) {
+        LogUtils.getInstance().LOGI("addNode");
         this.xcomponentNode?.getParent()?.removeChild(this.xcomponentNode);
         this.node.appendChild(this.xcomponentNode);
-      }
     }
   }
 

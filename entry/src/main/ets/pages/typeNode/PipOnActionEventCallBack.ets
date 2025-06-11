@@ -17,5 +17,4 @@ import { PiPWindow } from "@kit.ArkUI";
 
 export interface PipOnActionEventCallBack {
   onActionEvent: (control: PiPWindow.ControlEventParam) => void
-  onStateChange: (state: PiPWindow.PiPState) => void
 }
