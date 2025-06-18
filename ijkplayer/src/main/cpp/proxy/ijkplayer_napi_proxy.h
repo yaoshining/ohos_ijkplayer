@@ -71,6 +71,7 @@ class IJKPlayerNapiProxy {
     int IjkMediaPlayer_stopRecord();
     int IjkMediaPlayer_isRecord();
     int IjkMediaPlayer_getCurrentFrame(const char *saveFilePath);
+    int IjkMediaPlayer_setRecordDefaultFrameRate(const int frameRate, const bool isPriority);
   public:
     std::string id_;
     void *GLOBAL_NATIVE_WINDOW = nullptr;

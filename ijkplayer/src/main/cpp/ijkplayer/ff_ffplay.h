@@ -124,4 +124,5 @@ int      ffp_start_record(FFPlayer *ffp, const char *recordFilePath);
 int      ffp_stop_record(FFPlayer *ffp);
 int      ffp_is_record(FFPlayer *ffp);
 int      ffp_get_current_frame(FFPlayer *ffp, const char *saveFilePath);
+int      ffp_set_record_default_frame_rate(FFPlayer *ffp, const int frameRate, const bool isPriority);
 #endif

@@ -908,6 +908,27 @@ napi_value IJKPlayerNapi::releaseAsync(napi_env env, napi_callback_info info)
     return promise;
 }
 
+napi_value IJKPlayerNapi::setRecordDefaultFrameRate(napi_env env, napi_callback_info info)
+{
+    LOGI("napi-->setRecordDefaultFrameRate");
+    size_t argc = PARAM_COUNT_3;
+    napi_value args[PARAM_COUNT_3] = {nullptr};
+    napi_get_cb_info(env, info, &argc, args, nullptr, nullptr);
+    std::string xcomponentId;
+    NapiUtil::JsValueToString(env, args[INDEX_0], STR_DEFAULT_SIZE, xcomponentId);
+    std::string frameRate;
+    NapiUtil::JsValueToString(env, args[INDEX_1], STR_DEFAULT_SIZE, frameRate);
+    std::string isPriority;
+    NapiUtil::JsValueToString(env, args[INDEX_2], STR_DEFAULT_SIZE, isPriority);
+    if (xcomponentId == "") {
+        xcomponentId = IJKPlayerNapi::getXComponentId(env, info);
+    }
+    LOGI("napi-->setRecordDefaultFrameRate frameRate %s isPriority %s", frameRate.c_str(), isPriority.c_str());
+    int result = IJKPlayerNapi::getInstance(xcomponentId)->ijkPlayerNapiProxy_
+    ->IjkMediaPlayer_setRecordDefaultFrameRate(NapiUtil::StringToInt(frameRate), NapiUtil::StringToInt(isPriority));
+    return NapiUtil::SetNapiCallInt32(env, result);
+}
+
 /////////////////////////////XComponent////////////////////////////////
 
 void IJKPlayerNapi::setXComponentAndNativeWindow(std::string &id, OH_NativeXComponent *component, void *window) {
@@ -1115,6 +1136,7 @@ napi_value IJKPlayerNapi::Export(napi_env env, napi_value exports) {
         DECLARE_NAPI_FUNCTION("_getCurrentFrame", IJKPlayerNapi::getCurrentFrame),
         DECLARE_NAPI_FUNCTION("_stopAsync", IJKPlayerNapi::stopAsync),
         DECLARE_NAPI_FUNCTION("_releaseAsync", IJKPlayerNapi::releaseAsync),
+        DECLARE_NAPI_FUNCTION("_setRecordDefaultFrameRate", IJKPlayerNapi::setRecordDefaultFrameRate),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
     return exports;

@@ -225,4 +225,5 @@ int             ijkmp_start_record(IjkMediaPlayer *mp, const char *recordFilePat
 int             ijkmp_stop_record(IjkMediaPlayer *mp);
 int             ijkmp_is_record(IjkMediaPlayer *mp);
 int             ijkmp_get_current_frame(IjkMediaPlayer *mp, const char *saveFilePath);
+int             ijkmp_set_record_default_frame_rate(IjkMediaPlayer *mp, const int frameRate, const bool isPriority);
 #endif

@@ -42,7 +42,6 @@ extern "C" {
 }
 #endif
 #define STREAM_DURATION   10.0
-#define STREAM_FRAME_RATE 30
 #define STREAM_PIX_FMT    AV_PIX_FMT_YUV420P
 #define SCALE_FLAGS SWS_BICUBIC
 #define AVFMT_RAWPICTURE    0x0020
@@ -61,6 +60,7 @@ extern "C" {
 #define DATA_NUM_1 1
 #define DATA_NUM_2 2
 #define DATA_NUM_3 3
+#define DATA_NUM_5 5
 #define DATA_NUM_32 32
 #define DATA_NUM_50 50
 #define DATA_NUM_12 12
@@ -107,6 +107,7 @@ typedef struct RecordFrameData {
     int channels;
     int format;
     int writeFileStatus;
+    int64_t pts;
 }RecordFrameData;
 
 typedef struct RecordWriteData {
@@ -123,12 +124,13 @@ typedef struct RecordWriteData {
     int isInRecord;
     pthread_t recThreadid;
     int sampleRate;
+    int defaultFrameRate;
+    int isPriority;
 }RecordWriteData;
 
 int AddStream(OutputStream *ost, AVFormatContext *oc,
               AVCodec **codec, enum AVCodecID codec_id,
               InputSourceInfo inputSrcInfo, int sampleRate, int frameRate);
-int OpenVideo(AVFormatContext *oc, AVCodec *codec, OutputStream *ost, AVDictionary *opt_arg, int frameRate);
 int OpenAudio(AVFormatContext *oc, AVCodec *codec, OutputStream *ost, AVDictionary *opt_arg);
 AVFrame *RecordAllocPicture(enum AVPixelFormat pix_fmt, int width, int height);
 AVFrame *AllocAudioFrame(enum AVSampleFormat sample_fmt,

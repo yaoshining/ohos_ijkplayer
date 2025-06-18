@@ -254,6 +254,8 @@ ohpm install @ohos/ijkplayer
 ### 开启视频录制
 ```
     let recordSaveFilePath = getContext(this).cacheDir + "/record.mp4";
+    //设置录制默认帧率
+    this.mIjkMediaPlayer.setRecordDefaultFrameRate("30", false);
     let result = this.mIjkMediaPlayer.startRecord(recordSaveFilePath);
     prompt.showToast({
       message: result ? "开启录制成功" : "开启录制失败"
@@ -419,6 +421,7 @@ this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "fetch_first"
 | on                            | type: ‘deviceChange’, callback: Callback< InterruptEvent >   | void             | 监听音频设备断开和连接事件，使用callback方式返回结果                               |
 | off                           | type: ‘audioInterrupt’                                       | void              | 取消订阅音频中断事件                                                   |
 | off                           | type: ‘deviceChange’                                         | void              | 取消订阅音频断开和连接事件                                                |
+| setRecordDefaultFrameRate                           | frameRate: string, isPriority: boolean                                          | boolean              | 设置录制默认帧率. frameRate:帧率,isPriority:是否优先走默认帧率(只有在视频流获取不到帧率的情况下有效)                  |
 | startRecord                           | saveFilePath: string                                         | boolean              | 开启视频录制                                                       |
 | isRecord                           | 无                                                            | boolean              | 获取视频录制状态                                                     |
 | stopRecord                           | 无                                                            | Promise<boolean>              | 停止视频录制                                                       |

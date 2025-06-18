@@ -17,7 +17,7 @@
 ROOT_DIR=$(pwd)
 API_VERSION=12                                                              # 三方库对应API版本，用于记录SDK路径,必须和"compileSdkVersion"字段表示的API版本保持一致
 SDK_DIR=$ROOT_DIR/../ohos-sdk-$API_VERSION/linux/$API_VERSION               # SDK路径（流水线环境中SDK路径）
-LYCIUM_TOOLS_URL=https://gitee.com/openharmony-sig/tpc_c_cplusplus.git
+LYCIUM_TOOLS_URL=https://gitcode.com/openharmony-sig/tpc_c_cplusplus.git
 LYCIUM_ROOT_DIR=$ROOT_DIR/tpc_c_cplusplus
 LYCIUM_TOOLS_DIR=$LYCIUM_ROOT_DIR/lycium
 LYCIUM_THIRDPARTY_DIR=$LYCIUM_ROOT_DIR/thirdparty
@@ -148,7 +148,7 @@ function start_build()
         return 1
     fi
 
-    bash build.sh $FFMPEG_NAME $LIBYUV_NAME $SOUNDTOUCH_NAME
+    bash build.sh $FFMPEG_NAME $LIBYUV_NAME $SOUNDTOUCH_NAME $OPESSL_NAME
     result=$?
     cd $OLDPWD
     return $result
@@ -196,7 +196,6 @@ function install_depends()
         cp -arf $LYCIUM_TOOLS_DIR/usr/soundtouch $CI_OUTPUT_DIR
         cp -arf $LYCIUM_TOOLS_DIR/usr/openh264 $CI_OUTPUT_DIR
     fi
-
     return 0
 }
 
@@ -221,7 +220,6 @@ function prebuild()
         echo "ERROR: start_build failed!!!"
         return 1
     fi
-    install_shasum
     install_depends
     if [ $? -ne 0 ]
     then

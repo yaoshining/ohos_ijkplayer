@@ -1,3 +1,6 @@
+## 2.0.7-rc.4
+- Fix abnormal video recording issue when frame rate cannot be obtained from video stream
+
 ## 2.0.7-rc.3
 - Fix blue screen rendering issue in typeNode picture in picture scene
 
