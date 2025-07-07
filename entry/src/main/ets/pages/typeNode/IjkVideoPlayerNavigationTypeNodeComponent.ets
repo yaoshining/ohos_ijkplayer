@@ -29,7 +29,6 @@ import {
   OnTimedTextListener,
   OnVideoSizeChangedListener
 } from '@ohos/ijkplayer';
-import prompt from '@ohos.promptAction';
 import { PlayStatus } from '../../common/PlayStatus';
 import abilityAccessCtrl from '@ohos.abilityAccessCtrl';
 import photoAccessHelper from '@ohos.file.photoAccessHelper';
@@ -76,7 +75,7 @@ struct IjkVideoPlayerTypeNodeNavigationComponent {
   @State videoWidth: string = '100%';
   @State initAspectRatio: number = 1;
   @State videoAspectRatio: number = this.initAspectRatio;
-  private videoUrl: string = '';
+  videoUrl: string = '';
   private last: number = 0;
   @State videoParentAspectRatio: number = this.initAspectRatio;
   private mIjkMediaPlayer = IjkMediaPlayer.getInstance();
@@ -111,7 +110,11 @@ struct IjkVideoPlayerTypeNodeNavigationComponent {
     }).onLoad((context: object) => {
       this.initDelayPlay(context);
     });
-    this.controller.rootNode?.appendChild(xcomponentNode)
+    try{
+      this.controller.rootNode?.appendChild(xcomponentNode)
+    }catch(e){
+      LogUtils.getInstance().error(`Failed to create pip controller. Cause:${e.code}, message:${e.message}`);
+    }
   }
 
   init() {
@@ -640,9 +643,9 @@ struct IjkVideoPlayerTypeNodeNavigationComponent {
         this.stopProgressTask();
         LogUtils.getInstance().LOGI("OnErrorListener-->go:" + what + "===" + extra)
         this.hideLoadIng();
-        prompt.showToast({
-          message: getContext()
-            .resourceManager
+        this.getUIContext().getPromptAction().showToast({
+          message: this.getUIContext().getHostContext()
+            ?.resourceManager
             .getStringByNameSync("Honey_the_video_is_playing_errant_The_system_is_wandering")
         });
       }
@@ -729,26 +732,34 @@ struct IjkVideoPlayerTypeNodeNavigationComponent {
 
   private startRecord() {
     let isRecord = this.mIjkMediaPlayer.isRecord()
-    if (isRecord) {
-      prompt.showToast({
-        message: $r('app.string.recordIng')
+    try{
+      if (isRecord) {
+        this.getUIContext().getPromptAction().showToast({
+          message: $r('app.string.recordIng')
+        });
+        return
+      }
+      this.recordSaveFilePath = this.getUIContext().getHostContext()?.cacheDir + "/record.mp4";
+      let result = this.mIjkMediaPlayer.startRecord(this.recordSaveFilePath);
+      this.getUIContext().getPromptAction().showToast({
+        message: result ? $r('app.string.start_record_success') : $r('app.string.start_record_failed')
       });
-      return
+    }catch(e){
+      LogUtils.getInstance().error(`Failed to create pip controller. Cause:${e.code}, message:${e.message}`);
     }
-    this.recordSaveFilePath = getContext(this).cacheDir + "/record.mp4";
-    let result = this.mIjkMediaPlayer.startRecord(this.recordSaveFilePath);
-    prompt.showToast({
-      message: result ? $r('app.string.start_record_success') : $r('app.string.start_record_failed')
-    });
   }
 
   private stopRecord(isShowTip: boolean) {
     let isRecord = this.mIjkMediaPlayer.isRecord()
     if (!isRecord) {
       if (isShowTip) {
-        prompt.showToast({
-          message: $r('app.string.record_not_enabled')
-        });
+        try{
+          this.getUIContext().getPromptAction().showToast({
+            message: $r('app.string.record_not_enabled')
+          });
+        }catch(e){
+          LogUtils.getInstance().error(`Failed to create pip controller. Cause:${e.code}, message:${e.message}`);
+        }
       }
       return
     }
@@ -756,19 +767,19 @@ struct IjkVideoPlayerTypeNodeNavigationComponent {
     this.mIjkMediaPlayer.stopRecord().then((result) => {
       this.recordProgressVisible = Visibility.None;
       if (!result) {
-        prompt.showToast({
+        this.getUIContext().getPromptAction().showToast({
           message: $r('app.string.stop_record_failed')
         });
         return;
       }
       let atManager = abilityAccessCtrl.createAtManager();
-      atManager.requestPermissionsFromUser(getContext(this), ['ohos.permission.WRITE_IMAGEVIDEO']).then(async () => {
+      atManager.requestPermissionsFromUser(this.getUIContext().getHostContext(), ['ohos.permission.WRITE_IMAGEVIDEO']).then(async () => {
         let photoType: photoAccessHelper.PhotoType = photoAccessHelper.PhotoType.VIDEO;
         let extension: string = 'mp4';
         let options: photoAccessHelper.CreateOptions = {
           title: "record_" + new Date().getTime() + ""
         }
-        let phAccessHelper = photoAccessHelper.getPhotoAccessHelper(getContext(this));
+        let phAccessHelper = photoAccessHelper.getPhotoAccessHelper(this.getUIContext().getHostContext());
         phAccessHelper.createAsset(photoType, extension, options, (err, uri) => {
           LogUtils.getInstance().LOGI(`createAsset success uri:${uri}`)
           if (uri !== undefined) {
@@ -777,11 +788,11 @@ struct IjkVideoPlayerTypeNodeNavigationComponent {
             fs.copyFileSync(recordFile.fd, albumFile.fd);
             fs.closeSync(recordFile);
             fs.closeSync(albumFile);
-            prompt.showToast({
+            this.getUIContext().getPromptAction().showToast({
               message: $r('app.string.stop_record_success')
             });
           } else {
-            prompt.showToast({
+            this.getUIContext().getPromptAction().showToast({
               message: $r('app.string.stop_record_failed')
             });
             LogUtils.getInstance().LOGI(`createAsset failed, error: ${err.code}, ${err.message}`)
@@ -792,24 +803,24 @@ struct IjkVideoPlayerTypeNodeNavigationComponent {
   }
 
   private screenshot() {
-    let saveFilePath = getContext(this).cacheDir + "/screen.jpg";
+    let saveFilePath = this.getUIContext().getHostContext()?.cacheDir + "/screen.jpg";
     this.screenshotProgressVisible = Visibility.Visible;
     this.mIjkMediaPlayer.screenshot(saveFilePath).then((result) => {
       this.screenshotProgressVisible = Visibility.None;
       if (!result) {
-        prompt.showToast({
+        this.getUIContext().getPromptAction().showToast({
           message: $r('app.string.screenshot_failed')
         });
         return;
       }
       let atManager = abilityAccessCtrl.createAtManager();
-      atManager.requestPermissionsFromUser(getContext(this), ['ohos.permission.WRITE_IMAGEVIDEO']).then(async () => {
+      atManager.requestPermissionsFromUser(this.getUIContext().getHostContext(), ['ohos.permission.WRITE_IMAGEVIDEO']).then(async () => {
         let photoType: photoAccessHelper.PhotoType = photoAccessHelper.PhotoType.IMAGE;
         let extension: string = 'jpg';
         let options: photoAccessHelper.CreateOptions = {
           title: "screenshot_" + new Date().getTime() + ""
         }
-        let phAccessHelper = photoAccessHelper.getPhotoAccessHelper(getContext(this));
+        let phAccessHelper = photoAccessHelper.getPhotoAccessHelper(this.getUIContext().getHostContext());
         phAccessHelper.createAsset(photoType, extension, options, (err, uri) => {
           LogUtils.getInstance().LOGI(`createAsset success uri:${uri}`)
           if (uri !== undefined) {
@@ -818,11 +829,11 @@ struct IjkVideoPlayerTypeNodeNavigationComponent {
             fs.copyFileSync(screenshotFile.fd, albumFile.fd);
             fs.closeSync(screenshotFile);
             fs.closeSync(albumFile);
-            prompt.showToast({
+            this.getUIContext().getPromptAction().showToast({
               message: $r('app.string.screenshot_success')
             });
           } else {
-            prompt.showToast({
+            this.getUIContext().getPromptAction().showToast({
               message: $r('app.string.screenshot_failed')
             });
             LogUtils.getInstance().LOGI(`createAsset failed, error: ${err.code}, ${err.message}`)

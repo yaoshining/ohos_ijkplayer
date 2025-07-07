@@ -46,12 +46,16 @@ struct IjkVideoPlayerPipIndex {
     if (topPage !== undefined && ('pages/typeNode/IjkVideoPlayerPipPage'.toString() === topPage.path + topPage.name)) {
       return;
     }
-    this.pageRouter?.pushUrl({
-      params: {
-        videoUrl: "https://1251542705.vod2.myqcloud.com/4a8d9c67vodtransgzp1251542705/203109c63270835013529449619/v.f1419907.mp4"
-      },
-      url: 'pages/typeNode/IjkVideoPlayerPipPage'
-    }, router.RouterMode.Standard);
+    try{
+      this.pageRouter?.pushUrl({
+        params: {
+          videoUrl: "https://1251542705.vod2.myqcloud.com/4a8d9c67vodtransgzp1251542705/203109c63270835013529449619/v.f1419907.mp4"
+        },
+        url: 'pages/typeNode/IjkVideoPlayerPipPage'
+      }, router.RouterMode.Standard);
+    }catch(e){
+      LogUtils.getInstance().error(`Failed to create pip controller. Cause:${e.code}, message:${e.message}`);
+    }
   }
 
   build() {

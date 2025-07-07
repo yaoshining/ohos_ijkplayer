@@ -15,7 +15,6 @@
 import { IjkplayerMapManager } from '../IjkplayerMapManager';
 import { PipManager } from './PipManager';
 import { XComponentLoadCallBack } from './XComponentLoadCallBack';
-import router from '@ohos.router';
 import { Callback } from '@ohos.base';
 import {
   DeviceChangeReason,
@@ -32,7 +31,6 @@ import {
   OnTimedTextListener,
   OnVideoSizeChangedListener
 } from '@ohos/ijkplayer';
-import prompt from '@ohos.promptAction';
 import { PlayStatus } from '../../common/PlayStatus';
 import { RouterParam } from '../RouterParam';
 import abilityAccessCtrl from '@ohos.abilityAccessCtrl';
@@ -43,7 +41,7 @@ import { PipOnActionEventCallBack } from './PipOnActionEventCallBack';
 
 @Entry
 @Component
-export struct IjkVideoPlayerPipPage {
+struct IjkVideoPlayerPipPage {
   private xcomponentId: string = ""
   @State progressValue: number = 0;
   @State currentTime: string = "00:00";
@@ -72,7 +70,7 @@ export struct IjkVideoPlayerPipPage {
   @State curIndex: number = 0;
   @State recordProgressVisible: Visibility = Visibility.None;
   @State screenshotProgressVisible: Visibility = Visibility.None;
-  @State recordSaveFilePath: string = getContext(this).cacheDir + "/record.mp4";
+  @State recordSaveFilePath: string = this.getUIContext().getHostContext()?.cacheDir + "/record.mp4";
   private videoUrls: string[] =
     ["https://1251542705.vod2.myqcloud.com/4a8d9c67vodtransgzp1251542705/203109c63270835013529449619/v.f1419907.mp4",
       "https://getsamplefiles.com/download/mp4/sample-5.mp4",
@@ -100,7 +98,7 @@ export struct IjkVideoPlayerPipPage {
       PipManager.getInstance().xcomponentId = this.xcomponentId;
     }
     if (!this.videoUrl) {
-      this.videoUrl = (router.getParams() as RouterParam).videoUrl;
+      this.videoUrl = (this.getUIContext().getRouter().getParams() as RouterParam).videoUrl;
     }
     let event: Callback<InterruptEvent> = (event) => {
       LogUtils.getInstance().LOGI(`event: ${JSON.stringify(event)}`);
@@ -171,7 +169,7 @@ export struct IjkVideoPlayerPipPage {
       PipManager.getInstance().addNode();
     }
 
-    PipManager.getInstance().initPipController(getContext(this));
+    PipManager.getInstance().initPipController(this.getUIContext().getHostContext() as Context);
     if (PipManager.getInstance().isHasStartPip) {
       this.videoWidth = PipManager.getInstance().videoWidth;
       this.videoAspectRatio = PipManager.getInstance().videoAspectRatio;
@@ -720,9 +718,9 @@ export struct IjkVideoPlayerPipPage {
         this.stopProgressTask();
         LogUtils.getInstance().LOGI("OnErrorListener-->go:" + what + "===" + extra)
         this.hideLoadIng();
-        prompt.showToast({
-          message: getContext()
-            .resourceManager
+        this.getUIContext().getPromptAction().showToast({
+          message: this.getUIContext().getHostContext()
+            ?.resourceManager
             .getStringByNameSync("Honey_the_video_is_playing_errant_The_system_is_wandering")
         });
       }
@@ -796,25 +794,33 @@ export struct IjkVideoPlayerPipPage {
 
   private startRecord() {
     let isRecord = PipManager.getInstance().ijkMediaPlayer.isRecord()
-    if (isRecord) {
-      prompt.showToast({
-        message: $r('app.string.recordIng')
+    try{
+      if (isRecord) {
+        this.getUIContext().getPromptAction().showToast({
+          message: $r('app.string.recordIng')
+        });
+        return
+      }
+      let result = PipManager.getInstance().ijkMediaPlayer.startRecord(this.recordSaveFilePath);
+      this.getUIContext().getPromptAction().showToast({
+        message: result ? $r('app.string.start_record_success') : $r('app.string.start_record_failed')
       });
-      return
+    }catch(e){
+      LogUtils.getInstance().error(`Failed to create pip controller. Cause:${e.code}, message:${e.message}`);
     }
-    let result = PipManager.getInstance().ijkMediaPlayer.startRecord(this.recordSaveFilePath);
-    prompt.showToast({
-      message: result ? $r('app.string.start_record_success') : $r('app.string.start_record_failed')
-    });
   }
 
   private stopRecord(isShowTip: boolean) {
     let isRecord = PipManager.getInstance().ijkMediaPlayer.isRecord()
     if (!isRecord) {
       if (isShowTip) {
-        prompt.showToast({
-          message: $r('app.string.record_not_enabled')
-        });
+        try{
+          this.getUIContext().getPromptAction().showToast({
+            message: $r('app.string.record_not_enabled')
+          });
+        }catch(e){
+          LogUtils.getInstance().error(`Failed to create pip controller. Cause:${e.code}, message:${e.message}`);
+        }
       }
       return
     }
@@ -822,19 +828,19 @@ export struct IjkVideoPlayerPipPage {
     PipManager.getInstance().ijkMediaPlayer.stopRecord().then((result) => {
       this.recordProgressVisible = Visibility.None;
       if (!result) {
-        prompt.showToast({
+        this.getUIContext().getPromptAction().showToast({
           message: $r('app.string.stop_record_failed')
         });
         return;
       }
       let atManager = abilityAccessCtrl.createAtManager();
-      atManager.requestPermissionsFromUser(getContext(this), ['ohos.permission.WRITE_IMAGEVIDEO']).then(async () => {
+      atManager.requestPermissionsFromUser(this.getUIContext().getHostContext(), ['ohos.permission.WRITE_IMAGEVIDEO']).then(async () => {
         let photoType: photoAccessHelper.PhotoType = photoAccessHelper.PhotoType.VIDEO;
         let extension: string = 'mp4';
         let options: photoAccessHelper.CreateOptions = {
           title: "record_" + new Date().getTime() + ""
         }
-        let phAccessHelper = photoAccessHelper.getPhotoAccessHelper(getContext(this));
+        let phAccessHelper = photoAccessHelper.getPhotoAccessHelper(this.getUIContext().getHostContext());
         phAccessHelper.createAsset(photoType, extension, options, (err, uri) => {
           LogUtils.getInstance().LOGI(`createAsset success uri:${uri}`)
           if (uri !== undefined) {
@@ -843,11 +849,11 @@ export struct IjkVideoPlayerPipPage {
             fs.copyFileSync(recordFile.fd, albumFile.fd);
             fs.closeSync(recordFile);
             fs.closeSync(albumFile);
-            prompt.showToast({
+            this.getUIContext().getPromptAction().showToast({
               message: $r('app.string.stop_record_success')
             });
           } else {
-            prompt.showToast({
+            this.getUIContext().getPromptAction().showToast({
               message: $r('app.string.stop_record_failed')
             });
             LogUtils.getInstance().LOGI(`createAsset failed, error: ${err.code}, ${err.message}`)
@@ -858,24 +864,24 @@ export struct IjkVideoPlayerPipPage {
   }
 
   private screenshot() {
-    let saveFilePath = getContext(this).cacheDir + "/screen.jpg";
+    let saveFilePath = this.getUIContext().getHostContext()?.cacheDir + "/screen.jpg";
     this.screenshotProgressVisible = Visibility.Visible;
     PipManager.getInstance().ijkMediaPlayer.screenshot(saveFilePath).then((result) => {
       this.screenshotProgressVisible = Visibility.None;
       if (!result) {
-        prompt.showToast({
+        this.getUIContext().getPromptAction().showToast({
           message: $r('app.string.screenshot_failed')
         });
         return;
       }
       let atManager = abilityAccessCtrl.createAtManager();
-      atManager.requestPermissionsFromUser(getContext(this), ['ohos.permission.WRITE_IMAGEVIDEO']).then(async () => {
+      atManager.requestPermissionsFromUser(this.getUIContext().getHostContext(), ['ohos.permission.WRITE_IMAGEVIDEO']).then(async () => {
         let photoType: photoAccessHelper.PhotoType = photoAccessHelper.PhotoType.IMAGE;
         let extension: string = 'jpg';
         let options: photoAccessHelper.CreateOptions = {
           title: "screenshot_" + new Date().getTime() + ""
         }
-        let phAccessHelper = photoAccessHelper.getPhotoAccessHelper(getContext(this));
+        let phAccessHelper = photoAccessHelper.getPhotoAccessHelper(this.getUIContext().getHostContext());
         phAccessHelper.createAsset(photoType, extension, options, (err, uri) => {
           LogUtils.getInstance().LOGI(`createAsset success uri:${uri}`)
           if (uri !== undefined) {
@@ -884,11 +890,11 @@ export struct IjkVideoPlayerPipPage {
             fs.copyFileSync(screenshotFile.fd, albumFile.fd);
             fs.closeSync(screenshotFile);
             fs.closeSync(albumFile);
-            prompt.showToast({
+            this.getUIContext().getPromptAction().showToast({
               message: $r('app.string.screenshot_success')
             });
           } else {
-            prompt.showToast({
+            this.getUIContext().getPromptAction().showToast({
               message: $r('app.string.screenshot_failed')
             });
             LogUtils.getInstance().LOGI(`createAsset failed, error: ${err.code}, ${err.message}`)

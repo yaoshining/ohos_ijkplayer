@@ -25,7 +25,9 @@
 
 5. Copy the **ffmpeg** folder generated after compilation to **ijkplayer/src/main/cpp/third_party/ffmpeg**.
 
-6. Copy the **openssl**, **soundtouch**, **yuv**, and **openh264** folders generated after compilation to the **ijkplayer/src/main/cpp/third_party** directory of the project, as shown in the following figure.
+6. Copy the **openssl-3.4.0** folder generated after compilation to **ijkplayer/src/main/cpp/third_party**, rename it to openssl, and change the name of the x86_64/lib64 directory under it to x86_64/lib.
+
+7. Copy the **soundtouch**, **yuv**, and **openh264** folders generated after compilation to the **ijkplayer/src/main/cpp/third_party** directory of the project, as shown in the following figure.
 
 ![img.png](image/img.png)
 
