@@ -12,7 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import router from '@ohos.router'
 
 @Entry
 @Component
@@ -23,7 +22,7 @@ struct IjkVideoPlayerTypeNodeIndex {
         .margin({ bottom: 20 })
         .width(200)
         .onClick(() => {
-          router.pushUrl({ url: 'pages/typeNode/IjkVideoPlayerTypeNodePage', params: {
+          this.getUIContext().getRouter().pushUrl({ url: 'pages/typeNode/IjkVideoPlayerTypeNodePage', params: {
             videoUrl: "https://1251542705.vod2.myqcloud.com/4a8d9c67vodtransgzp1251542705/203109c63270835013529449619/v.f1419907.mp4"
           } })
         })
@@ -31,13 +30,13 @@ struct IjkVideoPlayerTypeNodeIndex {
         .width(200)
         .margin({ bottom: 20 })
         .onClick(() => {
-          router.pushUrl({ url: 'pages/typeNode/IjkVideoPlayerTypeNodeNavigationExample' })
+          this.getUIContext().getRouter().pushUrl({ url: 'pages/typeNode/IjkVideoPlayerTypeNodeNavigationExample' })
         })
 
       Button($r('app.string.PictureInPicture'))
         .width(200)
         .onClick(() => {
-          router.pushUrl({ url: 'pages/typeNode/IjkVideoPlayerPipIndex' })
+          this.getUIContext().getRouter().pushUrl({ url: 'pages/typeNode/IjkVideoPlayerPipIndex' })
         })
     }
     .width('100%')

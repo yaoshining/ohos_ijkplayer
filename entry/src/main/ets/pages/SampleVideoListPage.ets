@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-import router from '@ohos.router';
 import VideoNewsView from '../ListView/VideoNewsView';
 import { IjkplayerMapManager } from './IjkplayerMapManager';
 
@@ -21,7 +20,15 @@ import { IjkplayerMapManager } from './IjkplayerMapManager';
 @Component
 struct SampleVideoListPage {
   private items: Array<string> = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13'];
+  testAddress: string = ""
 
+  aboutToAppear(){
+    try{
+      this.testAddress = this.getUIContext().getHostContext()?.resourceManager.getStringByNameSync("Test_address")??"";
+    }catch(e){
+      this.testAddress = "";
+    }
+  }
   build() {
 
     Flex({ direction: FlexDirection.Column, alignItems: ItemAlign.Start, justifyContent: FlexAlign.Start }) {
@@ -35,14 +42,13 @@ struct SampleVideoListPage {
 
       List({ space: 20, initialIndex: 0 }) {
         ListItem() {
-          Text(getContext().resourceManager.getStringByNameSync("Test_address") +
-            "https://1251542705.vod2.myqcloud.com/4a8d9c67vodtransgzp1251542705/203109c63270835013529449619/v.f1419907.mp4")
+          Text(this.testAddress + "https://1251542705.vod2.myqcloud.com/4a8d9c67vodtransgzp1251542705/203109c63270835013529449619/v.f1419907.mp4")
             .fontSize(20)
             .fontWeight(FontWeight.Bold)
             .fontColor(Color.Black)
             .margin(10)
             .onClick(() => {
-              router.pushUrl({
+              this.getUIContext().getRouter().pushUrl({
                 url: "pages/IjkVideoPlayerPage", params: {
                   videoUrl: "https://1251542705.vod2.myqcloud.com/4a8d9c67vodtransgzp1251542705/203109c63270835013529449619/v.f1419907.mp4"
                 }
