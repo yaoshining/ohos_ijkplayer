@@ -255,6 +255,8 @@ ohpm install @ohos/ijkplayer
 ### Enable video recording
 ```
     let recordSaveFilePath = getContext(this).cacheDir + "/record.mp4";
+    //Set default frame rate for recording
+    this.mIjkMediaPlayer.setRecordDefaultFrameRate("30", false);
     let result = this.mIjkMediaPlayer.startRecord(recordSaveFilePath);
     prompt.showToast({
       message: result ? "start record success" : "start record failed"
@@ -420,6 +422,7 @@ this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "fetch_first"
 | on                            | type: 'deviceChange', callback: Callback< InterruptEvent >| void              | Subscribes to audio disconnect and connect events. This API uses an asynchronous callback to return the result. |
 | off                           | type: 'audioInterrupt'                                      | void              | Unsubscribes from audio interruption events.                                                                    |
 | off                           | type: 'deviceChange'                                      | void              | Unsubscribes from audio disconnect and connect events events.                                                   |
+| setRecordDefaultFrameRate                           | frameRate: string, isPriority: boolean                                          | boolean              | Set default frame rate for recording. frameRate: frame rate, isPriority: whether to prioritize using the default frame rate (Only effective when the frame rate cannot be obtained from the video stream) |
 | startRecord                           | saveFilePath: string                                       | boolean              | Enable video recording                                                                                          |
 | isRecord                           | N/A                                      | boolean              | Get recording status                                                                                            |
 | stopRecord                           | N/A                                      | Promise<boolean>              | Stop video recording                                                                                            |

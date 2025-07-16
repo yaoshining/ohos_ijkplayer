@@ -598,6 +598,7 @@ static void record_video_frame(FFPlayer *ffp, AVFrame *frame)
         frData.lineSize1 = frame->linesize[DATA_NUM_1];
         frData.lineSize2 = frame->linesize[DATA_NUM_2];
         frData.format = frame->format;
+        frData.pts = frame->pts;
         frData.writeFileStatus = DATA_NUM_0;
         memcpy(frData.data0, frame->data[DATA_NUM_0], frame->linesize[DATA_NUM_0] * frame->height);
         memcpy(frData.data1, frame->data[DATA_NUM_1], frame->linesize[DATA_NUM_1] * frame->height / DATA_NUM_2);
@@ -627,6 +628,7 @@ static void record_audio_frame(FFPlayer *ffp, AVFrame *frame)
         frData.lineSize0 = frame->linesize[DATA_NUM_0];
         frData.lineSize1 = frame->linesize[DATA_NUM_0];
         frData.format = frame->format;
+        frData.pts = frame->pts;
         frData.writeFileStatus = DATA_NUM_0;
         int windex = ffp->record_write_data.windex;
         ffp->record_write_data.recordFramesQueue[windex] = frData;
@@ -5236,4 +5238,14 @@ int ffp_get_current_frame(FFPlayer *ffp, const char *saveFilePath)
         return OHOS_CALLBACK_RESULT_STATUS_SUCCESS;
     }
     return OHOS_CALLBACK_RESULT_STATUS_FAILED;
+}
+
+int ffp_set_record_default_frame_rate(FFPlayer *ffp, const int frameRate, const bool isPriority)
+{
+    if (!ffp) {
+        return OHOS_CALLBACK_RESULT_STATUS_FAILED;
+    }
+    ffp->record_write_data.defaultFrameRate = frameRate;
+    ffp->record_write_data.isPriority = isPriority;
+    return OHOS_CALLBACK_RESULT_STATUS_SUCCESS;
 }

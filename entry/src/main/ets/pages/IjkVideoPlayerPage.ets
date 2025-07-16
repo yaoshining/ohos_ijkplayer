@@ -683,6 +683,8 @@ struct IjkVideoPlayerPage {
         return
       }
       this.recordSaveFilePath = this.getUIContext().getHostContext()?.cacheDir + "/record.mp4";
+      //设置录制默认帧率
+      this.mIjkMediaPlayer.setRecordDefaultFrameRate("30", false);
       let result = this.mIjkMediaPlayer.startRecord(this.recordSaveFilePath);
       this.getUIContext().getPromptAction().showToast({
         message: result ? $r('app.string.start_record_success') : $r('app.string.start_record_failed')

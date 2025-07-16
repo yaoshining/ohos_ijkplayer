@@ -64,6 +64,7 @@ class IJKPlayerNapi {
     static napi_value getCurrentFrame(napi_env env, napi_callback_info info);
     static napi_value stopAsync(napi_env env, napi_callback_info info);
     static napi_value releaseAsync(napi_env env, napi_callback_info info);
+    static napi_value setRecordDefaultFrameRate(napi_env env, napi_callback_info info);
     
     ////////////////////////XComponent////////////////////////////
     static OH_NativeXComponent_Callback *getNXComponentCallback();

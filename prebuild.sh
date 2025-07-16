@@ -148,7 +148,7 @@ function start_build()
         return 1
     fi
 
-    bash build.sh $FFMPEG_NAME $LIBYUV_NAME $SOUNDTOUCH_NAME
+    bash build.sh $FFMPEG_NAME $LIBYUV_NAME $SOUNDTOUCH_NAME $OPESSL_NAME
     result=$?
     cd $OLDPWD
     return $result
@@ -197,7 +197,6 @@ function install_depends()
         cp -arf $LYCIUM_TOOLS_DIR/usr/soundtouch $CI_OUTPUT_DIR
         cp -arf $LYCIUM_TOOLS_DIR/usr/openh264 $CI_OUTPUT_DIR
     fi
-
     return 0
 }
 
@@ -222,7 +221,6 @@ function prebuild()
         echo "ERROR: start_build failed!!!"
         return 1
     fi
-    install_shasum
     install_depends
     if [ $? -ne 0 ]
     then

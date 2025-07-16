@@ -25,12 +25,41 @@
 #include "ijkplayer_internal.h"
 static std::unordered_map<void *, int> ijkplayerRecordStatusMap;
 static std::unordered_map<void *, int> ijkplayerRecordResultMap;
+//默认帧率
+int DEFAULT_FRAME_RATE = 15;
+//是否优先走默认帧率
+bool IS_PRIORITY = false;
 
 struct VideoAudioAvCodec {
     int haveVideo = 0;
     int haveAudio = 0;
     int result = 0;
 };
+
+int CalculateFrameRate(FFPlayer *ffp)
+{
+    //如果优先走默认帧率
+    if (IS_PRIORITY) {
+        return DEFAULT_FRAME_RATE;
+    }
+    RecordWriteData *recordWriteData = &ffp->record_write_data;
+    //采集到的视频帧数量大于等于5
+    if (recordWriteData->windex >= DATA_NUM_5) {
+        //计算相邻pts变化值
+        int64_t diffPTS1 = recordWriteData->recordFramesQueue[2].pts - recordWriteData->recordFramesQueue[1].pts;
+        int64_t diffPTS2 = recordWriteData->recordFramesQueue[4].pts - recordWriteData->recordFramesQueue[3].pts;
+        //计算平均值
+        int64_t diffPTS = (diffPTS1 + diffPTS2) / 2;
+        //时间基分母
+        int den = ffp->is->video_st->time_base.den;
+        if (den > 0) {
+            int fps = den / diffPTS;
+            LOGE("CalculateFrameRate fps %d", fps);
+            return fps == 0 ? DEFAULT_FRAME_RATE : fps;
+        }
+    }
+    return DEFAULT_FRAME_RATE;
+}
 
 void handleCodecAudioStream(AVCodecContext *c, OutputStream *ost, AVCodec **codec, int sample_rate)
 {
@@ -115,18 +144,19 @@ int AddStream(OutputStream *ost, AVFormatContext *oc, AVCodec **codec, enum AVCo
     return OHOS_RECORD_CALLBACK_STATUS_SUCCESS;
 }
 
-int OpenVideo(AVFormatContext *oc, AVCodec *codec, OutputStream *ost, AVDictionary *opt_arg, int frameRate)
+int OpenVideo(AVFormatContext *oc, AVCodec *codec, OutputStream *ost, AVDictionary *opt_arg, FFPlayer* ffp)
 {
     int ret;
     AVCodecContext *c = ost->st->codec;
     AVDictionary *opt = NULL;
     av_dict_copy(&opt, opt_arg, 0);
-    if ((c->time_base.num <= 0) || (c->time_base.den <= 0)) {
-        if (frameRate <= 0) {
-            // 如果输入帧率不存在，则默认编码帧率30
-            c->time_base = (AVRational){1, STREAM_FRAME_RATE};
+    int frameRate = av_q2d(ffp->is->video_st->avg_frame_rate);
+    //如果帧率等于0或时间基异常场景走ffp拿到的time_base，若ffp拿到time_base异常走pts计算帧率
+    if (frameRate <= 0 || (c->time_base.num <= 0) || (c->time_base.den <= 0)) {
+        if (!IS_PRIORITY && (ffp->is->video_st->time_base.num > 0) && (ffp->is->video_st->time_base.den > 0)) {
+            c->time_base = ffp->is->video_st->time_base;
         } else {
-            c->time_base = (AVRational){1, frameRate};
+            c->time_base = (AVRational){1, CalculateFrameRate(ffp)};
         }
     }
     ret = avcodec_open2(c, codec, &opt);
@@ -233,7 +263,6 @@ AVFrame *AllocAudioFrame(enum AVSampleFormat sample_fmt, uint64_t channel_layout
     }
     return frame;
 }
-
 
 int WriteVideoFrame(AVFormatContext *oc, OutputStream *ost, AVFrame *curFr)
 {
@@ -360,7 +389,6 @@ int GetRecordStatus(FFPlayer *ffp)
     return OHOS_RECORD_STATUS_OFF;
 }
 
-
 VideoAudioAvCodec VideoAudioStreamAndAvcodecOpen(RecordWriteData *recordWriteData, FFPlayer *mFFPlayer,
                                                  AVDictionary *opt)
 {
@@ -392,7 +420,7 @@ VideoAudioAvCodec VideoAudioStreamAndAvcodecOpen(RecordWriteData *recordWriteDat
     }
     if (haveVideo) {
         int openVideoResult =
-            OpenVideo(recordWriteData->oc, recordWriteData->video_codec, &recordWriteData->video_st, opt, frameRate);
+            OpenVideo(recordWriteData->oc, recordWriteData->video_codec, &recordWriteData->video_st, opt, mFFPlayer);
         if (openVideoResult == 0) {
             UpdateRecordResult(mFFPlayer, OHOS_RECORD_CALLBACK_STATUS_FAILED);
             vaAvcodec.result = OHOS_RECORD_CALLBACK_STATUS_FAILED;
@@ -415,7 +443,7 @@ VideoAudioAvCodec VideoAudioStreamAndAvcodecOpen(RecordWriteData *recordWriteDat
 }
 
 void WriteVideoFrameData(AVFormatContext *oc, RecordFrameData frData, SwsContext *swsContext,
-                         InputSourceInfo inSrcInfo, RecordWriteData *recordWriteData)
+                         InputSourceInfo inSrcInfo, RecordWriteData *recordWriteData, int frameRate)
 {
     uint8_t *srcSlice[3];
     srcSlice[DATA_NUM_0] = frData.data0;
@@ -431,7 +459,12 @@ void WriteVideoFrameData(AVFormatContext *oc, RecordFrameData frData, SwsContext
     dstLineSize[DATA_NUM_2] = inSrcInfo.width / DATA_NUM_2;
     sws_scale(swsContext, (const uint8_t *const *)srcSlice, srcLineSize, 0, inSrcInfo.height,
               recordWriteData->video_st.frame->data, recordWriteData->video_st.frame->linesize);
-    recordWriteData->video_st.frame->pts = recordWriteData->video_st.next_pts++;
+    //如果优先走默认帧率或获取的帧率大于0时走next_pts++，否则走解码获取的pts
+    if (IS_PRIORITY || (frameRate > 0)) {
+        recordWriteData->video_st.frame->pts = recordWriteData->video_st.next_pts++;
+    } else {
+        recordWriteData->video_st.frame->pts = frData.pts;
+    }
     WriteVideoFrame(oc, &recordWriteData->video_st, recordWriteData->video_st.frame);
 }
 
@@ -457,14 +490,14 @@ void FreeFramesQueueIndexFrame(RecordWriteData *recordWriteData, int index)
 }
 
 void WriteRecordFrameData(AVFormatContext *oc, RecordWriteData *recordWriteData, OutputStream *audioStPtr, int index,
-                          SwsContext *swsContext, InputSourceInfo inSrcInfo)
+                          SwsContext *swsContext, InputSourceInfo inSrcInfo, int frameRate)
 {
     RecordFrameData frData = recordWriteData->recordFramesQueue[index];
     if (frData.writeFileStatus != 0) {
         return;
     }
     if (frData.frameType == OHOS_FRAME_TYPE_VIDEO) {
-        WriteVideoFrameData(oc, frData, swsContext, inSrcInfo, recordWriteData);
+        WriteVideoFrameData(oc, frData, swsContext, inSrcInfo, recordWriteData, frameRate);
         FreeFramesQueueIndexFrame(recordWriteData, index);
     } else {
         if (frData.format == AV_SAMPLE_FMT_FLTP) {
@@ -507,7 +540,7 @@ void WriteRecordFrameData(AVFormatContext *oc, RecordWriteData *recordWriteData,
 }
 
 void StartEncoderWrite(AVFormatContext *oc, RecordWriteData *recordWriteData, FFPlayer *mFFPlayer,
-                       OutputStream *audioStPtr)
+                       OutputStream *audioStPtr, int frameRate)
 {
     InputSourceInfo inSrcInfo = recordWriteData->srcFormat;
     struct SwsContext *swsContext =
@@ -518,7 +551,7 @@ void StartEncoderWrite(AVFormatContext *oc, RecordWriteData *recordWriteData, FF
         int totalFrameIndex = recordWriteData->windex;
         for (int i = 0; i < totalFrameIndex; i++) {
             usleep(SLEEP_TIME_100);
-            WriteRecordFrameData(oc, recordWriteData, audioStPtr, i, swsContext, inSrcInfo);
+            WriteRecordFrameData(oc, recordWriteData, audioStPtr, i, swsContext, inSrcInfo, frameRate);
         }
         if (GetRecordStatus(mFFPlayer) != OHOS_RECORD_STATUS_ON) {
             break;
@@ -570,6 +603,23 @@ RecordWriteData* WaitCacheVideoFrames(FFPlayer *mFFPlayer)
         return recordWriteData;
 }
 
+int WriteHeader(FFPlayer *mFFPlayer, AVDictionary *opt, int frameRate)
+{
+    LOGE("WriteHeader frameRate %d time_base.num %d time_base.den %d", frameRate,
+         mFFPlayer->is->video_st->time_base.num, mFFPlayer->is->video_st->time_base.den);
+    if (frameRate <= 0) {
+        av_dict_set_int(&opt, "video_track_timescale", CalculateFrameRate(mFFPlayer), 0);
+    }
+    RecordWriteData *recordWriteData = &mFFPlayer->record_write_data;
+    return avformat_write_header(recordWriteData->oc, &opt);
+}
+
+void SetDefaultFrameRate(FFPlayer *mFFPlayer)
+{
+    DEFAULT_FRAME_RATE = mFFPlayer->record_write_data.defaultFrameRate;
+    IS_PRIORITY = mFFPlayer->record_write_data.isPriority;
+}
+
 int WriteRecordFile(void *recordData)
 {
     FFPlayer *mFFPlayer = (FFPlayer *)(recordData);
@@ -581,6 +631,7 @@ int WriteRecordFile(void *recordData)
         UpdateRecordResult(mFFPlayer, OHOS_RECORD_CALLBACK_STATUS_FAILED);
         return OHOS_RECORD_CALLBACK_STATUS_FAILED;
     }
+    SetDefaultFrameRate(mFFPlayer);
     OutputStream *videoStPtr;
     OutputStream *audioStPtr;
     int ret;
@@ -608,14 +659,13 @@ int WriteRecordFile(void *recordData)
         }
     }
     int frameRate = av_q2d(mFFPlayer->is->video_st->avg_frame_rate);
-    av_dict_set_int(&opt, "video_track_timescale", frameRate == 0 ? STREAM_FRAME_RATE : frameRate, 0);
-    ret = avformat_write_header(recordWriteData->oc, &opt);
+    ret = WriteHeader(mFFPlayer, opt, frameRate);
     if (ret < 0) {
         LOGE("Error occurred when opening output file %s", av_err2str(ret));
         UpdateRecordResult(mFFPlayer, OHOS_RECORD_CALLBACK_STATUS_FAILED);
         return OHOS_RECORD_CALLBACK_STATUS_FAILED;
     }
-    StartEncoderWrite(recordWriteData->oc, recordWriteData, mFFPlayer, audioStPtr);
+    StartEncoderWrite(recordWriteData->oc, recordWriteData, mFFPlayer, audioStPtr, frameRate);
     ReleaseResources(recordWriteData->oc, recordWriteData, recordWriteData->oc->oformat,
                      vaAvcodec.haveVideo, vaAvcodec.haveAudio, videoStPtr, audioStPtr);
     UpdateRecordResult(mFFPlayer, OHOS_RECORD_CALLBACK_STATUS_SUCCESS);

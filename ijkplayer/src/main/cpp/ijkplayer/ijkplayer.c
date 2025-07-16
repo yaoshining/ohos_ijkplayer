@@ -934,3 +934,8 @@ int ijkmp_get_current_frame(IjkMediaPlayer *mp, const char *saveFilePath)
     return retval;
 }
 
+int  ijkmp_set_record_default_frame_rate(IjkMediaPlayer *mp, const int frameRate, const bool isPriority)
+{
+    return ffp_set_record_default_frame_rate(mp->ffplayer, frameRate, isPriority);
+}
+

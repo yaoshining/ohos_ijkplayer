@@ -726,5 +726,12 @@ export class IjkMediaPlayer {
     });
   }
 
+  setRecordDefaultFrameRate(frameRate: string, isPriority: boolean): boolean {
+    if (!!this.ijkplayer_napi) {
+      return this.ijkplayer_napi._setRecordDefaultFrameRate(this.id, frameRate, isPriority ? "1" : "0");
+    }
+    return false;
+  }
+
 }
 

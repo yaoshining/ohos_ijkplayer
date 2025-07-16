@@ -47,4 +47,5 @@ export declare class IjkPlayerNapi {
   _getCurrentFrame(xcomponentId: string,saveFilePath:string): Promise<boolean>;
   _stopAsync(xcomponentId: string): Promise<boolean>;
   _releaseAsync(xcomponentId: string): Promise<boolean>;
+  _setRecordDefaultFrameRate(xcomponentId: string, frameRate: string, isPriority:string): boolean;
 }

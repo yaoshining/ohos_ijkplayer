@@ -638,3 +638,14 @@ int IJKPlayerNapiProxy::IjkMediaPlayer_getCurrentFrame(const char *saveFilePath)
     return retval;
 }
 
+int IJKPlayerNapiProxy::IjkMediaPlayer_setRecordDefaultFrameRate(const int frameRate, const bool isPriority)
+{
+    IjkMediaPlayer *mp = IJKPlayerNapiProxy::get_media_player(id_);
+    int retval = 0;
+    if (mp) {
+        retval = ijkmp_set_record_default_frame_rate(mp, frameRate, isPriority);
+    }
+    ijkmp_dec_ref_p(&mp);
+    return retval;
+}
+
