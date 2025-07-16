@@ -133,19 +133,23 @@ export class PipManager {
       contentWidth: 1920,
       contentHeight: 1080,
     };
-    let promise: Promise<PiPWindow.PiPController> = PiPWindow.create(config, this.getXComponentNode());
-    promise.then((controller: PiPWindow.PiPController) => {
-      LogUtils.getInstance().LOGI("initPipController PiPWindow.create success");
-      this.pipController = controller;
-      this.pipController.on('stateChange', (state: PiPWindow.PiPState, reason: string) => {
-        this.onStateChange(state, reason);
+    try{
+      let promise: Promise<PiPWindow.PiPController> = PiPWindow.create(config, this.getXComponentNode());
+      promise.then((controller: PiPWindow.PiPController) => {
+        LogUtils.getInstance().LOGI("initPipController PiPWindow.create success");
+        this.pipController = controller;
+        this.pipController.on('stateChange', (state: PiPWindow.PiPState, reason: string) => {
+          this.onStateChange(state, reason);
+        });
+        this.pipController.on('controlEvent', (control: PiPWindow.ControlEventParam) => {
+          this.onActionEvent(control);
+        });
+      }).catch((err: BusinessError) => {
+        LogUtils.getInstance().error(`Failed to create pip controller. Cause:${err.code}, message:${err.message}`);
       });
-      this.pipController.on('controlEvent', (control: PiPWindow.ControlEventParam) => {
-        this.onActionEvent(control);
-      });
-    }).catch((err: BusinessError) => {
-      LogUtils.getInstance().error(`Failed to create pip controller. Cause:${err.code}, message:${err.message}`);
-    });
+    }catch(e){
+      LogUtils.getInstance().error(`Failed to create pip controller. Cause:${e.code}, message:${e.message}`);
+    }
   }
 
 
@@ -161,15 +165,19 @@ export class PipManager {
 
   stopPip() {
     this.isHasStartPip = false;
-    if (this.pipController) {
-      let promise: Promise<void> = this.pipController.stopPiP();
-      promise.then(() => {
-        this.pipController = undefined;
-        LogUtils.getInstance().LOGI(`Succeeded in stopping pip.`);
-      }).catch((err: BusinessError) => {
-        this.pipController = undefined;
-        LogUtils.getInstance().error(`Failed to stop pip. Cause:${err.code}, message:${err.message}`);
-      });
+    try{
+      if (this.pipController) {
+        let promise: Promise<void> = this.pipController.stopPiP();
+        promise.then(() => {
+          this.pipController = undefined;
+          LogUtils.getInstance().LOGI(`Succeeded in stopping pip.`);
+        }).catch((err: BusinessError) => {
+          this.pipController = undefined;
+          LogUtils.getInstance().error(`Failed to stop pip. Cause:${err.code}, message:${err.message}`);
+        });
+      }
+    }catch(e){
+      LogUtils.getInstance().error(`Failed to create pip controller. Cause:${e.code}, message:${e.message}`);
     }
   }
 

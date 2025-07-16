@@ -25,7 +25,9 @@
 
 5. 把编译生成的ffmpeg文件夹拷贝到ijkplayer/src/main/cpp/third_party/ffmpeg下
 
-6. 把编译生成的openssl、soundtouch、yuv、openh264的文件夹，拷贝到工程的ijkplayer/src/main/cpp/third_party下，如图所示：
+6. 把编译生成的openssl-3.4.0的文件夹，拷贝到工程的ijkplayer/src/main/cpp/third_party下，并改名为openssl和将目录下的x86_64/lib64改为x86_64/lib
+
+7. 把编译生成的soundtouch、yuv、openh264的文件夹，拷贝到工程的ijkplayer/src/main/cpp/third_party下，如图所示：
 
 ![img.png](image/img.png)
 

@@ -32,17 +32,25 @@ export class XComponentNodeController extends NodeController {
   }
 
   addNode() {
-    if (this.node !== null && this.node !== undefined) {
-        LogUtils.getInstance().LOGI("addNode");
-        this.xcomponentNode?.getParent()?.removeChild(this.xcomponentNode);
-        this.node.appendChild(this.xcomponentNode);
+    try{
+      if (this.node !== null && this.node !== undefined) {
+          LogUtils.getInstance().LOGI("addNode");
+          this.xcomponentNode?.getParent()?.removeChild(this.xcomponentNode);
+          this.node.appendChild(this.xcomponentNode);
+      }
+    }catch(e){
+      LogUtils.getInstance().error(`Failed to create pip controller. Cause:${e.code}, message:${e.message}`);
     }
   }
 
   removeNode() {
-    if (this.node !== null && this.node !== undefined) {
-      LogUtils.getInstance().LOGI("removeNode");
-      this.node.removeChild(this.xcomponentNode);
+    try{
+      if (this.node !== null && this.node !== undefined) {
+        LogUtils.getInstance().LOGI("removeNode");
+        this.node.removeChild(this.xcomponentNode);
+      }
+    }catch(e){
+      LogUtils.getInstance().error(`Failed to create pip controller. Cause:${e.code}, message:${e.message}`);
     }
   }
 

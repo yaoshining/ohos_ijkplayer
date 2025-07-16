@@ -25,13 +25,13 @@ DEPENDS_DIR=$ROOT_DIR/doc                                                   # �
 FFMPEG_NAME=FFmpeg-ff4.0                                                    # 依赖库名
 LIBYUV_NAME=libyuv-ijk                                                      # 依赖库名
 SOUNDTOUCH_NAME=soundtouch-ijk                                              # 依赖库名
-OPESSL_NAME=openssl_1_1_1w                                                  # FFmpeg的依赖库名，需和依赖库一起安装
+OPESSL_NAME=openssl-3.4.0                                                   # FFmpeg的依赖库名，需和依赖库一起安装
 OPENH264_NAME=openh264                                                      # FFmpeg的依赖库名，需和依赖库一起安装
 
 CI_OUTPUT_DIR=$ROOT_DIR/../out/tpc/                                         # hap/har安装目录
 
-LIBS_NAME=("FFmpeg-ff4.0" "libyuv-ijk" "soundtouch-ijk" "openssl_1_1_1w" "openh264")
-PACKAGE_NAME=("FFmpeg-ff4.0-ijk0.8.8-20210426-001.tar.gz" "yuv-ijk-r0.2.1-dev.zip" "soundtouch-ijk-r0.1.2-dev.zip" "openssl-OpenSSL_1_1_1w.zip" "openh264-2.4.1.tar.gz")
+LIBS_NAME=("FFmpeg-ff4.0" "libyuv-ijk" "soundtouch-ijk" "openssl-3.4.0" "openh264")
+PACKAGE_NAME=("FFmpeg-ff4.0-ijk0.8.8-20210426-001.tar.gz" "yuv-ijk-r0.2.1-dev.zip" "soundtouch-ijk-r0.1.2-dev.zip" "openssl-3.4.0.tar.gz" "openh264-2.4.1.tar.gz")
 
 function prepare_lycium_tools()
 {
@@ -175,6 +175,7 @@ function install_depends()
         echo "FFmpeg depends openssl build failed!"
         return 1
     fi
+    mv $install_dir/openssl/x86_64/lib64 $install_dir/openssl/x86_64/lib
     cp -arf $LYCIUM_TOOLS_DIR/usr/soundtouch $install_dir/soundtouch
     if [ $? -ne 0 ]
     then

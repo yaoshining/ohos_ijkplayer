@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-import router from '@ohos.router';
 import { Callback } from '@ohos.base';
 import { IjkMediaPlayer, InterruptEvent, InterruptHintType, DeviceChangeReason } from '@ohos/ijkplayer';
 import { OnPreparedListener } from '@ohos/ijkplayer';
@@ -24,7 +23,6 @@ import { OnErrorListener, OnTimedTextListener } from '@ohos/ijkplayer';
 import { OnInfoListener } from '@ohos/ijkplayer';
 import { OnSeekCompleteListener } from '@ohos/ijkplayer';
 import { LogUtils } from '@ohos/ijkplayer';
-import prompt from '@ohos.promptAction';
 import { PlayStatus } from '../common/PlayStatus';
 import { RouterParam } from './RouterParam';
 import abilityAccessCtrl from '@ohos.abilityAccessCtrl';
@@ -73,7 +71,7 @@ struct IjkVideoPlayerPage {
   aboutToAppear() {
     LogUtils.getInstance().LOGI("aboutToAppear");
     this.xcomponentId = "xcomponentId_" + IjkplayerMapManager.generateId();
-    this.videoUrl = (router.getParams() as RouterParam).videoUrl;
+    this.videoUrl = (this.getUIContext().getRouter().getParams() as RouterParam).videoUrl;
     let event: Callback<InterruptEvent> = (event) => {
       LogUtils.getInstance().LOGI(`event: ${JSON.stringify(event)}`);
       if (event.hintType === InterruptHintType.INTERRUPT_HINT_PAUSE) {
@@ -597,8 +595,8 @@ struct IjkVideoPlayerPage {
         this.stopProgressTask();
         LogUtils.getInstance().LOGI("OnErrorListener-->go:" + what + "===" + extra)
         this.hideLoadIng();
-        prompt.showToast({
-          message: getContext().resourceManager.getStringByNameSync("Honey_the_video_is_playing_errant_The_system_is_wandering")
+        this.getUIContext().getPromptAction().showToast({
+          message: this.getUIContext().getHostContext()?.resourceManager.getStringByNameSync("Honey_the_video_is_playing_errant_The_system_is_wandering")
         });
       }
     }
@@ -677,11 +675,20 @@ struct IjkVideoPlayerPage {
 
   private startRecord() {
     let isRecord = this.mIjkMediaPlayer.isRecord()
-    if (isRecord) {
-      prompt.showToast({
-        message: $r('app.string.recordIng')
+    try{
+      if (isRecord) {
+        this.getUIContext().getPromptAction().showToast({
+          message: $r('app.string.recordIng')
+        });
+        return
+      }
+      this.recordSaveFilePath = this.getUIContext().getHostContext()?.cacheDir + "/record.mp4";
+      let result = this.mIjkMediaPlayer.startRecord(this.recordSaveFilePath);
+      this.getUIContext().getPromptAction().showToast({
+        message: result ? $r('app.string.start_record_success') : $r('app.string.start_record_failed')
       });
-      return
+    }catch(e){
+      LogUtils.getInstance().error(`Failed to create pip controller. Cause:${e.code}, message:${e.message}`);
     }
     this.recordSaveFilePath = getContext(this).cacheDir + "/record.mp4";
     //设置录制默认帧率
@@ -694,31 +701,35 @@ struct IjkVideoPlayerPage {
 
   private stopRecord(isShowTip: boolean) {
     let isRecord = this.mIjkMediaPlayer.isRecord()
-    if (!isRecord) {
-      if (isShowTip) {
-        prompt.showToast({
-          message:  $r('app.string.record_not_enabled')
-        });
+    try{
+      if (!isRecord) {
+        if (isShowTip) {
+          this.getUIContext().getPromptAction().showToast({
+            message:  $r('app.string.record_not_enabled')
+          });
+        }
+        return
       }
-      return
+    }catch(e){
+      LogUtils.getInstance().error(`Failed to create pip controller. Cause:${e.code}, message:${e.message}`);
     }
     this.recordProgressVisible = Visibility.Visible;
     this.mIjkMediaPlayer.stopRecord().then((result) => {
       this.recordProgressVisible = Visibility.None;
       if(!result){
-        prompt.showToast({
+        this.getUIContext().getPromptAction().showToast({
           message: $r('app.string.stop_record_failed')
         });
         return;
       }
       let atManager = abilityAccessCtrl.createAtManager();
-      atManager.requestPermissionsFromUser(getContext(this), ['ohos.permission.WRITE_IMAGEVIDEO']).then(async () => {
+      atManager.requestPermissionsFromUser(this.getUIContext().getHostContext(), ['ohos.permission.WRITE_IMAGEVIDEO']).then(async () => {
         let photoType: photoAccessHelper.PhotoType = photoAccessHelper.PhotoType.VIDEO;
         let extension:string = 'mp4';
         let options: photoAccessHelper.CreateOptions = {
           title: "record_"+new Date().getTime()+""
         }
-        let phAccessHelper = photoAccessHelper.getPhotoAccessHelper(getContext(this));
+        let phAccessHelper = photoAccessHelper.getPhotoAccessHelper(this.getUIContext().getHostContext());
         phAccessHelper.createAsset(photoType, extension, options, (err, uri) => {
           LogUtils.getInstance().LOGI(`createAsset success uri:${uri}`)
           if (uri !== undefined) {
@@ -727,11 +738,11 @@ struct IjkVideoPlayerPage {
             fs.copyFileSync(recordFile.fd,albumFile.fd);
             fs.closeSync(recordFile);
             fs.closeSync(albumFile);
-            prompt.showToast({
+            this.getUIContext().getPromptAction().showToast({
               message: $r('app.string.stop_record_success')
             });
           } else {
-            prompt.showToast({
+            this.getUIContext().getPromptAction().showToast({
               message: $r('app.string.stop_record_failed')
             });
             LogUtils.getInstance().LOGI(`createAsset failed, error: ${err.code}, ${err.message}`)
@@ -742,24 +753,24 @@ struct IjkVideoPlayerPage {
   }
 
   private screenshot() {
-    let saveFilePath = getContext(this).cacheDir + "/screen.jpg";
+    let saveFilePath = this.getUIContext().getHostContext()?.cacheDir + "/screen.jpg";
     this.screenshotProgressVisible = Visibility.Visible;
     this.mIjkMediaPlayer.screenshot(saveFilePath).then((result) => {
       this.screenshotProgressVisible = Visibility.None;
       if(!result) {
-        prompt.showToast({
+        this.getUIContext().getPromptAction().showToast({
           message: $r('app.string.screenshot_failed')
         });
         return;
       }
       let atManager = abilityAccessCtrl.createAtManager();
-      atManager.requestPermissionsFromUser(getContext(this), ['ohos.permission.WRITE_IMAGEVIDEO']).then(async () => {
+      atManager.requestPermissionsFromUser(this.getUIContext().getHostContext(), ['ohos.permission.WRITE_IMAGEVIDEO']).then(async () => {
         let photoType: photoAccessHelper.PhotoType = photoAccessHelper.PhotoType.IMAGE;
         let extension:string = 'jpg';
         let options: photoAccessHelper.CreateOptions = {
           title: "screenshot_"+new Date().getTime()+""
         }
-        let phAccessHelper = photoAccessHelper.getPhotoAccessHelper(getContext(this));
+        let phAccessHelper = photoAccessHelper.getPhotoAccessHelper(this.getUIContext().getHostContext());
         phAccessHelper.createAsset(photoType, extension, options, (err, uri) => {
           LogUtils.getInstance().LOGI(`createAsset success uri:${uri}`)
           if (uri !== undefined) {
@@ -768,11 +779,11 @@ struct IjkVideoPlayerPage {
             fs.copyFileSync(screenshotFile.fd,albumFile.fd);
             fs.closeSync(screenshotFile);
             fs.closeSync(albumFile);
-            prompt.showToast({
+            this.getUIContext().getPromptAction().showToast({
               message: $r('app.string.screenshot_success')
             });
           } else {
-            prompt.showToast({
+            this.getUIContext().getPromptAction().showToast({
               message: $r('app.string.screenshot_failed')
             });
             LogUtils.getInstance().LOGI(`createAsset failed, error: ${err.code}, ${err.message}`)

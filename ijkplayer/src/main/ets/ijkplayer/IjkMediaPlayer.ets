@@ -27,6 +27,7 @@ import window from '@ohos.window';
 import { IjkPlayerNapi } from "./utils/IjkPlayerNapi";
 import { BusinessError, Callback } from '@ohos.base';
 import { newIjkPlayerAudio } from 'libijkplayer_audio_napi.so';
+import { UIContext } from '@ohos.arkui.UIContext';
 
 export type AudioInterrupt = 'audioInterrupt';
 export type AudioDeviceChange = 'deviceChange';
@@ -223,7 +224,8 @@ export class IjkMediaPlayer {
   }
 
   setScreenOnWhilePlaying(on: boolean): void {
-    window.getLastWindow(getContext(this)).then((data: window.Window) => {
+    let context: UIContext = new UIContext();
+    window.getLastWindow(context.getHostContext()).then((data: window.Window) => {
       if (data) {
         data.setWindowKeepScreenOn(on);
       }

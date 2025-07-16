@@ -23,7 +23,6 @@ import { OnInfoListener } from '@ohos/ijkplayer';
 import { OnSeekCompleteListener } from '@ohos/ijkplayer';
 import { LogUtils } from '@ohos/ijkplayer';
 import { PlayStatus } from '../common/PlayStatus';
-import prompt from '@ohos.promptAction';
 import { IjkplayerMapManager } from './IjkplayerMapManager';
 
 @Entry
@@ -452,8 +451,8 @@ struct SampleAudioListPage {
         this.stopProgressTask();
         LogUtils.getInstance().LOGI("OnErrorListener-->go:" + what + "===" + extra)
         this.hideLoadIng();
-        prompt.showToast({
-          message: getContext().resourceManager.getStringByNameSync("Honey_the_video_is_playing_errant_The_system_is_wandering")
+        this.getUIContext().getPromptAction().showToast({
+          message: this.getUIContext().getHostContext()?.resourceManager.getStringByNameSync("Honey_the_video_is_playing_errant_The_system_is_wandering")
         });
       }
     }

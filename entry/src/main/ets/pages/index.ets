@@ -13,8 +13,6 @@
  * limitations under the License.
  */
 
-import router from '@ohos.router'
-
 @Entry
 @Component
 struct indexPage {
@@ -24,25 +22,25 @@ struct indexPage {
         .margin({ bottom: 20 })
         .width(200)
         .onClick(() => {
-          router.pushUrl({ url: 'pages/SampleVideoListPage' })
+          this.getUIContext().getRouter().pushUrl({ url: 'pages/SampleVideoListPage' })
         })
       Button($r('app.string.audio_demo'))
         .width(200)
         .margin({ bottom: 20 })
         .onClick(() => {
-          router.pushUrl({ url: 'pages/SampleAudioListPage' })
+          this.getUIContext().getRouter().pushUrl({ url: 'pages/SampleAudioListPage' })
         })
       Button($r('app.string.Navigation'))
         .width(200)
         .margin({ bottom: 20 })
         .onClick(() => {
-          router.pushUrl({ url: 'pages/IjkVideoPlayerNavigationExample' })
+          this.getUIContext().getRouter().pushUrl({ url: 'pages/IjkVideoPlayerNavigationExample' })
         })
       Button($r('app.string.typeNode'))
         .width(200)
         .margin({ bottom: 20 })
         .onClick(() => {
-          router.pushUrl({ url: 'pages/typeNode/IjkVideoPlayerTypeNodeIndex' })
+          this.getUIContext().getRouter().pushUrl({ url: 'pages/typeNode/IjkVideoPlayerTypeNodeIndex' })
         })
     }
     .width('100%')
