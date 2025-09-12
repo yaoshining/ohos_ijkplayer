@@ -644,7 +644,8 @@ static int ikjmp_chkst_seek_l(int mp_state)
 
 int ijkmp_seek_to_l(IjkMediaPlayer *mp, long msec)
 {
-    if (!mp) {
+    if (!mp || !mp->ffplayer || !mp->ffplayer->is || !mp->ffplayer->is->ic ||
+        !mp->ffplayer->is->ic->iformat || !mp->ffplayer->is->ic->pb) {
         LOGE("ijkmp_seek_to_l mp is null\n");
         return EIJK_FAILED;
     }
