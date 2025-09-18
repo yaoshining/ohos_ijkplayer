@@ -803,6 +803,10 @@ int ijkmp_get_msg(IjkMediaPlayer *mp, AVMessage *msg, int block)
         LOGE("ijkmp_get_msg mp is null\n");
         return EIJK_FAILED;
     }
+    if (!mp->ffplayer) {
+        LOGE("ijkmp_get_msg mp->ffplayer is null\n");
+        return EIJK_FAILED;
+    }
     while (1) {
         int continue_wait_next_msg = 0;
         int retval = msg_queue_get(&mp->ffplayer->msg_queue, msg, block);
