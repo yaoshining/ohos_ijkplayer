@@ -1,3 +1,7 @@
+## 2.0.7-rc.5
+- Fix crashes that may be caused by seek
+- Fix crashes that may be caused by get_msg
+
 ## 2.0.7-rc.4
 - Fix abnormal video recording issue when frame rate cannot be obtained from video stream
 
