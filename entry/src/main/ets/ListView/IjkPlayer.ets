@@ -200,4 +200,18 @@ export class IjkPlayer extends BasePlayer {
     }
     return super.isPlaying();
   }
+
+  selectTrack(track: string): void {
+    if (this.mIjkMediaPlayer != null) {
+      return this.mIjkMediaPlayer.selectTrack(track);
+    }
+    return super.selectTrack(track);
+  }
+
+  deselectTrack(track: string): void {
+    if (this.mIjkMediaPlayer != null) {
+      return this.mIjkMediaPlayer.deselectTrack(track);
+    }
+    return super.deselectTrack(track);
+  }
 }

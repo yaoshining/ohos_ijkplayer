@@ -23,11 +23,13 @@ export default struct VideoNewsView {
   @State title: string = "";
   private radio: number =  1.77;
   private testUrl: string = "https://1251542705.vod2.myqcloud.com/4a8d9c67vodtransgzp1251542705/203109c63270835013529449619/v.f1419907.mp4";
+  private testUrl2: string = "http://113.45.193.209:4000/upload/output.mp4"; // 含有多轨道的视频
 
   build() {
     Column() {
       CommonVideoView({
-        videoSource: new VideoSource(this.testUrl, '', this.title)
+        videoSource: new VideoSource(this.title === '1' ? this.testUrl2 : this.testUrl, '', this.title),
+        isMulTrack: this.title === '1'
       }).width('100%').aspectRatio(this.radio)
         .borderRadius(10)
     }.width('100%').height('40%').padding({ 'right': 14, 'left': 14 })

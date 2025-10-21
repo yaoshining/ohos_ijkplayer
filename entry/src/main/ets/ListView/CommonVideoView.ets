@@ -45,6 +45,7 @@ export struct CommonVideoView {
   private isInit: boolean = false;
   private xComponentId = "xid" + Math.random();
   @State isPlaying: boolean = false;
+  @State isMulTrack: boolean = false;
 
   build() {
     Flex({ direction: FlexDirection.Column, alignItems: ItemAlign.Auto, justifyContent: FlexAlign.Start }) {
@@ -107,6 +108,28 @@ export struct CommonVideoView {
           .width('400px')
           .height('80px')
           .margin('15px')
+
+        if(this.isMulTrack) {
+          Button("selectTrack")
+            .onClick(() => {
+              if (this.player != null) {
+                this.player.selectTrack("1");
+              }
+            })
+            .width('400px')
+            .height('80px')
+            .margin('15px')
+
+          Button("deselectTrack")
+            .onClick(() => {
+              if (this.player != null) {
+                this.player.deselectTrack("1");
+              }
+            })
+            .width('400px')
+            .height('80px')
+            .margin('15px')
+        }
       }
     }
   }

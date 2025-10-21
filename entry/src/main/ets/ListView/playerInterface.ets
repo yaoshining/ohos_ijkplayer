@@ -40,4 +40,8 @@ export interface PlayerInterface {
   getCurrentPosition(): number;
 
   isPlaying(): boolean;
+
+  selectTrack(track: string): void;
+
+  deselectTrack(track: string): void;
 }
