@@ -76,4 +76,12 @@ export abstract class BasePlayer implements PlayerInterface {
   isPlaying(): boolean {
     return false;
   }
+
+  selectTrack(track: string): void{
+    return
+  }
+
+  deselectTrack(track: string): void {
+    return
+  }
 }

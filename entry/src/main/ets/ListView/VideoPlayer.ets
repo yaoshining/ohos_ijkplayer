@@ -80,4 +80,12 @@ export class VideoPlayer implements PlayerInterface {
   isPlaying(): boolean {
     return this.player.isPlaying();
   }
+
+  selectTrack(track: string): void{
+    return this.player.selectTrack(track);
+  }
+
+  deselectTrack(track: string): void{
+    return this.player.deselectTrack(track);
+  }
 }
