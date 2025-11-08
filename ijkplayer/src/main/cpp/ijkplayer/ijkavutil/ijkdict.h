@@ -44,6 +44,8 @@
                                       delimiter is added, the strings are simply concatenated. */
 #define IJK_AV_DICT_MULTIKEY       64   /**< Allow to store several equal keys in the dictionary */
 
+#define DATA_NUM_16 16
+
 typedef struct IjkAVDictionaryEntry {
     char *key;
     char *value;
@@ -102,6 +104,10 @@ int ijk_av_dict_set(IjkAVDictionary **pm, const char *key, const char *value, in
  * Note: If AV_DICT_DONT_STRDUP_KEY is set, key will be freed on error.
  */
 int ijk_av_dict_set_int(IjkAVDictionary **pm, const char *key, int64_t value, int flags);
+
+int ijk_av_dict_set_intptr(IjkAVDictionary **pm, const char *key, uintptr_t value, int flags);
+
+uintptr_t ijk_av_dict_get_intptr(const IjkAVDictionary *m, const char* key);
 
 /**
  * Copy entries from one AVDictionary struct into another.
