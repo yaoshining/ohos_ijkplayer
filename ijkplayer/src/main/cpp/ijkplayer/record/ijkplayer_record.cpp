@@ -502,9 +502,9 @@ void WriteRecordFrameData(AVFormatContext *oc, RecordWriteData *recordWriteData,
     } else {
         if (frData.format == AV_SAMPLE_FMT_FLTP) {
             AVFrame *tmpFr = audioStPtr->tmp_frame;
-            tmpFr->data[DATA_NUM_0] = (uint8_t *)av_malloc(frData.lineSize0);
-            tmpFr->data[DATA_NUM_1] = (uint8_t *)av_malloc(frData.lineSize1);
             if (frData.data0 && frData.data1) {
+                tmpFr->data[DATA_NUM_0] = (uint8_t *)av_malloc(frData.lineSize0);
+                tmpFr->data[DATA_NUM_1] = (uint8_t *)av_malloc(frData.lineSize1);
                 memcpy(tmpFr->data[DATA_NUM_0], frData.data0, frData.lineSize0);
                 memcpy(tmpFr->data[DATA_NUM_1], frData.data1, frData.lineSize1);
                 tmpFr->nb_samples = frData.nb_samples;
@@ -525,8 +525,8 @@ void WriteRecordFrameData(AVFormatContext *oc, RecordWriteData *recordWriteData,
             tmpFr->channels = frData.channels;
             tmpFr->channel_layout = frData.channel_layout;
             tmpFr->linesize[DATA_NUM_0] = frData.lineSize0;
-            tmpFr->data[DATA_NUM_0] = (uint8_t *)av_malloc(frData.lineSize0);
             if (frData.data0) {
+                tmpFr->data[DATA_NUM_0] = (uint8_t *)av_malloc(frData.lineSize0);
                 memcpy(tmpFr->data[DATA_NUM_0], frData.data0, frData.lineSize0);
                 tmpFr->format = frData.format;
                 WriteAudioFrame(oc, audioStPtr, tmpFr);

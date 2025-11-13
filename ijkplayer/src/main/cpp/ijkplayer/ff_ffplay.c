@@ -616,17 +616,26 @@ static void record_audio_frame(FFPlayer *ffp, AVFrame *frame)
     if (ffp->record_write_data.isInRecord == OHOS_RECORD_STATUS_ON && frame->format == AV_SAMPLE_FMT_FLTP &&
         ffp->record_write_data.recordFramesQueue && frame->linesize[0] > 0) {
         RecordFrameData frData;
-        frData.data0 = (uint8_t *)av_malloc(frame->linesize[DATA_NUM_0]);
-        memcpy(frData.data0, frame->data[DATA_NUM_0], frame->linesize[DATA_NUM_0]);
-        frData.data1 = (uint8_t *)av_malloc(frame->linesize[DATA_NUM_0]);
-        memcpy(frData.data1, frame->data[DATA_NUM_1], frame->linesize[DATA_NUM_0]);
+        if (frame->channels == DATA_NUM_2 && frame->data[DATA_NUM_1]) {
+            frData.data0 = (uint8_t *)av_malloc(frame->linesize[DATA_NUM_0]);
+            memcpy(frData.data0, frame->data[DATA_NUM_0], frame->linesize[DATA_NUM_0]);
+            frData.lineSize0 = frame->linesize[DATA_NUM_0];
+            frData.data1 = (uint8_t *)av_malloc(frame->linesize[DATA_NUM_0]);
+            memcpy(frData.data1, frame->data[DATA_NUM_1], frame->linesize[DATA_NUM_0]);
+            frData.lineSize1 = frame->linesize[DATA_NUM_0];
+        } else {
+            frData.data0 = (uint8_t *)av_malloc(frame->linesize[DATA_NUM_0]);
+            memcpy(frData.data0, frame->data[DATA_NUM_0], frame->linesize[DATA_NUM_0]);
+            frData.lineSize0 = frame->linesize[DATA_NUM_0];
+            frData.data1 = (uint8_t *)av_malloc(frame->linesize[DATA_NUM_0]);
+            memcpy(frData.data1, frame->data[DATA_NUM_0], frame->linesize[DATA_NUM_0]);
+            frData.lineSize1 = frame->linesize[DATA_NUM_0];
+        }
         frData.frameType = OHOS_FRAME_TYPE_AUDIO;
         frData.dataNum = FRAME_DATA_NUM_2;
         frData.nb_samples = frame->nb_samples;
         frData.channel_layout = frame->channel_layout;
         frData.channels = frame->channels;
-        frData.lineSize0 = frame->linesize[DATA_NUM_0];
-        frData.lineSize1 = frame->linesize[DATA_NUM_0];
         frData.format = frame->format;
         frData.pts = frame->pts;
         frData.writeFileStatus = DATA_NUM_0;
