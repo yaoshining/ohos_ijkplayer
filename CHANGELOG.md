@@ -1,3 +1,7 @@
+## 2.0.7-rc.6
+- fix getTcpSpeed interface always return 0
+- fix audio single channel bug
+
 ## 2.0.7-rc.5
 - Fix crashes that may be caused by seek
 - Fix crashes that may be caused by get_msg
