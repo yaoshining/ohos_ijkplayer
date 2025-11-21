@@ -5010,14 +5010,23 @@ int ffp_set_stream_selected(FFPlayer *ffp, int stream, int selected)
     if (selected) {
         switch (codecpar->codec_type) {
             case AVMEDIA_TYPE_VIDEO:
+                if (stream == is->video_stream) {
+                    return 0;
+                }
                 if (stream != is->video_stream && is->video_stream >= 0)
                     stream_component_close(ffp, is->video_stream);
                 break;
             case AVMEDIA_TYPE_AUDIO:
+                if (stream == is->audio_stream) {
+                    return 0;
+                }
                 if (stream != is->audio_stream && is->audio_stream >= 0)
                     stream_component_close(ffp, is->audio_stream);
                 break;
             case AVMEDIA_TYPE_SUBTITLE:
+                if (stream == is->subtitle_stream) {
+                    return 0;
+                }
                 if (stream != is->subtitle_stream && is->subtitle_stream >= 0)
                     stream_component_close(ffp, is->subtitle_stream);
                 break;
