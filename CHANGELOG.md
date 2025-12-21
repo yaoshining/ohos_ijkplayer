@@ -1,3 +1,6 @@
+## 2.0.7
+- Optimized Shared Library Compilation: O3 and LTO Support
+
 ## 2.0.7-rc.6
 - fix getTcpSpeed interface always return 0
 - fix audio single channel bug

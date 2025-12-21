@@ -25,8 +25,8 @@ depends=()
 makedepends=()
 install=
 source="https://codeload.github.com/bilibili/libyuv/zip/refs/heads/$pkgver"
-autounpack=ture
-downloadpackage=ture
+autounpack=true
+downloadpackage=true
 builddir=$pkgname
 packagename=$builddir-$pkgver.zip
 
@@ -38,7 +38,16 @@ prepare() {
 
 build() {
     cd $builddir
-    ${OHOS_SDK}/native/build-tools/cmake/bin/cmake "$@" -DOHOS_ARCH=$ARCH -B$ARCH-build -S./ -L
+
+    ${OHOS_SDK}/native/build-tools/cmake/bin/cmake "$@" \
+        -DOHOS_ARCH=$ARCH \
+        -DCMAKE_C_FLAGS="-O3 -flto=thin -fPIC" \
+        -DCMAKE_CXX_FLAGS="-O3 -flto=thin -fPIC" \
+        -DCMAKE_EXE_LINKER_FLAGS="-flto=thin -fPIC" \
+        -B$ARCH-build \
+        -S./ -L 
+
+
     ${MAKE} -C $ARCH-build
     ret=$?
     cd $OLDPWD

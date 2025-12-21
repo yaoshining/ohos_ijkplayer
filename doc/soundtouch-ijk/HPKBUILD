@@ -10,7 +10,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 # Contributor: yaofangyong <2385605052@qq.com>
 # Maintainer: yaofangyong <2385605052@qq.com>
 
@@ -25,8 +24,8 @@ depends=()
 makedepends=()
 install=
 source="https://codeload.github.com/bilibili/$pkgname/zip/refs/heads/$pkgver"
-autounpack=ture
-downloadpackage=ture
+autounpack=true
+downloadpackage=true
 builddir=$pkgname
 packagename=$builddir-$pkgver.zip
 
@@ -39,7 +38,15 @@ prepare() {
 
 build() {
     cd $builddir
-    ${OHOS_SDK}/native/build-tools/cmake/bin/cmake "$@" -DOHOS_ARCH=$ARCH -B$ARCH-build -S./ -L
+
+    ${OHOS_SDK}/native/build-tools/cmake/bin/cmake "$@" \
+        -DOHOS_ARCH=$ARCH \
+        -DCMAKE_C_FLAGS_INIT="-O3 -flto=thin" \
+        -DCMAKE_CXX_FLAGS_INIT="-O3 -flto=thin" \
+        -DCMAKE_EXE_LINKER_FLAGS_INIT="-flto=thin" \
+        -B$ARCH-build \
+        -S./ -L
+
     ${MAKE} -C $ARCH-build
     ret=$?
     cd $OLDPWD
