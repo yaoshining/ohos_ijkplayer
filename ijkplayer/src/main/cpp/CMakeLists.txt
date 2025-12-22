@@ -5,7 +5,8 @@ project(ijkplayer)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-int-conversion -Wl,-Bsymbolic")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-int-conversion -Wl,-Bsymbolic")
 set(CMAKE_SKIP_RPATH TRUE)
-
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDENUG -flto=thin")
+set(CMAKE_C_FLAGS_RELEASE "-O3 -DNDENUG -flto=thin")
 add_subdirectory(ijksdl)
 add_subdirectory(ijkplayer)
 
@@ -28,7 +29,6 @@ add_library(ijkplayer_audio_napi SHARED
             utils/ffmpeg/custom_ffmpeg_log.c
             utils/napi/napi_utils.cpp
             )
-
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ijkplayer)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/ijksdl)
@@ -56,3 +56,9 @@ target_link_libraries(ijkplayer_audio_napi PUBLIC hilog_ndk.z)
 target_link_libraries(ijkplayer_audio_napi PUBLIC ace_ndk.z)
 target_link_libraries(ijkplayer_audio_napi PUBLIC ace_napi.z)
 target_link_libraries(ijkplayer_audio_napi PUBLIC uv)
+
+target_compile_options(ijkplayer_napi PRIVATE $<$<CONFIG:Release>:-O3 -DNDEBUG -flto=thin>)
+target_link_options(ijkplayer_napi PRIVATE $<$<CONFIG:Release>:-s -flto=thin>)
+
+target_compile_options(ijkplayer_audio_napi PRIVATE $<$<CONFIG:Release>:-O3 -DNDEBUG -flto=thin>)
+target_link_options(ijkplayer_audio_napi PRIVATE $<$<CONFIG:Release>:-s -flto=thin>)

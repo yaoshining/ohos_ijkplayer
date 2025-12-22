@@ -4,7 +4,6 @@ cmake_minimum_required(VERSION 3.5)
 project("ijkplayer")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-int-conversion")
-
 add_definitions(-DOHOS_PLATFORM)
 
 add_library(ijksdl  SHARED    ijksdl_aout.c
@@ -36,6 +35,9 @@ add_library(ijksdl  SHARED    ijksdl_aout.c
                               dummy/ijksdl_vout_dummy.c
                               ${CMAKE_CURRENT_SOURCE_DIR}/../utils/ohoslog/ohos_log.cpp
                                )
+
+target_compile_options(ijksdl PRIVATE $<$<CONFIG:Release>:-O3 -DNDEBUG -flto=thin>)
+target_link_options(ijksdl PRIVATE $<$<CONFIG:Release>:-s -flto=thin>)
 
 add_library(yuv STATIC IMPORTED)
 set_target_properties(yuv PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/yuv/${OHOS_ARCH}/lib/libyuv.a)

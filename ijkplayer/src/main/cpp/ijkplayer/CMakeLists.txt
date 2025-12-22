@@ -43,7 +43,8 @@ add_library(ijkplayer  SHARED
                                  record/ijkplayer_record.cpp
                                 )
 
-
+target_compile_options(ijkplayer PRIVATE $<$<CONFIG:Release>:-O3 -DNDEBUG -flto=thin>)
+target_link_options(ijkplayer PRIVATE $<$<CONFIG:Release>:-s -flto=thin>)
 add_library(soundtouch STATIC IMPORTED)
 set_target_properties(soundtouch PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/soundtouch/${OHOS_ARCH}/lib/libsoundtouch.a)
 
