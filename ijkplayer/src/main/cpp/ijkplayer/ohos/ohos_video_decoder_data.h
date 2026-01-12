@@ -46,6 +46,7 @@ public:
     };
     uint32_t inputFrameCount_{0};
     uint32_t outputFrameCount_{0};
+    bool HasInputBuffer();
     int32_t InputData(CodecBufferInfo &info, std::chrono::milliseconds time);
     bool OutputData(CodecBufferInfo &receiveInfo);
 private:
@@ -55,7 +56,7 @@ private:
     std::mutex outputMutex_;
     std::condition_variable outputCond_;
     std::queue<CodecBufferInfo> outputBufferInfoQueue_;
-    int awaitTime_ = 4;
+    int awaitTime_ {0};
 };
 
 #endif // DECODERDEMO_DECODERDATA_H

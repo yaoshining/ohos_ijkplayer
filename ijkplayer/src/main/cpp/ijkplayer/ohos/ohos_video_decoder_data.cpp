@@ -44,6 +44,11 @@ void CodecData::ShutDown()
     outputCond_.notify_all();
 }
 
+bool CodecData::HasInputBuffer()
+{
+    return !this->inputBufferInfoQueue_.empty();
+}
+
 int32_t CodecData::InputData(CodecBufferInfo &info, std::chrono::milliseconds time)
 {
     if (info.buff_ == nullptr || this->formatInfo == nullptr) {

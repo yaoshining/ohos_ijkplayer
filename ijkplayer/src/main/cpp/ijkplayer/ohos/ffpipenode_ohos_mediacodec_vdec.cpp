@@ -295,44 +295,44 @@ void IJKFF_Pipenode_Opaque::DecoderOutput(AVFrame *frame)
 static int decoder_decode_ohos_frame(FFPlayer *ffp, Decoder *d, AVFrame *frame, IJKFF_Pipenode_Opaque *opaque)
 {
     int ret = AVERROR(EAGAIN);
-    AVPacket pkt;
-    AVFormatContext* fmt_ctx = ffp->is->ic;
-    do {
-        if (d->queue->nb_packets == 0) {
-            SDL_CondSignal(d->empty_queue_cond);
+    // 硬解码器有输入buffer时才，输入
+    if (opaque->codecData.HasInputBuffer()) {
+        AVPacket pkt;
+        AVFormatContext* fmt_ctx = ffp->is->ic;
+        do {
+            if (d->queue->nb_packets == 0) {
+                SDL_CondSignal(d->empty_queue_cond);
+            }
+    
+            if (ffp_packet_queue_get_or_buffering(ffp, d->queue, &pkt, &d->pkt_serial, &d->finished) < 0) {
+                return -1;
+            }
+            if (ffp_is_flush_packet(&pkt)) {
+                d->finished = 0;
+                d->next_pts = d->start_pts;
+                d->next_pts_tb = d->start_pts_tb;
+            }
+        } while (d->queue->serial != d->pkt_serial);
+    
+        ret = av_bsf_send_packet(opaque->avbsfContext, &pkt);
+        if (ret < 0) {
+            LOGE("av_bsf_send_packet failed");
         }
-
-        if (ffp_packet_queue_get_or_buffering(ffp, d->queue, &pkt, &d->pkt_serial, &d->finished) < 0) {
-            av_packet_unref(&pkt);
-            return -1;
+        while (ret >= 0) {
+            ret = av_bsf_receive_packet(opaque->avbsfContext, &pkt);
+            if (ret == AVERROR_EOF) {
+                d->finished = d->pkt_serial;
+                avcodec_flush_buffers(d->avctx);
+                av_packet_unref(&pkt);
+                return 0;
+            }
         }
-        if (ffp_is_flush_packet(&pkt)) {
-            d->finished = 0;
-            d->next_pts = d->start_pts;
-            d->next_pts_tb = d->start_pts_tb;
-        }
-    } while (d->queue->serial != d->pkt_serial);
-
-    ret = av_bsf_send_packet(opaque->avbsfContext, &pkt);
-    if (ret < 0) {
-        LOGE("av_bsf_send_packet failed");
+    
+        opaque->DecoderInput(pkt);
+        av_packet_unref(&pkt);
     }
-    while (ret >= 0) {
-        ret = av_bsf_receive_packet(opaque->avbsfContext, &pkt);
-        if (ret == AVERROR_EOF) {
-            d->finished = d->pkt_serial;
-            avcodec_flush_buffers(d->avctx);
-            av_packet_unref(&pkt);
-            return 0;
-        }
-    }
 
-    std::thread DecoderInputThread(&IJKFF_Pipenode_Opaque::DecoderInput, opaque, pkt);
-    DecoderInputThread.join();
-    av_packet_unref(&pkt);
-    std::thread DecoderOutputThread(&IJKFF_Pipenode_Opaque::DecoderOutput, opaque, frame);
-    DecoderOutputThread.detach();
-    usleep(MILLISECOND * NS_TO_US);
+    opaque->DecoderOutput(frame);
     if (frame->pts < 1) {
         return 0;
     }
@@ -342,6 +342,9 @@ static int decoder_decode_ohos_frame(FFPlayer *ffp, Decoder *d, AVFrame *frame, 
 static int get_video_frame(FFPlayer *ffp, AVFrame *frame, IJKFF_Pipenode_Opaque *opaque)
 {
     VideoState *is = ffp->is;
+    if (is == nullptr) {
+        return -1;
+    }
     int gotPicture;
 
     ffp_video_statistic_l(ffp);

@@ -250,6 +250,9 @@ ohpm install @ohos/ijkplayer
    ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-all-videos", "1");
    // Enable H.265 hardware decoding.
    ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-hevc", "1");
+   ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "overlay-format", "842094158");
+   // NV12 842094158
+   // I420 808596553
 ```
 
 ### Enable video recording

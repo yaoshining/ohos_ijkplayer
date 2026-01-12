@@ -159,7 +159,7 @@ static int func_unlock(SDL_VoutOverlay *overlay)
 
 static int func_fill_frame(SDL_VoutOverlay *overlay, const AVFrame *frame)
 {
-    LOGI("func_fill_frame");
+    LOGD("func_fill_frame");
     AVBufferRef *tempbuf1=frame->buf;
     AVBufferRef *tempbuf2=frame->extended_buf;
     AVBufferRef *tempbuf3=frame->qp_table_buf;
@@ -197,6 +197,14 @@ static int func_fill_frame(SDL_VoutOverlay *overlay, const AVFrame *frame)
             } else {
                 // ALOGE("copy draw frame");
                 dst_format = AV_PIX_FMT_YUV444P10LE;
+            }
+            break;
+        case SDL_FCC_NV12:
+            if (frame->format == AV_PIX_FMT_NV12) {
+                use_linked_frame = 1;
+                dst_format = frame->format;
+            } else {
+                dst_format = AV_PIX_FMT_NV12;
             }
             break;
         case SDL_FCC_RV32:
@@ -243,8 +251,6 @@ static int func_fill_frame(SDL_VoutOverlay *overlay, const AVFrame *frame)
         if (need_swap_uv)
             FFSWAP(Uint8*, swscale_dst_pic.data[1], swscale_dst_pic.data[2]);
     }
-
-
     // swscale / direct draw
     /*
      ALOGE("ijk_image_convert w=%d, h=%d, df=%d, dd=%d, dl=%d, sf=%d, sd=%d, sl=%d",
@@ -339,69 +345,75 @@ SDL_VoutOverlay *SDL_VoutFFmpeg_CreateOverlay(int width, int height, int frame_f
     int buf_width = width;
     int buf_height = height;
     switch (overlay_format) {
-    case SDL_FCC_I420:
-    case SDL_FCC_YV12: {
-        ff_format = AV_PIX_FMT_YUV420P;
-        // FIXME: need runtime config
+        case SDL_FCC_I420:
+        case SDL_FCC_YV12: {
+            ff_format = AV_PIX_FMT_YUV420P;
+            // FIXME: need runtime config
 #if defined(__ANDROID__)
-        // 16 bytes align pitch for arm-neon image-convert
-        buf_width = IJKALIGN(width, 16); // 1 bytes per pixel for Y-plane
+            // 16 bytes align pitch for arm-neon image-convert
+            buf_width = IJKALIGN(width, 16); // 1 bytes per pixel for Y-plane
 #elif defined(__APPLE__)
-        // 2^n align for width
-        buf_width = width;
-        if (width > 0)
-            buf_width = 1 << (sizeof(int) * 8 - __builtin_clz(width));
+            // 2^n align for width
+            buf_width = width;
+            if (width > 0)
+                buf_width = 1 << (sizeof(int) * 8 - __builtin_clz(width));
 #else
-        buf_width = IJKALIGN(width, 16); // unknown platform
+            buf_width = IJKALIGN(width, 16); // unknown platform
 #endif
-        opaque->planes = 3;
-        break;
-    }
-    case SDL_FCC_I444P10LE: {
-        ff_format = AV_PIX_FMT_YUV444P10LE;
-        // FIXME: need runtime config
+            opaque->planes = 3;
+            break;
+        }
+        case SDL_FCC_I444P10LE: {
+            ff_format = AV_PIX_FMT_YUV444P10LE;
+            // FIXME: need runtime config
 #if defined(__ANDROID__)
-        // 16 bytes align pitch for arm-neon image-convert
-        buf_width = IJKALIGN(width, 16); // 1 bytes per pixel for Y-plane
+            // 16 bytes align pitch for arm-neon image-convert
+            buf_width = IJKALIGN(width, 16); // 1 bytes per pixel for Y-plane
 #elif defined(__APPLE__)
-        // 2^n align for width
-        buf_width = width;
-        if (width > 0)
-            buf_width = 1 << (sizeof(int) * 8 - __builtin_clz(width));
+            // 2^n align for width
+            buf_width = width;
+            if (width > 0)
+                buf_width = 1 << (sizeof(int) * 8 - __builtin_clz(width));
 #else
-        buf_width = IJKALIGN(width, 16); // unknown platform
+            buf_width = IJKALIGN(width, 16); // unknown platform
 #endif
-        opaque->planes = 3;
-        break;
-    }
-    case SDL_FCC_RV16: {
-        ff_format = AV_PIX_FMT_RGB565;
-        buf_width = IJKALIGN(width, 8); // 2 bytes per pixel
-        opaque->planes = 1;
-        break;
-    }
-    case SDL_FCC_RV24: {
-        ff_format = AV_PIX_FMT_RGB24;
+            opaque->planes = 3;
+            break;
+        }
+        case SDL_FCC_RV16: {
+            ff_format = AV_PIX_FMT_RGB565;
+            buf_width = IJKALIGN(width, 8); // 2 bytes per pixel
+            opaque->planes = 1;
+            break;
+        }
+        case SDL_FCC_RV24: {
+            ff_format = AV_PIX_FMT_RGB24;
 #if defined(__ANDROID__)
-        // 16 bytes align pitch for arm-neon image-convert
-        buf_width = IJKALIGN(width, 16); // 1 bytes per pixel for Y-plane
+            // 16 bytes align pitch for arm-neon image-convert
+            buf_width = IJKALIGN(width, 16); // 1 bytes per pixel for Y-plane
 #elif defined(__APPLE__)
-        buf_width = width;
+            buf_width = width;
 #else
-        buf_width = IJKALIGN(width, 16); // unknown platform
+            buf_width = IJKALIGN(width, 16); // unknown platform
 #endif
-        opaque->planes = 1;
-        break;
-    }
-    case SDL_FCC_RV32: {
-        ff_format = AV_PIX_FMT_0BGR32;
-        buf_width = IJKALIGN(width, 4); // 4 bytes per pixel
-        opaque->planes = 1;
-        break;
-    }
-    default:
-        ALOGE("SDL_VoutFFmpeg_CreateOverlay(...): unknown format %.4s(0x%x)\n", (char*)&overlay_format, overlay_format);
-        goto fail;
+            opaque->planes = 1;
+            break;
+        }
+        case SDL_FCC_RV32: {
+            ff_format = AV_PIX_FMT_0BGR32;
+            buf_width = IJKALIGN(width, 4); // 4 bytes per pixel
+            opaque->planes = 1;
+            break;
+        }
+        case SDL_FCC_NV12: {
+            ff_format = AV_PIX_FMT_NV12;
+            buf_width = IJKALIGN(width, 16);
+            opaque->planes = 2;
+            break;
+        }
+        default:
+            ALOGE("SDL_VoutFFmpeg_CreateOverlay(...): unknown format %.4s(0x%x)\n", (char*)&overlay_format, overlay_format);
+            goto fail;
     }
 
     opaque->managed_frame = opaque_setup_frame(opaque, ff_format, buf_width, buf_height);

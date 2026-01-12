@@ -21,10 +21,12 @@ add_library(ijksdl  SHARED    ijksdl_aout.c
                               video/gles2/renderer.c
                               video/gles2/renderer_rgb.c
                               video/gles2/renderer_yuv420p.c
+                              video/gles2/renderer_yuv420sp.c
                               video/gles2/renderer_yuv444p10le.c
                               video/gles2/shader.c
                               video/gles2/fsh/rgb.fsh.c
                               video/gles2/fsh/yuv420p.fsh.c
+                              video/gles2/fsh/yuv420sp.fsh.c
                               video/gles2/fsh/yuv444p10le.fsh.c
                               video/gles2/vsh/mvp.vsh.c
                               video/ijksdl_vout_android_nativewindow.c

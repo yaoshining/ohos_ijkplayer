@@ -131,7 +131,8 @@ static int func_display_overlay_l(SDL_Vout * vout, SDL_VoutOverlay * overlay)
         }
         case SDL_FCC_RV24:
         case SDL_FCC_I420:
-        case SDL_FCC_I444P10LE: {
+        case SDL_FCC_I444P10LE:
+        case SDL_FCC_NV12: {
             // only GLES support
             if (opaque->egl)
                 return IJK_EGL_display(opaque->egl, native_window, overlay);
