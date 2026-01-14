@@ -59,7 +59,7 @@ ohpm install @ohos/ijkplayer
 ```
     XComponent({
       id: 'xcomponentId',
-      type: 'surface',
+      type: XComponentType.SURFACE,
       libraryname: 'ijkplayer_napi'
     })
     .onLoad((context) => {

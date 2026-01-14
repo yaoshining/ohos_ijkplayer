@@ -131,7 +131,7 @@ struct IjkVideoPlayerNavigationComponent {
           Column() {
             XComponent({
               id: this.xcomponentId,
-              type: 'surface',
+              type: XComponentType.SURFACE,
               libraryname: 'ijkplayer_napi'
             })
               .onLoad((event?: object) => {

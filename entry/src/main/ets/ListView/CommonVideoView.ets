@@ -52,7 +52,7 @@ export struct CommonVideoView {
       Stack() {
         XComponent({
           id: this.videoSource?.title + this.xComponentId,
-          type: 'surface',
+          type: XComponentType.SURFACE,
           libraryname: 'ijkplayer_napi'
         })
           .onLoad((context) => {
