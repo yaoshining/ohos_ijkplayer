@@ -46,7 +46,9 @@ public:
     AVBSFContext *avbsfContext {nullptr};
     std::atomic_int64_t frameCount {0};
     void DecoderInput(AVPacket pkt);
-    void DecoderOutput(AVFrame *frame);
+    bool DecoderOutput(AVFrame *frame);
+    bool TryGetDecoderOutput(AVFrame *frame);
+    void DropDecoderOutput();
 };
 
 static void func_destroy(IJKFF_Pipenode *node)
@@ -79,6 +81,11 @@ void IJKFF_Pipenode_Opaque::DecoderInput(AVPacket pkt)
         this->decoder.PushInputData(codecBufferInfo);
     }
     OH_AVBuffer_Destroy(codecBufferInfo.buff_);
+}
+
+void IJKFF_Pipenode_Opaque::DropDecoderOutput()
+{
+    this->codecData.DropOutputBuffer();
 }
 
 int32_t GetFormatInfo(OH_AVFormat *format, FormatType type)
@@ -253,21 +260,21 @@ void RecordMediaCodecVideoFrame(FFPlayer *ffp, AVFrame *frame)
     }
 }
 
-void IJKFF_Pipenode_Opaque::DecoderOutput(AVFrame *frame)
+bool IJKFF_Pipenode_Opaque::DecoderOutput(AVFrame *frame)
 {
     CodecBufferInfo codecBufferInfoReceive;
     OhosVideoCodecWrapper *codec = this->codecWrapper;
         bool ret = false;
         ret = this->codecData.OutputData(codecBufferInfoReceive);
         if (!ret) {
-            return;
+            return false;
         }
         OH_AVBuffer_GetBufferAttr(codecBufferInfoReceive.buff_, &codecBufferInfoReceive.attr);
         OH_AVFormat *format = OH_VideoDecoder_GetOutputDescription(this->decoder.decoder_);
         if (qsvenc_get_continuous_buffer(frame, format, &codecBufferInfoReceive, codec) < 0) {
             OH_AVBuffer_Destroy(codecBufferInfoReceive.buff_);
             OH_AVFormat_Destroy(format);
-            return;
+            return false;
         }
         OH_AVFormat_Destroy(format);
         this->decoder.FreeOutputData(codecBufferInfoReceive.bufferIndex);
@@ -279,7 +286,7 @@ void IJKFF_Pipenode_Opaque::DecoderOutput(AVFrame *frame)
         AVFrame *yuv420p_frame;
         int result = Nv12ToYuv420p(yuv420p_frame, frame, frame->width, frame->height);
         if (result < 0) {
-            return;
+            return false;
         }
         ffp->is_screenshot = 0;
         SaveCurrentFramePicture(yuv420p_frame, ffp->screen_file_name);
@@ -289,13 +296,28 @@ void IJKFF_Pipenode_Opaque::DecoderOutput(AVFrame *frame)
         ffp->screen_file_name = NULL;
     }
     RecordMediaCodecVideoFrame(ffp, frame);
+    return true;
 }
 
-
-static int decoder_decode_ohos_frame(FFPlayer *ffp, Decoder *d, AVFrame *frame, IJKFF_Pipenode_Opaque *opaque)
+bool IJKFF_Pipenode_Opaque::TryGetDecoderOutput(AVFrame *frame)
 {
-    int ret = AVERROR(EAGAIN);
+    CodecBufferInfo codecBufferInfoReceive;
+    OhosVideoCodecWrapper *codec = this->codecWrapper;
+    bool ret = false;
+    ret = this->codecData.TryGetOutputBuffer(codecBufferInfoReceive);
+    if (!ret) {
+        return false;
+    }
+    OH_AVBuffer_GetBufferAttr(codecBufferInfoReceive.buff_, &codecBufferInfoReceive.attr);
+    frame->pts = codecBufferInfoReceive.attr.pts;
+    frame->pkt_dts = codecBufferInfoReceive.attr.pts;
+    return true;
+}
+
+static bool try_get_video_frame(FFPlayer *ffp, Decoder *d, AVFrame *frame, IJKFF_Pipenode_Opaque *opaque)
+{
     // 硬解码器有输入buffer时才，输入
+    bool gotPkt = true;
     if (opaque->codecData.HasInputBuffer()) {
         AVPacket pkt;
         AVFormatContext* fmt_ctx = ffp->is->ic;
@@ -305,7 +327,8 @@ static int decoder_decode_ohos_frame(FFPlayer *ffp, Decoder *d, AVFrame *frame, 
             }
     
             if (ffp_packet_queue_get_or_buffering(ffp, d->queue, &pkt, &d->pkt_serial, &d->finished) < 0) {
-                return -1;
+                LOGE("ffp_packet_queue_get_or_buffering failed");
+                gotPkt = false;
             }
             if (ffp_is_flush_packet(&pkt)) {
                 d->finished = 0;
@@ -314,9 +337,10 @@ static int decoder_decode_ohos_frame(FFPlayer *ffp, Decoder *d, AVFrame *frame, 
             }
         } while (d->queue->serial != d->pkt_serial);
     
-        ret = av_bsf_send_packet(opaque->avbsfContext, &pkt);
+        int ret = av_bsf_send_packet(opaque->avbsfContext, &pkt);
         if (ret < 0) {
             LOGE("av_bsf_send_packet failed");
+            gotPkt = false;
         }
         while (ret >= 0) {
             ret = av_bsf_receive_packet(opaque->avbsfContext, &pkt);
@@ -324,19 +348,38 @@ static int decoder_decode_ohos_frame(FFPlayer *ffp, Decoder *d, AVFrame *frame, 
                 d->finished = d->pkt_serial;
                 avcodec_flush_buffers(d->avctx);
                 av_packet_unref(&pkt);
-                return 0;
+                LOGE("av_bsf_receive_packet failed");
+                gotPkt = false;
             }
         }
-    
-        opaque->DecoderInput(pkt);
-        av_packet_unref(&pkt);
+        if (gotPkt) {
+            opaque->DecoderInput(pkt);
+            av_packet_unref(&pkt);
+        }
+    }
+    bool gotPicture = false;
+
+    if ((gotPicture = opaque->TryGetDecoderOutput(frame)) == false) {
+        return false;
     }
 
-    opaque->DecoderOutput(frame);
-    if (frame->pts < 1) {
-        return 0;
+    return true;
+}
+
+void drop_video_frame(IJKFF_Pipenode_Opaque *opaque)
+{
+    if (opaque) {
+        opaque->DropDecoderOutput();
     }
-    return 1;
+}
+
+static int decoder_decode_ohos_frame(FFPlayer *ffp, Decoder *d, AVFrame *frame, IJKFF_Pipenode_Opaque *opaque)
+{
+    int gotPicture = 0;
+    if (opaque->DecoderOutput(frame)) {
+        gotPicture = 1;
+    }
+    return gotPicture;
 }
 
 static int get_video_frame(FFPlayer *ffp, AVFrame *frame, IJKFF_Pipenode_Opaque *opaque)
@@ -345,14 +388,10 @@ static int get_video_frame(FFPlayer *ffp, AVFrame *frame, IJKFF_Pipenode_Opaque 
     if (is == nullptr) {
         return -1;
     }
-    int gotPicture;
+    int gotPicture = 0;
 
     ffp_video_statistic_l(ffp);
-    if ((gotPicture = decoder_decode_ohos_frame(ffp, &is->viddec, frame, opaque)) < 0) {
-        return -1;
-    }
-
-    if (gotPicture) {
+    if (try_get_video_frame(ffp, &is->viddec, frame, opaque)) {
         double dpts = NAN;
         if (frame->pts != AV_NOPTS_VALUE)
             dpts = av_q2d(is->video_st->time_base) * frame->pts;
@@ -370,6 +409,7 @@ static int get_video_frame(FFPlayer *ffp, AVFrame *frame, IJKFF_Pipenode_Opaque 
                     is->frame_drops_early++;
                     is->continuous_frame_drops_early++;
                     if (is->continuous_frame_drops_early > ffp->framedrop) {
+                        gotPicture = decoder_decode_ohos_frame(ffp, &is->viddec, frame, opaque);
                         is->continuous_frame_drops_early = 0;
                     } else {
                         ffp->stat.drop_frame_count++;
@@ -377,11 +417,15 @@ static int get_video_frame(FFPlayer *ffp, AVFrame *frame, IJKFF_Pipenode_Opaque 
                             ffp->stat.drop_frame_rate = static_cast<float>(ffp->stat.drop_frame_count) /
                                 static_cast<float>(ffp->stat.decode_frame_count);
                         }
-                        av_frame_unref(frame);
+                        drop_video_frame(opaque);
                         gotPicture = 0;
                     }
+                } else {
+                    gotPicture = decoder_decode_ohos_frame(ffp, &is->viddec, frame, opaque);
                 }
             }
+        } else {
+            gotPicture = decoder_decode_ohos_frame(ffp, &is->viddec, frame, opaque);
         }
     }
 
@@ -464,13 +508,13 @@ static int ffplay_video_ohos_thread(FFPlayer *ffp, IJKFF_Pipenode_Opaque *opaque
             continue;
         }
 
-            duration = (frameRate.num && frameRate.den ? av_q2d((AVRational){frameRate.den, frameRate.num}) : 0);
-            pts = (frame->pts == AV_NOPTS_VALUE) ? NAN : frame->pts * av_q2d(tb);
-            ret = ffp_queue_picture(ffp, frame, pts, duration, frame->pkt_pos, is->viddec.pkt_serial);
-            av_frame_unref(frame);
-            if (ret < 0) {
-                goto the_end;
-            }
+        duration = (frameRate.num && frameRate.den ? av_q2d((AVRational){frameRate.den, frameRate.num}) : 0);
+        pts = (frame->pts == AV_NOPTS_VALUE) ? NAN : frame->pts * av_q2d(tb);
+        ret = ffp_queue_picture(ffp, frame, pts, duration, frame->pkt_pos, is->viddec.pkt_serial);
+        av_frame_unref(frame);
+        if (ret < 0) {
+            goto the_end;
+        }
     }
  the_end:
     av_log(NULL, AV_LOG_INFO, "convert image convertFrameCount = %d\n", convertFrameCount);
