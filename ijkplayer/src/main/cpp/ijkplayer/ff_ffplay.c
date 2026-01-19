@@ -586,7 +586,8 @@ fail0:
 
 static void record_video_frame(FFPlayer *ffp, AVFrame *frame)
 {
-    if (frame->format == AV_PIX_FMT_YUV420P && ffp->record_write_data.isInRecord == OHOS_RECORD_STATUS_ON &&
+    if ((frame->format == AV_PIX_FMT_YUV420P || frame->format == AV_PIX_FMT_YUVJ420P) &&
+        ffp->record_write_data.isInRecord == OHOS_RECORD_STATUS_ON &&
         ffp->record_write_data.recordFramesQueue && frame->width > 0 && frame->height > 0) {
         RecordFrameData frData;
         frData.data0 = (uint8_t *)malloc((size_t)frame->linesize[0] * frame->height);
