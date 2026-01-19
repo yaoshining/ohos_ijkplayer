@@ -115,7 +115,7 @@ bool CodecData::TryGetOutputBuffer(CodecBufferInfo &receiveInfo)
     return true;
 }
 
-void CodecData::DropOutputBuffer()
+void CodecData::DropOutputBuffer(CodecBufferInfo &receiveInfo)
 {
     std::unique_lock<std::mutex> lock(this->outputMutex_);
     auto ret = this->outputBufferInfoQueue_.empty();
@@ -123,6 +123,7 @@ void CodecData::DropOutputBuffer()
         LOGE("DropOutputBuffer outputBufferInfoQueue_ is empty");
         return;
     }
+    receiveInfo = this->outputBufferInfoQueue_.front();
     this->outputBufferInfoQueue_.pop();
     return;
 }

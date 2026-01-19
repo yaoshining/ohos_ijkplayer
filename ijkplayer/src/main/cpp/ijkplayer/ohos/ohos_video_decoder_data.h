@@ -50,7 +50,7 @@ public:
     int32_t InputData(CodecBufferInfo &info, std::chrono::milliseconds time);
     bool OutputData(CodecBufferInfo &receiveInfo);
     bool TryGetOutputBuffer(CodecBufferInfo &receiveInfo);
-    void DropOutputBuffer();
+    void DropOutputBuffer(CodecBufferInfo &);
 private:
     std::mutex inputMutex_;
     std::condition_variable inputCond_;

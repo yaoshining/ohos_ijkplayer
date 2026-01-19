@@ -85,7 +85,9 @@ void IJKFF_Pipenode_Opaque::DecoderInput(AVPacket pkt)
 
 void IJKFF_Pipenode_Opaque::DropDecoderOutput()
 {
-    this->codecData.DropOutputBuffer();
+    CodecBufferInfo codecBufferInfoReceive;
+    this->codecData.DropOutputBuffer(codecBufferInfoReceive);
+    this->decoder.FreeOutputData(codecBufferInfoReceive.bufferIndex);
 }
 
 int32_t GetFormatInfo(OH_AVFormat *format, FormatType type)
