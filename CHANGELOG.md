@@ -1,3 +1,6 @@
+## 2.0.8-rc.0
+- Supports software decoding and recording of videos in YUVJ420P format
+
 ## 2.0.7
 - Optimized Shared Library Compilation: O3 and LTO Support
 
