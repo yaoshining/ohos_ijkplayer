@@ -269,8 +269,8 @@ static int func_fill_frame(SDL_VoutOverlay *overlay, const AVFrame *frame)
                                  dst_format, swscale_dst_pic.data, swscale_dst_pic.linesize,
                                  frame->format, (const uint8_t**) frame->data, frame->linesize)) {
         opaque->img_convert_ctx = sws_getCachedContext(opaque->img_convert_ctx,
-                                                       frame->width, frame->height, frame->format, frame->width, frame->height,
-                                                       dst_format, opaque->sws_flags, NULL, NULL, NULL);
+                                                       frame->width, frame->height, frame->format, frame->width,
+                                                       frame->height, dst_format, opaque->sws_flags, NULL, NULL, NULL);
         if (opaque->img_convert_ctx == NULL) {
             ALOGE("sws_getCachedContext failed");
             return -1;
@@ -281,7 +281,8 @@ static int func_fill_frame(SDL_VoutOverlay *overlay, const AVFrame *frame)
 
         if (!opaque->no_neon_warned) {
             opaque->no_neon_warned = 1;
-            ALOGE("non-neon image convert %s -> %s", av_get_pix_fmt_name(frame->format), av_get_pix_fmt_name(dst_format));
+            ALOGE("non-neon image convert %s -> %s", av_get_pix_fmt_name(frame->format),
+                av_get_pix_fmt_name(dst_format));
         }
     }
     
@@ -412,7 +413,8 @@ SDL_VoutOverlay *SDL_VoutFFmpeg_CreateOverlay(int width, int height, int frame_f
             break;
         }
         default:
-            ALOGE("SDL_VoutFFmpeg_CreateOverlay(...): unknown format %.4s(0x%x)\n", (char*)&overlay_format, overlay_format);
+            ALOGE("SDL_VoutFFmpeg_CreateOverlay(...): unknown format %.4s(0x%x)\n",
+                (char*)&overlay_format, overlay_format);
             goto fail;
     }
 

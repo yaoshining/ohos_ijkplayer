@@ -4,10 +4,10 @@
       {
         "name": "default",
         "signingConfig": "default",
-        "compatibleSdkVersion": 20,
-        "compileSdkVersion": 20,
-        "runtimeOS": "OpenHarmony",
-
+        "compileSdkVersion": 12,
+        "compatibleSdkVersion": 12,
+        "targetSdkVersion": 12,
+        "runtimeOS": "OpenHarmony"
       }
     ],
     "buildModeSet": [
@@ -16,21 +16,6 @@
       },
       {
         "name": "release"
-      }
-    ],
-    "signingConfigs": [
-      {
-        "name": "default",
-        "type": "HarmonyOS",
-        "material": {
-          "certpath": "C:\\Users\\Administrator\\.ohos\\config\\default_ohos_ijkplayer_DFKxSizHp0G_AhboKzsASQuRIRuPy1-vyBbJBmE_RFc=.cer",
-          "keyAlias": "debugKey",
-          "keyPassword": "0000001B3B8C27CE28425FF3481D3763C888037398D7B01A0FA4D565B9B3B8DD30016D10DE90C5D90661EA",
-          "profile": "C:\\Users\\Administrator\\.ohos\\config\\default_ohos_ijkplayer_DFKxSizHp0G_AhboKzsASQuRIRuPy1-vyBbJBmE_RFc=.p7b",
-          "signAlg": "SHA256withECDSA",
-          "storeFile": "C:\\Users\\Administrator\\.ohos\\config\\default_ohos_ijkplayer_DFKxSizHp0G_AhboKzsASQuRIRuPy1-vyBbJBmE_RFc=.p12",
-          "storePassword": "0000001BDB8B543A0BE7B7EA0B94962BE46EB5C542BE65F82050C892EC385D7760C4E027FDBE1EEE1F4D19"
-        }
       }
     ]
   },
