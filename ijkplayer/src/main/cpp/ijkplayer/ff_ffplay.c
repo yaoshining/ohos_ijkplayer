@@ -2828,10 +2828,8 @@ static int audio_open(FFPlayer *opaque, int64_t wanted_channel_layout, int wante
     SDL_AudioSpec wanted_spec, spec;
     const char *env;
     static const int next_nb_channels[] = {0, 0, 1, 6, 2, 6, 4, 6};
-#ifdef FFP_MERGE
-    static const int next_sample_rates[] = {0, 44100, 48000, 96000, 192000};
-#endif
-    static const int next_sample_rates[] = {0, 44100, 48000};
+    static const int next_sample_rates[] = {0, 8000, 11025, 12000, 16000, 22050, 24000, 32000, 44100, 48000, 64000,
+        88200, 96000, 176400, 192000};
     int next_sample_rate_idx = FF_ARRAY_ELEMS(next_sample_rates) - 1;
 
     env = SDL_getenv("SDL_AUDIO_CHANNELS");
@@ -2850,8 +2848,17 @@ static int audio_open(FFPlayer *opaque, int64_t wanted_channel_layout, int wante
         av_log(NULL, AV_LOG_ERROR, "Invalid sample rate or channel count!\n");
         return -1;
     }
-    while (next_sample_rate_idx && next_sample_rates[next_sample_rate_idx] >= wanted_spec.freq)
-        next_sample_rate_idx--;
+
+    if (wanted_spec.freq > next_sample_rates[next_sample_rate_idx]) {
+        av_log(NULL, AV_LOG_INFO, "A high sampling rate of %d Hz has been detected, forcing fallback to %d Hz\n",
+            wanted_spec.freq, next_sample_rates[next_sample_rate_idx]);
+        wanted_spec.freq = next_sample_rates[next_sample_rate_idx];
+    } else {
+        while (next_sample_rate_idx && next_sample_rates[next_sample_rate_idx] >= wanted_spec.freq) {
+            next_sample_rate_idx--;
+        }
+    }
+
     wanted_spec.format = AUDIO_S16SYS;
     wanted_spec.silence = 0;
     wanted_spec.samples = FFMAX(SDL_AUDIO_MIN_BUFFER_SIZE, 2 << av_log2(wanted_spec.freq / SDL_AoutGetAudioPerSecondCallBacks(ffp->aout)));
