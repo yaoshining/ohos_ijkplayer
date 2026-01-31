@@ -2278,7 +2278,6 @@ static int ffplay_video_thread(void *arg)
     int64_t last_dst_pts = -1;
     int retry_convert_image = 0;
     int convert_frame_count = 0;
-
 #if CONFIG_AVFILTER
     AVFilterGraph *graph = avfilter_graph_alloc();
     AVFilterContext *filt_out = NULL, *filt_in = NULL;
@@ -4318,6 +4317,7 @@ void ffp_set_overlay_format(FFPlayer *ffp, int chroma_fourcc)
         case SDL_FCC_RV16:
         case SDL_FCC_RV24:
         case SDL_FCC_RV32:
+        case SDL_FCC_NV12:
             ffp->overlay_format = chroma_fourcc;
             break;
 #ifdef __APPLE__

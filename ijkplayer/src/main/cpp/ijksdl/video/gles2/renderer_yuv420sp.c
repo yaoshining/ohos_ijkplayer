@@ -71,6 +71,7 @@ static GLboolean yuv420sp_uploadTexture(IJK_GLES2_Renderer *renderer, SDL_VoutOv
     const GLubyte *pixels[2]   = { overlay->pixels[0],  overlay->pixels[1] };
 
     switch (overlay->format) {
+        case SDL_FCC_NV12:
         case SDL_FCC__VTB:
             break;
         default:
@@ -81,22 +82,22 @@ static GLboolean yuv420sp_uploadTexture(IJK_GLES2_Renderer *renderer, SDL_VoutOv
     glBindTexture(GL_TEXTURE_2D, renderer->plane_textures[0]);
     glTexImage2D(GL_TEXTURE_2D,
                  0,
-                 GL_RED_EXT,
+                 GL_RED,
                  widths[0],
                  heights[0],
                  0,
-                 GL_RED_EXT,
+                 GL_RED,
                  GL_UNSIGNED_BYTE,
                  pixels[0]);
 
     glBindTexture(GL_TEXTURE_2D, renderer->plane_textures[1]);
     glTexImage2D(GL_TEXTURE_2D,
                  0,
-                 GL_RG_EXT,
+                 GL_RG,
                  widths[1],
                  heights[1],
                  0,
-                 GL_RG_EXT,
+                 GL_RG,
                  GL_UNSIGNED_BYTE,
                  pixels[1]);
 

@@ -494,6 +494,11 @@ struct IjkVideoPlayerPage {
     this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "dns_cache_timeout", "10000000");
     // 变速播放
     this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "soundtouch", "1");
+    // Enable H.264 and H.265 hardware decoding.
+    this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-all-videos", "1");
+    // Enable H.265 hardware decoding.
+    this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-hevc", "1");
+    this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "overlay-format", "842094158");
     this.mIjkMediaPlayer.setSpeed(this.playSpeed);
     let Speed = this.mIjkMediaPlayer.getSpeed()
     LogUtils.getInstance().LOGI('getSpeed--' + Speed)

@@ -250,6 +250,9 @@ ohpm install @ohos/ijkplayer
    ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-all-videos", "1");
    // 开启h265硬解码
    ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-hevc", "1");
+   ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "overlay-format", "842094158");
+   // NV12 842094158
+   // I420 808596553
 ```
 
 

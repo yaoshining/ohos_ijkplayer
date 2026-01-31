@@ -44,6 +44,11 @@ void CodecData::ShutDown()
     outputCond_.notify_all();
 }
 
+bool CodecData::HasInputBuffer()
+{
+    return !this->inputBufferInfoQueue_.empty();
+}
+
 int32_t CodecData::InputData(CodecBufferInfo &info, std::chrono::milliseconds time)
 {
     if (info.buff_ == nullptr || this->formatInfo == nullptr) {
@@ -95,6 +100,32 @@ bool CodecData::OutputData(CodecBufferInfo &receiveInfo)
     this->outputFrameCount_++;
     lock.unlock();
     return true;
+}
+
+bool CodecData::TryGetOutputBuffer(CodecBufferInfo &receiveInfo)
+{
+    std::unique_lock<std::mutex> lock(this->outputMutex_);
+    auto ret = this->outputBufferInfoQueue_.empty();
+    if (ret) {
+        LOGE("TryGetOutputBuffer outputBufferInfoQueue_ is empty");
+        return false;
+    }
+    receiveInfo = this->outputBufferInfoQueue_.front();
+    lock.unlock();
+    return true;
+}
+
+void CodecData::DropOutputBuffer(CodecBufferInfo &receiveInfo)
+{
+    std::unique_lock<std::mutex> lock(this->outputMutex_);
+    auto ret = this->outputBufferInfoQueue_.empty();
+    if (ret) {
+        LOGE("DropOutputBuffer outputBufferInfoQueue_ is empty");
+        return;
+    }
+    receiveInfo = this->outputBufferInfoQueue_.front();
+    this->outputBufferInfoQueue_.pop();
+    return;
 }
 
 void CodecData::DataCallback::OnCodecError(OH_AVCodec *codec, int32_t errorCode, void *userData)
