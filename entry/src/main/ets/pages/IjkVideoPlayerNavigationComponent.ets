@@ -32,8 +32,10 @@ import {
 import { PlayStatus } from '../common/PlayStatus';
 import abilityAccessCtrl from '@ohos.abilityAccessCtrl';
 import photoAccessHelper from '@ohos.file.photoAccessHelper';
-import fs from '@ohos.file.fs';
 import { IjkplayerMapManager } from './IjkplayerMapManager';
+import  { picker } from '@kit.CoreFileKit';
+import { fileIo as fs } from '@kit.CoreFileKit';
+import common from '@ohos.app.ability.common';
 
 @Builder
 export function IjkVideoPlayerNavigationComponentBuilder(name: string, param: Object) {
@@ -72,10 +74,18 @@ struct IjkVideoPlayerNavigationComponent {
   @State screenshotProgressVisible: Visibility = Visibility.None;
   @State recordSaveFilePath: string = "";
   private xcomponentId: string = ""
-  private videoUrls: string[] =
-    ["https://1251542705.vod2.myqcloud.com/4a8d9c67vodtransgzp1251542705/203109c63270835013529449619/v.f1419907.mp4",
-      "https://getsamplefiles.com/download/mp4/sample-5.mp4"
-    ];
+  private videoUrls: string[] = [
+    "https://1251542705.vod2.myqcloud.com/4a8d9c67vodtransgzp1251542705/203109c63270835013529449619/v.f1419907.mp4",
+    "https://getsamplefiles.com/download/mp4/sample-5.mp4",
+    "/data/storage/el2/base/haps/entry/files/app/4k.mp4"
+  ];
+  @State videoSelectUrls: Array<SelectOption> = [
+    {value: "v.f1419907.mp4"},
+    {value: "sample-5.mp4"},
+    {value: "4k.mp4"}
+  ];
+  @State isHevc: boolean = false;
+  @State isLoop: boolean = false;
 
   init() {
     let event: Callback<InterruptEvent> = (event) => {
@@ -106,7 +116,8 @@ struct IjkVideoPlayerNavigationComponent {
     this.mDestroyPage = true;
     this.mIjkMediaPlayer.setScreenOnWhilePlaying(false);
     this.stopRecord(false);
-    if (this.CONTROL_PlayStatus !== PlayStatus.INIT) {
+    this.isLoop = false;
+    if (this.CONTROL_PlayStatus !== PlayStatus.INIT && this.CONTROL_PlayStatus !== PlayStatus.DONE) {
       this.stop();
     }
     this.mIjkMediaPlayer.off('audioInterrupt');
@@ -201,6 +212,7 @@ struct IjkVideoPlayerNavigationComponent {
         Flex({ direction: FlexDirection.Row, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Start }) {
           Button($r('app.string.Play'))
             .onClick(() => {
+              this.CONTROL_PlayStatus = PlayStatus.INIT;
               this.startPlayOrResumePlay();
             })
             .width('400px')
@@ -317,6 +329,51 @@ struct IjkVideoPlayerNavigationComponent {
             .margin('15px')
         }
 
+        Flex({ direction: FlexDirection.Row, alignItems: ItemAlign.Center }) {
+          Text('选择视频:').width('15%').fontSize('30px').margin('15px')
+          Select(this.videoSelectUrls)
+            .width('85%')
+            .height('40vp')
+            .selected(this.curIndex)
+            .value(this.curIndex>=0 ? this.videoSelectUrls[this.curIndex].value: "")
+            .onSelect((index: number, value: String) => {
+              if (!this.debounce()) {
+                return;
+              }
+              if (index < 0 || index >= this.videoSelectUrls.length) {
+                return;
+              }
+              this.curIndex = index;
+              console.log(`已选择视频: ${index}:${value}`);
+              this.CONTROL_PlayStatus = PlayStatus.INIT;
+              this.stopRecord(false);
+              this.videoUrl = this.videoUrls[this.curIndex];
+              this.stop().then(() => {
+                this.startPlayOrResumePlay()
+              });
+            })
+        }
+        Flex({ direction: FlexDirection.Row, alignItems: ItemAlign.Center }) {
+          Text('是否硬解码:').width('15%').fontSize('30px').margin('15px')
+          Checkbox({ name: '是否硬解码' })
+            .select(this.isHevc) // 绑定到您的状态变量
+            .onChange((value: boolean) => {
+              this.isHevc = value;
+              console.log('是否硬解码: ' + value);
+            })
+            .enabled(this.CONTROL_PlayStatus == PlayStatus.PAUSE || this.progressValue == 0 ||
+              this.progressValue >= this.PROGRESS_MAX_VALUE)
+        }
+        Flex({ direction: FlexDirection.Row, alignItems: ItemAlign.Center }) {
+          Text('循环播放:').width('15%').fontSize('30px').margin('15px')
+          Checkbox({ name: '循环播放' })
+            .select(this.isLoop) // 绑定到您的状态变量
+            .onChange((value: boolean) => {
+              this.isLoop = value;
+              console.log('是否循环: ' + value);
+            })
+            .enabled(this.CONTROL_PlayStatus == PlayStatus.PAUSE ||this.progressValue ==0 || this.progressValue >= this.PROGRESS_MAX_VALUE)
+        }
       }
     }.onWillAppear(() => {
       this.xcomponentId = "xcomponentId_" + IjkplayerMapManager.generateId();
@@ -504,6 +561,19 @@ struct IjkVideoPlayerNavigationComponent {
     // this.mIjkMediaPlayer.setOptionLong(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "infbuf", "1")
     // 屏幕常亮
     this.mIjkMediaPlayer.setScreenOnWhilePlaying(true);
+
+    if (this.isHevc) {
+      // 开启h264与h265硬解码
+      this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-all-videos", "1");
+      // 开启h265硬解码
+      this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-hevc", "1");
+    } else {
+      // 开启h264与h265硬解码
+      this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-all-videos", "0");
+      // 开启h265硬解码
+      this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-hevc", "0");
+    }
+
     // 设置超时
     this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "timeout", "10000000");
     this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "connect_timeout", "10000000");
@@ -559,7 +629,14 @@ struct IjkVideoPlayerNavigationComponent {
         this.progressValue = this.PROGRESS_MAX_VALUE;
         this.slideEnable = false;
         this.stopRecord(false);
-        this.stop();
+        this.stop().then(()=>{
+          if (this.isLoop) {
+            setTimeout(()=>{
+              this.CONTROL_PlayStatus = PlayStatus.INIT;
+              this.startPlayOrResumePlay();
+            }, 500)
+          }
+        })
       }
     }
     this.mIjkMediaPlayer.setOnCompletionListener(mOnCompletionListener);
