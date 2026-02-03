@@ -225,6 +225,7 @@ void RecordMediaCodecVideoFrame(FFPlayer *ffp, AVFrame *frame)
             return;
         }
         RecordFrameData frData;
+        frData.pts = frame->pts;
         frData.data0 = (uint8_t *)malloc((size_t)yuv420p_frame->linesize[DATA_NUM_0] * yuv420p_frame->height);
         frData.data1 =
             (uint8_t *)malloc((size_t)yuv420p_frame->linesize[DATA_NUM_1] * yuv420p_frame->height / DATA_NUM_2);
