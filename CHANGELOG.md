@@ -1,3 +1,8 @@
+## 2.0.8-rc.1
+- Support NV12 rendering
+- Supports playback of high-sample-rate audio
+- Fix: Video recording frame rate error
+
 ## 2.0.8-rc.0
 - Supports software decoding and recording of videos in YUVJ420P format
 

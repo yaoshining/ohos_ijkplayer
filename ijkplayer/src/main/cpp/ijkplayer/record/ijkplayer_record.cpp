@@ -150,7 +150,7 @@ int OpenVideo(AVFormatContext *oc, AVCodec *codec, OutputStream *ost, AVDictiona
     AVCodecContext *c = ost->st->codec;
     AVDictionary *opt = NULL;
     av_dict_copy(&opt, opt_arg, 0);
-    int frameRate = av_q2d(ffp->is->video_st->avg_frame_rate);
+    int frameRate = av_q2d(av_guess_frame_rate(ffp->is->ic, ffp->is->video_st, NULL));
     //如果帧率等于0或时间基异常场景走ffp拿到的time_base，若ffp拿到time_base异常走pts计算帧率
     if (frameRate <= 0 || (c->time_base.num <= 0) || (c->time_base.den <= 0)) {
         if (!IS_PRIORITY && (ffp->is->video_st->time_base.num > 0) && (ffp->is->video_st->time_base.den > 0)) {
@@ -395,7 +395,7 @@ VideoAudioAvCodec VideoAudioStreamAndAvcodecOpen(RecordWriteData *recordWriteDat
     int haveVideo = 0, haveAudio = 0;
     VideoAudioAvCodec vaAvcodec;
     AVOutputFormat *fmt = recordWriteData->oc->oformat;
-    int frameRate = av_q2d(mFFPlayer->is->video_st->avg_frame_rate);
+    int frameRate = av_q2d(av_guess_frame_rate(mFFPlayer->is->ic, mFFPlayer->is->video_st, NULL));
     if (fmt->video_codec != AV_CODEC_ID_NONE) {
         int addStreamResult =
             AddStream(&(recordWriteData->video_st), recordWriteData->oc, &(recordWriteData->video_codec),
@@ -658,7 +658,7 @@ int WriteRecordFile(void *recordData)
             return OHOS_RECORD_CALLBACK_STATUS_FAILED;
         }
     }
-    int frameRate = av_q2d(mFFPlayer->is->video_st->avg_frame_rate);
+    int frameRate = av_q2d(av_guess_frame_rate(mFFPlayer->is->ic, mFFPlayer->is->video_st, NULL));
     ret = WriteHeader(mFFPlayer, opt, frameRate);
     if (ret < 0) {
         LOGE("Error occurred when opening output file %s", av_err2str(ret));
