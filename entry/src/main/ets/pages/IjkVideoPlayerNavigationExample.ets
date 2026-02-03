@@ -14,12 +14,16 @@
  */
 
 import { IjkplayerMapManager } from './IjkplayerMapManager';
+import fileio from '@ohos.fileio';
+import { fileIo } from '@kit.CoreFileKit';
+import { Config7z, Uncompress } from '@ohos/oh7zip';
 
 @Entry
 @Component
 struct IjkVideoPlayerNavigationExample {
   @Provide('pathInfos') pathInfos: NavPathStack = new NavPathStack();
   private listArray: Array<string> = ['IjkVideoPlayer','IjkAudioPlayer'];
+  private videoUrl: string = 'https://1251542705.vod2.myqcloud.com/4a8d9c67vodtransgzp1251542705/203109c63270835013529449619/v.f1419907.mp4';
 
   build() {
     Column() {
@@ -54,7 +58,7 @@ struct IjkVideoPlayerNavigationExample {
             }
             .width('100%')
             .onClick(() => {
-              this.pathInfos.pushPathByName(`${item}`, 'https://1251542705.vod2.myqcloud.com/4a8d9c67vodtransgzp1251542705/203109c63270835013529449619/v.f1419907.mp4')
+              this.pathInfos.pushPathByName(`${item}`, this.videoUrl)
             })
           }, (item: string): string => item)
         }
@@ -70,6 +74,36 @@ struct IjkVideoPlayerNavigationExample {
     }
     .size({ width: '100%', height: '100%' })
     .backgroundColor(0xf4f4f5)
+  }
+
+  aboutToAppear(): void {
+    let context = getContext(this);
+    let srcPath = context.resourceDir + '/app';
+    let destPath = context.filesDir + '/app';
+    try {
+      if (!fileIo.accessSync(destPath)) {
+        fileIo.mkdirSync(destPath);
+      }
+    } catch (error) {
+      console.error(`出现异常: ${error}`)
+      return;
+    }
+    let uncompress: Uncompress = new Uncompress()
+    let config: Config7z = {
+      src: srcPath + '/4k.part1.rar',
+      dst: destPath
+    }
+    uncompress.extractAsync(config)
+      .then((result: number) => {
+        if (result != 0) {
+          console.error('解压失败')
+          return
+        }
+        console.info('解压成功')
+      })
+      .catch(() =>{
+        console.error(`解压失败`);
+      });
   }
 
   aboutToDisappear(): void {
