@@ -266,6 +266,11 @@ AVFrame *AllocAudioFrame(enum AVSampleFormat sample_fmt, uint64_t channel_layout
 
 int WriteVideoFrame(AVFormatContext *oc, OutputStream *ost, AVFrame *curFr)
 {
+    if (!oc || !ost || !curFr) {
+        LOGE("ERROR: WriteVideoFrame Invalid parameter!\n");
+        return OHOS_RECORD_CALLBACK_STATUS_FAILED;
+    }
+
     int ret;
     AVCodecContext *c;
     AVFrame *frame;
@@ -445,6 +450,12 @@ VideoAudioAvCodec VideoAudioStreamAndAvcodecOpen(RecordWriteData *recordWriteDat
 void WriteVideoFrameData(AVFormatContext *oc, RecordFrameData frData, SwsContext *swsContext,
                          InputSourceInfo inSrcInfo, RecordWriteData *recordWriteData, int frameRate)
 {
+    if (!oc || !swsContext || !recordWriteData) {
+        LOGE("ERROR: WriteVideoFrameData Invalid parameter!\n");
+        return;
+    }
+
+    LOGI("WriteVideoFrameData start\n");
     uint8_t *srcSlice[3];
     srcSlice[DATA_NUM_0] = frData.data0;
     srcSlice[DATA_NUM_1] = frData.data1;

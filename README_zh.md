@@ -246,6 +246,7 @@ ohpm install @ohos/ijkplayer
 
 ### 开启硬解码
 ```
+   // 硬解码器 buffer 模式支持 10bit 视频需要 OpenHarmony API 22 及以上版本
    // 开启h264与h265硬解码
    ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-all-videos", "1");
    // 开启h265硬解码

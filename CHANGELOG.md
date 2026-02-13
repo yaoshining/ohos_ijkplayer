@@ -1,3 +1,6 @@
+## 2.0.8-rc.2
+- Hard decoder buffer mode supports 10-bit video.
+
 ## 2.0.8-rc.1
 - Support NV12 rendering
 - Supports playback of high-sample-rate audio

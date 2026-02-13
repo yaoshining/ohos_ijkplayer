@@ -27,9 +27,12 @@
 #include "libswscale/swscale.h"
 #include "ohos_video_decoder_data.h"
 #include "ohos_video_decoder.h"
+#include "deviceinfo.h"
 
 static const int NS_TO_US = 1000;
 static const int MILLISECOND = 7;
+static const int SUPPORT_NATIVE_BUFFER_FORMAT_SDK_VERSION = 22;
+extern const char *OH_MD_KEY_VIDEO_NATIVE_BUFFER_FORMAT __attribute__((weak));
 
 class IJKFF_Pipenode_Opaque {
 public:
@@ -155,10 +158,244 @@ static void ff_mediacodec_buffer_copy_nv21(OhosVideoCodecWrapper *codecWrapper,
     }
 }
 
+static void CheckParamsAndInitConfig(OhosVideoCodecWrapper *codecWrapper, AVFrame *frame,
+                                     int *displayWidth, int *displayHeight)
+{
+    LOGI("CheckParamsAndInitConfig start\n");
+    // Validate pixel format
+    if (frame->format != AV_PIX_FMT_P010LE) {
+        LOGE("ERROR: Wrong pixel format: %d, expected P010LE (%d)\n",
+             frame->format, AV_PIX_FMT_P010LE);
+        *displayWidth = -1;
+        *displayHeight = -1;
+        return;
+    }
+
+    OhosVideoCodecWrapper *codec = codecWrapper;
+    // Basic non-null parameter validation
+    if (!codec || !frame || !frame->data[0]) {
+        LOGE("ERROR: Invalid parameter\n");
+        *displayWidth = -1;
+        *displayHeight = -1;
+        return;
+    }
+
+    // Initialize display width and height (after cropping)
+    if (codec->display_width > 0 && codec->display_height > 0) {
+        *displayWidth = codec->display_width;
+        *displayHeight = codec->display_height;
+    } else {
+        *displayWidth = codec->width - codec->crop_left - codec->crop_right;
+        *displayHeight = codec->height - codec->crop_top - codec->crop_bottom;
+    }
+
+    // Ensure width and height are at least 1
+    *displayWidth = FFMAX(1, *displayWidth);
+    *displayHeight = FFMAX(1, *displayHeight);
+    const int bytesPerPixel = 2; // P010LE: 2 bytes per pixel
+
+    // Calibrate display width based on frame linesize
+    if (frame->linesize[0] > 0) {
+        int widthFromLinesize = frame->linesize[0] / bytesPerPixel;
+        if (widthFromLinesize > 0 && widthFromLinesize != *displayWidth) {
+            LOGW("WARNING: Adjusting display_width from %d to %d (trusting frame linesize)\n",
+                 *displayWidth, widthFromLinesize);
+            *displayWidth = widthFromLinesize;
+        }
+    }
+}
+
+static int CheckFrameBufferValidity(AVFrame *frame, int displayWidth, int displayHeight)
+{
+    LOGI("CheckFrameBufferValidity start\n");
+    if (!frame) {
+        LOGE("ERROR:frame is null!\n");
+        return -1;
+    }
+    const int bytesPerPixel = 2;
+    // Check buffer reference and size for each plane
+    for (int i = 0; i < DATA_NUM_2; i++) {
+        if (!frame->data[i]) {
+            LOGE("ERROR: frame->data[%d] is NULL\n", i);
+            return -1;
+        }
+        if (frame->buf[i]) {
+            // Calculate required buffer size for current plane
+            size_t neededSize;
+            if (i == 0) {
+                neededSize = displayHeight * frame->linesize[0];
+            } else {
+                neededSize = (displayHeight / DATA_NUM_2) * frame->linesize[1];
+            }
+
+            if (frame->buf[i]->size < neededSize) {
+                LOGE("ERROR: Plane %d buffer too small! %zu < %zu\n", i, frame->buf[i]->size, neededSize);
+                return -1;
+            }
+        } else {
+            LOGW("WARNING: Plane %d has no buffer reference\n", i);
+        }
+    }
+
+    // Validate display parameter validity
+    if (displayWidth <= 0 || displayHeight <= 0) {
+        LOGE("ERROR: invalid display size: %dx%d\n", displayWidth, displayHeight);
+        return -1;
+    }
+
+    return 0;
+}
+
+static void CopyYPlaneData(OhosVideoCodecWrapper *codecWrapper, uint8_t *data, AVFrame *frame,
+                           int displayWidth, int displayHeight)
+{
+    LOGI("CopyYPlaneData start\n");
+    const int bytesPerPixel = 2;
+    OhosVideoCodecWrapper *codec = codecWrapper;
+    uint8_t *srcY = data;
+    uint8_t *dstY = frame->data[0];
+
+    // Calculate stride in bytes (get from codecWrapper directly)
+    int strideBytes = codec->stride;
+    int minRequiredBytes = displayWidth * bytesPerPixel;
+    if (strideBytes < minRequiredBytes) {
+        LOGW("WARNING: stride %d < min_required %d, treating as pixel unit\n",
+             strideBytes, minRequiredBytes);
+        strideBytes = codec->stride * bytesPerPixel;
+    }
+
+    // Apply Y plane crop offset
+    int yStartOffset = codec->crop_top * strideBytes + codec->crop_left * bytesPerPixel;
+    srcY += yStartOffset;
+
+    int dstYStride = frame->linesize[0];
+    int copyYBytes = displayWidth * bytesPerPixel;
+    // Limit copy bytes to not exceed destination/source stride
+    copyYBytes = FFMIN(copyYBytes, dstYStride);
+    copyYBytes = FFMIN(copyYBytes, strideBytes - codec->crop_left * bytesPerPixel);
+    if (copyYBytes <= 0 || displayHeight <= 0) {
+        LOGE("ERROR: invalid Y copy parameters\n");
+        return;
+    }
+
+    // Copy Y plane data line by line
+    size_t ySrcNeeded = displayHeight * strideBytes;
+    for (int y = 0; y < displayHeight; y++) {
+        memcpy(dstY, srcY, copyYBytes);
+        srcY += strideBytes;
+        dstY += dstYStride;
+    }
+}
+
+static void CopyUVPlaneData(OhosVideoCodecWrapper *codecWrapper, uint8_t *data, AVFrame *frame,
+                            int displayWidth, int displayHeight)
+{
+    OhosVideoCodecWrapper *codec = codecWrapper;
+    const int bytesPerPixel = 2;
+    if (!frame || !codec) {
+        LOGE("ERROR: frame or codec is null!\n");
+        return;
+    }
+
+    int strideBytes = codec->stride;
+    int minRequiredBytes = displayWidth * bytesPerPixel;
+    if (strideBytes < minRequiredBytes) {
+        LOGW("WARNING: stride %d < min_required %d, treating as pixel unit\n",
+             strideBytes, minRequiredBytes);
+        strideBytes = codec->stride * bytesPerPixel;
+    }
+    size_t yPlaneSize;
+    if (codec->slice_height > 0) {
+        yPlaneSize = codec->slice_height * strideBytes;
+    } else {
+        yPlaneSize = codec->height * strideBytes;
+    }
+    uint8_t *srcUv = data + yPlaneSize;
+    if (!frame || !frame->data[1]) {
+        LOGE("ERROR: frame or frame->data[1] is null!\n");
+        return;
+    }
+    uint8_t *dstUv = frame->data[1];
+    if (!dstUv) {
+        LOGE("ERROR: UV destination is NULL\n");
+        return;
+    }
+
+    int dstUvStride = frame->linesize[1];
+    int uvHeight = displayHeight / 2;
+    int cropTopUv = codec->crop_top / 2;
+    int cropLeftUv = codec->crop_left;
+    srcUv += cropTopUv * strideBytes;
+    srcUv += cropLeftUv * bytesPerPixel;
+    int copyUvBytes = displayWidth * bytesPerPixel;
+    copyUvBytes = FFMIN(copyUvBytes, dstUvStride);
+    copyUvBytes = FFMIN(copyUvBytes, strideBytes - cropLeftUv * bytesPerPixel);
+    if (copyUvBytes <= 0 || uvHeight <= 0) {
+        LOGE("ERROR: invalid UV copy parameters\n");
+        return;
+    }
+    for (int y = 0; y < uvHeight; y++) {
+        memcpy(dstUv, srcUv, copyUvBytes);
+        srcUv += strideBytes;
+        dstUv += dstUvStride;
+    }
+}
+
+static void ff_mediacodec_buffer_copy_p010(OhosVideoCodecWrapper *codecWrapper,
+                                           uint8_t *data, AVFrame *frame)
+{
+    LOGI("ff_mediacodec_buffer_copy_p010 start\n");
+    // Initialize configuration parameters (remove strideBytes)
+    int displayWidth = 0;
+    int displayHeight = 0;
+    CheckParamsAndInitConfig(codecWrapper, frame, &displayWidth, &displayHeight);
+    if (displayWidth <= 0 || displayHeight <= 0) {
+        return;
+    }
+
+    // Validate buffer validity
+    if (CheckFrameBufferValidity(frame, displayWidth, displayHeight) != 0) {
+        return;
+    }
+
+    // Copy Y plane data (5 params)
+    CopyYPlaneData(codecWrapper, data, frame, displayWidth, displayHeight);
+
+    // Copy UV plane data (5 params)
+    CopyUVPlaneData(codecWrapper, data, frame, displayWidth, displayHeight);
+}
+
+static int GetPixFormat(OH_AVFormat *format, OhosVideoCodecWrapper* codecWrapper)
+{
+    int pixelFormat[] = {AV_PIX_FMT_NONE, AV_PIX_FMT_YUV420P, AV_PIX_FMT_NV12, AV_PIX_FMT_NV21};
+    int pixformat = AV_PIX_FMT_NONE;
+    codecWrapper->color_format = GetFormatInfo(format, FormatType::FORMAT_TYPE_PIXEL_FORMAT);
+    int videoNativeBufferFormat = -1;
+    int apiVersion = OH_GetSdkApiVersion();
+    LOGI("Current SDK API version: %d", apiVersion);
+    if (apiVersion >= SUPPORT_NATIVE_BUFFER_FORMAT_SDK_VERSION) {
+        if (OH_MD_KEY_VIDEO_NATIVE_BUFFER_FORMAT != nullptr) {
+            bool ret = OH_AVFormat_GetIntValue(format, OH_MD_KEY_VIDEO_NATIVE_BUFFER_FORMAT, &videoNativeBufferFormat);
+            if (!ret) {
+                LOGE("ERROR: get video native buffer format fail!");
+            }
+        }
+    }
+    if (videoNativeBufferFormat == NATIVEBUFFER_PIXEL_FMT_YCBCR_P010) {
+        codecWrapper->color_format = videoNativeBufferFormat;
+        pixformat = AV_PIX_FMT_P010LE;
+    } else if (codecWrapper->color_format < sizeof(pixelFormat) / sizeof(pixelFormat[0])) {
+        pixformat = pixelFormat[codecWrapper->color_format];
+    } else {
+        LOGE("Error: color_format exceeds pixelFormat array size\n");
+        return pixformat;
+    }
+    return pixformat;
+}
+
 static int qsvenc_get_continuous_buffer(AVFrame *frame, OH_AVFormat *format, CodecBufferInfo*  codecBufferInfoReceive,
                                         OhosVideoCodecWrapper* codecWrapper)
 {
-    int pixelFormat[] = {AV_PIX_FMT_NONE, AV_PIX_FMT_YUV420P, AV_PIX_FMT_NV12, AV_PIX_FMT_NV21};
     codecWrapper->width = GetFormatInfo(format, FormatType::FORMAT_TYPE_IMAGE_WIDTH);
     codecWrapper->height = GetFormatInfo(format, FormatType::FORMAT_TYPE_IMAGE_HEIGHT);
     codecWrapper->stride = GetFormatInfo(format, FormatType::FORMAT_TYPE_VIDEO_STRIDE);
@@ -171,15 +408,12 @@ static int qsvenc_get_continuous_buffer(AVFrame *frame, OH_AVFormat *format, Cod
     codecWrapper->display_height = GetFormatInfo(format, FormatType::FORMAT_TYPE_VIDEO_HEIGHT);
     codecWrapper->color_format = GetFormatInfo(format, FormatType::FORMAT_TYPE_PIXEL_FORMAT);
 
-    if (codecWrapper->color_format > sizeof(pixelFormat) / sizeof(pixelFormat[0])) {
-        return -1;
-    }
     uint8_t *bufferAddr = OH_AVBuffer_GetAddr(codecBufferInfoReceive->buff_);
+    frame->format = GetPixFormat(format, codecWrapper);
     frame->pts = codecBufferInfoReceive->attr.pts;
     frame->pkt_dts = codecBufferInfoReceive->attr.pts;
     frame->width = codecWrapper->width;
     frame->height = codecWrapper->height;
-    frame->format = pixelFormat[codecWrapper->color_format];
     
     int ret = av_frame_get_buffer(frame, 64);
     if (ret < 0) {
@@ -194,6 +428,9 @@ static int qsvenc_get_continuous_buffer(AVFrame *frame, OH_AVFormat *format, Cod
         case AV_PIX_FMT_YUV420P:
             break;
         case AV_PIX_FMT_RGBA:
+            break;
+        case AV_PIX_FMT_P010LE:
+            ff_mediacodec_buffer_copy_p010(codecWrapper, bufferAddr, frame);
             break;
         default:
             LOGE("frame->format failed  = %d\n", frame->format);
@@ -225,70 +462,270 @@ int Nv12ToYuv420p(AVFrame *&yuv420p_frame, AVFrame *&nv12_frame, int width, int 
     return 0;
 }
 
-void RecordMediaCodecVideoFrame(FFPlayer *ffp, AVFrame *frame)
+int P010LEToYuv420p(AVFrame *&yuv420p_frame, AVFrame *&p010le_frame, int width, int height)
 {
-    if (frame->format == AV_PIX_FMT_NV12 && ffp->record_write_data.isInRecord == OHOS_RECORD_STATUS_ON &&
-        ffp->record_write_data.recordFramesQueue && frame->width > 0 && frame->height > 0) {
-        AVFrame *yuv420p_frame;
-        int result = Nv12ToYuv420p(yuv420p_frame, frame, frame->width, frame->height);
-        if (result < 0) {
-            return;
-        }
-        RecordFrameData frData;
-        frData.pts = frame->pts;
-        frData.data0 = (uint8_t *)malloc((size_t)yuv420p_frame->linesize[DATA_NUM_0] * yuv420p_frame->height);
-        frData.data1 =
-            (uint8_t *)malloc((size_t)yuv420p_frame->linesize[DATA_NUM_1] * yuv420p_frame->height / DATA_NUM_2);
-        frData.data2 =
-            (uint8_t *)malloc((size_t)yuv420p_frame->linesize[DATA_NUM_1] * yuv420p_frame->height / DATA_NUM_2);
-        frData.dataNum = FRAME_DATA_NUM_3;
-        frData.frameType = OHOS_FRAME_TYPE_VIDEO;
-        frData.lineSize0 = yuv420p_frame->linesize[DATA_NUM_0];
-        frData.lineSize1 = yuv420p_frame->linesize[DATA_NUM_1];
-        frData.lineSize2 = yuv420p_frame->linesize[DATA_NUM_2];
-        frData.format = AV_PIX_FMT_YUV420P;
-        frData.writeFileStatus = DATA_NUM_0;
-        memcpy(frData.data0, yuv420p_frame->data[DATA_NUM_0],
-               yuv420p_frame->linesize[DATA_NUM_0] * yuv420p_frame->height);
-        memcpy(frData.data1, yuv420p_frame->data[DATA_NUM_1],
-               yuv420p_frame->linesize[DATA_NUM_1] * yuv420p_frame->height / DATA_NUM_2);
-        memcpy(frData.data2, yuv420p_frame->data[DATA_NUM_2],
-               yuv420p_frame->linesize[DATA_NUM_2] * yuv420p_frame->height / DATA_NUM_2);
-        int windex = ffp->record_write_data.windex;
-        ffp->record_write_data.recordFramesQueue[windex] = frData;
-        ffp->record_write_data.windex += DATA_NUM_1;
-        ffp->record_write_data.srcFormat.height = yuv420p_frame->height;
-        ffp->record_write_data.srcFormat.width = yuv420p_frame->width;
+    if (!p010le_frame) {
+        LOGE("ERROR: P010LEToYuv420p ERROR: Input frame is NULL!\n");
+        return -1;
+    }
+
+    if (!p010le_frame->data[0] || !p010le_frame->data[1]) {
+        LOGE("ERROR: P010LEToYuv420p ERROR: Input frame has NULL data pointers!\n");
+        return -1;
+    }
+
+    LOGI("P010LEToYuv420p start\n");
+    yuv420p_frame = av_frame_alloc();
+    if (!yuv420p_frame) {
+        LOGE("ERROR: p010le_to_yuv420p av_frame_alloc failed!");
+        return -1;
+    }
+    yuv420p_frame->format = AV_PIX_FMT_YUV420P;
+    yuv420p_frame->width = width;
+    yuv420p_frame->height = height;
+
+    int ret = av_image_alloc(yuv420p_frame->data, yuv420p_frame->linesize, width, height, AV_PIX_FMT_YUV420P, 1);
+    if (ret < 0) {
+        LOGE("ERROR: p010le_to_yuv420p av_image_alloc failed, ret=%d", ret);
+        av_frame_free(&yuv420p_frame);
+        return -1;
+    }
+
+    struct SwsContext *swsCtx = sws_getContext(width, height, AV_PIX_FMT_P010LE, width, height, AV_PIX_FMT_YUV420P,
+        SWS_BILINEAR, nullptr, nullptr, nullptr);
+    if (!swsCtx) {
+        LOGE("ERROR: p010le_to_yuv420p sws_getContext failed!");
         av_freep(yuv420p_frame->data);
         av_frame_free(&yuv420p_frame);
+        return -1;
     }
+    int result = sws_scale(swsCtx, p010le_frame->data, p010le_frame->linesize, 0, height,
+        yuv420p_frame->data, yuv420p_frame->linesize);
+    if (result != height) {
+        LOGW("WARNING: sws_scale converted %d lines, expected %d\n", result, height);
+    }
+    sws_freeContext(swsCtx);
+    return 0;
+}
+
+static int CheckRecordParamsAndStatus(FFPlayer *ffp, AVFrame *frame)
+{
+    int isValid = 0;
+    if (!ffp || !frame) {
+        LOGE("ERROR: RecordMediaCodecVideoFrame invalid parameter!\n");
+        return isValid;
+    }
+
+    if (frame->width <= 0 || frame->height <= 0) {
+        LOGE("ERROR: RecordMediaCodecVideoFrame invalid frame dimensions!\n");
+        return isValid;
+    }
+
+    if (ffp->record_write_data.isInRecord != OHOS_RECORD_STATUS_ON ||
+        !ffp->record_write_data.recordFramesQueue) {
+        return isValid;
+    }
+
+    if (!frame->data[0] || !frame->data[1]) {
+        LOGE("ERROR: frame has NULL data pointers!\n");
+        return isValid;
+    }
+
+    isValid = 1;
+    return isValid;
+}
+
+static int ConvertFrameToYuv420p(AVFrame *frame, AVFrame **yuv420pFrame)
+{
+    *yuv420pFrame = nullptr;
+    int result = -1;
+
+    if (frame->format == AV_PIX_FMT_NV12) {
+        result = Nv12ToYuv420p(*yuv420pFrame, frame, frame->width, frame->height);
+    } else if (frame->format == AV_PIX_FMT_P010LE) {
+        result = P010LEToYuv420p(*yuv420pFrame, frame, frame->width, frame->height);
+    } else {
+        LOGE("record unsupport video format: %d", frame->format);
+        return -1;
+    }
+
+    if (result < 0 || !*yuv420pFrame) {
+        LOGE("ERROR: record format convert failed, result=%d", result);
+        return -1;
+    }
+    if (!(*yuv420pFrame)->data[DATA_NUM_0] || !(*yuv420pFrame)->data[DATA_NUM_1] ||
+        !(*yuv420pFrame)->data[DATA_NUM_2]) {
+        LOGE("ERROR: YUV420P frame has NULL data pointers!\n");
+        av_freep((*yuv420pFrame)->data);
+        av_frame_free(yuv420pFrame);
+        return -1;
+    }
+    return 0;
+}
+
+static int AllocRecordFrameData(AVFrame *yuv420pFrame, RecordFrameData *frData)
+{
+    // Calculate size for each plane
+    size_t ySize = (size_t)yuv420pFrame->linesize[DATA_NUM_0] * yuv420pFrame->height;
+    size_t uSize = (size_t)yuv420pFrame->linesize[DATA_NUM_1] * yuv420pFrame->height / DATA_NUM_2;
+    size_t vSize = (size_t)yuv420pFrame->linesize[DATA_NUM_2] * yuv420pFrame->height / DATA_NUM_2;
+
+    // Initialize record frame data structure
+    frData->pts = yuv420pFrame->pts;
+    frData->data0 = (uint8_t *)malloc(ySize);
+    if (!frData->data0) {
+        LOGE("ERROR: Memory allocation failed for data0!\n");
+        return -1;
+    }
+    frData->data1 = (uint8_t *)malloc(uSize);
+    if (!frData->data1) {
+        LOGE("ERROR: Memory allocation failed for data1!\n");
+        free(frData->data0);
+        return -1;
+    }
+    frData->data2 = (uint8_t *)malloc(vSize);
+    if (!frData->data2) {
+        LOGE("ERROR: Memory allocation failed for data2!\n");
+        free(frData->data0);
+        free(frData->data1);
+        return -1;
+    }
+
+    // Set record frame metadata
+    frData->dataNum = FRAME_DATA_NUM_3;
+    frData->frameType = OHOS_FRAME_TYPE_VIDEO;
+    frData->lineSize0 = yuv420pFrame->linesize[DATA_NUM_0];
+    frData->lineSize1 = yuv420pFrame->linesize[DATA_NUM_1];
+    frData->lineSize2 = yuv420pFrame->linesize[DATA_NUM_2];
+    frData->format = AV_PIX_FMT_YUV420P;
+    frData->writeFileStatus = DATA_NUM_0;
+
+    return 0;
+}
+
+static int CheckBufferAndCopyData(AVFrame *yuv420pFrame, RecordFrameData *frData)
+{
+    // Validate Y plane buffer size
+    if (yuv420pFrame->buf[DATA_NUM_0]) {
+        size_t yBufferSize = yuv420pFrame->buf[DATA_NUM_0]->size;
+        size_t yNeededSize = (size_t)yuv420pFrame->linesize[DATA_NUM_0] * yuv420pFrame->height;
+        if (yBufferSize < yNeededSize) {
+            LOGE("ERROR: Y plane buffer too small! Buffer:%zu, Needed:%zu\n", yBufferSize, yNeededSize);
+            return -1;
+        }
+    }
+    // Validate U plane buffer size
+    if (yuv420pFrame->buf[DATA_NUM_1]) {
+        size_t uBufferSize = yuv420pFrame->buf[DATA_NUM_1]->size;
+        size_t uNeededSize = (size_t)yuv420pFrame->linesize[DATA_NUM_1] * yuv420pFrame->height / DATA_NUM_2;
+        if (uBufferSize < uNeededSize) {
+            LOGE("ERROR: U plane buffer too small! Buffer:%zu, Needed:%zu\n", uBufferSize, uNeededSize);
+            return -1;
+        }
+    }
+    // Validate V plane buffer size
+    if (yuv420pFrame->buf[DATA_NUM_2]) {
+        size_t vBufferSize = yuv420pFrame->buf[DATA_NUM_2]->size;
+        size_t vNeededSize = (size_t)yuv420pFrame->linesize[DATA_NUM_2] * yuv420pFrame->height / DATA_NUM_2;
+        if (vBufferSize < vNeededSize) {
+            LOGE("ERROR: V plane buffer too small! Buffer:%zu, Needed:%zu\n", vBufferSize, vNeededSize);
+            return -1;
+        }
+    }
+    // Copy Y/U/V plane data
+    size_t ySize = (size_t)yuv420pFrame->linesize[DATA_NUM_0] * yuv420pFrame->height;
+    size_t uSize = (size_t)yuv420pFrame->linesize[DATA_NUM_1] * yuv420pFrame->height / DATA_NUM_2;
+    size_t vSize = (size_t)yuv420pFrame->linesize[DATA_NUM_2] * yuv420pFrame->height / DATA_NUM_2;
+
+    if (yuv420pFrame->data[DATA_NUM_0]) memcpy(frData->data0, yuv420pFrame->data[DATA_NUM_0], ySize);
+    if (yuv420pFrame->data[DATA_NUM_1]) memcpy(frData->data1, yuv420pFrame->data[DATA_NUM_1], uSize);
+    if (yuv420pFrame->data[DATA_NUM_2]) memcpy(frData->data2, yuv420pFrame->data[DATA_NUM_2], vSize);
+
+    return 0;
+}
+
+void RecordMediaCodecVideoFrame(FFPlayer *ffp, AVFrame *frame)
+{
+    int isValid = CheckRecordParamsAndStatus(ffp, frame);
+    if (!isValid) {
+        return;
+    }
+    AVFrame *yuv420pFrame = nullptr;
+    RecordFrameData frData = {0};
+
+    if (ConvertFrameToYuv420p(frame, &yuv420pFrame) < 0) {
+        return;
+    }
+
+    if (AllocRecordFrameData(yuv420pFrame, &frData) < 0) {
+        av_freep(yuv420pFrame->data);
+        av_frame_free(&yuv420pFrame);
+        return;
+    }
+
+    if (CheckBufferAndCopyData(yuv420pFrame, &frData) < 0) {
+        free(frData.data0);
+        free(frData.data1);
+        free(frData.data2);
+        av_freep(yuv420pFrame->data);
+        av_frame_free(&yuv420pFrame);
+        return;
+    }
+
+    if (!ffp->record_write_data.recordFramesQueue) {
+        LOGE("ERROR: recordFramesQueue is NULL!\n");
+        av_freep(yuv420pFrame->data);
+        av_frame_free(&yuv420pFrame);
+        free(frData.data0);
+        free(frData.data1);
+        free(frData.data2);
+        return;
+    }
+
+    int writeIndex = ffp->record_write_data.windex;
+    ffp->record_write_data.recordFramesQueue[writeIndex] = frData;
+    ffp->record_write_data.windex += DATA_NUM_1;
+
+    ffp->record_write_data.srcFormat.height = yuv420pFrame->height;
+    ffp->record_write_data.srcFormat.width = yuv420pFrame->width;
+
+    av_freep(yuv420pFrame->data);
+    av_frame_free(&yuv420pFrame);
 }
 
 bool IJKFF_Pipenode_Opaque::DecoderOutput(AVFrame *frame)
 {
     CodecBufferInfo codecBufferInfoReceive;
     OhosVideoCodecWrapper *codec = this->codecWrapper;
-        bool ret = false;
-        ret = this->codecData.OutputData(codecBufferInfoReceive);
-        if (!ret) {
-            return false;
-        }
-        OH_AVBuffer_GetBufferAttr(codecBufferInfoReceive.buff_, &codecBufferInfoReceive.attr);
-        OH_AVFormat *format = OH_VideoDecoder_GetOutputDescription(this->decoder.decoder_);
-        if (qsvenc_get_continuous_buffer(frame, format, &codecBufferInfoReceive, codec) < 0) {
-            OH_AVBuffer_Destroy(codecBufferInfoReceive.buff_);
-            OH_AVFormat_Destroy(format);
-            return false;
-        }
-        OH_AVFormat_Destroy(format);
-        this->decoder.FreeOutputData(codecBufferInfoReceive.bufferIndex);
+    bool ret = false;
+    ret = this->codecData.OutputData(codecBufferInfoReceive);
+    if (!ret) {
+        return false;
+    }
+    OH_AVBuffer_GetBufferAttr(codecBufferInfoReceive.buff_, &codecBufferInfoReceive.attr);
+    OH_AVFormat *format = OH_VideoDecoder_GetOutputDescription(this->decoder.decoder_);
+    if (qsvenc_get_continuous_buffer(frame, format, &codecBufferInfoReceive, codec) < 0) {
         OH_AVBuffer_Destroy(codecBufferInfoReceive.buff_);
-        if (codecBufferInfoReceive.attr.flags == AVCODEC_BUFFER_FLAGS_EOS) {
-            this->codecData.ShutDown();
-        }
+        OH_AVFormat_Destroy(format);
+        return false;
+    }
+    OH_AVFormat_Destroy(format);
+    this->decoder.FreeOutputData(codecBufferInfoReceive.bufferIndex);
+    OH_AVBuffer_Destroy(codecBufferInfoReceive.buff_);
+    if (codecBufferInfoReceive.attr.flags == AVCODEC_BUFFER_FLAGS_EOS) {
+        this->codecData.ShutDown();
+    }
     if (ffp->is_screenshot) {
         AVFrame *yuv420p_frame;
-        int result = Nv12ToYuv420p(yuv420p_frame, frame, frame->width, frame->height);
+        int result = -1;
+        if (frame->format == AV_PIX_FMT_NV12) {
+            result = Nv12ToYuv420p(yuv420p_frame, frame, frame->width, frame->height);
+        } else if (frame->format == AV_PIX_FMT_P010LE) {
+            result = P010LEToYuv420p(yuv420p_frame, frame, frame->width, frame->height);
+        } else {
+            LOGE("screenshot unsupport format: %d", frame->format);
+            return false;
+        }
         if (result < 0) {
             return false;
         }

@@ -42,6 +42,13 @@ struct indexPage {
         .onClick(() => {
           this.getUIContext().getRouter().pushUrl({ url: 'pages/typeNode/IjkVideoPlayerTypeNodeIndex' })
         })
+      Button('10Bit Video Player')
+        .width(200)
+        .margin({ bottom: 20 })
+        .onClick(() => {
+          // 跳转到10bit视频播放页面
+          this.getUIContext().getRouter().pushUrl({ url: 'pages/IjkVideo10BitPlayerPage' })
+        })
     }
     .width('100%')
     .height('100%')

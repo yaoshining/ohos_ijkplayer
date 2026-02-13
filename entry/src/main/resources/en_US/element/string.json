@@ -147,6 +147,10 @@
     {
       "name": "startPip",
       "value": "startPip"
+    },
+    {
+      "name": "video_10bit_player",
+      "value": "10Bit Video Player"
     }
   ]
 }
