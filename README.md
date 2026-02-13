@@ -246,6 +246,7 @@ ohpm install @ohos/ijkplayer
 
 ### Enabling Hardware Decoding
 ```
+   // Hard decoder buffer mode supports 10-bit video only on OpenHarmony API 22 and above.
    // Enable H.264 and H.265 hardware decoding.
    ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-all-videos", "1");
    // Enable H.265 hardware decoding.

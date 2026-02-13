@@ -5,6 +5,7 @@
     "pages/IjkVideoPlayerPage",
     "pages/SampleAudioListPage",
     "pages/IjkVideoPlayerNavigationExample",
+    "pages/IjkVideo10BitPlayerPage",
     "pages/typeNode/IjkVideoPlayerTypeNodeNavigationExample",
     "pages/typeNode/IjkVideoPlayerTypeNodeIndex",
     "pages/typeNode/IjkVideoPlayerTypeNodePage",
