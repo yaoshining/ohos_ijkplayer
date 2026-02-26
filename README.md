@@ -210,6 +210,7 @@ ohpm install @ohos/ijkplayer
    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "soundtouch", "1");
    mIjkMediaPlayer.setSpeed("2f");
 ```
+**Limitation:​** Videos without audio data cannot be played at an adjusted speed at the moment.
 ### Screen on
 ```
    mIjkMediaPlayer.setScreenOnWhilePlaying(true);

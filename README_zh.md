@@ -210,6 +210,8 @@ ohpm install @ohos/ijkplayer
    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "soundtouch", "1");
    mIjkMediaPlayer.setSpeed("2f");
 ```
+**限制：** 目前对于无音频数据的视频无法倍速播放。
+
 ### 屏幕常亮
 ```
    mIjkMediaPlayer.setScreenOnWhilePlaying(true);
