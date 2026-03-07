@@ -52,6 +52,11 @@ public:
     std::atomic<bool> inputThreadExit;
 };
 
+struct AVBSFInternal {
+    AVPacket *buffer_pkt;
+    int eof;
+};
+
 static void func_destroy(IJKFF_Pipenode *node)
 {
     IJKFF_Pipenode_Opaque *opaque = static_cast<IJKFF_Pipenode_Opaque *>(node->opaque);
@@ -354,8 +359,19 @@ static int decoder_decode_push_data(FFPlayer *ffp, IJKFF_Pipenode_Opaque *opaque
     
             int bsfRret = av_bsf_send_packet(opaque->avbsfContext, &pkt);
             if (bsfRret < 0) {
-                LOGE("av_bsf_send_packet failed");
-                gotPkt = false;
+                AVBSFInternal *tmp_internal = (AVBSFInternal *)opaque->avbsfContext->internal;
+                if (opaque->avbsfContext && tmp_internal->eof) {
+                    tmp_internal->eof = 0;
+                    av_packet_unref(tmp_internal->buffer_pkt);
+                    bsfRret = av_bsf_send_packet(opaque->avbsfContext, &pkt);
+                    if (bsfRret < 0) {
+                        LOGE("av_bsf_send_packet retry failed %d", bsfRret);
+                        gotPkt = false;
+                    }
+                } else {
+                    LOGE("av_bsf_send_packet failed %d", bsfRret);
+                    gotPkt = false;
+                }
             }
             while (bsfRret >= 0) {
                 bsfRret = av_bsf_receive_packet(opaque->avbsfContext, &pkt);
