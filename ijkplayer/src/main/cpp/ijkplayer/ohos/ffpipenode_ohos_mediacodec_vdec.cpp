@@ -872,6 +872,14 @@ static int get_video_frame(FFPlayer *ffp, AVFrame *frame, IJKFF_Pipenode_Opaque 
                 } else {
                     gotPicture = decoder_decode_ohos_frame(ffp, &is->viddec, frame, opaque);
                 }
+            } else if (is->continuous_frame_drops_early <= ffp->framedrop) {
+                ffp->stat.drop_frame_count++;
+                if (ffp->stat.decode_frame_count > 0) {
+                    ffp->stat.drop_frame_rate = static_cast<float>(ffp->stat.drop_frame_count) /
+                        static_cast<float>(ffp->stat.decode_frame_count);
+                }
+                drop_video_frame(opaque);
+                gotPicture = 0;
             }
         } else {
             gotPicture = decoder_decode_ohos_frame(ffp, &is->viddec, frame, opaque);
@@ -1031,7 +1039,7 @@ IJKFF_Pipenode *ffpipenode_create_video_decoder_from_ohos_mediacodec(FFPlayer *f
         return nullptr;
     }
 
-    decoderSample->formatInfoEntry.fps = av_q2d(ffp->is->video_st->avg_frame_rate);
+    decoderSample->formatInfoEntry.fps = av_q2d(av_guess_frame_rate(ffp->is->ic, ffp->is->video_st, NULL));
     decoderSample->formatInfoEntry.videoHeight = decoderSample->codecpar->height;
     decoderSample->formatInfoEntry.videoWidth = decoderSample->codecpar->width;
     decoderSample->codecData.formatInfo = &decoderSample->formatInfoEntry;
