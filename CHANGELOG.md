@@ -1,3 +1,7 @@
+## 2.0.8-rc.3
+- Fix the issue where hardware decoding cannot loop playback.
+- Fix the frame rate issue of the hardware decoder.
+
 ## 2.0.8-rc.2
 - Hard decoder buffer mode supports 10-bit video.
 
