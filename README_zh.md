@@ -1,9 +1,10 @@
-# ijkplayer
+# <center>ijkplayer</center>
 
 ## 简介
->  ijkplayer是OpenHarmony环境下可用的一款基于FFmpeg的视频播放器。
 
-## 演示
+ijkplayer 是 OpenHarmony 环境下可用的一款基于 FFmpeg 的视频播放器。
+
+## 效果展示
 <img src="preview_zh.gif" width="100%"/>
 
 ## 编译运行
@@ -40,11 +41,16 @@
 3、使用git clone下载源码，不要直接通过gitee网页的方式下载
 
 ## 下载安装
+
 ```shell
 ohpm install @ohos/ijkplayer
 ```
+
+OpenHarmony ohpm 环境配置等更多内容，请参考[如何安装 OpenHarmony ohpm 包](https://gitcode.com/openharmony-tpc/docs/blob/master/OpenHarmony_har_usage.md)。
+
 ## 使用说明
-```
+
+```typescript
    import { IjkMediaPlayer } from "@ohos/ijkplayer";
    import type { OnPreparedListener } from "@ohos/ijkplayer";
    import type { OnVideoSizeChangedListener } from "@ohos/ijkplayer";
@@ -56,7 +62,7 @@ ohpm install @ohos/ijkplayer
    import { LogUtils } from "@ohos/ijkplayer";
 ```
 ### 在UI中配置XComponent控件
-```
+```typescript
     XComponent({
       id: 'xcomponentId',
       type: XComponentType.SURFACE,
@@ -72,7 +78,7 @@ ohpm install @ohos/ijkplayer
 ```
 
 ### 播放
-```
+```typescript
     //单例模式
     let mIjkMediaPlayer = IjkMediaPlayer.getInstance();
     //多实例模式
@@ -186,46 +192,46 @@ ohpm install @ohos/ijkplayer
     mIjkMediaPlayer.start();
 ```
 ### 暂停
-```
+```typescript
    mIjkMediaPlayer.pause();
 ```
 ### 停止
-```
+```typescript
    mIjkMediaPlayer.stop();
 ```
 ### 重置
-```
+```typescript
    mIjkMediaPlayer.reset();
 ```
 ### 释放
-```
+```typescript
    mIjkMediaPlayer.release();
 ```
 ### 快进、后退
-```
+```typescript
    mIjkMediaPlayer.seekTo(msec);
 ```
 ### 倍数播放
-```
+```typescript
    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "soundtouch", "1");
    mIjkMediaPlayer.setSpeed("2f");
 ```
 **限制：** 目前对于无音频数据的视频无法倍速播放。
 
 ### 屏幕常亮
-```
+```typescript
    mIjkMediaPlayer.setScreenOnWhilePlaying(true);
 ```
 ### 循环播放
-```
+```typescript
    mIjkMediaPlayer.setLoopCount(true);
 ```
 ### 设置音量
-```
+```typescript
    mIjkMediaPlayer.setVolume(leftVolume, rightVolume);
 ```
 ### 音频焦点监控
-```
+```typescript
    import { InterruptEvent, InterruptHintType } from '@ohos/ijkplayer/src/main/ets/ijkplayer/IjkMediaPlayer';
    import { Callback } from '@ohos.base';
    // 音频焦点变化回调处理
@@ -247,7 +253,7 @@ ohpm install @ohos/ijkplayer
 ```
 
 ### 开启硬解码
-```
+```typescript
    // 硬解码器 buffer 模式支持 10bit 视频需要 OpenHarmony API 22 及以上版本
    // 开启h264与h265硬解码
    ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-all-videos", "1");
@@ -260,7 +266,7 @@ ohpm install @ohos/ijkplayer
 
 
 ### 开启视频录制
-```
+```typescript
     let recordSaveFilePath = getContext(this).cacheDir + "/record.mp4";
     //设置录制默认帧率
     this.mIjkMediaPlayer.setRecordDefaultFrameRate("30", false);
@@ -271,7 +277,7 @@ ohpm install @ohos/ijkplayer
 ```
 
 ### 获取视频录制状态
-```
+```typescript
     let isRecord = this.mIjkMediaPlayer.isRecord();
     prompt.showToast({
       message: isRecord ? "正在录制中" : "录制没有开启哦！"
@@ -279,7 +285,7 @@ ohpm install @ohos/ijkplayer
 ```
 
 ### 停止视频录制
-```
+```typescript
     // 保存相册需要申请权限: ohos.permission.WRITE_IMAGEVIDEO
     this.mIjkMediaPlayer.stopRecord().then((result) => {
       if(!result){
@@ -317,7 +323,7 @@ ohpm install @ohos/ijkplayer
 ```
 
 ### 截屏
-```
+```typescript
     // 保存相册需要申请权限: ohos.permission.WRITE_IMAGEVIDEO
     let saveFilePath = getContext(this).cacheDir + "/screen.jpg";
     this.mIjkMediaPlayer.screenshot(saveFilePath).then((result) => {
@@ -356,7 +362,7 @@ ohpm install @ohos/ijkplayer
 ```
 
 ### 音频设备断开和连接监控
-```
+```typescript
    import { InterruptEvent, InterruptHintType } from '@ohos/ijkplayer/src/main/ets/ijkplayer/IjkMediaPlayer';
    import { Callback } from '@ohos.base';
    // 音频设备断连回调处理
@@ -376,7 +382,7 @@ ohpm install @ohos/ijkplayer
 ```
 
 ### hls起播优化
-```
+```typescript
 // 开启hls起播优化 默认是关闭的
 this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "fetch_first", "on");
 ```
@@ -491,7 +497,7 @@ this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "fetch_first"
 
 ## 目录结构
 
-```javascript
+```text
 |---- ijkplayer  
 |     |---- entry  # 示例代码文件夹
 |     |---- ijkplayer  # ijkplayer 库文件夹
