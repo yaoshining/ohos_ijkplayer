@@ -1,9 +1,10 @@
-# ijkplayer
+# <center>ijkplayer</center>
 
 ## Introduction
->  ijkplayer is an FFmpeg-based video player that can be used in the OpenHarmony system.
 
-## Demo
+ijkplayer is an FFmpeg-based video player that can be used in the OpenHarmony system.
+
+## Screenshots
 <img src="preview.gif" width="100%"/>
 
 ## How to Build
@@ -40,11 +41,15 @@
 3. Use **git clone** to download the source code. Do not download the source code directly from the Gitee web page.
 
 ## How to Install
+
 ```shell
 ohpm install @ohos/ijkplayer
 ```
+
+For more information about OpenHarmony ohpm environment configuration, please refer to [How to Install OpenHarmony ohpm Package](https://gitcode.com/openharmony-tpc/docs/blob/master/OpenHarmony_har_usage.md).
+
 ## How to Use
-```
+```typescript
    import { IjkMediaPlayer } from "@ohos/ijkplayer";
    import type { OnPreparedListener } from "@ohos/ijkplayer";
    import type { OnVideoSizeChangedListener } from "@ohos/ijkplayer";
@@ -56,7 +61,7 @@ ohpm install @ohos/ijkplayer
    import { LogUtils } from "@ohos/ijkplayer";
 ```
 ### Configuring the XComponent control on the UI
-```
+```typescript
     XComponent({
       id: 'xcomponentId',
       type: XComponentType.SURFACE,
@@ -72,7 +77,7 @@ ohpm install @ohos/ijkplayer
 ```
 
 ### Playback setting
-```
+```typescript
     //Singleton mode
     let mIjkMediaPlayer = IjkMediaPlayer.getInstance();
     //Multiton mode
@@ -186,45 +191,45 @@ ohpm install @ohos/ijkplayer
     mIjkMediaPlayer.start();
 ```
 ### Pause
-```
+```typescript
    mIjkMediaPlayer.pause();
 ```
 ### Stop
-```
+```typescript
    mIjkMediaPlayer.stop();
 ```
 ### Reset
-```
+```typescript
    mIjkMediaPlayer.reset();
 ```
 ### Release
-```
+```typescript
    mIjkMediaPlayer.release();
 ```
 ### Fast-forward and Rewind
-```
+```typescript
    mIjkMediaPlayer.seekTo(msec);
 ```
 ### Playback Speed
-```
+```typescript
    mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "soundtouch", "1");
    mIjkMediaPlayer.setSpeed("2f");
 ```
 **Limitation:​** Videos without audio data cannot be played at an adjusted speed at the moment.
 ### Screen on
-```
+```typescript
    mIjkMediaPlayer.setScreenOnWhilePlaying(true);
 ```
 ### Loop
-```
+```typescript
    mIjkMediaPlayer.setLoopCount(true);
 ```
 ### Volume
-```
+```typescript
    mIjkMediaPlayer.setVolume(leftVolume, rightVolume);
 ```
 ### Audio Focus Monitoring
-```
+```typescript
    import { InterruptEvent, InterruptHintType } from '@ohos/ijkplayer/src/main/ets/ijkplayer/IjkMediaPlayer';
    import { Callback } from '@ohos.base';
    // Set callback processing when the audio focus changes.
@@ -246,7 +251,7 @@ ohpm install @ohos/ijkplayer
 ```
 
 ### Enabling Hardware Decoding
-```
+```typescript
    // Hard decoder buffer mode supports 10-bit video only on OpenHarmony API 22 and above.
    // Enable H.264 and H.265 hardware decoding.
    ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-all-videos", "1");
@@ -258,7 +263,7 @@ ohpm install @ohos/ijkplayer
 ```
 
 ### Enable video recording
-```
+```typescript
     let recordSaveFilePath = getContext(this).cacheDir + "/record.mp4";
     //Set default frame rate for recording
     this.mIjkMediaPlayer.setRecordDefaultFrameRate("30", false);
@@ -269,7 +274,7 @@ ohpm install @ohos/ijkplayer
 ```
 
 ### Get recording status
-```
+```typescript
     let isRecord = this.mIjkMediaPlayer.isRecord();
     prompt.showToast({
       message: isRecord ? "recordIng" : "record not enabled"
@@ -277,7 +282,7 @@ ohpm install @ohos/ijkplayer
 ```
 
 ### Stop video recording
-```
+```typescript
     // Permission is required to save the album: ohos.permission.WRITE_IMAGEVIDEO
     this.mIjkMediaPlayer.stopRecord().then((result) => {
       if(!result){
@@ -315,7 +320,7 @@ ohpm install @ohos/ijkplayer
 ```
 
 ### screenshot
-```
+```typescript
     // Permission is required to save the album: ohos.permission.WRITE_IMAGEVIDEO
     let saveFilePath = getContext(this).cacheDir + "/screen.jpg";
     this.mIjkMediaPlayer.screenshot(saveFilePath).then((result) => {
@@ -354,7 +359,7 @@ ohpm install @ohos/ijkplayer
 ```
 
 ### Audio device disconnection and connection monitoring
-```
+```typescript
    import { InterruptEvent, InterruptHintType } from '@ohos/ijkplayer/src/main/ets/ijkplayer/IjkMediaPlayer';
    import { Callback } from '@ohos.base';
    // Handling callbacks for audio device disconnection
@@ -374,7 +379,7 @@ ohpm install @ohos/ijkplayer
 ```
 
 ### HLS start broadcasting optimization
-```
+```typescript
 // Enabling hls start optimization is turned off by default
 this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "fetch_first", "on");
 ```
@@ -489,7 +494,7 @@ This project has been verified in the following version:
 
 ## Directory Structure
 
-```javascript
+```text
 |---- ijkplayer  
 |     |---- entry  # Sample code
 |     |---- ijkplayer  # ijkplayer libraries
