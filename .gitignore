@@ -9,4 +9,5 @@ package-lock.json
 .clangd
 @ohos
 .vscode
-.vs
+.vs/keys
+.DS_Store

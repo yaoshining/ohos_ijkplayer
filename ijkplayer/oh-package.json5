@@ -1,4 +1,9 @@
 {
+  "name": "@yaoshining/ijkplayer",
+  "version": "2.0.8-rc.3",
+  "description": "ijkplayer是OpenHarmony环境下可用的一款基于FFmpeg的视频播放器（含内嵌字幕支持）。",
+  "main": "index.ets",
+  "type": "module",
   "types": "",
   "keywords": [
     "OpenHarmony",
@@ -6,18 +11,41 @@
     "ijkplayer",
     "视频播放器"
   ],
-  "author": "ohos_tpc",
-  "description": "ijkplayer是OpenHarmony环境下可用的一款基于FFmpeg的视频播放器。",
-  "main": "index.ets",
-  "type": "module",
-  "repository": "https://gitcode.com/openharmony-sig/ohos_ijkplayer",
-  "version": "2.0.8-rc.3",
   "tags": [
     "Media"
   ],
+  "author": "yaoshining",
   "license": "LGPLv2.1 or later",
+  "repository": "https://gitcode.com/yaoshining/ohos_ijkplayer",
   "dependencies": {
     "libijkplayer_audio_napi.so": "file:./src/main/cpp/types/ijkplayer_audio_napi"
   },
-  "name": "@ohos/ijkplayer"
+  "compatibleSdkVersion": 12,
+  "compatibleSdkType": "OpenHarmony",
+  "nativeComponents": [
+    {
+      "name": "libijkplayer.so",
+      "compatibleSdkVersion": 12,
+      "compatibleSdkType": "OpenHarmony",
+      "linkLibraries": []
+    },
+    {
+      "name": "libijkplayer_audio_napi.so",
+      "compatibleSdkVersion": 12,
+      "compatibleSdkType": "OpenHarmony",
+      "linkLibraries": []
+    },
+    {
+      "name": "libijkplayer_napi.so",
+      "compatibleSdkVersion": 12,
+      "compatibleSdkType": "OpenHarmony",
+      "linkLibraries": []
+    },
+    {
+      "name": "libijksdl.so",
+      "compatibleSdkVersion": 12,
+      "compatibleSdkType": "OpenHarmony",
+      "linkLibraries": []
+    }
+  ]
 }
