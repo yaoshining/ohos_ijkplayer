@@ -50,7 +50,6 @@ jobs:
           echo "Downloading SDK (~2.5GB)..."
           wget -q --show-progress -O sdk.tar.gz "$SDK_URL"
           echo "Extracting linux/ only..."
-          # tar 内路径前缀通常是 "ohos-sdk/linux/" 或直接 "linux/"，先探测
           FIRST=$(tar -tzf sdk.tar.gz 2>/dev/null | head -5)
           echo "Archive top entries: $FIRST"
           tar -xzf sdk.tar.gz --wildcards "*/linux/*" -C ohos-sdk-12/ --strip-components=1 2>/dev/null \
@@ -58,6 +57,20 @@ jobs:
           echo "SDK layout after extract:"
           ls ohos-sdk-12/
           ls ohos-sdk-12/linux/ 2>/dev/null || true
+
+          # 解压内层 native zip（tar.gz 内的 linux/ 下存放的还是 .zip）
+          # native zip 解压后结构通常为 12/native/...
+          NATIVE_ZIP=$(find ohos-sdk-12/linux -name "native-linux-x64-*-Release.zip" | head -1)
+          echo "Found native zip: $NATIVE_ZIP"
+          if [ -n "$NATIVE_ZIP" ]; then
+            unzip -q "$NATIVE_ZIP" -d ohos-sdk-12/linux/
+            echo "SDK linux/ after unzip:"
+            ls ohos-sdk-12/linux/
+            ls ohos-sdk-12/linux/12/ 2>/dev/null || true
+          else
+            echo "ERROR: native zip not found!"
+            exit 1
+          fi
 
       # SDK 放到 prebuild.sh 期望的位置（$GITHUB_WORKSPACE/../ohos-sdk-12）
       - name: Link SDK to expected location
