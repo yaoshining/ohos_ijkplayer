@@ -140,10 +140,12 @@ jobs:
           mkdir -p ${{ github.workspace }}/ijkplayer/src/main/cpp/build_arm64
           cd ${{ github.workspace }}/ijkplayer/src/main/cpp/build_arm64
 
+          BUILD_DIR=${{ github.workspace }}/ijkplayer/src/main/cpp/build_arm64
           cmake .. \
             -DCMAKE_TOOLCHAIN_FILE=$TOOLCHAIN \
             -DOHOS_ARCH=arm64-v8a \
             -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=$BUILD_DIR \
             -G Ninja
 
           ninja -j$(nproc)
