@@ -59,14 +59,21 @@ jobs:
           ls ohos-sdk-12/linux/ 2>/dev/null || true
 
           # 解压内层 native zip（tar.gz 内的 linux/ 下存放的还是 .zip）
-          # native zip 解压后结构通常为 12/native/...
+          # native zip 解压后结构为 native/...，但 prebuild.sh 期望 linux/12/native/
           NATIVE_ZIP=$(find ohos-sdk-12/linux -name "native-linux-x64-*-Release.zip" | head -1)
           echo "Found native zip: $NATIVE_ZIP"
           if [ -n "$NATIVE_ZIP" ]; then
             unzip -q "$NATIVE_ZIP" -d ohos-sdk-12/linux/
             echo "SDK linux/ after unzip:"
             ls ohos-sdk-12/linux/
-            ls ohos-sdk-12/linux/12/ 2>/dev/null || true
+            # 移动到 prebuild.sh 期望的 linux/12/ 下
+            mkdir -p ohos-sdk-12/linux/12
+            if [ -d ohos-sdk-12/linux/native ]; then
+              mv ohos-sdk-12/linux/native ohos-sdk-12/linux/12/native
+              echo "Moved: linux/native -> linux/12/native"
+            fi
+            echo "Final SDK linux/12/:"
+            ls ohos-sdk-12/linux/12/ 2>/dev/null || echo "WARN: linux/12/ still empty!"
           else
             echo "ERROR: native zip not found!"
             exit 1
