@@ -19,23 +19,19 @@ jobs:
           lfs: false
 
       # ── 1. 安装系统依赖 ───────────────────────────────────────────────────
-      # 预装 prebuild.sh/prepare_lycium_tools 需要的全部包，避免其内部 apt 逐一安装
+      # 只装核心构建工具，避免 gcc-multilib 与交叉编译工具链冲突
+      # prebuild.sh 内部已有 apt install（sudo 运行后有权限），会补装缺失包
       - name: Install system dependencies
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq \
-            gcc make cmake pkg-config autoconf automake autopoint patch libtool libtool-bin \
-            wget unzip gperf flex bison python3 python3-pip \
-            ninja-build meson sox gfortran subversion \
-            build-essential module-assistant \
-            gcc-multilib g++-multilib libltdl7-dev cabextract \
-            libboost-all-dev libxml2-utils libxml2 libxml2-dev \
-            libxml-libxml-perl libxml-parser-perl \
-            texinfo xmlto po4a \
-            yasm nasm xutils-dev libx11-dev xtrans-dev \
-            tcl8.6-dev gettext \
-            gfortran-arm-linux-gnueabi gfortran-aarch64-linux-gnu \
-            golang-go
+            gcc make cmake pkg-config autoconf automake autopoint patch \
+            libtool libtool-bin wget unzip gperf flex bison \
+            python3 python3-pip ninja-build meson yasm nasm \
+            texinfo gettext libxml2-utils libxml2 libxml2-dev \
+            gfortran-aarch64-linux-gnu gfortran-arm-linux-gnueabi \
+            sox subversion cabextract xmlto po4a \
+            tcl8.6-dev xutils-dev libx11-dev xtrans-dev
 
       # ── 2. 下载 OHOS SDK API 12（缓存复用）───────────────────────────────
       # prebuild.sh 硬编码路径：$ROOT_DIR/../ohos-sdk-12/linux/12
