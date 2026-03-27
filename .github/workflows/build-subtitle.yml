@@ -10,7 +10,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
-    timeout-minutes: 120
+    timeout-minutes: 300
 
     steps:
       - name: Checkout ohos_ijkplayer
@@ -109,8 +109,17 @@ jobs:
           ls tpc_c_cplusplus/lycium/
 
       # ── 4. 运行 prebuild（编译 FFmpeg + 依赖 + 产出 third_party）─────────
+      # 缓存编译产物（首次约 2-3h，命中后直接跳过）
+      - name: Cache compiled thirdparty libs
+        id: cache-thirdparty
+        uses: actions/cache@v4
+        with:
+          path: tpc_c_cplusplus/thirdparty
+          key: thirdparty-${{ hashFiles('prebuild.sh', 'doc/FFmpeg/ohos_ijkffmpeg_config.sh') }}-v1
+
       # prebuild.sh 内部调用 apt install（无 sudo），用 sudo 运行以获得权限
       - name: Run prebuild.sh
+        if: steps.cache-thirdparty.outputs.cache-hit != 'true'
         run: |
           sudo bash prebuild.sh
         working-directory: ${{ github.workspace }}
