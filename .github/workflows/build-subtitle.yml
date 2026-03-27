@@ -1,0 +1,133 @@
+name: Build IJKPlayer with Subtitle Support
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'doc/FFmpeg/ohos_ijkffmpeg_config.sh'
+      - '.github/workflows/build-subtitle.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout ohos_ijkplayer
+        uses: actions/checkout@v4
+        with:
+          lfs: false
+
+      # ── 1. 安装系统依赖 ───────────────────────────────────────────────────
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq \
+            gcc make cmake pkg-config autoconf automake patch libtool \
+            wget unzip flex bison python3 python3-pip ninja-build meson \
+            yasm nasm texinfo gettext libxml2-utils libtool-bin \
+            gcc-multilib g++-multilib build-essential xutils-dev
+
+      # ── 2. 下载 OHOS SDK API 12（缓存复用）───────────────────────────────
+      # prebuild.sh 硬编码路径：$ROOT_DIR/../ohos-sdk-12/linux/12
+      # 在 Actions 里 ROOT_DIR = $GITHUB_WORKSPACE，故 SDK 在其父目录下
+      - name: Cache OHOS SDK
+        id: cache-sdk
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/ohos-sdk-12
+          key: ohos-sdk-harmonyos-5.0.0-linux-v1
+
+      - name: Download & Extract OHOS SDK
+        if: steps.cache-sdk.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ${{ runner.temp }}/ohos-sdk-12
+          cd ${{ runner.temp }}
+
+          # HarmonyOS 5.0.0-Release 公开 SDK（Windows+Linux 合包，约 2.5 GiB）
+          # 下载后只解出 linux/ 部分，节省磁盘空间
+          SDK_URL="https://repo.huaweicloud.com/harmonyos/os/5.0.0-Release/ohos-sdk-windows_linux-public.tar.gz"
+          echo "Downloading SDK (~2.5GB)..."
+          wget -q --show-progress -O sdk.tar.gz "$SDK_URL"
+          echo "Extracting linux/ only..."
+          # tar 内路径前缀通常是 "ohos-sdk/linux/" 或直接 "linux/"，先探测
+          FIRST=$(tar -tzf sdk.tar.gz 2>/dev/null | head -5)
+          echo "Archive top entries: $FIRST"
+          tar -xzf sdk.tar.gz --wildcards "*/linux/*" -C ohos-sdk-12/ --strip-components=1 2>/dev/null \
+            || tar -xzf sdk.tar.gz -C ohos-sdk-12/
+          echo "SDK layout after extract:"
+          ls ohos-sdk-12/
+          ls ohos-sdk-12/linux/ 2>/dev/null || true
+
+      # SDK 放到 prebuild.sh 期望的位置（$GITHUB_WORKSPACE/../ohos-sdk-12）
+      - name: Link SDK to expected location
+        run: |
+          ln -sf ${{ runner.temp }}/ohos-sdk-12 ${{ github.workspace }}/../ohos-sdk-12
+          echo "Verify toolchain:"
+          find ${{ github.workspace }}/../ohos-sdk-12 -name "clang" | head -3
+
+      # ── 3. Clone Lycium（prebuild.sh 期望路径：$ROOT_DIR/tpc_c_cplusplus）
+      - name: Clone Lycium build framework
+        run: |
+          # 优先 GitHub mirror（从 Actions 访问 gitcode.com 不稳定）
+          git clone https://github.com/openharmony-sig/tpc_c_cplusplus.git \
+            -b support_x86 --depth=1 tpc_c_cplusplus \
+          || git clone https://gitcode.com/openharmony-sig/tpc_c_cplusplus.git \
+            -b support_x86 --depth=1 tpc_c_cplusplus
+          echo "Lycium cloned:"
+          ls tpc_c_cplusplus/lycium/
+
+      # ── 4. 运行 prebuild（编译 FFmpeg + 依赖 + 产出 third_party）─────────
+      - name: Run prebuild.sh
+        run: |
+          bash prebuild.sh
+        working-directory: ${{ github.workspace }}
+
+      # ── 5. 用 CMake 编译 NAPI .so ────────────────────────────────────────
+      - name: Build NAPI .so with CMake
+        run: |
+          SDK_ROOT=${{ github.workspace }}/../ohos-sdk-12/linux/12/native
+          TOOLCHAIN=$SDK_ROOT/build/cmake/ohos.toolchain.cmake
+
+          echo "Toolchain: $TOOLCHAIN"
+          if [ ! -f "$TOOLCHAIN" ]; then
+            echo "ERROR: toolchain not found, listing SDK:"
+            find ${{ github.workspace }}/../ohos-sdk-12 -name "*.cmake" | head -10
+            exit 1
+          fi
+
+          mkdir -p ${{ github.workspace }}/ijkplayer/src/main/cpp/build_arm64
+          cd ${{ github.workspace }}/ijkplayer/src/main/cpp/build_arm64
+
+          cmake .. \
+            -DCMAKE_TOOLCHAIN_FILE=$TOOLCHAIN \
+            -DOHOS_ARCH=arm64-v8a \
+            -DCMAKE_BUILD_TYPE=Release \
+            -G Ninja
+
+          ninja -j$(nproc)
+
+      # ── 6. 收集产物 ──────────────────────────────────────────────────────
+      - name: Collect artifacts
+        run: |
+          OUTDIR=${{ github.workspace }}/output/arm64-v8a
+          mkdir -p $OUTDIR
+
+          # 从 CMake build 目录
+          find ${{ github.workspace }}/ijkplayer/src/main/cpp/build_arm64 \
+            -name "*.so" -exec cp {} $OUTDIR/ \;
+
+          # 从 libs 目录（如果有）
+          find ${{ github.workspace }}/ijkplayer/libs/arm64-v8a \
+            -name "*.so" -exec cp {} $OUTDIR/ \; 2>/dev/null || true
+
+          echo "=== Artifacts ==="
+          ls -lh $OUTDIR/
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ijkplayer-arm64-subtitle
+          path: output/
+          retention-days: 14
+
