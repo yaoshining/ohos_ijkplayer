@@ -19,14 +19,23 @@ jobs:
           lfs: false
 
       # ── 1. 安装系统依赖 ───────────────────────────────────────────────────
+      # 预装 prebuild.sh/prepare_lycium_tools 需要的全部包，避免其内部 apt 逐一安装
       - name: Install system dependencies
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq \
-            gcc make cmake pkg-config autoconf automake patch libtool \
-            wget unzip flex bison python3 python3-pip ninja-build meson \
-            yasm nasm texinfo gettext libxml2-utils libtool-bin \
-            gcc-multilib g++-multilib build-essential xutils-dev
+            gcc make cmake pkg-config autoconf automake autopoint patch libtool libtool-bin \
+            wget unzip gperf flex bison python3 python3-pip \
+            ninja-build meson sox gfortran subversion \
+            build-essential module-assistant \
+            gcc-multilib g++-multilib libltdl7-dev cabextract \
+            libboost-all-dev libxml2-utils libxml2 libxml2-dev \
+            libxml-libxml-perl libxml-parser-perl \
+            texinfo xmlto po4a \
+            yasm nasm xutils-dev libx11-dev xtrans-dev \
+            tcl8.6-dev gettext \
+            gfortran-arm-linux-gnueabi gfortran-aarch64-linux-gnu \
+            golang-go
 
       # ── 2. 下载 OHOS SDK API 12（缓存复用）───────────────────────────────
       # prebuild.sh 硬编码路径：$ROOT_DIR/../ohos-sdk-12/linux/12
@@ -104,9 +113,10 @@ jobs:
           ls tpc_c_cplusplus/lycium/
 
       # ── 4. 运行 prebuild（编译 FFmpeg + 依赖 + 产出 third_party）─────────
+      # prebuild.sh 内部调用 apt install（无 sudo），用 sudo 运行以获得权限
       - name: Run prebuild.sh
         run: |
-          bash prebuild.sh
+          sudo bash prebuild.sh
         working-directory: ${{ github.workspace }}
 
       # ── 5. 用 CMake 编译 NAPI .so ────────────────────────────────────────
