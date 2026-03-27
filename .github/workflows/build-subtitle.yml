@@ -67,12 +67,18 @@ jobs:
           find ${{ github.workspace }}/../ohos-sdk-12 -name "clang" | head -3
 
       # ── 3. Clone Lycium（prebuild.sh 期望路径：$ROOT_DIR/tpc_c_cplusplus）
+      # GitHub 上无此仓库（openharmony-sig/tpc_c_cplusplus 不存在），只能用 gitcode
+      - name: Cache Lycium
+        id: cache-lycium
+        uses: actions/cache@v4
+        with:
+          path: tpc_c_cplusplus
+          key: lycium-support_x86-${{ hashFiles('prebuild.sh') }}
+
       - name: Clone Lycium build framework
+        if: steps.cache-lycium.outputs.cache-hit != 'true'
         run: |
-          # 优先 GitHub mirror（从 Actions 访问 gitcode.com 不稳定）
-          git clone https://github.com/openharmony-sig/tpc_c_cplusplus.git \
-            -b support_x86 --depth=1 tpc_c_cplusplus \
-          || git clone https://gitcode.com/openharmony-sig/tpc_c_cplusplus.git \
+          git clone https://gitcode.com/openharmony-sig/tpc_c_cplusplus.git \
             -b support_x86 --depth=1 tpc_c_cplusplus
           echo "Lycium cloned:"
           ls tpc_c_cplusplus/lycium/
