@@ -1006,7 +1006,9 @@ static void video_image_display2(FFPlayer *ffp)
                                     (ass_len>14?(unsigned char)ass_str[14]:0),
                                     (ass_len>15?(unsigned char)ass_str[15]:0),
                                     ass_str);
-                                parse_ass_subtitle(ass_str, buffered_text);
+                                // Send raw ASS string; ArkTS handles 8-field parsing
+                                strncpy(buffered_text, ass_str, 4095);
+                                buffered_text[4095] = '\0';
                             } else if (sp->sub.rects[0]->text) {
                                 const char *txt_str = sp->sub.rects[0]->text;
                                 int txt_len = (int)strlen(txt_str);
@@ -1031,7 +1033,8 @@ static void video_image_display2(FFPlayer *ffp)
                                     (txt_len>14?(unsigned char)txt_str[14]:0),
                                     (txt_len>15?(unsigned char)txt_str[15]:0),
                                     txt_str);
-                                strncpy(buffered_text, txt_str, 4096);
+                                strncpy(buffered_text, txt_str, 4095);
+                                buffered_text[4095] = '\0';
                             }
                             ffp_notify_msg4(ffp, FFP_MSG_TIMED_TEXT, 0, 0, buffered_text, sizeof(buffered_text));
                         }
