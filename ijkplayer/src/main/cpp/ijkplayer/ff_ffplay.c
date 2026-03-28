@@ -920,43 +920,48 @@ static void free_picture(Frame *vp)
 
 static size_t parse_ass_subtitle(const char *ass, char *output)
 {
-    char *tok = NULL;
-    // ff_ass_add_rect format: "Dialogue: ReadOrder,Layer,Style,Name,0,0,0,,Text"
-    // 9 fields separated by 8 commas; skip 8 commas to reach Text.
-    tok = strchr(ass, ':'); if (tok) tok += 1; // skip "Dialogue:"
-    tok = strchr(tok, ','); if (tok) tok += 1; // skip ReadOrder
-    tok = strchr(tok, ','); if (tok) tok += 1; // skip Layer
-    tok = strchr(tok, ','); if (tok) tok += 1; // skip Style
-    tok = strchr(tok, ','); if (tok) tok += 1; // skip Name
-    tok = strchr(tok, ','); if (tok) tok += 1; // skip MarginL
-    tok = strchr(tok, ','); if (tok) tok += 1; // skip MarginR
-    tok = strchr(tok, ','); if (tok) tok += 1; // skip MarginV
-    tok = strchr(tok, ','); if (tok) tok += 1; // skip Effect (empty) → at Text
-    if (tok) {
-        char *text = tok;
-        size_t idx = 0;
-        do {
-            char *found = strstr(text, "\\N");
-            if (found) {
-                size_t n = found - text;
-                memcpy(output+idx, text, n);
-                output[idx + n] = '\n';
-                idx = n + 1;
-                text = found + 2;
-            }
-            else {
-                size_t left_text_len = strlen(text);
-                memcpy(output+idx, text, left_text_len);
-                if (output[idx + left_text_len - 1] == '\n')
-                    output[idx + left_text_len - 1] = '\0';
-                else
-                    output[idx + left_text_len] = '\0';
-                break;
-            }
-        } while(1);
-        return strlen(output) + 1;
+    if (!ass) return 0;
+
+    const char *tok = ass;
+
+    // The ass string may have a "Dialogue: " prefix (native ASS/SRT-in-MKV via ff_ass_add_rect)
+    // or may start directly with fields (some FFmpeg versions omit the prefix).
+    // Format: [Dialogue: ]ReadOrder,Layer,Style,Name,MarginL,MarginR,MarginV,Effect,Text
+    // Skip past colon if present, then skip 8 commas to reach Text.
+    const char *colon = strchr(tok, ':');
+    if (colon) tok = colon + 1;
+    // If no colon, tok stays at the start of the ass string (ReadOrder,...,Text)
+
+    // Skip 8 commas: ReadOrder,Layer,Style,Name,MarginL,MarginR,MarginV,Effect,[Text]
+    // Each strchr is NULL-safe with early return to avoid undefined behavior.
+    for (int i = 0; i < 8; i++) {
+        const char *comma = strchr(tok, ',');
+        if (!comma) return 0;
+        tok = comma + 1;
     }
-    return 0;
+
+    // tok now points to the Text field
+    const char *text = tok;
+    size_t idx = 0;
+    do {
+        const char *found = strstr(text, "\\N");
+        if (found) {
+            size_t n = (size_t)(found - text);
+            memcpy(output + idx, text, n);
+            output[idx + n] = '\n';
+            idx += n + 1;
+            text = found + 2;
+        } else {
+            size_t left_text_len = strlen(text);
+            memcpy(output + idx, text, left_text_len);
+            if (left_text_len > 0 && output[idx + left_text_len - 1] == '\n')
+                output[idx + left_text_len - 1] = '\0';
+            else
+                output[idx + left_text_len] = '\0';
+            break;
+        }
+    } while (1);
+    return strlen(output) + 1;
 }
 
 static void video_image_display2(FFPlayer *ffp)
@@ -979,7 +984,40 @@ static void video_image_display2(FFPlayer *ffp)
                                 strncpy(buffered_text, sp->sub.rects[0]->text, 4096);
                             }
                             else if (sp->sub.rects[0]->ass) {
-                                parse_ass_subtitle(sp->sub.rects[0]->ass, buffered_text);
+                                const char *ass_str = sp->sub.rects[0]->ass;
+                                int ass_len = (int)strlen(ass_str);
+                                // DEBUG: print first 24 raw bytes as hex to confirm format
+                                av_log(NULL, AV_LOG_WARNING,
+                                    "[VidAll_ASS] len=%d hex=[%02x %02x %02x %02x %02x %02x %02x %02x "
+                                    "%02x %02x %02x %02x %02x %02x %02x %02x "
+                                    "%02x %02x %02x %02x %02x %02x %02x %02x] str=%.80s\n",
+                                    ass_len,
+                                    (ass_len>0?(unsigned char)ass_str[0]:0),
+                                    (ass_len>1?(unsigned char)ass_str[1]:0),
+                                    (ass_len>2?(unsigned char)ass_str[2]:0),
+                                    (ass_len>3?(unsigned char)ass_str[3]:0),
+                                    (ass_len>4?(unsigned char)ass_str[4]:0),
+                                    (ass_len>5?(unsigned char)ass_str[5]:0),
+                                    (ass_len>6?(unsigned char)ass_str[6]:0),
+                                    (ass_len>7?(unsigned char)ass_str[7]:0),
+                                    (ass_len>8?(unsigned char)ass_str[8]:0),
+                                    (ass_len>9?(unsigned char)ass_str[9]:0),
+                                    (ass_len>10?(unsigned char)ass_str[10]:0),
+                                    (ass_len>11?(unsigned char)ass_str[11]:0),
+                                    (ass_len>12?(unsigned char)ass_str[12]:0),
+                                    (ass_len>13?(unsigned char)ass_str[13]:0),
+                                    (ass_len>14?(unsigned char)ass_str[14]:0),
+                                    (ass_len>15?(unsigned char)ass_str[15]:0),
+                                    (ass_len>16?(unsigned char)ass_str[16]:0),
+                                    (ass_len>17?(unsigned char)ass_str[17]:0),
+                                    (ass_len>18?(unsigned char)ass_str[18]:0),
+                                    (ass_len>19?(unsigned char)ass_str[19]:0),
+                                    (ass_len>20?(unsigned char)ass_str[20]:0),
+                                    (ass_len>21?(unsigned char)ass_str[21]:0),
+                                    (ass_len>22?(unsigned char)ass_str[22]:0),
+                                    (ass_len>23?(unsigned char)ass_str[23]:0),
+                                    ass_str);
+                                parse_ass_subtitle(ass_str, buffered_text);
                             }
                             ffp_notify_msg4(ffp, FFP_MSG_TIMED_TEXT, 0, 0, buffered_text, sizeof(buffered_text));
                         }
