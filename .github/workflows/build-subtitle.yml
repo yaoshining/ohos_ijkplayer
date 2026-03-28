@@ -109,13 +109,17 @@ jobs:
           ls tpc_c_cplusplus/lycium/
 
       # ── 4. 运行 prebuild（编译 FFmpeg + 依赖 + 产出 third_party）─────────
-      # 缓存编译产物（首次约 2-3h，命中后直接跳过）
+      # 同时缓存：编译产物(tpc_c_cplusplus/thirdparty) + 安装目录(ijkplayer/src/main/cpp/third_party)
+      # prebuild.sh 的 install_depends() 会把 lycium/usr/* 复制到 third_party/，两者都要缓存
       - name: Cache compiled thirdparty libs
         id: cache-thirdparty
         uses: actions/cache@v4
         with:
-          path: tpc_c_cplusplus/thirdparty
-          key: thirdparty-${{ hashFiles('prebuild.sh', 'doc/FFmpeg/ohos_ijkffmpeg_config.sh') }}-v1
+          path: |
+            tpc_c_cplusplus/thirdparty
+            tpc_c_cplusplus/lycium/usr
+            ijkplayer/src/main/cpp/third_party
+          key: thirdparty-${{ hashFiles('prebuild.sh', 'doc/FFmpeg/ohos_ijkffmpeg_config.sh') }}-v2
 
       # prebuild.sh 内部调用 apt install（无 sudo），用 sudo 运行以获得权限
       - name: Run prebuild.sh
