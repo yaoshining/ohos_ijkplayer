@@ -921,16 +921,17 @@ static void free_picture(Frame *vp)
 static size_t parse_ass_subtitle(const char *ass, char *output)
 {
     char *tok = NULL;
-    tok = strchr(ass, ':'); if (tok) tok += 1; // skip event
-    tok = strchr(tok, ','); if (tok) tok += 1; // skip layer
-    tok = strchr(tok, ','); if (tok) tok += 1; // skip start_time
-    tok = strchr(tok, ','); if (tok) tok += 1; // skip end_time
-    tok = strchr(tok, ','); if (tok) tok += 1; // skip style
-    tok = strchr(tok, ','); if (tok) tok += 1; // skip name
-    tok = strchr(tok, ','); if (tok) tok += 1; // skip margin_l
-    tok = strchr(tok, ','); if (tok) tok += 1; // skip margin_r
-    tok = strchr(tok, ','); if (tok) tok += 1; // skip margin_v
-    tok = strchr(tok, ','); if (tok) tok += 1; // skip effect
+    // ff_ass_add_rect format: "Dialogue: ReadOrder,Layer,Style,Name,0,0,0,,Text"
+    // 9 fields separated by 8 commas; skip 8 commas to reach Text.
+    tok = strchr(ass, ':'); if (tok) tok += 1; // skip "Dialogue:"
+    tok = strchr(tok, ','); if (tok) tok += 1; // skip ReadOrder
+    tok = strchr(tok, ','); if (tok) tok += 1; // skip Layer
+    tok = strchr(tok, ','); if (tok) tok += 1; // skip Style
+    tok = strchr(tok, ','); if (tok) tok += 1; // skip Name
+    tok = strchr(tok, ','); if (tok) tok += 1; // skip MarginL
+    tok = strchr(tok, ','); if (tok) tok += 1; // skip MarginR
+    tok = strchr(tok, ','); if (tok) tok += 1; // skip MarginV
+    tok = strchr(tok, ','); if (tok) tok += 1; // skip Effect (empty) → at Text
     if (tok) {
         char *text = tok;
         size_t idx = 0;
@@ -973,6 +974,7 @@ static void video_image_display2(FFPlayer *ffp)
                     if (!sp->uploaded) {
                         if (sp->sub.num_rects > 0) {
                             char buffered_text[4096];
+                            buffered_text[0] = '\0';
                             if (sp->sub.rects[0]->text) {
                                 strncpy(buffered_text, sp->sub.rects[0]->text, 4096);
                             }
