@@ -161,18 +161,33 @@ jobs:
           BUILD_DIR=${{ github.workspace }}/ijkplayer/src/main/cpp/build_arm64
           mkdir -p $OUTDIR
 
-          echo "=== All .so in build dir (real sizes) ==="
-          find $BUILD_DIR -name "*.so" -exec ls -lh {} \;
+          echo "=== build_arm64 根目录 .so 诊断 ==="
+          ls -lh $BUILD_DIR/*.so 2>/dev/null || echo "No .so in root"
+          file $BUILD_DIR/*.so 2>/dev/null || true
 
-          # cp -L 跟随符号链接，复制真实文件而不是链接文本
-          find $BUILD_DIR -name "*.so" -exec cp -L {} $OUTDIR/ \;
+          # 直接按名拷贝 build_arm64 根目录下的目标 .so
+          # 不用 find 递归，避免 CMakeFiles/ 子目录里的同名 symlink 覆盖真实文件
+          for SO in libijkplayer.so libijksdl.so libijkplayer_napi.so libijkplayer_audio_napi.so; do
+            SRC="$BUILD_DIR/$SO"
+            if [ -e "$SRC" ]; then
+              REAL=$(readlink -f "$SRC")
+              cp "$REAL" "$OUTDIR/$SO"
+              echo "OK $SO → $(ls -lh $OUTDIR/$SO | awk '{print $5}')"
+            else
+              echo "MISSING $SO"
+            fi
+          done
 
-          # 从 libs 目录（如果有）
-          find ${{ github.workspace }}/ijkplayer/libs/arm64-v8a \
-            -name "*.so" -exec cp -L {} $OUTDIR/ \; 2>/dev/null || true
+          # libc++_shared.so 来自 NDK libs 目录
+          LIBCPP=$(find ${{ github.workspace }} -path "*/arm64-v8a/libc++_shared.so" | head -1)
+          if [ -n "$LIBCPP" ]; then
+            cp "$(readlink -f $LIBCPP)" "$OUTDIR/libc++_shared.so"
+            echo "OK libc++_shared.so"
+          fi
 
           echo "=== Collected Artifacts ==="
           ls -lh $OUTDIR/
+          file $OUTDIR/*.so
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
