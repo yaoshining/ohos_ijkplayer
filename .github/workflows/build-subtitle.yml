@@ -154,17 +154,20 @@ jobs:
       - name: Collect artifacts
         run: |
           OUTDIR=${{ github.workspace }}/output/arm64-v8a
+          BUILD_DIR=${{ github.workspace }}/ijkplayer/src/main/cpp/build_arm64
           mkdir -p $OUTDIR
 
-          # 从 CMake build 目录
-          find ${{ github.workspace }}/ijkplayer/src/main/cpp/build_arm64 \
-            -name "*.so" -exec cp {} $OUTDIR/ \;
+          echo "=== All .so in build dir (real sizes) ==="
+          find $BUILD_DIR -name "*.so" -exec ls -lh {} \;
+
+          # cp -L 跟随符号链接，复制真实文件而不是链接文本
+          find $BUILD_DIR -name "*.so" -exec cp -L {} $OUTDIR/ \;
 
           # 从 libs 目录（如果有）
           find ${{ github.workspace }}/ijkplayer/libs/arm64-v8a \
-            -name "*.so" -exec cp {} $OUTDIR/ \; 2>/dev/null || true
+            -name "*.so" -exec cp -L {} $OUTDIR/ \; 2>/dev/null || true
 
-          echo "=== Artifacts ==="
+          echo "=== Collected Artifacts ==="
           ls -lh $OUTDIR/
 
       - name: Upload artifacts
