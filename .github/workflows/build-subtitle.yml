@@ -5,6 +5,7 @@ on:
   push:
     paths:
       - 'doc/FFmpeg/ohos_ijkffmpeg_config.sh'
+      - 'ijkplayer/src/main/cpp/ijkplayer/ff_ffplay.c'
       - '.github/workflows/build-subtitle.yml'
 
 jobs:
