@@ -980,16 +980,13 @@ static void video_image_display2(FFPlayer *ffp)
                         if (sp->sub.num_rects > 0) {
                             char buffered_text[4096];
                             buffered_text[0] = '\0';
-                            if (sp->sub.rects[0]->text) {
-                                strncpy(buffered_text, sp->sub.rects[0]->text, 4096);
-                            }
-                            else if (sp->sub.rects[0]->ass) {
+                            // Prefer ass (canonical field, avoids raw byte garbage in text).
+                            // text is deprecated in modern FFmpeg and may contain unprocessed bytes.
+                            if (sp->sub.rects[0]->ass) {
                                 const char *ass_str = sp->sub.rects[0]->ass;
                                 int ass_len = (int)strlen(ass_str);
-                                // DEBUG: print first 24 raw bytes as hex to confirm format
-                                av_log(NULL, AV_LOG_WARNING,
+                                av_log(NULL, AV_LOG_ERROR,
                                     "[VidAll_ASS] len=%d hex=[%02x %02x %02x %02x %02x %02x %02x %02x "
-                                    "%02x %02x %02x %02x %02x %02x %02x %02x "
                                     "%02x %02x %02x %02x %02x %02x %02x %02x] str=%.80s\n",
                                     ass_len,
                                     (ass_len>0?(unsigned char)ass_str[0]:0),
@@ -1008,16 +1005,33 @@ static void video_image_display2(FFPlayer *ffp)
                                     (ass_len>13?(unsigned char)ass_str[13]:0),
                                     (ass_len>14?(unsigned char)ass_str[14]:0),
                                     (ass_len>15?(unsigned char)ass_str[15]:0),
-                                    (ass_len>16?(unsigned char)ass_str[16]:0),
-                                    (ass_len>17?(unsigned char)ass_str[17]:0),
-                                    (ass_len>18?(unsigned char)ass_str[18]:0),
-                                    (ass_len>19?(unsigned char)ass_str[19]:0),
-                                    (ass_len>20?(unsigned char)ass_str[20]:0),
-                                    (ass_len>21?(unsigned char)ass_str[21]:0),
-                                    (ass_len>22?(unsigned char)ass_str[22]:0),
-                                    (ass_len>23?(unsigned char)ass_str[23]:0),
                                     ass_str);
                                 parse_ass_subtitle(ass_str, buffered_text);
+                            } else if (sp->sub.rects[0]->text) {
+                                const char *txt_str = sp->sub.rects[0]->text;
+                                int txt_len = (int)strlen(txt_str);
+                                av_log(NULL, AV_LOG_ERROR,
+                                    "[VidAll_TXT] len=%d hex=[%02x %02x %02x %02x %02x %02x %02x %02x "
+                                    "%02x %02x %02x %02x %02x %02x %02x %02x] str=%.80s\n",
+                                    txt_len,
+                                    (txt_len>0?(unsigned char)txt_str[0]:0),
+                                    (txt_len>1?(unsigned char)txt_str[1]:0),
+                                    (txt_len>2?(unsigned char)txt_str[2]:0),
+                                    (txt_len>3?(unsigned char)txt_str[3]:0),
+                                    (txt_len>4?(unsigned char)txt_str[4]:0),
+                                    (txt_len>5?(unsigned char)txt_str[5]:0),
+                                    (txt_len>6?(unsigned char)txt_str[6]:0),
+                                    (txt_len>7?(unsigned char)txt_str[7]:0),
+                                    (txt_len>8?(unsigned char)txt_str[8]:0),
+                                    (txt_len>9?(unsigned char)txt_str[9]:0),
+                                    (txt_len>10?(unsigned char)txt_str[10]:0),
+                                    (txt_len>11?(unsigned char)txt_str[11]:0),
+                                    (txt_len>12?(unsigned char)txt_str[12]:0),
+                                    (txt_len>13?(unsigned char)txt_str[13]:0),
+                                    (txt_len>14?(unsigned char)txt_str[14]:0),
+                                    (txt_len>15?(unsigned char)txt_str[15]:0),
+                                    txt_str);
+                                strncpy(buffered_text, txt_str, 4096);
                             }
                             ffp_notify_msg4(ffp, FFP_MSG_TIMED_TEXT, 0, 0, buffered_text, sizeof(buffered_text));
                         }
