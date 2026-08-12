@@ -537,7 +537,7 @@ configure_samba() {
   log "交叉配置 Samba"
   cd "$SAMBA_DIR"
   [ -f bin/asn1_compile ] && [ -f bin/compile_et ] || die "host 工具缺失"
-  ./configure \
+  if ! ./configure \
     --cross-compile --cross-answers=build-cache/cross-answers.txt \
     --host=$HOST_TRIPLET --hostcc="${HOSTCC:-$(command -v clang)}" \
     --bundled-libraries=ALL --private-libraries=ALL \
@@ -545,7 +545,11 @@ configure_samba() {
     --disable-python --without-ad-dc --disable-fault-handling \
     --without-ldb-lmdb --without-gettext --without-json \
     --without-systemd --without-libarchive --without-acl-support \
-    --without-ldap --without-ads --without-pam
+    --without-ldap --without-ads --without-pam; then
+    # Waf appends missing probe names as UNKNOWN; expose only this generated build input.
+    cat build-cache/cross-answers.txt >&2
+    return 1
+  fi
 }
 
 build_samba() {
