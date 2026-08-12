@@ -1,0 +1,84 @@
+name: Build FFmpeg 8 OpenHarmony SDK
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'tools/ffmpeg8/**'
+      - '.github/workflows/build-ffmpeg8.yml'
+  pull_request:
+    paths:
+      - 'tools/ffmpeg8/**'
+      - '.github/workflows/build-ffmpeg8.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        architecture: [arm64-v8a, x86_64]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq build-essential curl make nasm pkg-config unzip xz-utils
+
+      - name: Cache OpenHarmony NDK
+        id: cache-ndk
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/ohos-native-ndk
+          key: ohos-native-ndk-harmonyos-5.0.0-release-linux-v1
+
+      - name: Download OpenHarmony NDK
+        if: steps.cache-ndk.outputs.cache-hit != 'true'
+        env:
+          SDK_URL: https://repo.huaweicloud.com/harmonyos/os/5.0.0-Release/ohos-sdk-windows_linux-public.tar.gz
+          SDK_SHA256: f06a2a8ae38a3cf01c583557f5a4bb1e6e3626df975599aa71f4a59e9af70ecc
+          NDK_DIR: ${{ runner.temp }}/ohos-native-ndk
+        run: |
+          set -euo pipefail
+          mkdir -p "$NDK_DIR" "$RUNNER_TEMP/ohos-sdk-download"
+          cd "$RUNNER_TEMP/ohos-sdk-download"
+          curl --fail --location --retry 3 --output sdk.tar.gz "$SDK_URL"
+          printf '%s  sdk.tar.gz\n' "$SDK_SHA256" | sha256sum --check --strict
+          native_zip=$(tar -tzf sdk.tar.gz | grep -E '/native-linux-x64-.*-Release\.zip$' | head -1)
+          test -n "$native_zip"
+          tar -xzf sdk.tar.gz -O "$native_zip" > native.zip
+          unzip -q native.zip -d "$NDK_DIR"
+          if [ -d "$NDK_DIR/native" ]; then
+            mv "$NDK_DIR/native"/* "$NDK_DIR"/
+            rmdir "$NDK_DIR/native"
+          fi
+          test -x "$NDK_DIR/llvm/bin/aarch64-unknown-linux-ohos-clang"
+          test -x "$NDK_DIR/llvm/bin/x86_64-unknown-linux-ohos-clang"
+          test -x "$NDK_DIR/llvm/bin/llvm-readelf"
+          test -d "$NDK_DIR/sysroot"
+
+      - name: Build FFmpeg 8 shared SDK (${{ matrix.architecture }})
+        env:
+          OHOS_NDK: ${{ runner.temp }}/ohos-native-ndk
+          OHOS_ARCH: ${{ matrix.architecture }}
+        run: ./tools/ffmpeg8/build.sh
+
+      - name: Verify packaged ELF metadata (${{ matrix.architecture }})
+        env:
+          OHOS_NDK: ${{ runner.temp }}/ohos-native-ndk
+        run: ./tools/ffmpeg8/verify.sh out/ffmpeg8/${{ matrix.architecture }}
+
+      - name: Upload FFmpeg 8 SDK (${{ matrix.architecture }})
+        uses: actions/upload-artifact@v4
+        with:
+          name: ffmpeg-8.0-ohos-${{ matrix.architecture }}
+          path: out/ffmpeg8/${{ matrix.architecture }}/
+          if-no-files-found: error
+          retention-days: 14
