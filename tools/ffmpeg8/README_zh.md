@@ -54,14 +54,15 @@ OHOS_ARCH=x86_64 JOBS=8 \
   licenses/FFmpeg-LGPL-2.1-or-later.txt
   VERSION                        # 版本、源码 URL、SHA-256、目标与 configure 参数
   MANIFEST.tsv                   # 每个打包文件及字节大小
-  ELF-REPORT.txt                 # ELF 架构、OS ABI、SONAME、DT_NEEDED 与大小
+  protocols.txt                  # 实际编入 libavformat 的 URL protocol 清单
+  ELF-REPORT.txt                 # ELF 架构、OS ABI、SONAME、DT_NEEDED、RPATH 与大小
 ```
 
 构建在安装前会断言 ABI 目标版本：`libavutil` 60.8.100、`libavcodec` 62.11.100、`libavformat` 62.3.100。版本不匹配会失败，而不会生成不兼容 SDK。
 
 ## 功能与许可证
 
-构建保留 FFmpeg 标准组件边界和内置 demuxer、parser、解码器、字幕、滤镜、缩放与重采样能力，并启用 `http`、`tcp`、`rtmp`、`rtp`、`udp` 等不依赖 TLS 后端的网络协议；不采用 IJK 的 `--disable-everything` 式裁剪。由于构建关闭自动探测且未链接外部 TLS 后端，本产物不提供 `https`、`tls` 或 `rtmps`。启用 `libsmbclient` 会链接 GPLv3 Samba 组件，因此 SDK 明确使用 GPLv3 发布，不能描述为纯 LGPL 制品。完整许可证随产物位于 `licenses/`，源码和配置可审计信息位于 `VERSION`。
+构建保留 FFmpeg 标准组件边界和内置 demuxer、parser、解码器、字幕、滤镜、缩放与重采样能力，并启用 `http`、`https`、`tls`、`tcp`、`rtmp`、`rtp`、`udp` 等网络协议；不采用 IJK 的 `--disable-everything` 式裁剪。`https`/`tls` 使用与 libsmbclient 一同构建的 GnuTLS 静态闭包，不新增运行时 TLS `.so` 依赖。启用 `libsmbclient` 会链接 GPLv3 Samba 组件，因此 SDK 明确使用 GPLv3 发布，不能描述为纯 LGPL 制品。完整许可证随产物位于 `licenses/`，源码和配置可审计信息位于 `VERSION`、`configure-options.txt` 和 `protocols.txt`。
 
 ## 验证
 
@@ -73,7 +74,7 @@ export OHOS_NDK=/absolute/path/to/openharmony/ndk
 ./tools/ffmpeg8/verify.sh out/ffmpeg8/x86_64
 ```
 
-校验使用 NDK 的 `llvm-readelf`，对每个库要求 `ELF64`、与目标匹配的 `AArch64` 或 `X86-64` machine，并严格检查 SONAME 主版本（`avcodec` 62、`avformat` 62、`avutil` 60、`avfilter` 11、`swscale` 9、`swresample` 6）。`DT_NEEDED` 中的 FFmpeg SDK 依赖只能指向这六个已打包库；未知、缺失或未声明的 SDK 同级依赖会失败，NDK 平台系统库则不依赖脆弱的固定白名单。校验结果包含 `DT_NEEDED`、SONAME 和文件大小，并写入 `ELF-REPORT.txt`。
+校验使用 NDK 的 `llvm-readelf`，对每个库要求 `ELF64`、与目标匹配的 `AArch64` 或 `X86-64` machine，并严格检查 SONAME 主版本（`avcodec` 62、`avformat` 62、`avutil` 60、`avfilter` 11、`swscale` 9、`swresample` 6）。`DT_NEEDED` 中的 FFmpeg SDK 依赖只能指向这六个已打包库；未知、缺失或未声明的 SDK 同级依赖会失败，所有库不得包含 `RPATH`/`RUNPATH`。校验同时要求 `VERSION`、configure 证据、protocol 清单及 `libavformat.so` 均证明 `https`/`tls` 已启用。结果写入 `ELF-REPORT.txt`。
 
 ## 与旧 IJK 播放器的关系
 
