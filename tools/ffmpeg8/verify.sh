@@ -1,118 +1,47 @@
 #!/usr/bin/env bash
-# Validate the packaged OpenHarmony ELF ABI and record linker metadata.
+# Validate packaged OpenHarmony FFmpeg 8 GPL SMB SDK and record ELF metadata.
 set -euo pipefail
-
-SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 PREFIX=${1:-}
 [ -n "$PREFIX" ] || { echo "usage: $0 <ffmpeg-sdk-prefix>" >&2; exit 2; }
 [ -d "$PREFIX/lib" ] || { echo "error: missing SDK lib directory: $PREFIX/lib" >&2; exit 1; }
-
-fail() {
-    echo "error: $*" >&2
-    exit 1
-}
-
-expected_soname() {
-    case "$1" in
-        avcodec) printf '%s\n' libavcodec.so.62 ;;
-        avformat) printf '%s\n' libavformat.so.62 ;;
-        avutil) printf '%s\n' libavutil.so.60 ;;
-        avfilter) printf '%s\n' libavfilter.so.11 ;;
-        swscale) printf '%s\n' libswscale.so.9 ;;
-        swresample) printf '%s\n' libswresample.so.6 ;;
-        *) return 1 ;;
-    esac
-}
-
-validate_dependency() {
-    local dependency=$1 owner=$2
-    case "$dependency" in
-        libavcodec.so.62|libavformat.so.62|libavutil.so.60|libavfilter.so.11|libswscale.so.9|libswresample.so.6)
-            [ -e "$PREFIX/lib/$dependency" ] ||
-                fail "$owner requires missing FFmpeg sibling: $dependency"
-            ;;
-        libav*.so|libav*.so.*|libsw*.so|libsw*.so.*|libpostproc.so|libpostproc.so.*)
-            fail "$owner requires unknown FFmpeg sibling: $dependency"
-            ;;
-        *)
-            if [ -e "$PREFIX/lib/$dependency" ] || [ -L "$PREFIX/lib/$dependency" ]; then
-                fail "$owner requires undeclared SDK sibling: $dependency"
-            fi
-            ;;
-    esac
-}
-
-find_readelf() {
-    if [ -n "${LLVM_READELF:-}" ]; then
-        printf '%s\n' "$LLVM_READELF"
-        return
-    fi
+fail() { echo "error: $*" >&2; exit 1; }
+expected_soname() { case "$1" in avcodec) echo libavcodec.so.62;; avformat) echo libavformat.so.62;; avutil) echo libavutil.so.60;; avfilter) echo libavfilter.so.11;; swscale) echo libswscale.so.9;; swresample) echo libswresample.so.6;; *) return 1;; esac; }
+find_tool() {
+    local env_name=$1 executable=$2 candidate
+    candidate=${!env_name:-}
+    [ -n "$candidate" ] && [ -x "$candidate" ] && { echo "$candidate"; return; }
     if [ -n "${OHOS_NDK:-}" ]; then
-        local candidate="${OHOS_LLVM_BIN:-$OHOS_NDK/llvm/bin}/llvm-readelf"
-        [ -x "$candidate" ] && { printf '%s\n' "$candidate"; return; }
-        candidate=$(find "$OHOS_NDK" -type f -name llvm-readelf -perm -111 -print -quit)
-        [ -n "$candidate" ] && { printf '%s\n' "$candidate"; return; }
+        candidate="${OHOS_LLVM_BIN:-$OHOS_NDK/llvm/bin}/$executable"
+        [ -x "$candidate" ] && { echo "$candidate"; return; }
+        candidate=$(find "$OHOS_NDK" -type f -name "$executable" -perm -111 -print -quit)
+        [ -n "$candidate" ] && { echo "$candidate"; return; }
     fi
-    command -v llvm-readelf 2>/dev/null || true
+    command -v "$executable" 2>/dev/null || true
 }
-
-READELF=$(find_readelf)
-[ -n "$READELF" ] && [ -x "$READELF" ] || { echo "error: llvm-readelf not found; set OHOS_NDK or LLVM_READELF" >&2; exit 1; }
-
+READELF=$(find_tool LLVM_READELF llvm-readelf); NM=$(find_tool LLVM_NM llvm-nm)
+[ -n "$READELF" ] && [ -x "$READELF" ] || fail "llvm-readelf not found; set OHOS_NDK or LLVM_READELF"
+[ -n "$NM" ] && [ -x "$NM" ] || fail "llvm-nm not found; set OHOS_NDK or LLVM_NM"
+TARGET=$(awk -F= '$1 == "target" {print $2; exit}' "$PREFIX/VERSION")
+ARCHITECTURE=$(awk -F= '$1 == "architecture" {print $2; exit}' "$PREFIX/VERSION")
+[ "$(awk -F= '$1 == "libsmbclient" {print $2; exit}' "$PREFIX/VERSION")" = enabled ] || fail "VERSION does not record libsmbclient=enabled"
+grep -Fxq -- '--enable-libsmbclient' "$PREFIX/configure-options.txt" || fail "missing --enable-libsmbclient configure proof"
+grep -Fxq -- '--enable-gpl' "$PREFIX/configure-options.txt" || fail "missing --enable-gpl configure proof"
+case "$TARGET:$ARCHITECTURE" in aarch64-unknown-linux-ohos:arm64-v8a) expected_machine=AArch64;; x86_64-unknown-linux-ohos:x86_64) expected_machine=X86-64;; *) fail "unsupported target metadata: $TARGET ($ARCHITECTURE)";; esac
+for item in include/libavcodec include/libavformat include/libavutil include/libavfilter include/libswresample include/libswscale lib/pkgconfig/libavcodec.pc lib/pkgconfig/libavformat.pc lib/pkgconfig/libavutil.pc lib/pkgconfig/libavfilter.pc lib/pkgconfig/libswresample.pc lib/pkgconfig/libswscale.pc licenses/FFmpeg-LGPL-2.1-or-later.txt licenses/GPL-3.0-or-later.txt VERSION; do [ -e "$PREFIX/$item" ] || fail "missing exported SDK item: $item"; done
+for pc in "$PREFIX"/lib/pkgconfig/*.pc; do ! grep -Fq "$PREFIX" "$pc" || fail "absolute build prefix leaked into $pc"; done
+if find "$PREFIX" -type f -name 'libav*.a' -o -name 'libsw*.a' | grep -q .; then fail "static libav/libsw archive exported"; fi
 REPORT="$PREFIX/ELF-REPORT.txt"
-TARGET=unknown
-ARCHITECTURE=unknown
-if [ -f "$PREFIX/VERSION" ]; then
-    TARGET=$(awk -F= '$1 == "target" { print $2; exit }' "$PREFIX/VERSION")
-    ARCHITECTURE=$(awk -F= '$1 == "architecture" { print $2; exit }' "$PREFIX/VERSION")
-fi
-case "$TARGET:$ARCHITECTURE" in
-    aarch64-unknown-linux-ohos:arm64-v8a) ;;
-    x86_64-unknown-linux-ohos:x86_64) ;;
-    *) echo "error: unsupported OpenHarmony SDK target: $TARGET ($ARCHITECTURE)" >&2; exit 1 ;;
-esac
-{
-    echo "FFmpeg OpenHarmony ELF verification"
-    echo "target=$TARGET"
-    echo "architecture=$ARCHITECTURE"
-    echo "readelf=$READELF"
-    echo
-} > "$REPORT"
-
+{ echo 'FFmpeg OpenHarmony ELF verification'; echo "target=$TARGET"; echo "architecture=$ARCHITECTURE"; echo "readelf=$READELF"; echo "nm=$NM"; echo 'libsmbclient=static-closure'; echo; } > "$REPORT"
 for library in avcodec avformat avutil avfilter swscale swresample; do
-    path="$PREFIX/lib/lib${library}.so"
-    [ -e "$path" ] || { echo "error: missing $path" >&2; exit 1; }
-    header=$("$READELF" --file-header "$path")
-    dynamic=$("$READELF" --dynamic "$path")
-    class=$(printf '%s\n' "$header" | awk -F: '/Class:/ { gsub(/^ +/, "", $2); print $2; exit }')
-    machine=$(printf '%s\n' "$header" | awk -F: '/Machine:/ { gsub(/^ +/, "", $2); print $2; exit }')
-    osabi=$(printf '%s\n' "$header" | awk -F: '/OS\/ABI:/ { gsub(/^ +/, "", $2); print $2; exit }')
-    [ "$class" = "ELF64" ] || { echo "error: $path is not ELF64 ($class)" >&2; exit 1; }
-    case "$ARCHITECTURE" in
-        arm64-v8a) case "$machine" in *AArch64*) ;; *) echo "error: $path is not AArch64 ($machine)" >&2; exit 1;; esac ;;
-        x86_64) case "$machine" in *X86-64*) ;; *) echo "error: $path is not x86_64 ($machine)" >&2; exit 1;; esac ;;
-    esac
-    soname=$(printf '%s\n' "$dynamic" | awk -F'[][]' '/SONAME/ { print $2; exit }')
-    [ -n "$soname" ] || { echo "error: $path has no SONAME" >&2; exit 1; }
-    expected=$(expected_soname "$library")
-    [ "$soname" = "$expected" ] ||
-        fail "$path has unexpected SONAME: expected $expected, got $soname"
-    needed=$(printf '%s\n' "$dynamic" | awk -F'[][]' '/NEEDED/ { print $2 }')
-    while IFS= read -r dependency; do
-        [ -n "$dependency" ] || continue
-        validate_dependency "$dependency" "lib${library}.so"
-    done <<< "$needed"
-    {
-        echo "library=lib${library}.so"
-        echo "size_bytes=$(wc -c < "$path" | tr -d ' ')"
-        echo "class=$class"
-        echo "machine=$machine"
-        echo "os_abi=$osabi"
-        echo "soname=$soname"
-        echo "dt_needed:"
-        printf '%s\n' "$needed" | awk 'NF { print "  " $0 }'
-        echo
-    } >> "$REPORT"
+    path="$PREFIX/lib/lib${library}.so"; [ -e "$path" ] || fail "missing $path"
+    header=$("$READELF" --file-header "$path"); dynamic=$("$READELF" --dynamic "$path")
+    class=$(printf '%s\n' "$header" | awk -F: '/Class:/ {gsub(/^ +/, "", $2); print $2; exit}')
+    machine=$(printf '%s\n' "$header" | awk -F: '/Machine:/ {gsub(/^ +/, "", $2); print $2; exit}')
+    [ "$class" = ELF64 ] || fail "$path is not ELF64 ($class)"; [[ "$machine" == *"$expected_machine"* ]] || fail "$path has wrong machine: $machine"
+    soname=$(printf '%s\n' "$dynamic" | awk -F'[][]' '/SONAME/ {print $2; exit}'); [ "$soname" = "$(expected_soname "$library")" ] || fail "$path has unexpected SONAME: $soname"
+    needed=$(printf '%s\n' "$dynamic" | awk -F'[][]' '/NEEDED/ {print $2}')
+    ! printf '%s\n' "$needed" | grep -Eq 'libsmbclient\.so|libav[^ ]*\.a|libsw[^ ]*\.a' || fail "$path has forbidden dynamic/static dependency"
+    { echo "library=lib${library}.so"; echo "size_bytes=$(wc -c < "$path" | tr -d ' ')"; echo "class=$class"; echo "machine=$machine"; echo "soname=$soname"; echo 'dt_needed:'; printf '%s\n' "$needed" | awk 'NF {print "  " $0}'; echo; } >> "$REPORT"
 done
-
+"$NM" -D "$PREFIX/lib/libavformat.so" | grep -Eq 'ff_libsmbclient_protocol|libsmbclient' || strings "$PREFIX/lib/libavformat.so" | grep -Fq 'libsmbclient' || fail 'libavformat does not expose the libsmbclient protocol'
 echo "ELF verification passed; report: $REPORT"

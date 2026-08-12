@@ -9,6 +9,9 @@ FFMPEG_VERSION=8.0
 FFMPEG_ARCHIVE="ffmpeg-${FFMPEG_VERSION}.tar.xz"
 FFMPEG_URL="https://ffmpeg.org/releases/${FFMPEG_ARCHIVE}"
 FFMPEG_SHA256="b2751fccb6cc4c77708113cd78b561059b6fa904b24162fa0be2d60273d27b8e"
+FFMPEG_TAG=n8.0
+FFMPEG_COMMIT=140fd653aed8cad774f991ba083e2d01e86420c7
+SMB_PATCH="$SCRIPT_DIR/patches/0001-libsmbclient-private-credentials.patch"
 OHOS_ARCH=${OHOS_ARCH:-arm64-v8a}
 case "$OHOS_ARCH" in
     arm64-v8a)
@@ -64,6 +67,9 @@ require_command curl
 require_command tar
 require_command shasum
 require_command make
+require_command pkg-config
+require_command patch
+[ -f "$SMB_PATCH" ] || fail "missing FFmpeg libsmbclient patch: $SMB_PATCH"
 
 LLVM_BIN=${OHOS_LLVM_BIN:-"$OHOS_NDK/llvm/bin"}
 [ -d "$LLVM_BIN" ] || LLVM_BIN=$(find "$OHOS_NDK" -type d -path '*/llvm/bin' -print -quit)
@@ -122,11 +128,24 @@ printf '%s\n' "ffmpeg8-ohos-sdk-v1" > "$PREFIX_MARKER"
 
 tar -C "$WORK_DIR" -xf "$ARCHIVE_PATH"
 [ -d "$SOURCE_DIR" ] || fail "archive did not create expected source directory: $SOURCE_DIR"
+"$SCRIPT_DIR/tests/test-libsmbclient-patch.sh" "$ARCHIVE_PATH"
 mkdir -p "$BUILD_DIR"
 cp -a "$SOURCE_DIR/." "$BUILD_DIR/"
+patch -d "$BUILD_DIR" -p1 < "$SMB_PATCH"
+
+# Build the complete, static Samba dependency closure in an isolated sysroot.
+SMB_SYSROOT=${FFMPEG8_SMB_SYSROOT:-"$WORK_DIR/smb-sysroot-$OHOS_ARCH"}
+if [ ! -f "$SMB_SYSROOT/lib/libsmbclient.a" ] || [ ! -f "$SMB_SYSROOT/lib/pkgconfig/smbclient.pc" ]; then
+    OHOS_ARCH="$OHOS_ARCH" OHOS_NDK="$OHOS_NDK" OHOS_LLVM_BIN="$LLVM_BIN" \
+        OHOS_SYSROOT="$SYSROOT" PREFIX="$SMB_SYSROOT" \
+        WORK_DIR="$WORK_DIR/samba-$OHOS_ARCH" "$SCRIPT_DIR/build-libsmbclient.sh"
+fi
+[ -f "$SMB_SYSROOT/include/libsmbclient.h" ] || fail "SMB sysroot is missing libsmbclient headers"
+[ -f "$SMB_SYSROOT/lib/libsmbclient.a" ] || fail "SMB sysroot is missing static libsmbclient"
+[ -f "$SMB_SYSROOT/lib/pkgconfig/smbclient.pc" ] || fail "SMB sysroot is missing smbclient.pc"
 
 # Keep FFmpeg's stock component boundaries and broad built-in media support.
-# External GPL/nonfree codecs are deliberately excluded for a reusable LGPL SDK.
+# libsmbclient is GPLv3; this SDK is consequently a GPLv3 distribution.
 CONFIGURE_OPTIONS=(
     --prefix="$PREFIX"
     --arch="$ARCH"
@@ -139,8 +158,10 @@ CONFIGURE_OPTIONS=(
     --ranlib="$RANLIB"
     --strip="$STRIP"
     --sysroot="$SYSROOT"
-    --extra-cflags="--target=${TARGET_TRIPLE} -fPIC"
-    --extra-ldflags="--target=${TARGET_TRIPLE}"
+    --extra-cflags="--target=${TARGET_TRIPLE} -fPIC -I$SMB_SYSROOT/include"
+    --extra-ldflags="--target=${TARGET_TRIPLE} -L$SMB_SYSROOT/lib"
+    --pkg-config=pkg-config
+    --pkg-config-flags=--static
     --disable-static
     --enable-shared
     --enable-pic
@@ -151,15 +172,29 @@ CONFIGURE_OPTIONS=(
     --disable-xlib
     --disable-sdl2
     --enable-network
-    --enable-protocol=file,http,tcp,httpproxy,rtmp,rtp,udp,crypto,data,pipe,concat,subfile,cache,async
-    --disable-gpl
+    --enable-protocol=file,http,tcp,httpproxy,rtmp,rtp,udp,crypto,data,pipe,concat,subfile,cache,async,smb
+    --enable-gpl
+    --enable-libsmbclient
     --disable-nonfree
 )
 
 pushd "$BUILD_DIR" >/dev/null
+export PKG_CONFIG_LIBDIR="$SMB_SYSROOT/lib/pkgconfig"
+export PKG_CONFIG_SYSROOT_DIR=
 ./configure "${CONFIGURE_OPTIONS[@]}"
+printf '%s\n' "${CONFIGURE_OPTIONS[@]}" > "$PREFIX/configure-options.txt"
+grep -Fxq -- "--enable-libsmbclient" "$PREFIX/configure-options.txt" || fail "FFmpeg configure did not retain --enable-libsmbclient"
+grep -Fxq -- "--enable-gpl" "$PREFIX/configure-options.txt" || fail "FFmpeg configure did not retain --enable-gpl"
+grep -Eq '^CONFIG_LIBSMBCLIENT_PROTOCOL=yes$' config_components.h || fail "FFmpeg did not enable the libsmbclient protocol"
+grep -Eq '^CONFIG_GPL=yes$' config.mak || fail "FFmpeg did not enable GPL mode"
 make -j"$JOBS"
 make install
+# FFmpeg writes an absolute configure prefix into its .pc files.  Make them
+# relocatable so a consumer can stage this SDK under any sysroot.
+for pc in "$PREFIX"/lib/pkgconfig/*.pc; do
+    sed -i.bak 's|^prefix=.*$|prefix=${pcfiledir}/../..|' "$pc"
+    rm -f -- "$pc.bak"
+done
 popd >/dev/null
 
 # These versions are the ABI contract required by VidAll_TV headers.
@@ -189,10 +224,17 @@ done
 
 mkdir -p "$PREFIX/licenses"
 cp "$BUILD_DIR/COPYING.LGPLv2.1" "$PREFIX/licenses/FFmpeg-LGPL-2.1-or-later.txt"
+cp "$BUILD_DIR/COPYING.GPLv3" "$PREFIX/licenses/GPL-3.0-or-later.txt"
 cat > "$PREFIX/VERSION" <<METADATA
 ffmpeg_version=${FFMPEG_VERSION}
 source_url=${FFMPEG_URL}
 source_sha256=${FFMPEG_SHA256}
+source_tag=${FFMPEG_TAG}
+source_commit=${FFMPEG_COMMIT}
+source_digest=sha256:${FFMPEG_SHA256}
+libsmbclient=enabled
+libsmbclient_linkage=static-closure
+smb_patch=patches/0001-libsmbclient-private-credentials.patch
 target=${TARGET_TRIPLE}
 architecture=${OHOS_ARCH}
 elf_machine=${ELF_MACHINE}
