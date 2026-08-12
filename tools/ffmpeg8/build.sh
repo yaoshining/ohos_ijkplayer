@@ -174,6 +174,7 @@ CONFIGURE_OPTIONS=(
     --enable-network
     --enable-protocol=file,http,tcp,httpproxy,rtmp,rtp,udp,crypto,data,pipe,concat,subfile,cache,async,smb
     --enable-gpl
+    --enable-version3
     --enable-libsmbclient
     --disable-nonfree
 )
