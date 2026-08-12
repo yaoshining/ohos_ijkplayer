@@ -80,7 +80,6 @@ int32_t CodecData::InputData(CodecBufferInfo &info, std::chrono::milliseconds ti
         OH_LOG_Print(LOG_APP, LOG_ERROR, LOG_DOMAIN, "DecoderData", "Catch EOS");
         return AV_ERR_OK;
     }
-    OH_AVBuffer_Destroy(bufferInfo.buff_);
     return AV_ERR_OK;
 }
 

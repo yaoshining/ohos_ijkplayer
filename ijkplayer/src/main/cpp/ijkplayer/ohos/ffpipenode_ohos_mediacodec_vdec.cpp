@@ -710,13 +710,12 @@ bool IJKFF_Pipenode_Opaque::DecoderOutput(AVFrame *frame)
     OH_AVBuffer_GetBufferAttr(codecBufferInfoReceive.buff_, &codecBufferInfoReceive.attr);
     OH_AVFormat *format = OH_VideoDecoder_GetOutputDescription(this->decoder.decoder_);
     if (qsvenc_get_continuous_buffer(frame, format, &codecBufferInfoReceive, codec) < 0) {
-        OH_AVBuffer_Destroy(codecBufferInfoReceive.buff_);
+        this->decoder.FreeOutputData(codecBufferInfoReceive.bufferIndex);
         OH_AVFormat_Destroy(format);
         return false;
     }
     OH_AVFormat_Destroy(format);
     this->decoder.FreeOutputData(codecBufferInfoReceive.bufferIndex);
-    OH_AVBuffer_Destroy(codecBufferInfoReceive.buff_);
     if (codecBufferInfoReceive.attr.flags == AVCODEC_BUFFER_FLAGS_EOS) {
         this->codecData.ShutDown();
     }
