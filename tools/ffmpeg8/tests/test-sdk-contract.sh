@@ -23,5 +23,6 @@ grep -Fq 'https://www.mirrorservice.org/sites/ftp.gnupg.org/gcrypt/gnutls/v3.8/g
 grep -Fq 'Libs.private:' "$smb"
 grep -Fq -- "--with-static-modules='ALL,!vfs_snapper'" "$smb"
 grep -Fq -- "--with-shared-modules='!DEFAULT,!vfs_snapper'" "$smb"
+grep -Fq 'Checking whether we can use Linux thread-specific credentials: NO' "$smb"
 ! grep -Fq 'git reset --hard' "$smb"
 echo 'FFmpeg 8 SMB SDK contract test passed'

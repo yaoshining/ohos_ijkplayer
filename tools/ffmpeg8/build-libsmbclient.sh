@@ -472,6 +472,8 @@ Checking whether the realpath function allows a NULL argument: OK
 Checking for ftruncate extend: OK
 Checking for readlink breakage: NO
 getcwd takes a NULL argument: OK
+# OpenHarmony lacks Linux's credential syscall behavior; use the available setreuid fallback.
+Checking whether we can use Linux thread-specific credentials: NO
 for QUOTACTL_4A: long quotactl(int cmd, char *special, qid_t id, caddr_t addr): NO
 EOF
   sed -i.bak "s/__UNAME_MACHINE__/$uname_machine/" "$SAMBA_DIR/build-cache/cross-answers.txt"
