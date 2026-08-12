@@ -171,8 +171,10 @@ CONFIGURE_OPTIONS=(
     --disable-autodetect
     --disable-xlib
     --disable-sdl2
+    --disable-x86asm
     --enable-network
-    --enable-protocol=file,http,tcp,httpproxy,rtmp,rtp,udp,crypto,data,pipe,concat,subfile,cache,async,smb
+    --enable-gnutls
+    --enable-protocol=file,http,https,tls,tcp,httpproxy,rtmp,rtp,udp,crypto,data,pipe,concat,subfile,cache,async,smb
     --enable-gpl
     --enable-version3
     --enable-libsmbclient
@@ -184,7 +186,11 @@ export PKG_CONFIG_LIBDIR="$SMB_SYSROOT/lib/pkgconfig"
 export PKG_CONFIG_SYSROOT_DIR=
 ./configure "${CONFIGURE_OPTIONS[@]}"
 printf '%s\n' "${CONFIGURE_OPTIONS[@]}" > "$PREFIX/configure-options.txt"
+awk '/^#define CONFIG_[A-Z0-9_]+_PROTOCOL 1$/ { name=$2; sub(/^CONFIG_/, "", name); sub(/_PROTOCOL$/, "", name); print tolower(name) }' config_components.h | LC_ALL=C sort -u > "$PREFIX/PROTOCOLS.txt"
 grep -Eq '^#define CONFIG_LIBSMBCLIENT_PROTOCOL 1$' config_components.h || fail "FFmpeg did not enable the libsmbclient protocol"
+grep -Eq '^#define CONFIG_HTTPS_PROTOCOL 1$' config_components.h || fail "FFmpeg did not enable the HTTPS protocol"
+grep -Eq '^#define CONFIG_TLS_PROTOCOL 1$' config_components.h || fail "FFmpeg did not enable the TLS protocol"
+grep -Eq '^#define CONFIG_GNUTLS 1$' config.h || fail "FFmpeg did not enable the GnuTLS backend"
 grep -Eq '^CONFIG_GPL=yes$' ffbuild/config.mak || fail "FFmpeg did not enable GPL mode"
 make -j"$JOBS"
 make install
@@ -238,6 +244,10 @@ source_commit=${FFMPEG_COMMIT}
 source_digest=sha256:${FFMPEG_SHA256}
 libsmbclient=enabled
 libsmbclient_linkage=static-closure
+tls_backend=gnutls
+tls_backend_linkage=static-closure
+https_protocol=enabled
+tls_protocol=enabled
 smb_patch=patches/0001-libsmbclient-private-credentials.patch
 target=${TARGET_TRIPLE}
 architecture=${OHOS_ARCH}
