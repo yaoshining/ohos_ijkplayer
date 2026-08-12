@@ -48,8 +48,6 @@ for library in avcodec avformat avutil avfilter swscale swresample; do
     ! printf '%s\n' "$needed" | grep -Eq 'libsmbclient\.so|lib(gnutls|tasn1|nettle|hogweed|gmp|popt|z)\.so|libav[^ ]*\.a|libsw[^ ]*\.a' || fail "$path has forbidden dynamic/static dependency"
     { echo "library=lib${library}.so"; echo "size_bytes=$(wc -c < "$path" | tr -d ' ')"; echo "class=$class"; echo "machine=$machine"; echo "soname=$soname"; echo 'dt_needed:'; printf '%s\n' "$needed" | awk 'NF {print "  " $0}'; echo; } >> "$REPORT"
 done
-"$NM" -D "$PREFIX/lib/libavformat.so" | grep -Eq 'ff_libsmbclient_protocol|libsmbclient' || strings "$PREFIX/lib/libavformat.so" | grep -Fq 'libsmbclient' || fail 'libavformat does not expose the libsmbclient protocol'
-for protocol in https tls; do
-    strings "$PREFIX/lib/libavformat.so" | grep -Fxq "$protocol" || fail "libavformat does not contain the $protocol protocol"
-done
+"$NM" -D "$PREFIX/lib/libavformat.so" | grep -Eq 'ff_libsmbclient_protocol|libsmbclient' || grep -aFq 'libsmbclient' "$PREFIX/lib/libavformat.so" || fail 'libavformat does not expose the libsmbclient protocol'
+grep -aFq 'gnutls_handshake' "$PREFIX/lib/libavformat.so" || fail 'libavformat does not contain the GnuTLS backend'
 echo "ELF verification passed; report: $REPORT"

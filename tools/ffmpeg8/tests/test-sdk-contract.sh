@@ -12,6 +12,7 @@ grep -Fq -- '--enable-protocol=file,http,https,tls,tcp,httpproxy,rtmp,rtp,udp,cr
 grep -Fq 'CONFIG_HTTPS_PROTOCOL' "$build"
 grep -Fq 'CONFIG_TLS_PROTOCOL' "$build"
 grep -Fq 'protocols.txt' "$build"
+grep -Fq 'gnutls_handshake' "$verify"
 grep -Fq -- '--enable-libsmbclient' "$build"
 grep -Fq -- '--enable-gpl' "$build"
 grep -Fq -- '--enable-version3' "$build"
