@@ -6,7 +6,7 @@
 
 - macOS 或 Linux 主机，已安装 `bash`、`curl`、`tar`、`make`、`shasum`。
 - `OHOS_NDK` 指向 OpenHarmony NDK 根目录；该目录必须包含 LLVM 工具链与 sysroot。
-- 默认 API Level 为 12。以 `OHOS_API_LEVEL=<level>` 覆盖；若 NDK 布局不同，可用 `OHOS_LLVM_BIN` 和 `OHOS_SYSROOT` 显式指定路径。
+- 若 NDK 布局不同，可用 `OHOS_LLVM_BIN` 和 `OHOS_SYSROOT` 显式指定路径。编译器使用不附加 API 后缀的 OpenHarmony target triple，API 能力由所选 NDK/sysroot 决定。
 
 ## 构建
 
@@ -25,14 +25,15 @@ b2751fccb6cc4c77708113cd78b561059b6fa904b24162fa0be2d60273d27b8e
 脚本下载源码至 `out/ffmpeg8-work/downloads/`，每次重新解压并在独立工作目录中配置，因此不会修改仓库内旧的 `doc/FFmpeg/` 或播放器第三方目录。可使用以下变量改变工作目录或安装前缀：
 
 ```bash
-FFMPEG8_WORK_DIR=/tmp/ffmpeg8-work \
-FFMPEG8_PREFIX=/tmp/ffmpeg8-sdk/x86_64 \
-OHOS_ARCH=x86_64 OHOS_API_LEVEL=12 JOBS=8 \
+FFMPEG8_WORK_DIR="$PWD/out/custom-ffmpeg8-work" \
+FFMPEG8_PREFIX="$PWD/out/custom-ffmpeg8-sdk/x86_64" \
+OHOS_ARCH=x86_64 JOBS=8 \
 ./tools/ffmpeg8/build.sh
 ```
 
 - `OHOS_ARCH` 支持 `arm64-v8a`（默认）和 `x86_64`。
 - 未显式设置 `FFMPEG8_PREFIX` 时，输出目录为 `out/ffmpeg8/$OHOS_ARCH/`。
+- 若显式设置的 `FFMPEG8_PREFIX` 已存在，脚本仅会清理带有本脚本 SDK 管理标记的旧输出；对未标记目录会直接失败，需调用方显式清理或改用新路径。
 
 ## 输出结构
 
@@ -59,7 +60,7 @@ OHOS_ARCH=x86_64 OHOS_API_LEVEL=12 JOBS=8 \
 
 ## 功能与许可证
 
-构建保留 FFmpeg 标准组件边界和内置网络、协议、demuxer、parser、解码器、字幕、滤镜、缩放与重采样能力；不采用 IJK 的 `--disable-everything` 式裁剪。外部 GPL/nonfree 编解码器不启用，因此 SDK 使用 FFmpeg LGPL v2.1-or-later 许可条款。完整许可证随产物位于 `licenses/`，源码和配置可审计信息位于 `VERSION`。
+构建保留 FFmpeg 标准组件边界和内置 demuxer、parser、解码器、字幕、滤镜、缩放与重采样能力，并启用 `http`、`tcp`、`rtmp`、`rtp`、`udp` 等不依赖 TLS 后端的网络协议；不采用 IJK 的 `--disable-everything` 式裁剪。由于构建关闭自动探测且未链接外部 TLS 后端，本产物不提供 `https`、`tls` 或 `rtmps`。外部 GPL/nonfree 编解码器不启用，因此 SDK 使用 FFmpeg LGPL v2.1-or-later 许可条款。完整许可证随产物位于 `licenses/`，源码和配置可审计信息位于 `VERSION`。
 
 ## 验证
 
@@ -71,7 +72,7 @@ export OHOS_NDK=/absolute/path/to/openharmony/ndk
 ./tools/ffmpeg8/verify.sh out/ffmpeg8/x86_64
 ```
 
-校验使用 NDK 的 `llvm-readelf`，对每个库要求 `ELF64`、与目标匹配的 `AArch64` 或 `X86-64` machine，以及存在 SONAME；它会将 `DT_NEEDED`、SONAME 和文件大小写入 `ELF-REPORT.txt`，作为发布前的 OpenHarmony ELF 记录。
+校验使用 NDK 的 `llvm-readelf`，对每个库要求 `ELF64`、与目标匹配的 `AArch64` 或 `X86-64` machine，并严格检查 SONAME 主版本（`avcodec` 62、`avformat` 62、`avutil` 60、`avfilter` 11、`swscale` 9、`swresample` 6）。`DT_NEEDED` 中的 FFmpeg SDK 依赖只能指向这六个已打包库；未知、缺失或未声明的 SDK 同级依赖会失败，NDK 平台系统库则不依赖脆弱的固定白名单。校验结果包含 `DT_NEEDED`、SONAME 和文件大小，并写入 `ELF-REPORT.txt`。
 
 ## 与旧 IJK 播放器的关系
 

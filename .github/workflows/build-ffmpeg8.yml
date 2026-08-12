@@ -43,12 +43,14 @@ jobs:
         if: steps.cache-ndk.outputs.cache-hit != 'true'
         env:
           SDK_URL: https://repo.huaweicloud.com/harmonyos/os/5.0.0-Release/ohos-sdk-windows_linux-public.tar.gz
+          SDK_SHA256: f06a2a8ae38a3cf01c583557f5a4bb1e6e3626df975599aa71f4a59e9af70ecc
           NDK_DIR: ${{ runner.temp }}/ohos-native-ndk
         run: |
           set -euo pipefail
           mkdir -p "$NDK_DIR" "$RUNNER_TEMP/ohos-sdk-download"
           cd "$RUNNER_TEMP/ohos-sdk-download"
           curl --fail --location --retry 3 --output sdk.tar.gz "$SDK_URL"
+          printf '%s  sdk.tar.gz\n' "$SDK_SHA256" | sha256sum --check --strict
           native_zip=$(tar -tzf sdk.tar.gz | grep -E '/native-linux-x64-.*-Release\.zip$' | head -1)
           test -n "$native_zip"
           tar -xzf sdk.tar.gz -O "$native_zip" > native.zip
@@ -65,7 +67,6 @@ jobs:
       - name: Build FFmpeg 8 shared SDK (${{ matrix.architecture }})
         env:
           OHOS_NDK: ${{ runner.temp }}/ohos-native-ndk
-          OHOS_API_LEVEL: '12'
           OHOS_ARCH: ${{ matrix.architecture }}
         run: ./tools/ffmpeg8/build.sh
 

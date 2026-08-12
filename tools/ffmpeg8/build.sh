@@ -26,14 +26,16 @@ case "$OHOS_ARCH" in
         exit 2
         ;;
 esac
-API_LEVEL=${OHOS_API_LEVEL:-12}
 JOBS=${JOBS:-$(getconf _NPROCESSORS_ONLN 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4)}
 WORK_DIR=${FFMPEG8_WORK_DIR:-"$REPO_ROOT/out/ffmpeg8-work"}
-PREFIX=${FFMPEG8_PREFIX:-"$REPO_ROOT/out/ffmpeg8/$OHOS_ARCH"}
+PREFIX_IS_CUSTOM=0
+if [ "${FFMPEG8_PREFIX+x}" = x ]; then
+    PREFIX=$FFMPEG8_PREFIX
+    PREFIX_IS_CUSTOM=1
+else
+    PREFIX="$REPO_ROOT/out/ffmpeg8/$OHOS_ARCH"
+fi
 
-case "$API_LEVEL" in
-    ''|*[!0-9]*) echo "error: OHOS_API_LEVEL must be a positive integer: $API_LEVEL" >&2; exit 2 ;;
-esac
 case "$JOBS" in
     ''|*[!0-9]*|0) echo "error: JOBS must be a positive integer: $JOBS" >&2; exit 2 ;;
 esac
@@ -42,6 +44,8 @@ fail() {
     echo "error: $*" >&2
     exit 1
 }
+
+[ -n "$PREFIX" ] || fail "FFMPEG8_PREFIX must not be empty"
 
 require_command() {
     command -v "$1" >/dev/null 2>&1 || fail "required command not found: $1"
@@ -83,7 +87,20 @@ fi
 actual_sha=$(shasum -a 256 "$ARCHIVE_PATH" | awk '{print $1}')
 [ "$actual_sha" = "$FFMPEG_SHA256" ] || fail "checksum mismatch for $ARCHIVE_PATH: expected $FFMPEG_SHA256, got $actual_sha"
 
-rm -rf "$SOURCE_DIR" "$BUILD_DIR" "$PREFIX"
+rm -rf "$SOURCE_DIR" "$BUILD_DIR"
+PREFIX_MARKER="$PREFIX/.ffmpeg8-ohos-sdk-managed"
+if [ -e "$PREFIX" ] || [ -L "$PREFIX" ]; then
+    if [ "$PREFIX_IS_CUSTOM" -eq 1 ]; then
+        [ -d "$PREFIX" ] &&
+            [ -f "$PREFIX_MARKER" ] &&
+            [ "$(cat "$PREFIX_MARKER")" = "ffmpeg8-ohos-sdk-v1" ] ||
+            fail "refusing to remove unmanaged FFMPEG8_PREFIX: $PREFIX; clean it explicitly or use a new path"
+    fi
+    rm -rf -- "$PREFIX"
+fi
+mkdir -p "$PREFIX"
+printf '%s\n' "ffmpeg8-ohos-sdk-v1" > "$PREFIX_MARKER"
+
 tar -C "$WORK_DIR" -xf "$ARCHIVE_PATH"
 [ -d "$SOURCE_DIR" ] || fail "archive did not create expected source directory: $SOURCE_DIR"
 mkdir -p "$BUILD_DIR"
@@ -115,7 +132,7 @@ CONFIGURE_OPTIONS=(
     --disable-xlib
     --disable-sdl2
     --enable-network
-    --enable-protocol=file,http,https,tcp,tls,httpproxy,rtmp,rtmps,rtp,udp,crypto,data,pipe,concat,subfile,cache,async
+    --enable-protocol=file,http,tcp,httpproxy,rtmp,rtp,udp,crypto,data,pipe,concat,subfile,cache,async
     --disable-gpl
     --disable-nonfree
 )
@@ -157,28 +174,38 @@ cat > "$PREFIX/VERSION" <<METADATA
 ffmpeg_version=${FFMPEG_VERSION}
 source_url=${FFMPEG_URL}
 source_sha256=${FFMPEG_SHA256}
-target=${TARGET_TRIPLE}${API_LEVEL}
+target=${TARGET_TRIPLE}
 architecture=${OHOS_ARCH}
 elf_machine=${ELF_MACHINE}
-api_level=${API_LEVEL}
 configuration=${CONFIGURE_OPTIONS[*]}
 METADATA
 
-{
-    printf 'path\tsize_bytes\n'
-    find "$PREFIX" -type f -print0 | LC_ALL=C sort -z | while IFS= read -r -d '' file; do
-        printf '%s\t%s\n' "${file#"$PREFIX/"}" "$(wc -c < "$file" | tr -d ' ')"
-    done
-} > "$PREFIX/MANIFEST.tsv"
+generate_manifest() {
+    local manifest="$PREFIX/MANIFEST.tsv"
+    local temporary="$PREFIX/.MANIFEST.tsv.tmp.$$"
+    if ! {
+        printf 'path\tsize_bytes\n'
+        find "$PREFIX" -type f \
+            ! -path "$manifest" \
+            ! -path "$PREFIX/.MANIFEST.tsv.tmp.*" \
+            -print0 |
+            LC_ALL=C sort -z |
+            while IFS= read -r -d '' file; do
+                printf '%s\t%s\n' "${file#"$PREFIX/"}" "$(wc -c < "$file" | tr -d ' ')"
+            done
+    } > "$temporary"; then
+        rm -f -- "$temporary"
+        return 1
+    fi
+    if ! mv -f -- "$temporary" "$manifest"; then
+        rm -f -- "$temporary"
+        return 1
+    fi
+}
 
 "$SCRIPT_DIR/verify.sh" "$PREFIX"
 
-# Regenerate the manifest after verification adds ELF-REPORT.txt.
-{
-    printf 'path\tsize_bytes\n'
-    find "$PREFIX" -type f -print0 | LC_ALL=C sort -z | while IFS= read -r -d '' file; do
-        printf '%s\t%s\n' "${file#"$PREFIX/"}" "$(wc -c < "$file" | tr -d ' ')"
-    done
-} > "$PREFIX/MANIFEST.tsv"
+# Emit the final inventory only after ELF verification has added its report.
+generate_manifest
 
 echo "FFmpeg ${FFMPEG_VERSION} OpenHarmony SDK installed at: $PREFIX"
