@@ -518,7 +518,7 @@ PC
       PYTHONHASHSEED=1 ./configure --disable-python --without-ad-dc --disable-fault-handling \
         --without-ldb-lmdb --without-gettext --without-json --without-systemd --without-libarchive \
         --without-acl-support --without-ldap --without-ads --without-pam \
-        --with-shared-modules='!vfs_snapper' && \
+        --with-static-modules='!vfs_snapper' --with-shared-modules='!vfs_snapper' && \
       PYTHONHASHSEED=1 python3 buildtools/bin/waf build --targets=compile_et,asn1_compile -j$JOBS"
 
   # HEIMDAL_BINARY 的 target 输出位于模块目录，而不是 bin/default 根目录。
@@ -541,7 +541,7 @@ configure_samba() {
     --cross-compile --cross-answers=build-cache/cross-answers.txt \
     --host=$HOST_TRIPLET --hostcc="${HOSTCC:-$(command -v clang)}" \
     --bundled-libraries=ALL --private-libraries=ALL \
-    --with-static-modules='ALL' --with-shared-modules='!DEFAULT,!vfs_snapper' \
+    --with-static-modules='ALL,!vfs_snapper' --with-shared-modules='!DEFAULT,!vfs_snapper' \
     --disable-python --without-ad-dc --disable-fault-handling \
     --without-ldb-lmdb --without-gettext --without-json \
     --without-systemd --without-libarchive --without-acl-support \

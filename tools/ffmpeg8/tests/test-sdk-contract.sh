@@ -21,6 +21,7 @@ grep -Fq 'SAMBA_ARCHIVE_SHA256' "$smb"
 grep -Fq 'https://www.mirrorservice.org/sites/ftp.gnupg.org/gcrypt/gnutls/v3.8/gnutls-3.8.7.tar.xz' "$smb"
 ! grep -Fq 'https://www.gnupg.org/ftp/gcrypt/gnutls/v3.8/gnutls-3.8.7.tar.xz' "$smb"
 grep -Fq 'Libs.private:' "$smb"
+grep -Fq -- "--with-static-modules='ALL,!vfs_snapper'" "$smb"
 grep -Fq -- "--with-shared-modules='!DEFAULT,!vfs_snapper'" "$smb"
 ! grep -Fq 'git reset --hard' "$smb"
 echo 'FFmpeg 8 SMB SDK contract test passed'
