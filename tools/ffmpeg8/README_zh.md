@@ -61,7 +61,7 @@ OHOS_ARCH=x86_64 JOBS=8 \
 
 ## 功能与许可证
 
-构建保留 FFmpeg 标准组件边界和内置 demuxer、parser、解码器、字幕、滤镜、缩放与重采样能力，并启用 `http`、`tcp`、`rtmp`、`rtp`、`udp` 等不依赖 TLS 后端的网络协议；不采用 IJK 的 `--disable-everything` 式裁剪。由于构建关闭自动探测且未链接外部 TLS 后端，本产物不提供 `https`、`tls` 或 `rtmps`。外部 GPL/nonfree 编解码器不启用，因此 SDK 使用 FFmpeg LGPL v2.1-or-later 许可条款。完整许可证随产物位于 `licenses/`，源码和配置可审计信息位于 `VERSION`。
+构建保留 FFmpeg 标准组件边界和内置 demuxer、parser、解码器、字幕、滤镜、缩放与重采样能力，并启用 `http`、`tcp`、`rtmp`、`rtp`、`udp` 等不依赖 TLS 后端的网络协议；不采用 IJK 的 `--disable-everything` 式裁剪。由于构建关闭自动探测且未链接外部 TLS 后端，本产物不提供 `https`、`tls` 或 `rtmps`。启用 `libsmbclient` 会链接 GPLv3 Samba 组件，因此 SDK 明确使用 GPLv3 发布，不能描述为纯 LGPL 制品。完整许可证随产物位于 `licenses/`，源码和配置可审计信息位于 `VERSION`。
 
 ## 验证
 
@@ -78,3 +78,32 @@ export OHOS_NDK=/absolute/path/to/openharmony/ndk
 ## 与旧 IJK 播放器的关系
 
 本 SDK 是独立交付，不替换 `ijkplayer/src/main/cpp/third_party/ffmpeg`，也不修改播放器功能。旧 IJK 源码直接使用 `libavformat/url.h`、`URLContext`、`URLProtocol`、`ffurl_*` 和手工注册格式等 FFmpeg 私有/旧 API；这些 API 没有可直接链接标准 FFmpeg 8 动态库的一对一公开替代。后续播放器迁移应独立设计：以公共 `AVIOContext`/`avio_alloc_context()` 回调承载应用自定义 IO，并按需要重新实现缓存、异步读取和重连策略。
+
+## SMB / libsmbclient（GPLv3）
+
+此 SDK 使用 FFmpeg `n8.0` 提交 `140fd653aed8cad774f991ba083e2d01e86420c7`，上游 tarball 为 `https://ffmpeg.org/releases/ffmpeg-8.0.tar.xz`（SHA-256 `b2751fccb6cc4c77708113cd78b561059b6fa904b24162fa0be2d60273d27b8e`）。构建会锁定 Samba 4.20.7 提交 `3984b04d7085c428ab3126ef4cfac2a396b5b29e`，将 `libsmbclient.a` 和 zlib、popt、GMP、Nettle、libtasn1、GnuTLS 的静态闭包链接到 `libavformat.so`，因此 SDK 不需要 Samba 运行时 `.so`。
+
+`patches/0001-libsmbclient-private-credentials.patch` 从 VidAll_Player 三项补丁移植到 FFmpeg 8.0。它仅给 `smb` URL protocol 私有上下文增加 `username`、`password` AVOption，并使用 `SMBCCTX` user-data/auth callback 读取它们；`workgroup`、`timeout` 行为保持不变。凭据不会写入 URL、HTTP header 或 FFmpeg 日志，也不修改 FFmpeg 公共 API。
+
+该制品**不是 LGPL 制品**：启用 GPLv3 的 libsmbclient 后，FFmpeg 以 GPL 发布。`licenses/FFmpeg-LGPL-2.1-or-later.txt` 保留 FFmpeg 基础许可文本，`licenses/GPL-3.0-or-later.txt` 记录最终 GPL 义务。
+
+构建命令（两个 ABI）：
+
+```bash
+export OHOS_NDK=/absolute/path/to/openharmony/ndk
+./tools/ffmpeg8/build.sh
+OHOS_ARCH=x86_64 ./tools/ffmpeg8/build.sh
+```
+
+ARM64 可供 VidAll_Player 使用的 prefix 为 `out/ffmpeg8/arm64-v8a/`；VidAll_TV 若需要 x86_64 模拟器则使用 `out/ffmpeg8/x86_64/`。每个目录的 `VERSION` 保存完整 configure 参数、源码 URL/tag/commit/SHA-256；`ELF-REPORT.txt` 保存 `llvm-readelf` 的 ELF/SONAME/DT_NEEDED 审计；`MANIFEST.tsv` 记录所有导出文件与大小。安装后 `.pc` 的 `prefix=${pcfiledir}/../..` 可随下游 staging 重定位。
+
+本机构建自动执行补丁与 ELF/导出验证。可独立运行：
+
+```bash
+./tools/ffmpeg8/tests/test-sdk-contract.sh
+./tools/ffmpeg8/tests/test-libsmbclient-patch.sh out/ffmpeg8-work/downloads/ffmpeg-8.0.tar.xz
+FFMPEG8_SMB_TEST_CLIENT=/path/to/target-protocol-client \
+  SMB_TEST_SERVER=host SMB_TEST_SHARE=media ./tools/ffmpeg8/tests/test-smb-service.sh
+```
+
+最后一项是针对真实 Samba 服务的目标端门禁：验证匿名、正确凭据、错误凭据及 URL/日志不泄漏密码。它要求调用方提供能向 FFmpeg `smb` protocol 传递 AVOption 的目标测试客户端；CI 不伪造该运行时证据。
