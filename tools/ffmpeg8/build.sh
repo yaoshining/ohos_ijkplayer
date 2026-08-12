@@ -119,7 +119,9 @@ version_from_header() {
 assert_version() {
     local include_dir=$1 library=$2 prefix=$3 expected=$4
     local major minor micro actual
-    major=$(version_from_header "$include_dir/lib${library}/version.h" "${prefix}_VERSION_MAJOR")
+    local major_header="$include_dir/lib${library}/version_major.h"
+    [ -f "$major_header" ] || major_header="$include_dir/lib${library}/version.h"
+    major=$(version_from_header "$major_header" "${prefix}_VERSION_MAJOR")
     minor=$(version_from_header "$include_dir/lib${library}/version.h" "${prefix}_VERSION_MINOR")
     micro=$(version_from_header "$include_dir/lib${library}/version.h" "${prefix}_VERSION_MICRO")
     actual="${major}.${minor}.${micro}"
