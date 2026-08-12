@@ -523,4 +523,4 @@ This project is based on [LGPLv2.1 or later](LICENSE).
 
 ### Reusable FFmpeg 8 shared SDK
 
-A standalone FFmpeg 8 ARM64 OpenHarmony shared-library SDK is available in [`tools/ffmpeg8/README_zh.md`](tools/ffmpeg8/README_zh.md). It uses `OHOS_NDK`, packages six standard FFmpeg component libraries with headers and pkg-config files, and records version, license, and ELF metadata. It intentionally does not replace the legacy IJK player's private FFmpeg integration.
+A standalone FFmpeg 8 OpenHarmony shared-library SDK for `arm64-v8a` and `x86_64` is available in [`tools/ffmpeg8/README_zh.md`](tools/ffmpeg8/README_zh.md). It uses `OHOS_NDK`, packages six standard FFmpeg component libraries with headers and pkg-config files, and records version, license, and ELF metadata. It intentionally does not replace the legacy IJK player's private FFmpeg integration.

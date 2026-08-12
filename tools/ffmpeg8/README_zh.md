@@ -1,6 +1,6 @@
 # FFmpeg 8 OpenHarmony 动态库 SDK
 
-本目录提供可供其他 HarmonyOS/OpenHarmony 工程复用的 FFmpeg 8.0 ARM64 动态库 SDK 构建链。它不使用 Lycium、IJK 的 FFmpeg fork 或私有 patch，也不会生成或依赖 `libffmpeg.so`。仓库以 GitHub Actions 工作流 `.github/workflows/build-ffmpeg8.yml` 作为权威的最小交叉编译验证：成功运行会产出 `ffmpeg-8.0-ohos-arm64-v8a` artifact。
+本目录提供可供其他 HarmonyOS/OpenHarmony 工程复用的 FFmpeg 8.0 动态库 SDK 构建链。它不使用 Lycium、IJK 的 FFmpeg fork 或私有 patch，也不会生成或依赖 `libffmpeg.so`。支持 `arm64-v8a` 和 `x86_64`；仓库以 GitHub Actions 工作流 `.github/workflows/build-ffmpeg8.yml` 作为权威的最小交叉编译验证，成功运行会分别产出 `ffmpeg-8.0-ohos-arm64-v8a` 与 `ffmpeg-8.0-ohos-x86_64` artifact。
 
 ## 前置条件
 
@@ -12,7 +12,8 @@
 
 ```bash
 export OHOS_NDK=/absolute/path/to/openharmony/ndk
-./tools/ffmpeg8/build.sh
+./tools/ffmpeg8/build.sh                         # 默认 arm64-v8a
+OHOS_ARCH=x86_64 ./tools/ffmpeg8/build.sh        # x86_64
 ```
 
 可复现输入固定为上游 `ffmpeg-8.0.tar.xz` 与 SHA-256：
@@ -25,17 +26,20 @@ b2751fccb6cc4c77708113cd78b561059b6fa904b24162fa0be2d60273d27b8e
 
 ```bash
 FFMPEG8_WORK_DIR=/tmp/ffmpeg8-work \
-FFMPEG8_PREFIX=/tmp/ffmpeg8-sdk/arm64-v8a \
-OHOS_API_LEVEL=12 JOBS=8 \
+FFMPEG8_PREFIX=/tmp/ffmpeg8-sdk/x86_64 \
+OHOS_ARCH=x86_64 OHOS_API_LEVEL=12 JOBS=8 \
 ./tools/ffmpeg8/build.sh
 ```
 
+- `OHOS_ARCH` 支持 `arm64-v8a`（默认）和 `x86_64`。
+- 未显式设置 `FFMPEG8_PREFIX` 时，输出目录为 `out/ffmpeg8/$OHOS_ARCH/`。
+
 ## 输出结构
 
-默认输出为 `out/ffmpeg8/arm64-v8a/`：
+默认 ARM64 输出为 `out/ffmpeg8/arm64-v8a/`，x86_64 输出为 `out/ffmpeg8/x86_64/`，两者结构相同：
 
 ```text
-arm64-v8a/
+<architecture>/
   include/                       # FFmpeg 8 公共 C 头文件
   lib/
     libavcodec.so
@@ -64,9 +68,10 @@ arm64-v8a/
 ```bash
 export OHOS_NDK=/absolute/path/to/openharmony/ndk
 ./tools/ffmpeg8/verify.sh out/ffmpeg8/arm64-v8a
+./tools/ffmpeg8/verify.sh out/ffmpeg8/x86_64
 ```
 
-校验使用 NDK 的 `llvm-readelf`，对每个库要求 `ELF64`、`AArch64` 与存在 SONAME，并将 `DT_NEEDED`、SONAME 和文件大小写入 `ELF-REPORT.txt`。这可作为发布前的 ARM64 OpenHarmony ELF 记录。
+校验使用 NDK 的 `llvm-readelf`，对每个库要求 `ELF64`、与目标匹配的 `AArch64` 或 `X86-64` machine，以及存在 SONAME；它会将 `DT_NEEDED`、SONAME 和文件大小写入 `ELF-REPORT.txt`，作为发布前的 OpenHarmony ELF 记录。
 
 ## 与旧 IJK 播放器的关系
 

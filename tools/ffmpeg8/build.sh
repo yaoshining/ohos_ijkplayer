@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build a reusable FFmpeg 8 shared-library SDK for ARM64 OpenHarmony.
+# Build a reusable FFmpeg 8 shared-library SDK for OpenHarmony.
 set -euo pipefail
 
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
@@ -9,12 +9,27 @@ FFMPEG_VERSION=8.0
 FFMPEG_ARCHIVE="ffmpeg-${FFMPEG_VERSION}.tar.xz"
 FFMPEG_URL="https://ffmpeg.org/releases/${FFMPEG_ARCHIVE}"
 FFMPEG_SHA256="b2751fccb6cc4c77708113cd78b561059b6fa904b24162fa0be2d60273d27b8e"
-TARGET_TRIPLE=aarch64-unknown-linux-ohos
-ARCH=aarch64
+OHOS_ARCH=${OHOS_ARCH:-arm64-v8a}
+case "$OHOS_ARCH" in
+    arm64-v8a)
+        TARGET_TRIPLE=aarch64-unknown-linux-ohos
+        ARCH=aarch64
+        ELF_MACHINE=AArch64
+        ;;
+    x86_64)
+        TARGET_TRIPLE=x86_64-unknown-linux-ohos
+        ARCH=x86_64
+        ELF_MACHINE='Advanced Micro Devices X86-64'
+        ;;
+    *)
+        echo "error: unsupported OHOS_ARCH: $OHOS_ARCH (supported: arm64-v8a, x86_64)" >&2
+        exit 2
+        ;;
+esac
 API_LEVEL=${OHOS_API_LEVEL:-12}
 JOBS=${JOBS:-$(getconf _NPROCESSORS_ONLN 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4)}
 WORK_DIR=${FFMPEG8_WORK_DIR:-"$REPO_ROOT/out/ffmpeg8-work"}
-PREFIX=${FFMPEG8_PREFIX:-"$REPO_ROOT/out/ffmpeg8/arm64-v8a"}
+PREFIX=${FFMPEG8_PREFIX:-"$REPO_ROOT/out/ffmpeg8/$OHOS_ARCH"}
 
 case "$API_LEVEL" in
     ''|*[!0-9]*) echo "error: OHOS_API_LEVEL must be a positive integer: $API_LEVEL" >&2; exit 2 ;;
@@ -58,7 +73,7 @@ SYSROOT=${OHOS_SYSROOT:-"$OHOS_NDK/sysroot"}
 
 DOWNLOAD_DIR="$WORK_DIR/downloads"
 SOURCE_DIR="$WORK_DIR/ffmpeg-${FFMPEG_VERSION}"
-BUILD_DIR="$WORK_DIR/build-arm64-v8a"
+BUILD_DIR="$WORK_DIR/build-$OHOS_ARCH"
 ARCHIVE_PATH="$DOWNLOAD_DIR/$FFMPEG_ARCHIVE"
 
 mkdir -p "$DOWNLOAD_DIR" "$WORK_DIR"
@@ -143,7 +158,8 @@ ffmpeg_version=${FFMPEG_VERSION}
 source_url=${FFMPEG_URL}
 source_sha256=${FFMPEG_SHA256}
 target=${TARGET_TRIPLE}${API_LEVEL}
-architecture=arm64-v8a
+architecture=${OHOS_ARCH}
+elf_machine=${ELF_MACHINE}
 api_level=${API_LEVEL}
 configuration=${CONFIGURE_OPTIONS[*]}
 METADATA

@@ -531,4 +531,4 @@ this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "fetch_first"
 
 ## FFmpeg 8 可复用动态库 SDK
 
-新的独立 FFmpeg 8 ARM64 OpenHarmony 构建链位于 [`tools/ffmpeg8/README_zh.md`](tools/ffmpeg8/README_zh.md)。它通过 `OHOS_NDK` 构建六个标准 FFmpeg 动态库、公共头文件和 pkg-config 文件，并生成可审计的版本、许可证与 ELF 元数据清单。该 SDK 不修改当前 IJK 播放器；旧播放器的私有 FFmpeg 协议层需要单独迁移后才能切换。
+新的独立 FFmpeg 8 OpenHarmony 构建链支持 `arm64-v8a` 与 `x86_64`，说明位于 [`tools/ffmpeg8/README_zh.md`](tools/ffmpeg8/README_zh.md)。它通过 `OHOS_NDK` 构建六个标准 FFmpeg 动态库、公共头文件和 pkg-config 文件，并生成可审计的版本、许可证与 ELF 元数据清单。该 SDK 不修改当前 IJK 播放器；旧播放器的私有 FFmpeg 协议层需要单独迁移后才能切换。

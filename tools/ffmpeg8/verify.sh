@@ -26,14 +26,20 @@ READELF=$(find_readelf)
 
 REPORT="$PREFIX/ELF-REPORT.txt"
 TARGET=unknown
-[ -f "$PREFIX/VERSION" ] && TARGET=$(awk -F= '$1 == "target" { print $2; exit }' "$PREFIX/VERSION")
-case "$TARGET" in
-    aarch64-unknown-linux-ohos*) ;;
-    *) echo "error: SDK target is not ARM64 OpenHarmony: $TARGET" >&2; exit 1 ;;
+ARCHITECTURE=unknown
+if [ -f "$PREFIX/VERSION" ]; then
+    TARGET=$(awk -F= '$1 == "target" { print $2; exit }' "$PREFIX/VERSION")
+    ARCHITECTURE=$(awk -F= '$1 == "architecture" { print $2; exit }' "$PREFIX/VERSION")
+fi
+case "$TARGET:$ARCHITECTURE" in
+    aarch64-unknown-linux-ohos*:arm64-v8a) ;;
+    x86_64-unknown-linux-ohos*:x86_64) ;;
+    *) echo "error: unsupported OpenHarmony SDK target: $TARGET ($ARCHITECTURE)" >&2; exit 1 ;;
 esac
 {
     echo "FFmpeg OpenHarmony ELF verification"
     echo "target=$TARGET"
+    echo "architecture=$ARCHITECTURE"
     echo "readelf=$READELF"
     echo
 } > "$REPORT"
@@ -47,7 +53,10 @@ for library in avcodec avformat avutil avfilter swscale swresample; do
     machine=$(printf '%s\n' "$header" | awk -F: '/Machine:/ { gsub(/^ +/, "", $2); print $2; exit }')
     osabi=$(printf '%s\n' "$header" | awk -F: '/OS\/ABI:/ { gsub(/^ +/, "", $2); print $2; exit }')
     [ "$class" = "ELF64" ] || { echo "error: $path is not ELF64 ($class)" >&2; exit 1; }
-    case "$machine" in *AArch64*) ;; *) echo "error: $path is not AArch64 ($machine)" >&2; exit 1;; esac
+    case "$ARCHITECTURE" in
+        arm64-v8a) case "$machine" in *AArch64*) ;; *) echo "error: $path is not AArch64 ($machine)" >&2; exit 1;; esac ;;
+        x86_64) case "$machine" in *X86-64*) ;; *) echo "error: $path is not x86_64 ($machine)" >&2; exit 1;; esac ;;
+    esac
     soname=$(printf '%s\n' "$dynamic" | awk -F'[][]' '/SONAME/ { print $2; exit }')
     [ -n "$soname" ] || { echo "error: $path has no SONAME" >&2; exit 1; }
     {

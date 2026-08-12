@@ -18,6 +18,10 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        architecture: [arm64-v8a, x86_64]
 
     steps:
       - name: Checkout
@@ -54,24 +58,26 @@ jobs:
             rmdir "$NDK_DIR/native"
           fi
           test -x "$NDK_DIR/llvm/bin/aarch64-unknown-linux-ohos-clang"
+          test -x "$NDK_DIR/llvm/bin/x86_64-unknown-linux-ohos-clang"
           test -x "$NDK_DIR/llvm/bin/llvm-readelf"
           test -d "$NDK_DIR/sysroot"
 
-      - name: Build FFmpeg 8 shared SDK
+      - name: Build FFmpeg 8 shared SDK (${{ matrix.architecture }})
         env:
           OHOS_NDK: ${{ runner.temp }}/ohos-native-ndk
           OHOS_API_LEVEL: '12'
+          OHOS_ARCH: ${{ matrix.architecture }}
         run: ./tools/ffmpeg8/build.sh
 
-      - name: Verify packaged ELF metadata
+      - name: Verify packaged ELF metadata (${{ matrix.architecture }})
         env:
           OHOS_NDK: ${{ runner.temp }}/ohos-native-ndk
-        run: ./tools/ffmpeg8/verify.sh out/ffmpeg8/arm64-v8a
+        run: ./tools/ffmpeg8/verify.sh out/ffmpeg8/${{ matrix.architecture }}
 
-      - name: Upload FFmpeg 8 SDK
+      - name: Upload FFmpeg 8 SDK (${{ matrix.architecture }})
         uses: actions/upload-artifact@v4
         with:
-          name: ffmpeg-8.0-ohos-arm64-v8a
-          path: out/ffmpeg8/arm64-v8a/
+          name: ffmpeg-8.0-ohos-${{ matrix.architecture }}
+          path: out/ffmpeg8/${{ matrix.architecture }}/
           if-no-files-found: error
           retention-days: 14
