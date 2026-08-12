@@ -27,7 +27,13 @@ case "$OHOS_ARCH" in
         ;;
 esac
 JOBS=${JOBS:-$(getconf _NPROCESSORS_ONLN 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4)}
-WORK_DIR=${FFMPEG8_WORK_DIR:-"$REPO_ROOT/out/ffmpeg8-work"}
+WORK_DIR_IS_CUSTOM=0
+if [ "${FFMPEG8_WORK_DIR+x}" = x ]; then
+    WORK_DIR=$FFMPEG8_WORK_DIR
+    WORK_DIR_IS_CUSTOM=1
+else
+    WORK_DIR="$REPO_ROOT/out/ffmpeg8-work"
+fi
 PREFIX_IS_CUSTOM=0
 if [ "${FFMPEG8_PREFIX+x}" = x ]; then
     PREFIX=$FFMPEG8_PREFIX
@@ -45,6 +51,7 @@ fail() {
     exit 1
 }
 
+[ -n "$WORK_DIR" ] || fail "FFMPEG8_WORK_DIR must not be empty"
 [ -n "$PREFIX" ] || fail "FFMPEG8_PREFIX must not be empty"
 
 require_command() {
@@ -75,12 +82,24 @@ done
 SYSROOT=${OHOS_SYSROOT:-"$OHOS_NDK/sysroot"}
 [ -d "$SYSROOT" ] || fail "cannot find NDK sysroot: $SYSROOT; set OHOS_SYSROOT explicitly"
 
+WORK_MARKER="$WORK_DIR/.ffmpeg8-ohos-work-managed"
+if [ -e "$WORK_DIR" ] || [ -L "$WORK_DIR" ]; then
+    if [ "$WORK_DIR_IS_CUSTOM" -eq 1 ]; then
+        [ -d "$WORK_DIR" ] &&
+            [ -f "$WORK_MARKER" ] &&
+            [ "$(cat "$WORK_MARKER")" = "ffmpeg8-ohos-work-v1" ] ||
+            fail "refusing to clean unmanaged FFMPEG8_WORK_DIR: $WORK_DIR; clean it explicitly or use a new path"
+    fi
+fi
+mkdir -p "$WORK_DIR"
+printf '%s\n' "ffmpeg8-ohos-work-v1" > "$WORK_MARKER"
+
 DOWNLOAD_DIR="$WORK_DIR/downloads"
 SOURCE_DIR="$WORK_DIR/ffmpeg-${FFMPEG_VERSION}"
 BUILD_DIR="$WORK_DIR/build-$OHOS_ARCH"
 ARCHIVE_PATH="$DOWNLOAD_DIR/$FFMPEG_ARCHIVE"
 
-mkdir -p "$DOWNLOAD_DIR" "$WORK_DIR"
+mkdir -p "$DOWNLOAD_DIR"
 if [ ! -f "$ARCHIVE_PATH" ]; then
     curl --fail --location --retry 3 --output "$ARCHIVE_PATH" "$FFMPEG_URL"
 fi
