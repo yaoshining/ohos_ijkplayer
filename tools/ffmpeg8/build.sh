@@ -188,10 +188,15 @@ grep -Eq '^#define CONFIG_LIBSMBCLIENT_PROTOCOL 1$' config_components.h || fail 
 grep -Eq '^CONFIG_GPL=yes$' ffbuild/config.mak || fail "FFmpeg did not enable GPL mode"
 make -j"$JOBS"
 make install
-# FFmpeg writes an absolute configure prefix into its .pc files.  Make them
-# relocatable so a consumer can stage this SDK under any sysroot.
+# FFmpeg writes absolute configure paths into prefix, libdir, and includedir.
+# Rewrite the complete path tuple so consumers can relocate the staged SDK.
 for pc in "$PREFIX"/lib/pkgconfig/*.pc; do
-    sed -i.bak 's|^prefix=.*$|prefix=${pcfiledir}/../..|' "$pc"
+    sed -i.bak \
+        -e 's|^prefix=.*$|prefix=${pcfiledir}/../..|' \
+        -e 's|^exec_prefix=.*$|exec_prefix=${prefix}|' \
+        -e 's|^libdir=.*$|libdir=${exec_prefix}/lib|' \
+        -e 's|^includedir=.*$|includedir=${prefix}/include|' \
+        "$pc"
     rm -f -- "$pc.bak"
 done
 popd >/dev/null
