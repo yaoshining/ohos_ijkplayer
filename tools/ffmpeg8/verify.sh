@@ -40,7 +40,7 @@ for library in avcodec avformat avutil avfilter swscale swresample; do
     [ "$class" = ELF64 ] || fail "$path is not ELF64 ($class)"; [[ "$machine" == *"$expected_machine"* ]] || fail "$path has wrong machine: $machine"
     soname=$(printf '%s\n' "$dynamic" | awk -F'[][]' '/SONAME/ {print $2; exit}'); [ "$soname" = "$(expected_soname "$library")" ] || fail "$path has unexpected SONAME: $soname"
     needed=$(printf '%s\n' "$dynamic" | awk -F'[][]' '/NEEDED/ {print $2}')
-    ! printf '%s\n' "$needed" | grep -Eq 'libsmbclient\.so|libav[^ ]*\.a|libsw[^ ]*\.a' || fail "$path has forbidden dynamic/static dependency"
+    ! printf '%s\n' "$needed" | grep -Eq 'libsmbclient\.so|lib(gnutls|tasn1|nettle|hogweed|gmp|popt|z)\.so|libav[^ ]*\.a|libsw[^ ]*\.a' || fail "$path has forbidden dynamic/static dependency"
     { echo "library=lib${library}.so"; echo "size_bytes=$(wc -c < "$path" | tr -d ' ')"; echo "class=$class"; echo "machine=$machine"; echo "soname=$soname"; echo 'dt_needed:'; printf '%s\n' "$needed" | awk 'NF {print "  " $0}'; echo; } >> "$REPORT"
 done
 "$NM" -D "$PREFIX/lib/libavformat.so" | grep -Eq 'ff_libsmbclient_protocol|libsmbclient' || strings "$PREFIX/lib/libavformat.so" | grep -Fq 'libsmbclient' || fail 'libavformat does not expose the libsmbclient protocol'

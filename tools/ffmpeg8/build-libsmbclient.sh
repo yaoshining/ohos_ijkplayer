@@ -20,6 +20,9 @@
 #   - 交叉回答 (cross-answers) 覆盖所有运行期探测；以 rsplit 解析含冒号的回答。
 set -euo pipefail
 
+log() { printf '\033[1;34m[smb]\033[0m %s\n' "$*"; }
+die() { printf '\033[1;31m[smb] 错误：%s\033[0m\n' "$*" >&2; exit 1; }
+
 # ---------------- 可配置入口 ----------------
 : "${OHOS_NDK:?OHOS_NDK must point to an OpenHarmony NDK}"
 : "${WORK_DIR:=$(pwd)/out/ffmpeg8-smb-work}"
@@ -44,9 +47,6 @@ WRAPPER_DIR="$WORK_DIR/wrappers"
 export PKG_CONFIG_BIN="$(command -v pkg-config)"
 SAMBA_DIR="$WORK_DIR/samba"
 SAMBA_HOST_DIR="$WORK_DIR/samba-host"
-
-log() { printf '\033[1;34m[smb]\033[0m %s\n' "$*"; }
-die() { printf '\033[1;31m[smb] 错误：%s\033[0m\n' "$*" >&2; exit 1; }
 
 [ -d "$OHOS_NDK" ] || die "OHOS_NDK 不存在：$OHOS_NDK（请在预装 DevEco Studio 的 runner 上运行）"
 [ -x "$TOOLCHAIN/clang" ] || die "missing LLVM clang: $TOOLCHAIN/clang"
@@ -421,10 +421,16 @@ PY
 
 # ---------------- 交叉回答 ----------------
 write_cross_answers() {
+  local uname_machine
+  case "$OHOS_ARCH" in
+    arm64-v8a) uname_machine=aarch64 ;;
+    x86_64) uname_machine=x86_64 ;;
+    *) die "unsupported OHOS_ARCH for cross answers: $OHOS_ARCH" ;;
+  esac
   mkdir -p "$SAMBA_DIR/build-cache"
   cat > "$SAMBA_DIR/build-cache/cross-answers.txt" <<'EOF'
 Checking uname sysname type: "Linux"
-Checking uname machine type: "aarch64"
+Checking uname machine type: "__UNAME_MACHINE__"
 Checking uname release type: "5.10.0"
 Checking uname version type: "#1 SMP OpenHarmony"
 rpath library support: OK
@@ -468,6 +474,8 @@ Checking for readlink breakage: NO
 getcwd takes a NULL argument: OK
 for QUOTACTL_4A: long quotactl(int cmd, char *special, qid_t id, caddr_t addr): NO
 EOF
+  sed -i.bak "s/__UNAME_MACHINE__/$uname_machine/" "$SAMBA_DIR/build-cache/cross-answers.txt"
+  rm -f "$SAMBA_DIR/build-cache/cross-answers.txt.bak"
 }
 
 # ---------------- 原生 host 工具预编译 ----------------
@@ -486,9 +494,9 @@ build_host_tools() {
   local host_pc="$WORK_DIR/host-pkgconfig"; mkdir -p "$host_pc/gnutls"
   cat > "$host_pc/gnutls.pc" <<'PC'
 prefix=/usr
-exec_prefix=\${prefix}
-libdir=\${exec_prefix}/lib
-includedir=\${prefix}/include
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
 
 Name: GnuTLS
 Description: GnuTLS placeholder for host tool build

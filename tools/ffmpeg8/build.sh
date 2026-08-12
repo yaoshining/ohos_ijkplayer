@@ -183,10 +183,8 @@ export PKG_CONFIG_LIBDIR="$SMB_SYSROOT/lib/pkgconfig"
 export PKG_CONFIG_SYSROOT_DIR=
 ./configure "${CONFIGURE_OPTIONS[@]}"
 printf '%s\n' "${CONFIGURE_OPTIONS[@]}" > "$PREFIX/configure-options.txt"
-grep -Fxq -- "--enable-libsmbclient" "$PREFIX/configure-options.txt" || fail "FFmpeg configure did not retain --enable-libsmbclient"
-grep -Fxq -- "--enable-gpl" "$PREFIX/configure-options.txt" || fail "FFmpeg configure did not retain --enable-gpl"
-grep -Eq '^CONFIG_LIBSMBCLIENT_PROTOCOL=yes$' config_components.h || fail "FFmpeg did not enable the libsmbclient protocol"
-grep -Eq '^CONFIG_GPL=yes$' config.mak || fail "FFmpeg did not enable GPL mode"
+grep -Eq '^#define CONFIG_LIBSMBCLIENT_PROTOCOL 1$' config_components.h || fail "FFmpeg did not enable the libsmbclient protocol"
+grep -Eq '^CONFIG_GPL=yes$' ffbuild/config.mak || fail "FFmpeg did not enable GPL mode"
 make -j"$JOBS"
 make install
 # FFmpeg writes an absolute configure prefix into its .pc files.  Make them

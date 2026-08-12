@@ -23,11 +23,12 @@ printf '%s\n' "$auth_log" | grep -Fq "$secret_marker" && { echo 'secret leaked i
 printf '%s\n' "$url" | grep -Fq '@' && { echo 'credentials leaked into URL' >&2; exit 1; }
 
 # A deliberately invalid credential set must fail and still remain redacted.
-if run --url "$url" --protocol_opts "username=invalid,password=invalid-$password,workgroup=$workgroup" >/tmp/ffmpeg8-smb-invalid.$$ 2>&1; then
-    rm -f /tmp/ffmpeg8-smb-invalid.$$
+invalid_log_file=$(mktemp "${TMPDIR:-/tmp}/ffmpeg8-smb-invalid.XXXXXX")
+trap 'rm -f "$invalid_log_file"' EXIT
+if run --url "$url" --protocol_opts "username=invalid,password=$password" >"$invalid_log_file" 2>&1; then
     echo 'invalid SMB credentials unexpectedly succeeded' >&2
     exit 1
 fi
-invalid_log=$(cat /tmp/ffmpeg8-smb-invalid.$$); rm -f /tmp/ffmpeg8-smb-invalid.$$
+invalid_log=$(<"$invalid_log_file")
 printf '%s\n' "$invalid_log" | grep -Fq "$secret_marker" && { echo 'secret leaked in failure log' >&2; exit 1; }
 echo 'SMB anonymous/authentication/redaction tests passed'
