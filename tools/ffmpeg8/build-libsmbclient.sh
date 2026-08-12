@@ -226,7 +226,8 @@ build_gnutls() {
   log "构建 gnutls 3.8.7"
   local d="$WORK_DIR/gnutls-3.8.7"
   if [ ! -d "$d" ]; then
-    fetch_extract https://www.gnupg.org/ftp/gcrypt/gnutls/v3.8/gnutls-3.8.7.tar.xz gnutls-3.8.7 || return 1
+    # gnupg.org rejects GitHub-hosted runner requests with HTTP 403; the tag archive is equivalent source.
+    fetch_extract https://github.com/gnutls/gnutls/archive/refs/tags/3.8.7.tar.gz gnutls-3.8.7 || return 1
   fi
   # gnutls 的 dlwrap 在未启用 zstd/brotli 时仍包含其头，需提供空桩。
   local stub="$WORK_DIR/gnutls-stubs"; mkdir -p "$stub" "$stub/brotli"

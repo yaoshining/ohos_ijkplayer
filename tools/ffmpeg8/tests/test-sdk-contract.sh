@@ -17,6 +17,8 @@ grep -Fq 'libsmbclient\.so' "$verify"
 grep -Fq 'ELF64' "$verify"
 grep -Fq 'libsmbclient' "$verify"
 grep -Fq 'SAMBA_ARCHIVE_SHA256' "$smb"
+grep -Fq 'https://github.com/gnutls/gnutls/archive/refs/tags/3.8.7.tar.gz' "$smb"
+! grep -Fq 'https://www.gnupg.org/ftp/gcrypt/gnutls/v3.8/gnutls-3.8.7.tar.xz' "$smb"
 grep -Fq 'Libs.private:' "$smb"
 ! grep -Fq 'git reset --hard' "$smb"
 echo 'FFmpeg 8 SMB SDK contract test passed'
