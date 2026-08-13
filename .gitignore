@@ -11,3 +11,4 @@ package-lock.json
 .vscode
 .vs/keys
 .DS_Store
+/out

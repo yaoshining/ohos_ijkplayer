@@ -4,7 +4,7 @@
 
 ## 前置条件
 
-- macOS 或 Linux 主机，已安装 `bash`、`curl`、`tar`、`make`、`shasum`。
+- macOS 或 Linux 主机，已安装 `bash`、`curl`、`tar`、`make`、`shasum`、`cmake`、`meson`、`ninja`。
 - `OHOS_NDK` 指向 OpenHarmony NDK 根目录；该目录必须包含 LLVM 工具链与 sysroot。
 - 若 NDK 布局不同，可用 `OHOS_LLVM_BIN` 和 `OHOS_SYSROOT` 显式指定路径。编译器使用不附加 API 后缀的 OpenHarmony target triple，API 能力由所选 NDK/sysroot 决定。
 
@@ -62,7 +62,7 @@ OHOS_ARCH=x86_64 JOBS=8 \
 
 ## 功能与许可证
 
-构建保留 FFmpeg 标准组件边界和内置 demuxer、parser、解码器、字幕、滤镜、缩放与重采样能力，并启用 `http`、`https`、`tls`、`tcp`、`rtmp`、`rtp`、`udp` 等网络协议；不采用 IJK 的 `--disable-everything` 式裁剪。`https`/`tls` 使用与 libsmbclient 一同构建的 GnuTLS 静态闭包，不新增运行时 TLS `.so` 依赖。启用 `libsmbclient` 会链接 GPLv3 Samba 组件，因此 SDK 明确使用 GPLv3 发布，不能描述为纯 LGPL 制品。完整许可证随产物位于 `licenses/`，源码和配置可审计信息位于 `VERSION`、`configure-options.txt` 和 `protocols.txt`。
+构建保留 FFmpeg 标准组件边界和内置 demuxer、parser、解码器、字幕、滤镜、缩放与重采样能力，并启用 `http`、`https`、`tls`、`tcp`、`rtmp`、`rtp`、`udp` 等网络协议；不采用 IJK 的 `--disable-everything` 式裁剪。`https`/`tls` 使用静态交叉编译的 mbedTLS 3.6.4 闭包（`--enable-mbedtls`），不新增运行时 TLS `.so` 依赖。此外启用 `--enable-libdav1d`（AV1 解码）、`--enable-libxml2 --enable-demuxer=dash`（XML 支持的 DASH 解复用）、`--enable-ohcodec`（OpenHarmony 硬解/硬编）以及 `--enable-encoder=png,mjpeg`，保持 VidAll_Player 既有的播放能力门禁。启用 `libsmbclient` 会链接 GPLv3 Samba 组件，因此 SDK 明确使用 GPLv3 发布，不能描述为纯 LGPL 制品。完整许可证随产物位于 `licenses/`，源码和配置可审计信息位于 `VERSION`、`configure-options.txt` 和 `protocols.txt`。
 
 ## 验证
 
@@ -82,7 +82,7 @@ export OHOS_NDK=/absolute/path/to/openharmony/ndk
 
 ## SMB / libsmbclient（GPLv3）
 
-此 SDK 使用 FFmpeg `n8.0` 提交 `140fd653aed8cad774f991ba083e2d01e86420c7`，上游 tarball 为 `https://ffmpeg.org/releases/ffmpeg-8.0.tar.xz`（SHA-256 `b2751fccb6cc4c77708113cd78b561059b6fa904b24162fa0be2d60273d27b8e`）。构建会锁定 Samba 4.20.7 提交 `3984b04d7085c428ab3126ef4cfac2a396b5b29e`，将 `libsmbclient.a` 和 zlib、popt、GMP、Nettle、libtasn1、GnuTLS 的静态闭包链接到 `libavformat.so`，因此 SDK 不需要 Samba 运行时 `.so`。
+此 SDK 使用 FFmpeg `n8.0` 提交 `140fd653aed8cad774f991ba083e2d01e86420c7`，上游 tarball 为 `https://ffmpeg.org/releases/ffmpeg-8.0.tar.xz`（SHA-256 `b2751fccb6cc4c77708113cd78b561059b6fa904b24162fa0be2d60273d27b8e`）。构建会锁定 Samba 4.20.7 提交 `3984b04d7085c428ab3126ef4cfac2a396b5b29e`，将 `libsmbclient.a` 和 zlib、popt、GMP、Nettle、libtasn1、GnuTLS 的静态闭包链接到 `libavformat.so`，因此 SDK 不需要 Samba 运行时 `.so`；该 GnuTLS 闭包仅服务 libsmbclient，FFmpeg 自身的 TLS 后端使用 mbedTLS。`build-libdeps.sh` 同时交叉编译 mbedTLS 3.6.4、libdav1d 1.5.1、libxml2 2.15.1 的静态闭包（各带 SHA-256 锁定），供 `--enable-mbedtls`、`--enable-libdav1d`、`--enable-libxml2` 静态链接。
 
 `patches/0001-libsmbclient-private-credentials.patch` 从 VidAll_Player 三项补丁移植到 FFmpeg 8.0。它仅给 `smb` URL protocol 私有上下文增加 `username`、`password` AVOption，并使用 `SMBCCTX` user-data/auth callback 读取它们；`workgroup`、`timeout` 行为保持不变。凭据不会写入 URL、HTTP header 或 FFmpeg 日志，也不修改 FFmpeg 公共 API。
 

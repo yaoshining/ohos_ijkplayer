@@ -25,7 +25,12 @@ TARGET=$(awk -F= '$1 == "target" {print $2; exit}' "$PREFIX/VERSION")
 ARCHITECTURE=$(awk -F= '$1 == "architecture" {print $2; exit}' "$PREFIX/VERSION")
 [ "$(awk -F= '$1 == "libsmbclient" {print $2; exit}' "$PREFIX/VERSION")" = enabled ] || fail "VERSION does not record libsmbclient=enabled"
 grep -Fxq -- '--enable-libsmbclient' "$PREFIX/configure-options.txt" || fail "missing --enable-libsmbclient configure proof"
-grep -Fxq -- '--enable-gnutls' "$PREFIX/configure-options.txt" || fail "missing --enable-gnutls configure proof"
+grep -Fxq -- '--enable-mbedtls' "$PREFIX/configure-options.txt" || fail "missing --enable-mbedtls configure proof"
+grep -Fxq -- '--enable-libdav1d' "$PREFIX/configure-options.txt" || fail "missing --enable-libdav1d configure proof"
+grep -Fxq -- '--enable-libxml2' "$PREFIX/configure-options.txt" || fail "missing --enable-libxml2 configure proof"
+grep -Fxq -- '--enable-demuxer=dash' "$PREFIX/configure-options.txt" || fail "missing --enable-demuxer=dash configure proof"
+grep -Fxq -- '--enable-ohcodec' "$PREFIX/configure-options.txt" || fail "missing --enable-ohcodec configure proof"
+grep -Fxq -- '--enable-encoder=png,mjpeg' "$PREFIX/configure-options.txt" || fail "missing --enable-encoder=png,mjpeg configure proof"
 grep -Fxq -- '--enable-gpl' "$PREFIX/configure-options.txt" || fail "missing --enable-gpl configure proof"
 [ "$(awk -F= '$1 == "https" {print $2; exit}' "$PREFIX/VERSION")" = enabled ] || fail "VERSION does not record https=enabled"
 [ "$(awk -F= '$1 == "tls" {print $2; exit}' "$PREFIX/VERSION")" = enabled ] || fail "VERSION does not record tls=enabled"
@@ -45,9 +50,12 @@ for library in avcodec avformat avutil avfilter swscale swresample; do
     soname=$(printf '%s\n' "$dynamic" | awk -F'[][]' '/SONAME/ {print $2; exit}'); [ "$soname" = "$(expected_soname "$library")" ] || fail "$path has unexpected SONAME: $soname"
     needed=$(printf '%s\n' "$dynamic" | awk -F'[][]' '/NEEDED/ {print $2}')
     ! printf '%s\n' "$dynamic" | grep -Eq '\((RPATH|RUNPATH)\)' || fail "$path contains an unexpected RPATH/RUNPATH"
-    ! printf '%s\n' "$needed" | grep -Eq 'libsmbclient\.so|lib(gnutls|tasn1|nettle|hogweed|gmp|popt|z)\.so|libav[^ ]*\.a|libsw[^ ]*\.a' || fail "$path has forbidden dynamic/static dependency"
+    ! printf '%s\n' "$needed" | grep -Eq 'libsmbclient\.so|lib(gnutls|tasn1|nettle|hogweed|gmp|popt|z|mbedtls|mbedcrypto|mbedx509|dav1d|xml2)\.so|libav[^ ]*\.a|libsw[^ ]*\.a' || fail "$path has forbidden dynamic/static dependency"
     { echo "library=lib${library}.so"; echo "size_bytes=$(wc -c < "$path" | tr -d ' ')"; echo "class=$class"; echo "machine=$machine"; echo "soname=$soname"; echo 'dt_needed:'; printf '%s\n' "$needed" | awk 'NF {print "  " $0}'; echo; } >> "$REPORT"
 done
 "$NM" -D "$PREFIX/lib/libavformat.so" | grep -Eq 'ff_libsmbclient_protocol|libsmbclient' || grep -aFq 'libsmbclient' "$PREFIX/lib/libavformat.so" || fail 'libavformat does not expose the libsmbclient protocol'
-grep -aFq 'gnutls_handshake' "$PREFIX/lib/libavformat.so" || fail 'libavformat does not contain the GnuTLS backend'
+grep -aFq 'mbedtls_ssl_handshake' "$PREFIX/lib/libavformat.so" || fail 'libavformat does not contain the mbedTLS backend'
+grep -aFq 'xmlParseStartTag' "$PREFIX/lib/libavformat.so" || fail 'libavformat does not contain the libxml2/DASH support'
+grep -aFq 'libdav1d' "$PREFIX/lib/libavcodec.so" || fail 'libavcodec does not contain the libdav1d decoder'
+grep -aFq 'OH_VideoDecoder_CreateByName' "$PREFIX/lib/libavcodec.so" || fail 'libavcodec does not contain the ohcodec backend'
 echo "ELF verification passed; report: $REPORT"

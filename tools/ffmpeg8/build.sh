@@ -144,6 +144,21 @@ fi
 [ -f "$SMB_SYSROOT/lib/libsmbclient.a" ] || fail "SMB sysroot is missing static libsmbclient"
 [ -f "$SMB_SYSROOT/lib/pkgconfig/smbclient.pc" ] || fail "SMB sysroot is missing smbclient.pc"
 
+# Build the static mbedTLS / libdav1d / libxml2 closure into the same sysroot
+# so FFmpeg can enable https/tls (mbedTLS), AV1 decoding (dav1d), and the
+# XML-backed DASH demuxer (libxml2) without weakening any existing capability.
+if [ ! -f "$SMB_SYSROOT/lib/libmbedtls.a" ] || [ ! -f "$SMB_SYSROOT/lib/libdav1d.a" ] || [ ! -f "$SMB_SYSROOT/lib/libxml2.a" ]; then
+    OHOS_ARCH="$OHOS_ARCH" OHOS_NDK="$OHOS_NDK" OHOS_LLVM_BIN="$LLVM_BIN" \
+        OHOS_SYSROOT="$SYSROOT" PREFIX="$SMB_SYSROOT" \
+        WORK_DIR="$WORK_DIR/deps-$OHOS_ARCH" "$SCRIPT_DIR/build-libdeps.sh"
+fi
+[ -f "$SMB_SYSROOT/include/mbedtls/ssl.h" ] || fail "deps sysroot is missing mbedtls headers"
+[ -f "$SMB_SYSROOT/include/dav1d/dav1d.h" ] || fail "deps sysroot is missing dav1d headers"
+[ -f "$SMB_SYSROOT/include/libxml2/libxml/xmlversion.h" ] || fail "deps sysroot is missing libxml2 headers"
+[ -f "$SMB_SYSROOT/lib/libmbedtls.a" ] || fail "deps sysroot is missing static libmbedtls"
+[ -f "$SMB_SYSROOT/lib/libdav1d.a" ] || fail "deps sysroot is missing static libdav1d"
+[ -f "$SMB_SYSROOT/lib/libxml2.a" ] || fail "deps sysroot is missing static libxml2"
+
 # Keep FFmpeg's stock component boundaries and broad built-in media support.
 # libsmbclient is GPLv3; this SDK is consequently a GPLv3 distribution.
 CONFIGURE_OPTIONS=(
@@ -172,11 +187,17 @@ CONFIGURE_OPTIONS=(
     --disable-xlib
     --disable-sdl2
     --enable-network
-    --enable-gnutls
+    --enable-mbedtls
+    --enable-zlib
     --enable-protocol=file,http,https,tls,tcp,httpproxy,rtmp,rtp,udp,crypto,data,pipe,concat,subfile,cache,async,smb
     --enable-gpl
     --enable-version3
     --enable-libsmbclient
+    --enable-libdav1d
+    --enable-libxml2
+    --enable-demuxer=dash
+    --enable-ohcodec
+    --enable-encoder=png,mjpeg
     --disable-nonfree
 )
 
@@ -188,8 +209,15 @@ printf '%s\n' "${CONFIGURE_OPTIONS[@]}" > "$PREFIX/configure-options.txt"
 grep -Eq '^#define CONFIG_LIBSMBCLIENT_PROTOCOL 1$' config_components.h || fail "FFmpeg did not enable the libsmbclient protocol"
 grep -Eq '^#define CONFIG_HTTPS_PROTOCOL 1$' config_components.h || fail "FFmpeg did not enable the https protocol"
 grep -Eq '^#define CONFIG_TLS_PROTOCOL 1$' config_components.h || fail "FFmpeg did not enable the tls protocol"
-grep -Eq '^CONFIG_GNUTLS=yes$' ffbuild/config.mak || fail "FFmpeg did not enable the GnuTLS backend"
+grep -Eq '^CONFIG_MBEDTLS=yes$' ffbuild/config.mak || fail "FFmpeg did not enable the mbedTLS backend"
 grep -Eq '^CONFIG_GPL=yes$' ffbuild/config.mak || fail "FFmpeg did not enable GPL mode"
+grep -Eq '^CONFIG_ZLIB=yes$' ffbuild/config.mak || fail "FFmpeg did not enable zlib"
+grep -Eq '^CONFIG_LIBDAV1D_DECODER=yes$' ffbuild/config.mak || fail "FFmpeg did not enable the libdav1d decoder"
+grep -Eq '^CONFIG_LIBXML2=yes$' ffbuild/config.mak || fail "FFmpeg did not enable libxml2"
+grep -Eq '^CONFIG_DASH_DEMUXER=yes$' ffbuild/config.mak || fail "FFmpeg did not enable the dash demuxer"
+grep -Eq '^CONFIG_OHCODEC=yes$' ffbuild/config.mak || fail "FFmpeg did not enable ohcodec"
+grep -Eq '^CONFIG_PNG_ENCODER=yes$' ffbuild/config.mak || fail "FFmpeg did not enable the png encoder"
+grep -Eq '^CONFIG_MJPEG_ENCODER=yes$' ffbuild/config.mak || fail "FFmpeg did not enable the mjpeg encoder"
 awk '/^#define CONFIG_[A-Z0-9_]+_PROTOCOL 1$/ { name=$2; sub(/^CONFIG_/, "", name); sub(/_PROTOCOL$/, "", name); print tolower(name) }' config_components.h | LC_ALL=C sort > "$PREFIX/protocols.txt"
 make -j"$JOBS"
 make install
@@ -243,9 +271,15 @@ source_commit=${FFMPEG_COMMIT}
 source_digest=sha256:${FFMPEG_SHA256}
 libsmbclient=enabled
 libsmbclient_linkage=static-closure
-tls_backend=gnutls-static-closure
+tls_backend=mbedtls-static-closure
 https=enabled
 tls=enabled
+libdav1d=enabled
+libxml2=enabled
+dash_demuxer=enabled
+ohcodec=enabled
+png_encoder=enabled
+mjpeg_encoder=enabled
 smb_patch=patches/0001-libsmbclient-private-credentials.patch
 target=${TARGET_TRIPLE}
 architecture=${OHOS_ARCH}
