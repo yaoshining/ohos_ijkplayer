@@ -53,6 +53,8 @@ OHOS_ARCH=x86_64 JOBS=8 \
     pkgconfig/                   # libav*.pc、libsw*.pc
   licenses/FFmpeg-LGPL-2.1-or-later.txt
   VERSION                        # 版本、源码 URL、SHA-256、目标与 configure 参数
+  configure-options.txt          # 每行一个完整 configure 参数
+  PROTOCOLS.txt                  # configure 实际启用的 URL protocol 清单
   MANIFEST.tsv                   # 每个打包文件及字节大小
   ELF-REPORT.txt                 # ELF 架构、OS ABI、SONAME、DT_NEEDED 与大小
 ```
@@ -61,7 +63,7 @@ OHOS_ARCH=x86_64 JOBS=8 \
 
 ## 功能与许可证
 
-构建保留 FFmpeg 标准组件边界和内置 demuxer、parser、解码器、字幕、滤镜、缩放与重采样能力，并启用 `http`、`tcp`、`rtmp`、`rtp`、`udp` 等不依赖 TLS 后端的网络协议；不采用 IJK 的 `--disable-everything` 式裁剪。由于构建关闭自动探测且未链接外部 TLS 后端，本产物不提供 `https`、`tls` 或 `rtmps`。启用 `libsmbclient` 会链接 GPLv3 Samba 组件，因此 SDK 明确使用 GPLv3 发布，不能描述为纯 LGPL 制品。完整许可证随产物位于 `licenses/`，源码和配置可审计信息位于 `VERSION`。
+构建保留 FFmpeg 标准组件边界和内置 demuxer、parser、解码器、字幕、滤镜、缩放与重采样能力，并启用 `http`、`https`、`tls`、`tcp`、`rtmp`、`rtp`、`udp` 等网络协议；不采用 IJK 的 `--disable-everything` 式裁剪。HTTPS/TLS 使用与 Samba 依赖闭包共同构建的 GnuTLS 3.8.7，并将 GnuTLS、Nettle、GMP、libtasn1 等完整静态链接进 `libavformat.so`，因此宿主无需额外部署 TLS 动态库。启用 `libsmbclient` 会链接 GPLv3 Samba 组件，因此 SDK 明确使用 GPLv3 发布，不能描述为纯 LGPL 制品。完整许可证随产物位于 `licenses/`，源码和配置可审计信息位于 `VERSION`。
 
 ## 验证
 
@@ -82,6 +84,8 @@ export OHOS_NDK=/absolute/path/to/openharmony/ndk
 ## SMB / libsmbclient（GPLv3）
 
 此 SDK 使用 FFmpeg `n8.0` 提交 `140fd653aed8cad774f991ba083e2d01e86420c7`，上游 tarball 为 `https://ffmpeg.org/releases/ffmpeg-8.0.tar.xz`（SHA-256 `b2751fccb6cc4c77708113cd78b561059b6fa904b24162fa0be2d60273d27b8e`）。构建会锁定 Samba 4.20.7 提交 `3984b04d7085c428ab3126ef4cfac2a396b5b29e`，将 `libsmbclient.a` 和 zlib、popt、GMP、Nettle、libtasn1、GnuTLS 的静态闭包链接到 `libavformat.so`，因此 SDK 不需要 Samba 运行时 `.so`。
+
+同一静态依赖闭包中的 GnuTLS 也作为 FFmpeg 的 TLS backend，构建与校验会同时门禁 `--enable-gnutls`、`https`/`tls` protocol、GnuTLS 字符串、动态依赖和未解析静态符号。
 
 `patches/0001-libsmbclient-private-credentials.patch` 从 VidAll_Player 三项补丁移植到 FFmpeg 8.0。它仅给 `smb` URL protocol 私有上下文增加 `username`、`password` AVOption，并使用 `SMBCCTX` user-data/auth callback 读取它们；`workgroup`、`timeout` 行为保持不变。凭据不会写入 URL、HTTP header 或 FFmpeg 日志，也不修改 FFmpeg 公共 API。
 
