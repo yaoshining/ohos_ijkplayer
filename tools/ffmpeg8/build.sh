@@ -174,7 +174,7 @@ CONFIGURE_OPTIONS=(
     --disable-x86asm
     --enable-network
     --enable-gnutls
-    --enable-protocol=file,http,https,tls,tcp,httpproxy,rtmp,rtp,udp,crypto,data,pipe,concat,subfile,cache,async,smb
+    --enable-protocol=file,http,https,tls,tcp,httpproxy,rtmp,rtp,udp,crypto,data,pipe,concat,subfile,cache,async,libsmbclient
     --enable-gpl
     --enable-version3
     --enable-libsmbclient
@@ -186,7 +186,7 @@ export PKG_CONFIG_LIBDIR="$SMB_SYSROOT/lib/pkgconfig"
 export PKG_CONFIG_SYSROOT_DIR=
 ./configure "${CONFIGURE_OPTIONS[@]}"
 printf '%s\n' "${CONFIGURE_OPTIONS[@]}" > "$PREFIX/configure-options.txt"
-awk '/^#define CONFIG_[A-Z0-9_]+_PROTOCOL 1$/ { name=$2; sub(/^CONFIG_/, "", name); sub(/_PROTOCOL$/, "", name); print tolower(name) }' config_components.h | LC_ALL=C sort -u > "$PREFIX/PROTOCOLS.txt"
+awk '/^#define CONFIG_[A-Z0-9_]+_PROTOCOL 1$/ { name=$2; sub(/^CONFIG_/, "", name); sub(/_PROTOCOL$/, "", name); name=tolower(name); if (name == "libsmbclient") name = "smb"; print name }' config_components.h | LC_ALL=C sort -u > "$PREFIX/PROTOCOLS.txt"
 grep -Eq '^#define CONFIG_LIBSMBCLIENT_PROTOCOL 1$' config_components.h || fail "FFmpeg did not enable the libsmbclient protocol"
 grep -Eq '^#define CONFIG_HTTPS_PROTOCOL 1$' config_components.h || fail "FFmpeg did not enable the HTTPS protocol"
 grep -Eq '^#define CONFIG_TLS_PROTOCOL 1$' config_components.h || fail "FFmpeg did not enable the TLS protocol"

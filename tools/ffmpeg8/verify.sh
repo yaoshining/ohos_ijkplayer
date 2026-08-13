@@ -25,6 +25,7 @@ TARGET=$(awk -F= '$1 == "target" {print $2; exit}' "$PREFIX/VERSION")
 ARCHITECTURE=$(awk -F= '$1 == "architecture" {print $2; exit}' "$PREFIX/VERSION")
 [ "$(awk -F= '$1 == "libsmbclient" {print $2; exit}' "$PREFIX/VERSION")" = enabled ] || fail "VERSION does not record libsmbclient=enabled"
 [ "$(awk -F= '$1 == "tls_backend" {print $2; exit}' "$PREFIX/VERSION")" = gnutls ] || fail "VERSION does not record tls_backend=gnutls"
+[ "$(awk -F= '$1 == "tls_backend_linkage" {print $2; exit}' "$PREFIX/VERSION")" = static-closure ] || fail "VERSION does not record tls_backend_linkage=static-closure"
 [ "$(awk -F= '$1 == "https_protocol" {print $2; exit}' "$PREFIX/VERSION")" = enabled ] || fail "VERSION does not record https_protocol=enabled"
 [ "$(awk -F= '$1 == "tls_protocol" {print $2; exit}' "$PREFIX/VERSION")" = enabled ] || fail "VERSION does not record tls_protocol=enabled"
 grep -Fxq -- '--enable-libsmbclient' "$PREFIX/configure-options.txt" || fail "missing --enable-libsmbclient configure proof"
@@ -33,7 +34,7 @@ grep -Fq -- '--enable-protocol=file,http,https,tls,tcp' "$PREFIX/configure-optio
 grep -Fxq -- '--enable-gpl' "$PREFIX/configure-options.txt" || fail "missing --enable-gpl configure proof"
 case "$TARGET:$ARCHITECTURE" in aarch64-unknown-linux-ohos:arm64-v8a) expected_machine=AArch64;; x86_64-unknown-linux-ohos:x86_64) expected_machine=X86-64;; *) fail "unsupported target metadata: $TARGET ($ARCHITECTURE)";; esac
 for item in include/libavcodec include/libavformat include/libavutil include/libavfilter include/libswresample include/libswscale lib/pkgconfig/libavcodec.pc lib/pkgconfig/libavformat.pc lib/pkgconfig/libavutil.pc lib/pkgconfig/libavfilter.pc lib/pkgconfig/libswresample.pc lib/pkgconfig/libswscale.pc licenses/FFmpeg-LGPL-2.1-or-later.txt licenses/GPL-3.0-or-later.txt VERSION configure-options.txt PROTOCOLS.txt; do [ -e "$PREFIX/$item" ] || fail "missing exported SDK item: $item"; done
-for protocol in libsmbclient https tls http tcp; do grep -Fxq "$protocol" "$PREFIX/PROTOCOLS.txt" || fail "missing enabled protocol: $protocol"; done
+for protocol in smb https tls http tcp; do grep -Fxq "$protocol" "$PREFIX/PROTOCOLS.txt" || fail "missing enabled protocol: $protocol"; done
 for pc in "$PREFIX"/lib/pkgconfig/*.pc; do ! grep -Fq "$PREFIX" "$pc" || fail "absolute build prefix leaked into $pc"; done
 if find "$PREFIX" -type f -name 'libav*.a' -o -name 'libsw*.a' | grep -q .; then fail "static libav/libsw archive exported"; fi
 REPORT="$PREFIX/ELF-REPORT.txt"
@@ -53,5 +54,5 @@ grep -aFq 'libsmbclient' "$PREFIX/lib/libavformat.so" || fail 'libavformat does 
 grep -aFq 'https' "$PREFIX/lib/libavformat.so" || fail 'libavformat does not contain the HTTPS protocol'
 grep -aFq 'GnuTLS' "$PREFIX/lib/libavformat.so" || fail 'libavformat does not contain the GnuTLS backend'
 undefined_symbols=$($NM -D --undefined-only "$PREFIX/lib/libavformat.so")
-! grep -E ' (gnutls_|smbc_|nettle_|hogweed_|gmp_|asn1_)' <<< "$undefined_symbols" || fail 'libavformat has unresolved static TLS/SMB dependency symbols'
+! grep -E ' (gnutls_|smbc_|nettle_|hogweed_|(__gmp|gmp_)|asn1_)' <<< "$undefined_symbols" || fail 'libavformat has unresolved static TLS/SMB dependency symbols'
 echo "ELF verification passed; report: $REPORT"
