@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # 全新 CI checkout：依赖源码 → OHCodec 两次 clean → 审计 → 正式产物门禁。
 set -euo pipefail
+# 动态导入冻结配方时不能写入 __pycache__；文件集合门禁仍逐项严格校验。
+export PYTHONDONTWRITEBYTECODE=1
 root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
 cd "$root"
 source tools/ffmpeg8/ci-repo-env.sh
