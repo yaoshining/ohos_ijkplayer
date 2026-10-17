@@ -3,7 +3,7 @@ FROM debian@sha256:44bccdd61bf09a081b1db8c61cf49bfabf30ac7afcc970010137c0ab587b2
 RUN rm /etc/apt/sources.list.d/debian.sources /etc/apt/apt.conf.d/docker-clean && \
     printf 'deb [check-valid-until=no] http://snapshot.debian.org/archive/debian/20250204T000000Z/ bookworm main\ndeb [check-valid-until=no] http://snapshot.debian.org/archive/debian-security/20250204T000000Z/ bookworm-security main\n' > /etc/apt/sources.list && \
     apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates build-essential clang bison flex m4 perl libparse-yapp-perl python3 pkg-config \
+    ca-certificates zlib1g-dev build-essential clang bison flex m4 perl libparse-yapp-perl python3 pkg-config \
     autoconf automake autopoint libtool curl git unzip xz-utils rsync nasm patch && \
     mkdir -p /opt/host-provenance && \
     dpkg-query -W -f='${Package}\t${Version}\t${Architecture}\n' > /opt/host-provenance/packages.tsv && \

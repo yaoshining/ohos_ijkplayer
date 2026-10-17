@@ -512,14 +512,13 @@ PC
   : > "$host_pc/gnutls/gnutls.h"
 
   # 原生环境（清空交叉变量）。覆盖 x64(/usr/local) 和 arm64(/opt/homebrew) Homebrew 路径。
-  # 同时透传 -I/-L 让 waf 完整 build 中触发 genrand.c 等引用 gnutls.h 的源文件能找到头。
-  # host build 不需要真的链接 gnutls, 仅需 include 可见。
-  env -i HOME="$HOME" PATH="$PREFIX/bin:$NATIVE_BUILD_PATH" \
+  # 宿主生成器只使用宿主包和这里的 GnuTLS 声明占位，目标 sysroot 不得泄漏进宿主编译/链接。
+  env -i HOME="$HOME" PATH="$PREFIX/bin:$NATIVE_BUILD_PATH" LC_ALL=C TZ=UTC SOURCE_DATE_EPOCH="$SOURCE_DATE_EPOCH" \
     PKG_CONFIG_PATH="$host_pc:/usr/local/lib/pkgconfig:/opt/homebrew/lib/pkgconfig:/usr/lib/pkgconfig" \
     bash -c "cd '$SAMBA_HOST_DIR' && \
       unset CC CXX PKG_CONFIG_LIBDIR && \
-      export CFLAGS='-I$PREFIX/include' CXXFLAGS='-I$PREFIX/include' \
-             CPPFLAGS='-I$PREFIX/include' LDFLAGS='-L$PREFIX/lib' && \
+      export CFLAGS='-I$host_pc' CXXFLAGS='-I$host_pc' \
+             CPPFLAGS='-I$host_pc' LDFLAGS=''  && \
       PYTHONHASHSEED=1 ./configure --disable-python --without-ad-dc --disable-fault-handling \
         --without-ldb-lmdb --without-gettext --without-json --without-systemd --without-libarchive \
         --without-acl-support --without-ldap --without-ads --without-pam \

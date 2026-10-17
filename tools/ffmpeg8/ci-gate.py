@@ -41,7 +41,7 @@ def main():
     inputs['patchesVerified']={Path(r['path']).name:r['sha256'] for r in sdk['patches']}=={Path(n).name:h for n,h in producer.LOCK['patches'].items()}
     errors=failures(sdk,actual,inputs)
     release_errors=release_failures(lock,sdk)
-    a.report.write_text(json.dumps({'sourceVerificationPassed':not errors,'formalArtifactAllowed':not errors and not release_errors,'errors':errors,'releaseBlockers':release_errors,'deviceAcceptanceStatus':'pending'},ensure_ascii=False,indent=2)+'\n')
+    a.report.write_text(json.dumps({'sourceVerificationPassed':not errors,'formalArtifactAllowed':not errors and not release_errors,'errors':errors,'releaseBlockers':release_errors,'verifiedInputs':inputs,'evidencePins':{'firstManifestSha256':a.manifest_sha256,'secondManifestSha256':a.second_manifest_sha256,'repeatSha256':producer.sha(a.repeat),'inputRecordSha256':producer.sha(a.inputs),'dependencyClosureSha256':sdk['staticDependencies'].get('closureProofSha256')},'deviceAcceptanceStatus':'pending'},ensure_ascii=False,indent=2)+'\n')
     if not a.verification_only:errors+=release_errors
     if errors:print('\n'.join(errors),file=sys.stderr);sys.exit(1)
 if __name__=='__main__':main()

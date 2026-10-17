@@ -191,10 +191,32 @@ OHOS_NDK=/path/to/native WORK_DIR="$PWD/out/new-deps/work" PREFIX="$PWD/out/new-
 python3 tools/ffmpeg8/dependency-manifest.py --work out/new-deps/work   --sysroot out/new-deps/sysroot --cache out/new-deps/downloads --ndk /path/to/native
 ```
 
-随后用 producer `build` 的 `--smb` 指向该 sysroot，增加 `--static-manifest` 和经核验的 `--static-manifest-sha256`。新清单绑定八库、headers、pkgconfig、源码选择、Samba 补丁、工具和许可证。新依赖的许可证另存 SDK 的 `licenses/source-dependencies`，不会仅留在外部 sysroot。所有源码构建仍 fullyVerified=false，缺口详见清单，禁止当历史闭包完整证明。
+随后用 producer `build` 的 `--smb` 指向该 sysroot，增加 `--static-manifest` 和经核验的 `--static-manifest-sha256`。新清单绑定八库、headers、pkgconfig、源码选择、Samba 补丁、工具和许可证。新依赖的许可证另存 SDK 的 `licenses/source-dependencies`，不会仅留在外部 sysroot。单次源码构建默认 fullyVerified=false。第三阶段仅在绑定预锁、独立两次构建和固定宿主获取证据后，允许新选来源闭包 true；historicalSourceIdentityProven 始终独立为 false。
 
 两次 clean 分别使用全新 OUTPUT；用 `compare-sdks.py --first SDK_A --second SDK_B --report report.json` 比较六库与开发文件。manifest 中工作目录/证据身份本来不同，不要求两个 manifest 字节相同。
 
-CI 主入口 `ci-build-ohcodec.sh` 从公开锁定源码和本仓 baseline-evidence 启动，不读 Player/TV 或用户缓存。当前 Linux 工具链诊断 profile 固定公开 OpenHarmony 5.0 archive，**不是**本机 API24/6.1.1.115 的历史身份；云端编译未执行，兼容性不能先行声称通过。无完整依赖/宿主工具锁时 `ci-gate.py` 失败，只有 diagnostics artifact 可保留，正式 artifact 不上传。不得添加 continue-on-error 绕过。
+CI 主入口 `ci-build-ohcodec.sh` 从公开锁定源码和本仓 baseline-evidence 启动，不读 Player/TV 或用户缓存。当前 Linux 工具链诊断 profile 固定公开 OpenHarmony 5.0 archive，**不是**本机 API24/6.1.1.115 的历史身份；实际云端运行结果见报告，不能把下载成功当编译/兼容性通过。无完整依赖/宿主工具锁时 `ci-gate.py` 失败，只有 diagnostics artifact 可保留，正式 artifact 不上传。不得添加 continue-on-error 绕过。
 
 原 build.sh 仍可手动构建普通 SDK，但已从 OHCodec CI 门禁移除。Spec Kit 使用本仓官方 v1.2.1，见 `tools/speckit/README.md`。
+
+
+## 第三阶段：独立静态构建与证据门禁
+
+Linux CI 从 `ci-container.sh` 开始：Dockerfile 固定官方基础镜像摘要和 Debian 软件包快照，保存镜像/容器 identity、dpkg 版本、deb 摘要；容器里调用 `ci-build-ohcodec.sh`。仅已锁定的下载缓存可共享，两个依赖 source/work/sysroot 和两个 FFmpeg OUTPUT 独立新建。
+
+本地实验先将 build-libsmbclient.sh、fetch-sources.py、dependency-sources.lock.json、dependency-paths.py、generator-lock.py 复制到新的 recipe 目录，设定 `LC_ALL=C TZ=UTC SOURCE_DATE_EPOCH=1755820644 PYTHONHASHSEED=1`，再执行以下入口。所有输出路径必须全新；下载缓存中的每项须已通过 fetch-sources.py 校验。
+
+```bash
+python3 tools/ffmpeg8/host-lock.py capture --ndk NDK --recipe RECIPE --profile macos-installed-API24 --output HOST_LOCK.json
+python3 tools/ffmpeg8/run-dependency-build.py --root BUILD_A --recipe RECIPE --host-lock HOST_LOCK.json --cache DOWNLOADS --ndk NDK --jobs 6
+python3 tools/ffmpeg8/run-dependency-build.py --root BUILD_B --recipe RECIPE --host-lock HOST_LOCK.json --cache DOWNLOADS --ndk NDK --jobs 6
+python3 tools/ffmpeg8/dependency-repeat.py --first BUILD_A/sysroot --second BUILD_B/sysroot --require-build-records --report STATIC_REPEAT.json
+```
+
+为两侧运行 dependency-manifest.py 并显式传入 `--recipe RECIPE`，再运行 new-source-closure.py 生成新的证据包和 dependency-manifest-closed.json。Mac 已安装工具的获取来源仍未证明，因此仅能证明该 profile 下的重复性；不能因清单齐全就标记完整宿主获取验证通过。
+
+受控 runner 不继承 OHOS_SYSROOT/OHOS_LLVM_BIN/OHOS_ARCH/HOSTCC/CFLAGS 等外部覆盖；从绑定的 NDK 与 ARM64 配置派生实际环境并记录。host-lock 在构建前后验证工具和 recipe；从源码构建的 bison/Heimdal 生成器在使用前冻结摘要，构建结束复核。
+
+`ci-gate.py` 校验两个 SDK 的 manifest 外部固定摘要、重新比较实际库/头文件/pkgconfig、检查实际来源归档与闭包文档，不接受手写 allMatch/hostToolsVerified。`--verification-only` 允许成功报告新选来源验证，但正式产物仍需独立 release gate；当前 formalReleaseAllowed=false、历史工具链身份未证明、设备 pending，禁止正式发布或替换 TV 基线。
+
+可重复性修复涉及默认路径：popt 的配置目录固定为 /etc；交叉 Samba/LDB 使用 configure 的安装路径，不再把临时源码树作为默认运行路径。这个行为改变没有真机验收。开发元数据可重定位不表示 SMB/媒体播放已通过。

@@ -39,7 +39,7 @@ T109 最终报告：docs/producer-reproducibility-report.md。TV HEAD 观察变�
 
 - [x] T201 核验当前基线、远端权限与 runner；重新执行 Spec Kit 前置检查。
 - [x] T202 工具漂移/缺失、库集合、头文件篡改、共享产物回归 RED→GREEN。
-- [ ] T203 八库两次独立 clean、比较 archive/对象/生成代码；先 RED 再修复并重建。
+- [x] T203 八库两次独立 clean、比较 archive/对象/生成代码；前两组 RED，第三组 111/111 项一致。
 - [ ] T204 构建前工具输入锁、固定 Linux 获取来源及漂移门禁。
 - [ ] T205 专用最小提交/分支，实际远程 CI，保存 job 和 artifact 结果。
 - [ ] T206 证据验证正反回归、状态分离、handoff 与最终报告。

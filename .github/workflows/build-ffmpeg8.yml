@@ -58,6 +58,9 @@ jobs:
             out/ci-ohcodec/dependencies/*/build-record.json
             out/ci-ohcodec/dependencies/*/sysroot/dependency-manifest*.json
             out/ci-ohcodec/dependencies/*/sysroot/new-source-closure.json
+            out/ci-ohcodec/dependencies/*/sysroot/lib/*.a
+            out/ci-ohcodec/dependencies/*/sysroot/lib/pkgconfig/
+            out/ci-ohcodec/dependencies/*/sysroot/include/
             out/ci-ohcodec/dependencies/*/sysroot/evidence/
             out/ci-ohcodec/dependencies/*/sysroot/licenses/
           if-no-files-found: warn

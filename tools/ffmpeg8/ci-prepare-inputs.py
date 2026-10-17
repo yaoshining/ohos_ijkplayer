@@ -75,6 +75,6 @@ def main():
     subprocess.run([str(compiler),'--version'],check=True)
     probe=root/'compiler-probe.c';probe.write_text('#include <stddef.h>\nint main(void) { return 0; }\n')
     subprocess.run([str(compiler),str(probe),'-o',str(root/'compiler-probe')],check=True)
-    report={'sourceArchiveVerified':True,'patchesVerified':True,'toolchainArchiveVerified':True,'hostToolsVerified':False,'hostToolsReason':'apt/Python 宿主环境尚未由固定镜像摘要绑定，实际工具摘要由 SDK 记录','toolchain':tool,'dependenciesLockSha256':lock['dependenciesLockSha256'],'formalReleaseAllowed':False}
+    report={'sourceArchiveVerified':True,'patchesVerified':True,'toolchainArchiveVerified':True,'hostToolsVerified':False,'hostToolsReason':'输入准备阶段暂未完成两次构建后的宿主闭包校验；最终状态见 formal-gate.json verifiedInputs','hostToolsStatus':'pending-closure-verification','toolchain':tool,'dependenciesLockSha256':lock['dependenciesLockSha256'],'formalReleaseAllowed':False}
     (root/'input-verification.json').write_text(json.dumps(report,indent=2)+'\n')
 if __name__=='__main__':main()
