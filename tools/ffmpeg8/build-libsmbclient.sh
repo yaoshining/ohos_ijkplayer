@@ -494,7 +494,12 @@ PC
 
   # 原生环境（清空交叉变量）。覆盖 x64(/usr/local) 和 arm64(/opt/homebrew) Homebrew 路径。
   # 宿主生成器只使用宿主包和这里的 GnuTLS 声明占位，目标 sysroot 不得泄漏进宿主编译/链接。
-  env -i HOME="$HOME" PATH="$PREFIX/bin:$NATIVE_BUILD_PATH" LC_ALL=C TZ=UTC SOURCE_DATE_EPOCH="$SOURCE_DATE_EPOCH" \
+  local -a host_select_env=()
+  local selector
+  for selector in DEVELOPER_DIR SDKROOT TOOLCHAINS M4; do
+    if [ "${!selector+x}" = x ]; then host_select_env+=("$selector=${!selector}"); fi
+  done
+  env -i "${host_select_env[@]}" HOME="$HOME" PATH="$PREFIX/bin:$NATIVE_BUILD_PATH" LC_ALL=C TZ=UTC SOURCE_DATE_EPOCH="$SOURCE_DATE_EPOCH" \
     PKG_CONFIG_PATH="$host_pc:/usr/local/lib/pkgconfig:/opt/homebrew/lib/pkgconfig:/usr/lib/pkgconfig" \
     bash -c "cd '$SAMBA_HOST_DIR' && \
       unset CC CXX PKG_CONFIG_LIBDIR && \
@@ -527,7 +532,9 @@ configure_samba() {
     --host=$HOST_TRIPLET --hostcc="${HOSTCC:-$(command -v clang)}" \
     --bundled-libraries=ALL --private-libraries=ALL \
     --with-static-modules='ALL,!vfs_snapper' --with-shared-modules='!DEFAULT,!vfs_snapper' \
-    --disable-python --without-ad-dc --disable-fault-handling \
+    --disable-python --pythondir=/usr/local/samba/lib/python3/site-packages \
+    --pythonarchdir=/usr/local/samba/lib/python3/site-packages \
+    --without-ad-dc --disable-fault-handling \
     --without-ldb-lmdb --without-gettext --without-json \
     --without-systemd --without-libarchive --without-acl-support \
     --without-ldap --without-ads --without-pam; then

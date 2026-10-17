@@ -14,7 +14,7 @@ export JOBS=${JOBS:-4}
 export LC_ALL=C TZ=UTC SOURCE_DATE_EPOCH=1755820644 PYTHONHASHSEED=1
 export SOURCE_CACHE="$out/dependencies/downloads"
 mkdir -p "$SOURCE_CACHE" "$out/dependency-recipe"
-cp tools/ffmpeg8/{build-libsmbclient.sh,fetch-sources.py,dependency-sources.lock.json,dependency-paths.py,generator-lock.py,verify-dependency-features.py,elf-audit.py,samba-target-config.py} "$out/dependency-recipe/"
+cp tools/ffmpeg8/{build-libsmbclient.sh,fetch-sources.py,dependency-sources.lock.json,dependency-paths.py,generator-lock.py,verify-dependency-features.py,elf-audit.py,samba-target-config.py,host-lock.py,run-dependency-build.py,dependency-repeat.py} "$out/dependency-recipe/"
 python3 - "$SOURCE_CACHE" <<'PYFETCH'
 import json,subprocess,sys
 from pathlib import Path
@@ -22,9 +22,9 @@ for row in json.loads(Path('tools/ffmpeg8/dependency-sources.lock.json').read_te
     subprocess.run(['python3','tools/ffmpeg8/fetch-sources.py','--name',row['name'],'--cache',sys.argv[1]],check=True)
 PYFETCH
 cp -a /opt/host-provenance "$out/host-provenance"
-python3 tools/ffmpeg8/host-lock.py capture --ndk "$OHOS_NDK" --recipe "$out/dependency-recipe" --profile linux-debian-bookworm-20250204 --output "$out/host-lock.json"
+python3 "$out/dependency-recipe/host-lock.py" capture --ndk "$OHOS_NDK" --recipe "$out/dependency-recipe" --profile linux-debian-bookworm-20250204 --output "$out/host-lock.json"
 for iteration in a b; do
-  python3 tools/ffmpeg8/run-dependency-build.py --root "$out/dependencies/$iteration" --recipe "$out/dependency-recipe" --host-lock "$out/host-lock.json" --cache "$SOURCE_CACHE" --ndk "$OHOS_NDK" --jobs "$JOBS"
+  python3 "$out/dependency-recipe/run-dependency-build.py" --root "$out/dependencies/$iteration" --recipe "$out/dependency-recipe" --host-lock "$out/host-lock.json" --cache "$SOURCE_CACHE" --ndk "$OHOS_NDK" --jobs "$JOBS"
   python3 tools/ffmpeg8/dependency-manifest.py --work "$out/dependencies/$iteration/work" --sysroot "$out/dependencies/$iteration/sysroot" --cache "$SOURCE_CACHE" --ndk "$OHOS_NDK" --recipe "$out/dependency-recipe"
 done
 python3 tools/ffmpeg8/dependency-repeat.py --first "$out/dependencies/a/sysroot" --second "$out/dependencies/b/sysroot" --require-build-records --report "$out/static-repeat.json"

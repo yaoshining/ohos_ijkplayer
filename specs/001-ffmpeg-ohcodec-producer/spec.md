@@ -68,3 +68,17 @@ SDK 记录源码、补丁、工具链、静态输入、runtime、headers/pkgconf
 - FR-024：真实配置/编译/链接RED先于最小修复；禁止单纯补宏或把宿主宏机械改成目标宏。保留第五阶段GMP与曲线门禁，新增实际能力/路径验证。
 - FR-025：历史绝对运行路径与可迁移交付冲突须显式报告，独立诊断实验区分历史配置复现与可重复交付。现有来源锁不改；必要新来源先解释，不覆盖旧证据。
 - FR-026：新out/phase6内两clean静态+FFmpeg、实际CI及下载核验；旧候选/默认指针保持，Player/TV只读、设备pending、formalArtifactAllowed=false。本阶段授权扩展FR-022中的不修复范围，沿用FR-013专用分支权限。
+
+## 第七阶段：Bison与目标路径方案确认（2026-10-18）
+
+- FR-027：先提供带实物证据的方案，再修改默认配方。独立调查仅写新out/phase7；Bison2.3实验不得覆盖现有来源锁，不追认历史工具执行身份。
+- FR-028：Python路径需表示目标安装布局，保留禁用Python状态和宿主构建解释器；不得用空路径、伪造能力宏或删除字符串冒充功能修复。其他运行目录区分只读资源、配置、可写状态及无客户端消费者项。
+- FR-029：六库差异分别记录完整SHA、节内容与布局、代码/数据/重定位、配置字符串、生成器贡献及动态导出。控制实验不能替代两clean、CI、组合或设备验收。
+- FR-030：候选/默认SDK、phase6证据、Player和TV保持冻结；未确认的方案不得记作实施完成。后续经确认实施时沿用真实RED→最小修复→GREEN与实际对象门禁，最终配方冻结后再进行两clean及CI实物核验。
+
+## 第八阶段：Python目标路径与实际工具锁修复（2026-10-18明确授权）
+
+- FR-031：目标Samba显式Python安装目录固定为/usr/local/samba/lib/python3/site-packages，保留disable-python及真实宿主解释器；门禁核验实际命名指针、禁用状态和最终avformat相对重定位/宿主路径。明确这不是Python模块交付或沙箱可用保证。
+- FR-032：按实际PATH区分Apple转发器与直接工具，冻结实际执行文件、选择器状态、Bison骨架、编译器resource及明确子工具；缺失、漂移、资源集合增删、选择器变化失败。父预锁与受控子进程及native env-i选择器一致。Linux保持自身工具与获取链语义，不宣称完整Xcode/SDK或历史身份。
+- FR-033：真实RED先于修复，覆盖正常、边界、失败和用户环境注入；最终配方冻结后，两fresh静态source/work/sysroot与两FFmpeg构建、真实专用分支CI和外部artifact绑定下载复验；更新六库与TV实际差异。
+- FR-034：全部新输出out/phase8；phase6/7证据、来源锁、默认SDK/候选、原业务分支/脏改动与keys保持；Player/TV全目录只读，设备pending、formalArtifactAllowed=false。沿用专用分支推送授权，不合并发布。Bison/Flex保持现有默认，运行目录API不在本轮实施。

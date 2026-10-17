@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """TV 基线 FFmpeg/OHCodec SDK：导入、固定输入重建、摘要核验。"""
 import argparse
+import importlib.util
 import hashlib
 import json
 import os
@@ -414,6 +415,10 @@ def package_build(args):
     audit(sdk, args.ndk)
     comparison = compare_libraries(sdk, LOCK['libraries'])
     write_json(root / 'rebuild-comparison.json', comparison)
+    if static.get('rebuiltFromSource'):
+        feature_spec=importlib.util.spec_from_file_location('producer_features',HERE/'verify-dependency-features.py')
+        feature=importlib.util.module_from_spec(feature_spec);feature_spec.loader.exec_module(feature)
+        write_json(sdk/'evidence/python-runtime-verification.json',feature.verify_python_runtime(sdk/'lib/libavformat.so.62'))
     extra = {'buildRecipe': [record(sdk / 'evidence' / n, sdk) for n in ('producer-sdk.used.py', 'build-ohcodec.used.sh', 'build-env.used.sh')],
              'tools': {'historicalBuild': 'unknown', 'currentBuild': 'evidence/tools.json', 'sysrootInventory': 'evidence/ndk-sysroot.json', 'clangResourceInventory': 'evidence/clang-resources.json'},
              'staticDependencies': dict(static, inventoryPath='evidence/static-inputs.json'),

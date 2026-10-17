@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """GMP基线配置与GnuTLS3.8.7 AArch64真实曲线表门禁，不执行目标代码。"""
-import argparse,hashlib,importlib.util,json,re,struct
+import argparse,ast,hashlib,importlib.util,json,re,struct
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
 
@@ -101,6 +101,40 @@ def elf_pointer_string(data,name):
     if len(values)!=1:raise ValueError('路径重定位缺失/重复: '+name)
     return values[0]
 
+PYTHON_TARGET_DIRECTORY='/usr/local/samba/lib/python3/site-packages'
+def waf_values(path):
+    values={}
+    for line in path.read_text().splitlines():
+        if '=' not in line:continue
+        name,value=line.split('=',1)
+        if not name.strip().isidentifier():continue
+        try:values[name.strip()]=ast.literal_eval(value.strip())
+        except (ValueError,SyntaxError):continue
+    return values
+
+def verify_python_paths(dyn,config):
+    if config.get('disable_python') is not True:raise ValueError('目标Python必须明确禁用')
+    paths={n:elf_pointer_string(dyn,'dyn_'+n) for n in ('PYTHONDIR','PYTHONARCHDIR')}
+    if any(v!=PYTHON_TARGET_DIRECTORY for v in paths.values()):raise ValueError('目标Python目录不是固定目标安装布局')
+    return {'disabled':True,'paths':paths,'targetModulesShipped':False,'sandboxRuntimeValidated':False}
+
+def verify_python_runtime(path):
+    data=path.read_bytes();elf_module().inventory(data)
+    if re.search(rb'/(?:opt/homebrew|usr/local|usr|opt/conda|home|Users)/[^\x00\n]*python[0-9][^\x00\n]*/(?:site|dist)-packages',data.replace(PYTHON_TARGET_DIRECTORY.encode(),b'')):
+        raise ValueError('最终库仍含宿主Python安装目录')
+    h=struct.unpack_from('<16sHHIQQQIHHHHHH',data);sections=[struct.unpack_from('<IIQQQQIIQQ',data,h[6]+i*64) for i in range(h[12])];matches=[]
+    for section in sections:
+        if section[1]!=4:continue
+        for pos in range(section[4],section[4]+section[5],24):
+            off,info,addend=struct.unpack_from('<QQq',data,pos)
+            if info&0xffffffff!=1027:continue
+            for target in sections:
+                if target[1]!=1 or not (target[2]&2) or not target[3]<=addend<target[3]+target[5]:continue
+                start=target[4]+addend-target[3];end=data.find(b'\0',start,target[4]+target[5])
+                if end>=0 and data[start:end]==PYTHON_TARGET_DIRECTORY.encode():matches.append(off)
+    if len(set(matches))<2:raise ValueError('最终avformat缺少两项目标Python目录指针重定位')
+    return {'path':str(path),'sha256':sha(data),'targetDirectory':PYTHON_TARGET_DIRECTORY,'relativePointerLocations':sorted(set(matches)),'hostPythonPathsAbsent':True,'scope':'最终ELF相对指针证据与静态dynconfig命名指针联合验证，不声称运行已执行'}
+
 def verify_alignment(work,prefix):
     gc=work/'gnutls-3.8.7/config.h';sc=work/'samba/bin/default/include/config.h';g=macros(gc.read_text());s=macros(sc.read_text())
     if g.get('HAVE_ICONV')!='1':raise ValueError('真实iconv探测未通过')
@@ -132,7 +166,9 @@ def verify_alignment(work,prefix):
     samba=prefix/'lib/libsmbclient.a';dyn=archive_member(samba.read_bytes(),'dynconfig.c.1.o')
     paths={name:elf_pointer_string(dyn,'dyn_'+name) for name in ('MODULESDIR','PRIVATE_DIR','LOCKDIR','CONFIGFILE')}
     if any(not v.startswith('/usr/local/samba/') or '/bin/default/' in v or '/.cache/' in v or '/out/' in v for v in paths.values()):raise ValueError('Samba运行路径泄漏构建树')
-    return {'passed':True,'gnutlsHardwareAcceleration':objects,'iconvProbePassed':True,'compressionAlgorithmsEnabled':False,'sambaTarget':'ohos','ethtoolEnabled':False,'nativeGeneratorsExplicit':True,'runtimePaths':paths,'historicalRuntimePathsRestored':False,'inputs':{str(p):sha(p.read_bytes()) for p in (gc,sc,archive,samba)}}
+    cache=work/'samba/bin/c4che/default_cache.py'
+    python_paths=verify_python_paths(dyn,waf_values(cache))
+    return {'passed':True,'pythonTargetPaths':python_paths,'gnutlsHardwareAcceleration':objects,'iconvProbePassed':True,'compressionAlgorithmsEnabled':False,'sambaTarget':'ohos','ethtoolEnabled':False,'nativeGeneratorsExplicit':True,'runtimePaths':paths,'historicalRuntimePathsRestored':False,'inputs':{str(p):sha(p.read_bytes()) for p in (gc,sc,cache,archive,samba)}}
 
 def verify(work,prefix):
     gmp=work/'gmp-6.3.0/config.h';gnutls=work/'gnutls-3.8.7/config.h';archive=prefix/'lib/libgnutls.a';check_macros(gmp.read_text(),gnutls.read_text());obj=archive_member(archive.read_bytes(),'lt8-ecc.o');rows=curve_entries(obj);require_curves(rows)

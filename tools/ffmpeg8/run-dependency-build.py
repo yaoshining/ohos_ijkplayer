@@ -9,10 +9,10 @@ def module(name):
 
 def controlled_environment(ndk,root,cache,jobs,host_sha):
     # 只保留需要的基础宿主设置；用户环境不能改写目标 NDK、ABI 或编译器。
-    env={k:os.environ[k] for k in ['HOME','PATH','TMPDIR'] if k in os.environ}
+    env={k:os.environ[k] for k in ['HOME','PATH','TMPDIR','DEVELOPER_DIR','SDKROOT','TOOLCHAINS'] if k in os.environ}
     env.update(LC_ALL='C',TZ='UTC',SOURCE_DATE_EPOCH='1755820644',PYTHONHASHSEED='1',
       OHOS_NDK=str(ndk.resolve()),OHOS_SYSROOT=str(ndk.resolve()/'sysroot'),OHOS_LLVM_BIN=str(ndk.resolve()/'llvm/bin'),OHOS_ARCH='arm64-v8a',
-      HOSTCC=str(Path(shutil.which('clang')).resolve()),WORK_DIR=str(root/'work'),PREFIX=str(root/'sysroot'),SOURCE_CACHE=str(cache),JOBS=jobs,
+      HOSTCC=str(Path(shutil.which('clang')).resolve()),M4=str(Path(shutil.which('m4')).resolve()),WORK_DIR=str(root/'work'),PREFIX=str(root/'sysroot'),SOURCE_CACHE=str(cache),JOBS=jobs,
       FFMPEG8_PIN_HOST_BISON='1',FFMPEG8_HOST_LOCK_SHA256=host_sha)
     return env
 

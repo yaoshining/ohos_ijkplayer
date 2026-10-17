@@ -54,11 +54,11 @@ def main():
         for file in candidates:
             if not file.is_file():continue
             dest=root/'licenses'/name/file.relative_to(src);dest.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(file,dest);licenses.append(rec(dest,root))
-        for rel in ['config.log','config.status','config.h','bin/config.log','bin/default/include/config.h','build-cache/cross-answers.txt']:
+        for rel in ['config.log','config.status','config.h','bin/config.log','bin/default/include/config.h','bin/c4che/default_cache.py','build-cache/cross-answers.txt']:
             file=src/rel
             if file.is_file():
                 dest=evidence/name/rel;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(file,dest)
-    for name in ['build-libsmbclient.sh','fetch-sources.py','dependency-sources.lock.json','dependency-paths.py','generator-lock.py','verify-dependency-features.py','elf-audit.py','samba-target-config.py']:
+    for name in ['build-libsmbclient.sh','fetch-sources.py','dependency-sources.lock.json','dependency-paths.py','generator-lock.py','verify-dependency-features.py','elf-audit.py','samba-target-config.py','host-lock.py','run-dependency-build.py','dependency-repeat.py']:
         
         if (a.recipe/name).exists():shutil.copy2(a.recipe/name,evidence/name)
     feature_report=root.parent/'feature-verification.json'

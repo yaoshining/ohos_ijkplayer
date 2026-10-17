@@ -61,7 +61,8 @@ def verify(bundle,expected):
             if not re.search('^'+name+r'\t\S+\t',texts['packages'],re.M):raise ValueError('宿主包版本缺失: '+name)
         acquired=True
     elif host.get('profile')!='macos-installed-API24':raise ValueError('未知宿主 profile')
-    return {'newSourceClosureVerified':acquired,'staticRepeatVerified':True,'hostToolsPrelocked':True,'hostAcquisitionVerified':acquired,'historicalSourceIdentityProven':False}
+    if host.get('schemaVersion',1)>=2 and host.get('profile')=='macos-installed-API24' and not host.get('xcodeDispatch'):raise ValueError('macOS缺少实际Xcode转发工具锁')
+    return {'xcodeDispatchPrelocked':bool(host.get('xcodeDispatch')),'newSourceClosureVerified':acquired,'staticRepeatVerified':True,'hostToolsPrelocked':True,'hostAcquisitionVerified':acquired,'historicalSourceIdentityProven':False}
 
 def inventory(manifest):
     rows=manifest['archives']+manifest['headers']+manifest['pkgconfig'];r={x['path']:{k:x[k] for k in ['sha256','sizeBytes']} for x in rows}

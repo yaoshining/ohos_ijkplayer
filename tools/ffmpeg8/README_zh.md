@@ -226,3 +226,9 @@ python3 tools/ffmpeg8/dependency-repeat.py --first BUILD_A/sysroot --second BUIL
 新诊断构建显式将GMP设为`--disable-assembly --without-readline`（保留PIC），并为GnuTLS的`HOGWEED_LIBS`提供完整静态传递依赖`-lhogweed -lnettle -lgmp`。`run-dependency-build.py`在构建后调用冻结recipe中的`verify-dependency-features.py`：核验GMP的NO_ASM/generic配置、GnuTLS NON_SUITEB宏及ARM64 `lt8-ecc.o`中`ecc_curves`的实际启用ID表项；不会运行目标程序，也不以字符串存在替代能力。
 
 能力不满足则构建记录返回失败，CI停止正式门禁。`feature-verification.json`保存实际config/归档/对象摘要，并进入构建记录与静态清单的证据库存。HAVE_ICONV/Samba既有差异继续报告，历史执行身份、Player/HAR组合及设备验收不随重复性成功升级。来源锁与已有冻结候选保持。
+
+### Python目标目录与macOS转发工具锁
+
+目标Samba显式设置`--pythondir=/usr/local/samba/lib/python3/site-packages`和相同的`--pythonarchdir`，保留`--disable-python`。实际Waf禁用状态、dynconfig命名指针和最终avformat中的相对重定位联合核验；目标目录仅代表安装布局，不代表交付Python模块或OHOS沙箱可用。
+
+host-lock schema2按实际PATH识别Apple转发入口，绑定xcode-select/DEVELOPER_DIR/SDKROOT/TOOLCHAINS、实际执行文件、编译器resource/ld和Bison骨架。非Xcode工具保持PATH选择。控制构建与原生env-i传递相同选择器，M4显式选择已锁文件。Clang合法资源链接递归绑定逻辑路径、目标和内容，拒绝循环/悬空；源码构建的Bison资源禁止符号链接并校验集合增删。范围不是整个Xcode/SDK获取链或历史工具身份证明，macOS获取闭包仍单独表示。旧SDK只读verify不要求重写旧锁。

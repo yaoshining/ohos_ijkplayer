@@ -12,3 +12,12 @@ class HostEnvironment(unittest.TestCase):
             subprocess.run(['bash','-c','set -e; log() { :; }; '+function+'\nbuild_host_tools'],env=env,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
             self.assertEqual(marker.read_text(),'1755820644|UTC|C|-I'+str(root/'work/host-pkgconfig')+'|')
 if __name__=='__main__':unittest.main()
+
+class HostSelectors(unittest.TestCase):
+    def test_native_env_i_preserves_locked_selectors_and_m4(self):
+        text=(Path(__file__).parents[1]/'build-libsmbclient.sh').read_text();function=re.search(r'build_host_tools\(\) \{.*?\n\}',text,re.S).group()
+        with tempfile.TemporaryDirectory() as t:
+            root=Path(t);host=root/'host';(host/'buildtools/bin').mkdir(parents=True);(host/'buildtools/bin/waf').touch();marker=root/'selection';configure=host/'configure';configure.write_text('#!/bin/sh\nprintf "%s|%s|%s|%s" "$DEVELOPER_DIR" "$SDKROOT" "$TOOLCHAINS" "$M4" > '+shlex.quote(str(marker))+'\nexit 42\n');configure.chmod(0o755)
+            env=dict(os.environ,SAMBA_HOST_DIR=str(host),SAMBA_DIR=str(root/'samba'),WORK_DIR=str(root/'work'),PREFIX=str(root/'prefix'),NATIVE_BUILD_PATH=os.environ['PATH'],SOURCE_DATE_EPOCH='1755820644',JOBS='1',DEVELOPER_DIR='/chosen/Xcode',SDKROOT='/chosen/SDK',TOOLCHAINS='chosen',M4='/locked/m4')
+            subprocess.run(['bash','-c','set -e; log(){ :; }; '+function+'\nbuild_host_tools'],env=env,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+            self.assertEqual(marker.read_text(),'/chosen/Xcode|/chosen/SDK|chosen|/locked/m4')
