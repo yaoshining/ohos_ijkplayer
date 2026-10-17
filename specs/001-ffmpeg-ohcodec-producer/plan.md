@@ -1,0 +1,36 @@
+# 实施计划
+
+输入：[spec.md](spec.md)。日期：2026-10-17。
+
+## 技术路线
+
+保留原 build.sh 普通多 ABI 流程；增加 tools/ffmpeg8/producer-sdk.py 作为 TV 基线入口，提供 import-baseline、build、verify。Python 标准库处理 manifest、摘要和安全路径；迁移 build-ohcodec.sh 使用锁定 git archive、校验补丁和静态 sysroot，然后 configure/make/install。重建前捕获工具二进制、完整 NDK sysroot 与缓存 include/pkgconfig 摘要。基线 runtime 与源码重建 SDK 分离，头文件如来自本次构建须单独标注。
+
+## Constitution Check
+
+本仓核查结果：无 .specify、constitution、specs 或 speckit 命令模板。参考相邻 Player 的 Spec Kit 文档结构，但不导入其仓库专属宪章；本次以用户明确规则作为门禁，不宣称运行过不存在的 slash command。遵循 spec → plan/research/data-model/contracts → tasks → 失败测试 → 实现 → 回归。既有改动保留、三仓边界、真实来源/设备状态均为不可绕过门禁。
+
+## 文件布局与验证
+
+- tools/ffmpeg8/baseline-lock.json：可信固定摘要。
+- tools/ffmpeg8/patches/ohcodec/：固定上游补丁。
+- tools/ffmpeg8/producer-sdk.py、build-ohcodec.sh：导入、构建、核验入口。
+- tools/ffmpeg8/tests/test_producer_sdk.py：篡改、缺失、路径逃逸、差异与覆盖拒绝。
+- out/vidall-tv-baseline-sdk：导入包；out/vidall-tv-source-build：独立源码构建。
+- docs/vidall-tv-baseline-handoff.json：跨会话入口。
+
+先运行离线回归与现有补丁测试，再真实编译 ARM64，进行 ELF/OHCodec/SMB/TLS 静态检查和六库比较。运行成功不等于真机通过。CI 先加入离线合同测试；本机缓存不能虚构为 CI 可用的完整依赖输入。
+
+## 第二阶段计划
+
+先在独立 out 目录做历史 prefix 实验；具体反汇编与字符串证明父仓 Git 版本污染后，先增加失败回归，使用 FFmpeg 自身支持的 revision 输入固定 8.0，并将 configure prefix 与 DESTDIR 分离。用两次独立 clean 构建验证稳定策略，另以历史 prefix 做历史六库全字节验证。所有试验保留独立目录。
+
+官方 Spec Kit 当前稳定版核验为 v1.2.1，先下载/校验官方源码，在本仓 out 隔离 CLI，再 init 本仓（原本没有 .specify）。依赖采用新的 release SHA 锁；历史缓存 git HEAD、dirty patch 与非 git 文件库存只作为现存证据，不推断与历史产物一一对应。CI 使用固定输入包和失败关闭的正式交付门禁。
+
+## 官方初始化后的宪章复核
+
+当前已通过官方 v1.2.1 CLI 初始化；前文无 .specify 是第一阶段事实。feature.json 选择现有 feature，Git 分支保持。setup-plan 跳过已有 plan，分析/实现 prerequisite 均已实际通过。宪章 I–V 与 FR-001–FR-010 一致。没有历史审批被追认；官方 Full SDD Cycle 的人工 review gate 尚未执行，不声称其已获批准。
+
+## 第三阶段实施计划
+
+先保留原 recipe 两次真正 fresh 构建作为比较实验。重复性工具由实际文件生成结果，不接受输入 allMatch。宿主锁在构建前冻结所有执行工具与 NDK/recipe 并在前后重验。修复路径、archive 顺序、生成源等实际差异后另建全新路径复验。Linux 使用官方 Debian 固定 amd64 digest 和签名 snapshot 获取工具，在构建任何目标库前保存 package 版本、deb SHA、命令版本和文件 SHA。宿主获取验证与字节重复性分别验证，历史源码身份仍保留 false。专用远端分支用隔离 Git index 从明确基础提交产生，原分支/脏文件不切换。

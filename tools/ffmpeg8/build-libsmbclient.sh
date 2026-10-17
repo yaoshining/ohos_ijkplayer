@@ -3,7 +3,7 @@
 #
 # 本脚本在预装 DevEco Studio (OpenHarmony NDK) 的 macOS (arm64/x64) 宿主上执行，
 # 产出仅包含 SMB 协议所需的 libsmbclient.a / libsmbclient.h / smbclient.pc，
-# 供 FFmpeg --enable-libsmbclient 静态链接进 libmpv.so。
+# 供 FFmpeg --enable-libsmbclient 静态链接进 FFmpeg libavformat.so。
 #
 # 传递依赖闭包（全部静态）：
 #   zlib → popt → gmp → nettle → libtasn1 → gnutls → samba/libsmbclient
@@ -19,6 +19,9 @@
 #     并在 Waf 的交叉构建图中跳过所有 HostCC 子系统。
 #   - 交叉回答 (cross-answers) 覆盖所有运行期探测；以 rsplit 解析含冒号的回答。
 set -euo pipefail
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+
+NATIVE_BUILD_PATH="$PATH"
 
 log() { printf '\033[1;34m[smb]\033[0m %s\n' "$*"; }
 die() { printf '\033[1;31m[smb] 错误：%s\033[0m\n' "$*" >&2; exit 1; }
@@ -33,6 +36,7 @@ die() { printf '\033[1;31m[smb] 错误：%s\033[0m\n' "$*" >&2; exit 1; }
 : "${SAMBA_ARCHIVE_SHA256:=95098578bd03ab15fb7c1e06641fa8b9e174a16fce8e6246d378d171baec8cf0}"
 : "${JOBS:=$(sysctl -n hw.ncpu 2>/dev/null || echo 4)}"
 
+SOURCE_CACHE=${SOURCE_CACHE:-"$WORK_DIR/downloads"}
 OHOS_ARCH=${OHOS_ARCH:-arm64-v8a}
 case "$OHOS_ARCH" in
   arm64-v8a) TARGET=aarch64-unknown-linux-ohos; HOST_TRIPLET=aarch64-linux-musl ;;
@@ -71,7 +75,7 @@ clean_src() {
 
 # ---------------- 现代 bison（macOS 12 系统 bison 2.3 过旧） ----------------
 build_modern_bison() {
-  if bison --version | head -1 | grep -qE "GNU Bison [3-9]"; then
+  if [ "${FFMPEG8_PIN_HOST_BISON:-0}" != 1 ] && bison --version | head -1 | grep -qE "GNU Bison [3-9]"; then
     log "检测到现代 bison: $(bison --version | head -1)"
     return 0
   fi
@@ -126,15 +130,10 @@ EOF
 
 # ---------------- Locked Samba source ----------------
 fetch_samba() {
-  local archive="$WORK_DIR/samba-${SAMBA_COMMIT}.tar.gz" extracted actual_sha
-  mkdir -p "$WORK_DIR"
-  if [ ! -f "$archive" ]; then
-    curl -fsSL --retry 3 "$SAMBA_ARCHIVE_URL" -o "$archive"
-  fi
-  actual_sha=$(shasum -a 256 "$archive" | awk '{print $1}')
-  [ "$actual_sha" = "$SAMBA_ARCHIVE_SHA256" ] || die "Samba archive checksum mismatch"
+  local archive extracted
+  archive=$(python3 "$SCRIPT_DIR/fetch-sources.py" --name samba-4.20.7 --cache "$SOURCE_CACHE")
   rm -rf "$SAMBA_DIR" "$SAMBA_HOST_DIR"
-  tar -xzf "$archive" -C "$WORK_DIR"
+  tar -xf "$archive" -C "$WORK_DIR"
   extracted=$(find "$WORK_DIR" -maxdepth 1 -type d -name "samba-${SAMBA_COMMIT}*" -print -quit)
   [ -n "$extracted" ] || die "Samba archive did not contain the expected source tree"
   mv "$extracted" "$SAMBA_DIR"
@@ -145,23 +144,10 @@ fetch_samba() {
 # 下载到临时文件, 校验 tar 包未截断后才解压, 减少 iMac runner 网络抽风导致的失败。
 # 用法: fetch_extract <url> <label>
 fetch_extract() {
-  local url="$1" label="$2"
-  local attempt=0 max=4
-  while [ "$attempt" -lt "$max" ]; do
-    attempt=$((attempt + 1))
-    log "$label 下载 尝试 $attempt/$max: $url"
-    local tmp="$WORK_DIR/${label}.$$"
-    if curl -fsSL --retry 3 --retry-delay 5 "$url" -o "$tmp"; then
-      case "$url" in
-        *.tar.xz|*.txz) tar tJf "$tmp" >/dev/null 2>&1 && tar xJf "$tmp" -C "$WORK_DIR" && rm -f "$tmp" && return 0 ;;
-        *.tar.gz|*.tgz) tar tzf "$tmp" >/dev/null 2>&1 && tar xzf "$tmp" -C "$WORK_DIR" && rm -f "$tmp" && return 0 ;;
-        *) log "未识别的压缩格式: $url"; rm -f "$tmp"; return 1 ;;
-      esac
-    fi
-    rm -f "$tmp"
-    [ "$attempt" -lt "$max" ] || { log "$label 下载在 $max 次尝试后仍失败"; return 1; }
-    sleep $((attempt * 10))
-  done
+  local url="$1" label="$2" archive
+  # URL 参数保留旧调用签名；真正下载 URL 与 SHA256 只取统一来源锁。
+  archive=$(python3 "$SCRIPT_DIR/fetch-sources.py" --name "$label" --cache "$SOURCE_CACHE") || return 1
+  tar -xf "$archive" -C "$WORK_DIR"
 }
 
 build_zlib() {
@@ -511,7 +497,7 @@ PC
   # 原生环境（清空交叉变量）。覆盖 x64(/usr/local) 和 arm64(/opt/homebrew) Homebrew 路径。
   # 同时透传 -I/-L 让 waf 完整 build 中触发 genrand.c 等引用 gnutls.h 的源文件能找到头。
   # host build 不需要真的链接 gnutls, 仅需 include 可见。
-  env -i HOME="$HOME" PATH="$PREFIX/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/opt/homebrew/bin" \
+  env -i HOME="$HOME" PATH="$PREFIX/bin:$NATIVE_BUILD_PATH" \
     PKG_CONFIG_PATH="$host_pc:/usr/local/lib/pkgconfig:/opt/homebrew/lib/pkgconfig:/usr/lib/pkgconfig" \
     bash -c "cd '$SAMBA_HOST_DIR' && \
       unset CC CXX PKG_CONFIG_LIBDIR && \

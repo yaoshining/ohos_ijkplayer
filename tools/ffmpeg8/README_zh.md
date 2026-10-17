@@ -111,3 +111,90 @@ FFMPEG8_SMB_TEST_CLIENT=/path/to/target-protocol-client \
 ```
 
 最后一项是针对真实 Samba 服务的目标端门禁：验证匿名、正确凭据、错误凭据及 URL/日志不泄漏密码。它要求调用方提供能向 FFmpeg `smb` protocol 传递 AVOption 的目标测试客户端；CI 不伪造该运行时证据。
+
+## TV 当前组合的 OHCodec producer 入口
+
+2026-10-17 起，本仓统一负责 FFmpeg/OHCodec 与 SMB/TLS 依赖生产。Player 仅消费固定 producer manifest 并生产 mpv/HAR/组合清单；TV 只集成统一组合和验收。本次 **Player、TV 全目录只读**，包含文档、来源锁与候选库。规则与执行记录见 `specs/001-ffmpeg-ohcodec-producer/`。
+
+`build.sh` 保留普通 FFmpeg 多 ABI 构建；它不能替代以下 ARM64 OHCodec 基线入口。`producer-sdk.py` 使用固定 git 提交和三份摘要锁定补丁。原 `build-libsmbclient.sh` 仍是本仓的 SMB/TLS 源码生产入口；这次迁移使用八份已核对的历史缓存静态库，**没有重新构建全部静态依赖，fullyVerified=false**。
+
+本机可重放命令（新输出目录，拒绝覆盖）：
+
+```bash
+python3 tools/ffmpeg8/producer-sdk.py import-baseline \
+  --tv /Users/yaoshining/DevEcoStudioProjects/VidAll_TV \
+  --delivery /Users/yaoshining/DevEcoStudioProjects/VidAll_Player/dist/ohcodec-diagnostics-20260923 \
+  --output out/vidall-tv-baseline-sdk
+
+python3 tools/ffmpeg8/producer-sdk.py build \
+  --ndk /Applications/DevEco-Studio.app/Contents/sdk/default/openharmony/native \
+  --smb /Users/yaoshining/.cache/vidall-player/smb-sysroot \
+  --ffmpeg-repo /Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/ffmpeg \
+  --builder-repo /Users/yaoshining/.cache/vidall-player/libmpv-ohos-build \
+  --delivery /Users/yaoshining/DevEcoStudioProjects/VidAll_Player/dist/ohcodec-diagnostics-20260923 \
+  --output out/vidall-tv-source-build --jobs 8
+```
+
+`import-baseline` 验证当前 TV HEAD/HAR/HAR 内 libmpv 和六库，逐项验证 delivery 证据，产出 `imported-baseline`。初始仅 `runtime-ready`，不能把旧缓存普通 FFmpeg headers 混入。
+
+`build` 的输出 SDK 是 `OUTPUT/work/prefix`。记录 FFmpeg git archive、三份补丁、实际构建脚本、工具二进制、NDK sysroot、Clang resource headers、静态 archives/include/pkgconfig 的摘要；执行 ELF/SONAME/OHCodec 导出/SMB-TLS 依赖检查并逐库比较。原构建工具链的历史字节身份未知，当前工具链记录不能反向证明历史输入。
+
+若编译安装已成功但后续打包检查失败，可用相同参数把 `build` 替换为 `package-build`，重新验证输入后只恢复打包；已有 manifest 的 SDK 拒绝重打包。恢复操作不等于再次源码编译。
+
+完成构建后，可附加开发头文件和可重定位 pkgconfig 到导入包，必须明确它们来自本次 source-build，runtime 仍保持历史字节：
+
+```bash
+python3 tools/ffmpeg8/producer-sdk.py attach-headers \
+  --sdk out/vidall-tv-baseline-sdk --manifest-sha256 IMPORTED_MANIFEST_SHA256 \
+  --rebuilt-sdk out/vidall-tv-source-build/work/prefix \
+  --rebuilt-manifest-sha256 REBUILT_MANIFEST_SHA256
+```
+
+此步骤会更新导入 manifest 和 handoff 摘要；消费方应在此完成后固定 `docs/vidall-tv-baseline-handoff.json` 给出的最终 manifest SHA256。不得用现场重算的摘要替代已经评审固定的值：
+
+```bash
+python3 tools/ffmpeg8/producer-sdk.py verify \
+  --sdk SDK_ROOT --manifest-sha256 PINNED_MANIFEST_SHA256
+```
+
+manifest schemaVersion=1，字段与含义见 `specs/001-ffmpeg-ohcodec-producer/data-model.md` 和 `contracts/sdk.md`。路径均相对 SDK 根目录；manifest 是摘要入口，`files` 覆盖库、头文件、pkgconfig、许可证、SBOM 和证据。SBOM 是有缺口的库存清单，不能当作完整依赖来源认证。`producer.workingTreePatchSha256` 绑定 tools/ffmpeg8 和构建工作流范围内的已跟踪/未跟踪变更，不读取无关工作树或 keys；`buildRecipe` 另存实际用于源码构建的入口副本。
+
+回归：
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tools/ffmpeg8/tests -p 'test_*.py' -v
+bash tools/ffmpeg8/tests/test-sdk-contract.sh
+bash tools/ffmpeg8/tests/test-ohcodec-patches.sh /path/to/ffmpeg-git-repo
+```
+
+以上为第一阶段入口。第二阶段已经替换 CI 为专用 OHCodec 源码流程并完成本机跨目录 clean 重复性；详细状态和剩余门禁见下节。所有产物设备验收仍为 `pending`。
+
+
+## 第二阶段：重复性、源码闭包与专用 CI
+
+最终结果与精确路径见 `docs/producer-reproducibility-report.md`。原 imported-baseline 保留；`out/vidall-tv-baseline-sdk-v2` 仅修正开发头文件为 FFmpeg 8.0，运行库仍为原 TV 六库。新 SDK 来自已固定 manifest 的旧包派生，基线提交未变；观察到 TV HEAD 新提交但全部媒体字节相同，单独记入 handoff。
+
+三项已证明的构建身份污染：configure prefix 内嵌、父仓 Git 污染 FFMPEG_VERSION、AVCodec __FILE__ 绝对路径。`build-env.sh` 固定 `REVISION=8.0`/SOURCE_DATE_EPOCH，固定 configure prefix `/opt/ohos-ffmpeg8`，通过 build/src 相对 symlink 使源码路径稳定；安装使用 DESTDIR，随后移入 OUTPUT_ROOT/prefix。不会向 `/opt` 或历史 `/tmp` prefix 安装。
+
+历史复现（不覆盖旧实验目录）：
+
+```bash
+OHOS_NDK=/Applications/DevEco-Studio.app/Contents/sdk/default/openharmony/native SMB_PREFIX=/Users/yaoshining/.cache/vidall-player/smb-sysroot FFMPEG_SOURCE_REPO=/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/ffmpeg OUTPUT_ROOT="$PWD/out/history-replay-new" JOBS=8 bash tools/ffmpeg8/reproduce-history.sh
+```
+
+这里依赖与工具路径须与历史配置字符串一致。该受控实验把 __FILE__ 映射为历史路径，CFLAGS 映射记录在实际 config.mak；不修改源码逻辑。与本机 TV 六库全 SHA 相同的证据在 `out/producer-repro-investigation/reproducibility-v2-results.json`。
+
+新来源构建：`dependency-sources.lock.json` 是**新的选择**，不是历史来源证明。`fetch-sources.py` 在下载和缓存命中时都验证 SHA；离线仅允许已有匹配缓存或本地 git archive，不能通过 --git-repo 绕过 release 离线约束。宿主 bison 是否源码构建单独记录，已有归档不等于实际使用；CI 显式 FFMPEG8_PIN_HOST_BISON=1。
+
+```bash
+OHOS_NDK=/path/to/native WORK_DIR="$PWD/out/new-deps/work" PREFIX="$PWD/out/new-deps/sysroot" SOURCE_CACHE="$PWD/out/new-deps/downloads" JOBS=8 FFMPEG8_PIN_HOST_BISON=1 bash tools/ffmpeg8/build-libsmbclient.sh
+python3 tools/ffmpeg8/dependency-manifest.py --work out/new-deps/work   --sysroot out/new-deps/sysroot --cache out/new-deps/downloads --ndk /path/to/native
+```
+
+随后用 producer `build` 的 `--smb` 指向该 sysroot，增加 `--static-manifest` 和经核验的 `--static-manifest-sha256`。新清单绑定八库、headers、pkgconfig、源码选择、Samba 补丁、工具和许可证。新依赖的许可证另存 SDK 的 `licenses/source-dependencies`，不会仅留在外部 sysroot。所有源码构建仍 fullyVerified=false，缺口详见清单，禁止当历史闭包完整证明。
+
+两次 clean 分别使用全新 OUTPUT；用 `compare-sdks.py --first SDK_A --second SDK_B --report report.json` 比较六库与开发文件。manifest 中工作目录/证据身份本来不同，不要求两个 manifest 字节相同。
+
+CI 主入口 `ci-build-ohcodec.sh` 从公开锁定源码和本仓 baseline-evidence 启动，不读 Player/TV 或用户缓存。当前 Linux 工具链诊断 profile 固定公开 OpenHarmony 5.0 archive，**不是**本机 API24/6.1.1.115 的历史身份；云端编译未执行，兼容性不能先行声称通过。无完整依赖/宿主工具锁时 `ci-gate.py` 失败，只有 diagnostics artifact 可保留，正式 artifact 不上传。不得添加 continue-on-error 绕过。
+
+原 build.sh 仍可手动构建普通 SDK，但已从 OHCodec CI 门禁移除。Spec Kit 使用本仓官方 v1.2.1，见 `tools/speckit/README.md`。
