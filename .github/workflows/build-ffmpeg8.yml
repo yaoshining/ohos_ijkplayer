@@ -59,6 +59,7 @@ jobs:
             out/ci-ohcodec/dependencies/*/sysroot/dependency-manifest*.json
             out/ci-ohcodec/dependencies/*/sysroot/new-source-closure.json
             out/ci-ohcodec/dependencies/*/sysroot/lib/*.a
+            !out/ci-ohcodec/dependencies/*/sysroot/lib/liby.a
             out/ci-ohcodec/dependencies/*/sysroot/lib/pkgconfig/
             out/ci-ohcodec/dependencies/*/sysroot/include/
             out/ci-ohcodec/dependencies/*/sysroot/evidence/

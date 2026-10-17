@@ -3,6 +3,8 @@
 set -euo pipefail
 root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
 cd "$root"
+source tools/ffmpeg8/ci-repo-env.sh
+lock_git_repository "$root"
 out="$root/out/ci-ohcodec"
 [ ! -e "$out" ] || { echo '拒绝复用已有 CI 工作目录' >&2; exit 2; }
 mkdir -p "$out"
