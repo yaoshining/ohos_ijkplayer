@@ -6,6 +6,16 @@ def module(name):
     spec=importlib.util.spec_from_file_location(name,Path(__file__).parents[1]/(name+'.py'));m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);return m
 
 class HostLockTests(unittest.TestCase):
+    def test_environment_overrides_cannot_change_bound_ndk_or_abi(self):
+        from unittest.mock import patch
+        m=module('run-dependency-build')
+        with patch.dict('os.environ',{'OHOS_SYSROOT':'/external/sysroot','OHOS_LLVM_BIN':'/external/bin','OHOS_ARCH':'x86_64','HOSTCC':'/external/cc','CFLAGS':'injected'}):
+            env=m.controlled_environment(Path('/locked/ndk'),Path('/new/build'),Path('/cache'),'4','a'*64)
+        self.assertEqual(env['OHOS_SYSROOT'],'/locked/ndk/sysroot')
+        self.assertEqual(env['OHOS_LLVM_BIN'],'/locked/ndk/llvm/bin')
+        self.assertEqual(env['OHOS_ARCH'],'arm64-v8a')
+        self.assertNotEqual(env['HOSTCC'],'/external/cc')
+        self.assertNotIn('CFLAGS',env)
     def test_lock_a_cannot_build_ndk_b(self):
         m=module('host-lock')
         with tempfile.TemporaryDirectory() as t:

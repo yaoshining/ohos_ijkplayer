@@ -1,11 +1,20 @@
 #!/usr/bin/env python3
 """从全新目录执行冻结 recipe，构建前后验证同一输入锁。"""
-import argparse,importlib.util,json,os,subprocess,time
+import argparse,importlib.util,json,os,subprocess,time,shutil
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
 
 def module(name):
     spec=importlib.util.spec_from_file_location(name,HERE/(name+'.py'));m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);return m
+
+def controlled_environment(ndk,root,cache,jobs,host_sha):
+    # 只保留需要的基础宿主设置；用户环境不能改写目标 NDK、ABI 或编译器。
+    env={k:os.environ[k] for k in ['HOME','PATH','TMPDIR'] if k in os.environ}
+    env.update(LC_ALL='C',TZ='UTC',SOURCE_DATE_EPOCH='1755820644',PYTHONHASHSEED='1',
+      OHOS_NDK=str(ndk.resolve()),OHOS_SYSROOT=str(ndk.resolve()/'sysroot'),OHOS_LLVM_BIN=str(ndk.resolve()/'llvm/bin'),OHOS_ARCH='arm64-v8a',
+      HOSTCC=str(Path(shutil.which('clang')).resolve()),WORK_DIR=str(root/'work'),PREFIX=str(root/'sysroot'),SOURCE_CACHE=str(cache),JOBS=jobs,
+      FFMPEG8_PIN_HOST_BISON='1',FFMPEG8_HOST_LOCK_SHA256=host_sha)
+    return env
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--root',type=Path,required=True);p.add_argument('--recipe',type=Path,required=True);p.add_argument('--host-lock',type=Path,required=True);p.add_argument('--cache',type=Path,required=True);p.add_argument('--ndk',type=Path,required=True);p.add_argument('--jobs',default='6');a=p.parse_args()
@@ -18,7 +27,8 @@ def main():
     inputs={'hostLockSha256':host.sha(a.host_lock),'sourceLockSha256':host.sha(recipe/'dependency-sources.lock.json'),
       'recipe':{f.name:host.sha(f) for f in sorted(recipe.iterdir()) if f.is_file()}}
     root.mkdir(parents=True);record={'freshOutput':True,'startedNs':time.time_ns(),'inputs':inputs,'hostLockVerifiedAfter':False}
-    env=dict(os.environ,OHOS_NDK=str(a.ndk.resolve()),WORK_DIR=str(root/'work'),PREFIX=str(root/'sysroot'),SOURCE_CACHE=str(cache),JOBS=a.jobs,FFMPEG8_PIN_HOST_BISON='1',FFMPEG8_HOST_LOCK_SHA256=host.sha(a.host_lock))
+    env=controlled_environment(a.ndk,root,cache,a.jobs,host.sha(a.host_lock))
+    record['effectiveEnvironment']=env
     with (root/'build.log').open('w') as log:
         r=subprocess.run(['bash',str(recipe/'build-libsmbclient.sh')],env=env,stdout=log,stderr=subprocess.STDOUT)
     record.update(exitCode=r.returncode,finishedNs=time.time_ns())

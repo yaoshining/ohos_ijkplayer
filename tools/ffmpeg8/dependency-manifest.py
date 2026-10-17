@@ -62,7 +62,7 @@ def main():
         
         if (a.recipe/name).exists():shutil.copy2(a.recipe/name,evidence/name)
     samba=next(r for r in sources if r['name']=='samba-4.20.7');patch=[]
-    paths=['dynconfig/wscript','wscript','buildtools/wafsamba/samba_cross.py','lib/util/charset/wscript_build','lib/util/charset/iconv.c','lib/socket/interfaces.c','third_party/heimdal_build/wscript_build','lib/replace/wscript','source3/librpc/idl/wscript_build']
+    paths=['lib/ldb/wscript','dynconfig/wscript','wscript','buildtools/wafsamba/samba_cross.py','lib/util/charset/wscript_build','lib/util/charset/iconv.c','lib/socket/interfaces.c','third_party/heimdal_build/wscript_build','lib/replace/wscript','source3/librpc/idl/wscript_build']
     with tarfile.open(a.cache/samba['archiveFile']) as tar:
         for name in paths:
             before=tar.extractfile(samba['archivePrefix']+name).read().decode().splitlines(True);after=(work/'samba'/name).read_text().splitlines(True)

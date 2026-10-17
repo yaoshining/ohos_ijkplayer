@@ -9,11 +9,12 @@ def fixture(expected=None,linux=False):
     m=load();source=(Path(__file__).parents[1]/'dependency-sources.lock.json').read_text()
     expected=expected or {n:{'sha256':'1'*64,'sizeBytes':1} for n in m.LIBS}
     recipe={'build-libsmbclient.sh':'2'*64}
-    host={'profile':'linux-debian-bookworm-20250204' if linux else 'macos-installed-API24','recipeFiles':[{'path':'/recipe/'+n,'sha256':h} for n,h in recipe.items()],
+    host={'ndkRoot':'/ndk','profile':'linux-debian-bookworm-20250204' if linux else 'macos-installed-API24','recipeFiles':[{'path':'/recipe/'+n,'sha256':h} for n,h in recipe.items()],
       'commands':[{'name':n,'sha256':'3'*64} for n in ['cc','clang','make','bison','flex','m4','perl','python3','pkg-config','ld']],
       'files':[{'path':'/ndk/sysroot/usr/include/header.h'},{'path':'/ndk/llvm/bin/clang'}]}
     docs={'host-lock':m.document(json.dumps(host)),'source-lock':m.document(source)}
     run={'exitCode':0,'freshOutput':True,'hostLockVerifiedAfter':True,'inputs':{'hostLockSha256':docs['host-lock']['sha256'],'sourceLockSha256':docs['source-lock']['sha256'],'recipe':recipe},'outputs':expected}
+    if linux:run['effectiveEnvironment']={'OHOS_NDK':'/ndk','OHOS_SYSROOT':'/ndk/sysroot','OHOS_LLVM_BIN':'/ndk/llvm/bin','OHOS_ARCH':'arm64-v8a'}
     if linux:run['generatedTools']={n:{'hostLockSha256':docs['host-lock']['sha256'],'files':[{'path':'/generated/'+n,'sha256':'8'*64}]} for n in ['bison','heimdal']}
     docs.update({'first-record':m.document(json.dumps(run)),'second-record':m.document(json.dumps(run))})
     repeat={'allMatch':True,'rows':[{'path':n,'first':v,'second':v} for n,v in expected.items()],

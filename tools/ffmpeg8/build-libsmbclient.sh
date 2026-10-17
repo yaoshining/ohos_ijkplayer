@@ -237,6 +237,8 @@ build_dependencies() {
   build_zlib
   build_popt
   build_gmp
+  # GMP 的导出构建元数据必须在 Nettle 读取 gmp.h 前稳定，否则 DWARF5 的 MD5 仍随目录变化。
+  python3 "$SCRIPT_DIR/dependency-paths.py" --prefix "$PREFIX" --work "$WORK_DIR"
   build_nettle
   build_libtasn1
   build_gnutls
@@ -253,6 +255,11 @@ p='dynconfig/wscript'
 s=open(p).read();old='if not bld.is_install:'
 assert s.count(old)==2
 s=s.replace(old,"if not bld.is_install and not bld.env.CROSS_COMPILE:")
+open(p,'w').write(s)
+p='lib/ldb/wscript'
+s=open(p).read();old='if bld.is_install:'
+assert s.count(old)==1
+s=s.replace(old,'if bld.is_install or bld.env.CROSS_COMPILE:')
 open(p,'w').write(s)
 PYPATH
 

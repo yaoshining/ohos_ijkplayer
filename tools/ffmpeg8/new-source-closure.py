@@ -44,6 +44,8 @@ def verify(bundle,expected):
     acquired=False
     if host.get('profile')=='linux-debian-bookworm-20250204':
         for run in (a,b):
+            env=run.get('effectiveEnvironment',{});ndk=host.get('ndkRoot','')
+            if not ndk or env.get('OHOS_NDK')!=ndk or env.get('OHOS_SYSROOT')!=ndk+'/sysroot' or env.get('OHOS_LLVM_BIN')!=ndk+'/llvm/bin' or env.get('OHOS_ARCH')!='arm64-v8a':raise ValueError('实际目标环境不符合 NDK/ABI 预锁')
             stamps=run.get('generatedTools',{})
             if set(stamps)!={'bison','heimdal'}:raise ValueError('缺少生成器使用前冻结证据')
             for stamp in stamps.values():
