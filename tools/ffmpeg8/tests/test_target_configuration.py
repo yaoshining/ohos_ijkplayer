@@ -20,7 +20,7 @@ SOCKET='''def configure(conf):
 def patch(kind,text):
     p=HERE/'samba-target-config.py'
     if not p.exists():return text
-    s=importlib.util.spec_from_file_location('target_config',p);m=importlib.util.module_from_spec(s);s.loader.exec_module(m);return getattr(m,'patch_'+kind)(text)
+    s=importlib.util.spec_from_file_location('target_config',p);m=importlib.util.module_from_spec(s);s.loader.exec_module(m);return getattr(m,'patch_'+kind,lambda value:value)(text)
 class CompilerConf:
     def __init__(self,root,flags=()):self.root=root;self.flags=list(flags);self.defines={};self.env=types.SimpleNamespace(CROSS_COMPILE=True);self.results=[]
     def DEFINE(self,name,value):self.defines[name]=value
@@ -71,3 +71,14 @@ class ArtifactAlignment(unittest.TestCase):
             m=self.features();self.assertEqual(m.elf_pointer_string(obj.read_bytes(),'dyn_MODULESDIR'),'/usr/local/samba/lib')
             with self.assertRaises(ValueError):m.elf_pointer_string(obj.read_bytes(),'dyn_MISSING')
             with self.assertRaises(ValueError):m.elf_pointer_string(obj.read_bytes()[:64],'dyn_MODULESDIR')
+
+class LinuxHostLeak(unittest.TestCase):
+    run_config=TargetConfiguration.run_config
+    def test_libreplace_ohos_must_not_inherit_linux_host(self):
+        source="def configure(conf):\n    if sys.platform.rfind('linux') > -1:\n        conf.DEFINE('LINUX', '1')\n"
+        with tempfile.TemporaryDirectory() as t:
+            c=CompilerConf(Path(t),['-D__OHOS__=1']);self.run_config('replace',source,c,host='linux');self.assertNotIn('LINUX',c.defines)
+    def test_libreplace_native_linux_keeps_native_configuration(self):
+        source="def configure(conf):\n    if sys.platform.rfind('linux') > -1:\n        conf.DEFINE('LINUX', '1')\n"
+        with tempfile.TemporaryDirectory() as t:
+            c=CompilerConf(Path(t),['-U__OHOS__']);c.env.CROSS_COMPILE=False;self.run_config('replace',source,c,host='linux');self.assertIn('LINUX',c.defines)

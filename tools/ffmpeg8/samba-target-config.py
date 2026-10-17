@@ -9,6 +9,12 @@ def patch_platform(text):
     new="host_os = ('ohos' if conf.env.CROSS_COMPILE and conf.CHECK_CODE('\\n#ifndef __OHOS__\\n#error not OpenHarmony target\\n#endif\\n', 'SAMBA_TARGET_OHOS', addmain=True, msg='Checking target compiler is OpenHarmony') else sys.platform)"
     return text.replace(old,new)
 
+def patch_replace(text):
+    old="if sys.platform.rfind('linux') > -1:"
+    if text.count(old)!=1:raise ValueError('libreplace平台探测位置变化')
+    new="if sys.platform.rfind('linux') > -1 and not (conf.env.CROSS_COMPILE and conf.CHECK_CODE('\\n#ifndef __OHOS__\\n#error not OpenHarmony target\\n#endif\\n', 'SAMBA_TARGET_OHOS', addmain=True, add_headers=False, msg='Checking libreplace target compiler is OpenHarmony')):"
+    return text.replace(old,new)
+
 def patch_socket(text):
     old="        conf.DEFINE('HAVE_ETHTOOL', 1)"
     if text.count(old)!=1:raise ValueError('Samba ethtool探测位置变化')
@@ -19,7 +25,7 @@ def patch_socket(text):
     return text.replace(old,new)
 
 def patch(source):
-    for rel,fn in [('source3/wscript',patch_platform),('lib/socket/wscript',patch_socket)]:
+    for rel,fn in [('source3/wscript',patch_platform),('lib/socket/wscript',patch_socket),('lib/replace/wscript',patch_replace)]:
         p=source/rel;p.write_text(fn(p.read_text()))
     # 工具已经在独立native树构建并复制，先验证存在，再记录实际使用；不是目标库能力宏。
     p=source/'third_party/heimdal_build/wscript_configure';s=p.read_text()
