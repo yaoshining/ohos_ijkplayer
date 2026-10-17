@@ -31,6 +31,9 @@ def main():
     record['effectiveEnvironment']=env
     with (root/'build.log').open('w') as log:
         r=subprocess.run(['bash',str(recipe/'build-libsmbclient.sh')],env=env,stdout=log,stderr=subprocess.STDOUT)
+        if r.returncode==0:
+            r=subprocess.run(['python3',str(recipe/'verify-dependency-features.py'),'--work',str(root/'work'),'--sysroot',str(root/'sysroot'),'--output',str(root/'feature-verification.json')],env=dict(env,PYTHONDONTWRITEBYTECODE='1'),stdout=log,stderr=subprocess.STDOUT)
+            if r.returncode==0:record['featureVerification']=json.loads((root/'feature-verification.json').read_text())
     record.update(exitCode=r.returncode,finishedNs=time.time_ns())
     try:host.verify(lock);host.verify_binding(lock,a.ndk,recipe);record['hostLockVerifiedAfter']=True
     finally:

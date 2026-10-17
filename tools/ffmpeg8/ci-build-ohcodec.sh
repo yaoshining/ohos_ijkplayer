@@ -14,7 +14,7 @@ export JOBS=${JOBS:-4}
 export LC_ALL=C TZ=UTC SOURCE_DATE_EPOCH=1755820644 PYTHONHASHSEED=1
 export SOURCE_CACHE="$out/dependencies/downloads"
 mkdir -p "$SOURCE_CACHE" "$out/dependency-recipe"
-cp tools/ffmpeg8/{build-libsmbclient.sh,fetch-sources.py,dependency-sources.lock.json,dependency-paths.py,generator-lock.py} "$out/dependency-recipe/"
+cp tools/ffmpeg8/{build-libsmbclient.sh,fetch-sources.py,dependency-sources.lock.json,dependency-paths.py,generator-lock.py,verify-dependency-features.py,elf-audit.py} "$out/dependency-recipe/"
 python3 - "$SOURCE_CACHE" <<'PYFETCH'
 import json,subprocess,sys
 from pathlib import Path

@@ -182,7 +182,7 @@ build_gmp() {
     fetch_extract https://ftp.gnu.org/gnu/gmp/gmp-6.3.0.tar.xz gmp-6.3.0 || return 1
   fi
   ( cd "$d"
-    ./configure --host="$HOST_TRIPLET" --prefix="$PREFIX" --enable-static --disable-shared --with-pic
+    ./configure --host="$HOST_TRIPLET" --prefix="$PREFIX" --enable-static --disable-shared --with-pic --disable-assembly --without-readline
     make -j"$JOBS" && make install )
 }
 
@@ -227,7 +227,7 @@ build_gnutls() {
       --without-p11-kit --without-idn --without-tpm --disable-nls --with-included-unistring \
       GMP_CFLAGS="-I$PREFIX/include" GMP_LIBS="-L$PREFIX/lib -lgmp" \
       NETTLE_CFLAGS="-I$PREFIX/include" NETTLE_LIBS="-L$PREFIX/lib -lnettle" \
-      HOGWEED_CFLAGS="-I$PREFIX/include" HOGWEED_LIBS="-L$PREFIX/lib -lhogweed -lnettle" \
+      HOGWEED_CFLAGS="-I$PREFIX/include" HOGWEED_LIBS="-L$PREFIX/lib -lhogweed -lnettle -lgmp" \
       LIBTASN1_CFLAGS="-I$PREFIX/include" LIBTASN1_LIBS="-L$PREFIX/lib -ltasn1" \
       CPPFLAGS="-I$stub -I$PREFIX/include"
     make -j"$JOBS" && make install )

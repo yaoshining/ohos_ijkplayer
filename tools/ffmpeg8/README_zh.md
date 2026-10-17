@@ -220,3 +220,9 @@ python3 tools/ffmpeg8/dependency-repeat.py --first BUILD_A/sysroot --second BUIL
 `ci-gate.py` 校验两个 SDK 的 manifest 外部固定摘要、重新比较实际库/头文件/pkgconfig、检查实际来源归档与闭包文档，不接受手写 allMatch/hostToolsVerified。`--verification-only` 允许成功报告新选来源验证，但正式产物仍需独立 release gate；当前 formalReleaseAllowed=false、历史工具链身份未证明、设备 pending，禁止正式发布或替换 TV 基线。
 
 可重复性修复涉及默认路径：popt 的配置目录固定为 /etc；交叉 Samba/LDB 使用 configure 的安装路径，不再把临时源码树作为默认运行路径。这个行为改变没有真机验收。开发元数据可重定位不表示 SMB/媒体播放已通过。
+
+### 第五阶段能力门禁
+
+新诊断构建显式将GMP设为`--disable-assembly --without-readline`（保留PIC），并为GnuTLS的`HOGWEED_LIBS`提供完整静态传递依赖`-lhogweed -lnettle -lgmp`。`run-dependency-build.py`在构建后调用冻结recipe中的`verify-dependency-features.py`：核验GMP的NO_ASM/generic配置、GnuTLS NON_SUITEB宏及ARM64 `lt8-ecc.o`中`ecc_curves`的实际启用ID表项；不会运行目标程序，也不以字符串存在替代能力。
+
+能力不满足则构建记录返回失败，CI停止正式门禁。`feature-verification.json`保存实际config/归档/对象摘要，并进入构建记录与静态清单的证据库存。HAVE_ICONV/Samba既有差异继续报告，历史执行身份、Player/HAR组合及设备验收不随重复性成功升级。来源锁与已有冻结候选保持。

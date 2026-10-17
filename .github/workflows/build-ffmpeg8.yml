@@ -56,6 +56,7 @@ jobs:
             out/ci-ohcodec/dependencies/*/work/**/configure.log
             out/ci-ohcodec/dependencies/*/work/**/config.log
             out/ci-ohcodec/dependencies/*/build-record.json
+            out/ci-ohcodec/dependencies/*/feature-verification.json
             out/ci-ohcodec/dependencies/*/sysroot/dependency-manifest*.json
             out/ci-ohcodec/dependencies/*/sysroot/new-source-closure.json
             out/ci-ohcodec/dependencies/*/sysroot/lib/*.a

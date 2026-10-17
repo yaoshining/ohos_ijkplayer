@@ -14,3 +14,7 @@ SDK manifest schemaVersion=1。artifactKind 仅 imported-baseline 或 source-bui
 静态构建每次写 build-record.json：fresh 输出、起止时间、hostLock/sourceLock/recipe 摘要、实际交付 inventory、生成器使用前摘要及结束复核。static-repeat.json 从两侧文件生成逐项比对并固定两份记录 SHA；证明不使用人工 allMatch。new-source-closure.json 保存带摘要的预锁/来源锁/构建记录/比较文档，Linux 另包含固定容器、包版本和下载证据。消费时重算证明并绑定依赖 manifest 的真实文件列表。
 
 newSourceClosureVerified 与 historicalSourceIdentityProven 独立；新的 fullyVerified=true 仅指所选来源下完整闭包证据已验证，不代表历史输入身份相同。旧 false 清单继续兼容。staticRepeatVerified、hostToolsPrelocked、hostAcquisitionVerified、deviceAcceptanceStatus 分别记录。formal-gate.json 保存实际输入校验结果、各SDK/比较/闭包证据摘要，sourceVerificationPassed 可为 true 而 formalArtifactAllowed 仍为 false。
+
+## 第四阶段证据等级
+
+调查清单使用proven/inferred/missing，区分currentNativeDistributionIdentityProven、phase3NativeToolLockBindingProven、historicalExecutionIdentityProven。签名资源槽、完整文件集合、历史构建记录分别绑定路径与SHA；不回写旧SDK证据或改变旧门禁。

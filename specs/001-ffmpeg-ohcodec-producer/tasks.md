@@ -40,6 +40,28 @@ T109 最终报告：docs/producer-reproducibility-report.md。TV HEAD 观察变�
 - [x] T201 核验当前基线、远端权限与 runner；重新执行 Spec Kit 前置检查。
 - [x] T202 工具漂移/缺失、库集合、头文件篡改、共享产物回归 RED→GREEN。
 - [x] T203 八库两次独立 clean、比较 archive/对象/生成代码；前两组 RED，第三组 111/111 项一致。
-- [ ] T204 构建前工具输入锁、固定 Linux 获取来源及漂移门禁。
-- [ ] T205 专用最小提交/分支，实际远程 CI，保存 job 和 artifact 结果。
-- [ ] T206 证据验证正反回归、状态分离、handoff 与最终报告。
+- [x] T204 构建前工具输入锁、固定 Linux 获取来源及漂移门禁。
+- [x] T205 专用最小提交/分支，实际远程 CI，保存 job 和 artifact 结果。
+- [x] T206 证据验证正反回归、状态分离、handoff 与最终报告。
+
+
+第三阶段最终状态（2026-10-18）：本机与Linux均完成八库111项和FFmpeg六库/开发文件的两次fresh字节一致。83项回归通过。最终CI 39046623487、提交004546a5两job成功，下载后ZIP外部摘要、SDK固定manifest和实物比较再次通过。新选Linux来源闭包true，历史身份false；formalArtifactAllowed=false，设备pending。原TV字节包和原工作树/分支保持。人工review gate仍未声称获批。
+
+## 第四阶段（2026-10-18）
+
+- [x] T301 fresh核验TV完整组合、读取Spec Kit工件及执行前置检查。
+- [x] T302 ELF节/符号/对象审计工具先RED再GREEN。
+- [x] T303 四组SDK与中间控制组分层比较，执行可隔离对照实验。
+- [x] T304 只读历史记录/缓存源码/对象/配置绑定与API24证据调查。
+- [x] T305 proven/inferred/missing矩阵、差异报告、handoff和规格分析更新。
+
+第四阶段结项：93项回归通过；当前TV组合不变，独立重链接精确复现新macOS libavformat；2636历史归档成员绑定现存对象；当前Native官方签名/完整17415项与phase3预锁绑定完成。调查完成不等于缺证消失：历史执行身份仍false、GnuTLS探测缺陷仅隔离未修复、Linux/API24行为未等价、设备pending、正式发布false。报告docs/producer-phase4-investigation.md，未改recipe/锁/冻结包。
+
+## 第五阶段（进行中）
+
+- [x] T401 fresh核验TV组合、GMP差异，更新Spec Kit并执行前置检查。
+- [ ] T402 真实静态链/构建函数/能力核验RED→最小修复→GREEN。
+- [ ] T403 构建前冻结recipe与工具，本机两次全fresh八库、能力门禁与比较。
+- [ ] T404 两次fresh FFmpeg/OHCodec构建、SDK核验和比较。
+- [ ] T405 专用最小提交、真实CI、下载artifact独立复验。
+- [ ] T406 与TV和旧诊断差异、未解决项、报告/handoff及最终冻结边界审计。

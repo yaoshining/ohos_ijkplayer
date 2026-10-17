@@ -34,3 +34,11 @@
 ## 第三阶段实施计划
 
 先保留原 recipe 两次真正 fresh 构建作为比较实验。重复性工具由实际文件生成结果，不接受输入 allMatch。宿主锁在构建前冻结所有执行工具与 NDK/recipe 并在前后重验。修复路径、archive 顺序、生成源等实际差异后另建全新路径复验。Linux 使用官方 Debian 固定 amd64 digest 和签名 snapshot 获取工具，在构建任何目标库前保存 package 版本、deb SHA、命令版本和文件 SHA。宿主获取验证与字节重复性分别验证，历史源码身份仍保留 false。专用远端分支用隔离 Git index 从明确基础提交产生，原分支/脏文件不切换。
+
+## 第四阶段实施计划
+
+先固定fresh TV完整组合与已有SDK manifest。使用已保存构建对象及中间的历史静态输入稳定构建作为控制组，比较历史→稳定配置→新静态输入→Linux工具链的分层差异；新增审计工具先做失败回归，任何构建只写独立out/phase4。缓存只读，不以新实验追认历史。收集配置/对象/归档链，来源声明按证据强度评级。官方SDK获取线索由协调会话并行调查，本会话聚焦本地元数据与历史对象。不改变冻结包、baseline/source锁、Player或TV。
+
+## 第五阶段计划
+
+先重核TV与原缓存GMP配置；真实执行shell构建函数，利用本机静态依赖链和配置探针做RED，修复HOGWEED_LIBS及GMP配置。增加构建后核验：GMP宏、GnuTLS宏、ELF对象内ecc_curves固定AArch64布局中的ID和supported位，拒绝仅字符串存在。记录能力报告与实际归档/config摘要，纳入build record/manifest。复制冻结recipe到out/phase5并预锁当前工具链，两组全fresh构建，随后分别构建FFmpeg并比对。必要代码以隔离index提交专用分支，不切当前分支；云端CI重复同样构建与能力门禁，下载artifact重新核验。
