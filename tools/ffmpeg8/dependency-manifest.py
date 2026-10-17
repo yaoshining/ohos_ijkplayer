@@ -58,13 +58,13 @@ def main():
             file=src/rel
             if file.is_file():
                 dest=evidence/name/rel;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(file,dest)
-    for name in ['build-libsmbclient.sh','fetch-sources.py','dependency-sources.lock.json','dependency-paths.py','generator-lock.py','verify-dependency-features.py','elf-audit.py']:
+    for name in ['build-libsmbclient.sh','fetch-sources.py','dependency-sources.lock.json','dependency-paths.py','generator-lock.py','verify-dependency-features.py','elf-audit.py','samba-target-config.py']:
         
         if (a.recipe/name).exists():shutil.copy2(a.recipe/name,evidence/name)
     feature_report=root.parent/'feature-verification.json'
     if feature_report.exists():shutil.copy2(feature_report,evidence/'feature-verification.json')
     samba=next(r for r in sources if r['name']=='samba-4.20.7');patch=[]
-    paths=['lib/ldb/wscript','dynconfig/wscript','wscript','buildtools/wafsamba/samba_cross.py','lib/util/charset/wscript_build','lib/util/charset/iconv.c','lib/socket/interfaces.c','third_party/heimdal_build/wscript_build','lib/replace/wscript','source3/librpc/idl/wscript_build']
+    paths=['source3/wscript','lib/socket/wscript','third_party/heimdal_build/wscript_configure','lib/ldb/wscript','dynconfig/wscript','wscript','buildtools/wafsamba/samba_cross.py','lib/util/charset/wscript_build','lib/util/charset/iconv.c','lib/socket/interfaces.c','third_party/heimdal_build/wscript_build','lib/replace/wscript','source3/librpc/idl/wscript_build']
     with tarfile.open(a.cache/samba['archiveFile']) as tar:
         for name in paths:
             before=tar.extractfile(samba['archivePrefix']+name).read().decode().splitlines(True);after=(work/'samba'/name).read_text().splitlines(True)

@@ -42,3 +42,7 @@
 ## 第五阶段计划
 
 先重核TV与原缓存GMP配置；真实执行shell构建函数，利用本机静态依赖链和配置探针做RED，修复HOGWEED_LIBS及GMP配置。增加构建后核验：GMP宏、GnuTLS宏、ELF对象内ecc_curves固定AArch64布局中的ID和supported位，拒绝仅字符串存在。记录能力报告与实际归档/config摘要，纳入build record/manifest。复制冻结recipe到out/phase5并预锁当前工具链，两组全fresh构建，随后分别构建FFmpeg并比对。必要代码以隔离index提交专用分支，不切当前分支；云端CI重复同样构建与能力门禁，下载artifact重新核验。
+
+## 第六阶段计划
+
+先fresh核对TV并建立逐项差异矩阵，记录实际探测命令/源码分支/对象和路径证据。先将最小对齐方案写入commentary与handoff，再分别对GnuTLS硬件加速/iconv/包装及Samba平台/生成代码/路径建立RED行为测试；不机械恢复错误宿主配置。对运行路径冲突明确保留分层结论。修复后冻结新recipe和工具，两个新目录全量构建、实际对象门禁、FFmpeg重复验证；隔离index提交专用分支并下载真实CI证据。所有输出out/phase6，旧证据不写。

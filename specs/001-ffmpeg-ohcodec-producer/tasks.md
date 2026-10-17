@@ -57,11 +57,23 @@ T109 最终报告：docs/producer-reproducibility-report.md。TV HEAD 观察变�
 
 第四阶段结项：93项回归通过；当前TV组合不变，独立重链接精确复现新macOS libavformat；2636历史归档成员绑定现存对象；当前Native官方签名/完整17415项与phase3预锁绑定完成。调查完成不等于缺证消失：历史执行身份仍false、GnuTLS探测缺陷仅隔离未修复、Linux/API24行为未等价、设备pending、正式发布false。报告docs/producer-phase4-investigation.md，未改recipe/锁/冻结包。
 
-## 第五阶段（进行中）
+## 第五阶段（已完成诊断验证，2026-10-18）
 
 - [x] T401 fresh核验TV组合、GMP差异，更新Spec Kit并执行前置检查。
-- [ ] T402 真实静态链/构建函数/能力核验RED→最小修复→GREEN。
-- [ ] T403 构建前冻结recipe与工具，本机两次全fresh八库、能力门禁与比较。
-- [ ] T404 两次fresh FFmpeg/OHCodec构建、SDK核验和比较。
-- [ ] T405 专用最小提交、真实CI、下载artifact独立复验。
-- [ ] T406 与TV和旧诊断差异、未解决项、报告/handoff及最终冻结边界审计。
+- [x] T402 真实静态链/构建函数/能力核验RED→最小修复→GREEN。
+- [x] T403 构建前冻结recipe与工具，本机两次全fresh八库、能力门禁与比较。
+- [x] T404 两次fresh FFmpeg/OHCodec构建、SDK核验和比较。
+- [x] T405 专用最小提交、真实CI、下载artifact独立复验。
+- [x] T406 与TV和旧诊断差异、未解决项、报告/handoff及最终冻结边界审计。
+
+第五阶段结项：102项本机/CI回归通过；macOS和Linux两clean均完成静态111项及FFmpeg六库/开发文件字节一致。GMP恢复历史archive，两个GnuTLS真实曲线表项恢复。CI39053017312/2837eab5 success，artifact外部SHA与下载实物、两个固定SDK及曲线门禁独立复验通过。未替换候选/基线，未修改来源锁；HAVE_ICONV/GnuTLS加速包装/Samba等差异与历史缺证仍保留，设备pending、正式false。
+
+## 第六阶段（进行中）
+
+- [x] T501 重新读取约束与Spec Kit，fresh核验TV组合。
+- [x] T502 历史配置/探测/源码/实际对象逐项差异矩阵，报告最小方案与冲突。
+- [ ] T503 GnuTLS真实失败测试、最小配置修复及能力门禁。
+- [ ] T504 Samba真实失败测试、最小修复/独立诊断及路径门禁。
+- [ ] T505 全新两clean八库及FFmpeg、实际能力与基线差异验证。
+- [ ] T506 专用分支最小提交、真实CI与下载实物复验。
+- [ ] T507 更新最终报告/handoff、边界审计与证据索引。

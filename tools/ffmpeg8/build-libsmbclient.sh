@@ -223,8 +223,8 @@ build_gnutls() {
   ( cd "$d"
     ./configure --host="$HOST_TRIPLET" --prefix="$PREFIX" --enable-static --disable-shared --with-pic \
       --disable-doc --disable-tests --disable-tools --disable-cxx --disable-maintainer-mode \
-      --disable-openssl --disable-padlock --disable-guile --disable-hardware-acceleration \
-      --without-p11-kit --without-idn --without-tpm --disable-nls --with-included-unistring \
+      --disable-openssl --disable-padlock --disable-guile \
+      --without-p11-kit --without-idn --without-tpm --without-brotli --without-zstd --with-included-unistring \
       GMP_CFLAGS="-I$PREFIX/include" GMP_LIBS="-L$PREFIX/lib -lgmp" \
       NETTLE_CFLAGS="-I$PREFIX/include" NETTLE_LIBS="-L$PREFIX/lib -lnettle" \
       HOGWEED_CFLAGS="-I$PREFIX/include" HOGWEED_LIBS="-L$PREFIX/lib -lhogweed -lnettle -lgmp" \
@@ -305,27 +305,8 @@ assert old in s
 open(p,'w').write(s.replace(old,new))
 PY
 
-  # 补丁 4：目标配置仍将宿主 macOS 的 DARWINOS 宏写入 iconv.c；禁用
-  # MACOSXFS 编码器注册，避免引用已从交叉图移除的 CoreFoundation 实现。
-  python3 - <<'PY'
-p='lib/util/charset/iconv.c'
-s=open(p).read()
-old='#ifdef DARWINOS\n\t{\n\t\t.name = "MACOSXFS",'
-new='#if defined(DARWINOS) && !defined(__OHOS__)\n\t{\n\t\t.name = "MACOSXFS",'
-assert old in s, 'MACOSXFS 编码器块位置变化'
-open(p,'w').write(s.replace(old,new,1))
-PY
-
-  # 补丁 5：OHOS sysroot 提供 Linux ethtool 头，但缺少 Samba 使用的旧版
-  # ethtool_cmd_speed 实现；禁用这项非 SMB 必需的网卡测速功能。
-  python3 - <<'PY'
-p='lib/socket/interfaces.c'
-s=open(p).read()
-old='#ifdef HAVE_ETHTOOL'
-new='#if defined(HAVE_ETHTOOL) && !defined(__OHOS__)'
-assert s.count(old) == 3, 'ethtool 条件块位置变化'
-open(p,'w').write(s.replace(old,new))
-PY
+  # 目标编译器探测平台；ethtool必须通过完整编译链接探测。
+  python3 "$SCRIPT_DIR/samba-target-config.py" --source "$SAMBA_DIR"
 
   # 补丁 6：使用系统 host 工具时仍设置 bld.env.COMPILE_ET / ASN1_COMPILE。
   python3 - <<'PY'
