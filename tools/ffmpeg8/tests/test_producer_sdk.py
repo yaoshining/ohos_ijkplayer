@@ -153,6 +153,15 @@ class StaticManifestTest(unittest.TestCase):
         sdk.write_json(self.path,self.m);self.args.static_manifest_sha256=sdk.sha(self.path)
     def test_valid_static_source_inputs(self):
         self.setup_manifest();self.assertEqual(set(sdk.static_input(self.args)),set(sdk.LOCK['staticInputs']))
+    def test_pinned_new_closure_accepted(self):
+        from test_closure_evidence import fixture
+        expected={r['path']:{k:r[k] for k in ['sha256','sizeBytes']} for r in self.m['archives']+self.m['headers']+self.m['pkgconfig']}
+        bundle,_=fixture(expected,linux=True);proof=self.root/'closure.json';sdk.write_json(proof,bundle)
+        self.m.update(fullyVerified=True,newSourceClosureVerified=True,historicalSourceIdentityProven=False,closureProof=sdk.record(proof,self.root))
+        self.setup_manifest();sdk.static_input(self.args)
+    def test_new_closure_boolean_alone_rejected(self):
+        self.m.update(fullyVerified=True,newSourceClosureVerified=True);self.setup_manifest()
+        with self.assertRaises(ValueError):sdk.static_input(self.args)
     def test_duplicate_archive_rejected(self):
         self.m['archives'].append(self.m['archives'][0]);self.setup_manifest()
         with self.assertRaises(ValueError):sdk.static_input(self.args)

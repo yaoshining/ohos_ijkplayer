@@ -7,6 +7,8 @@ from pathlib import Path
 import subprocess
 import tarfile
 import zipfile
+import stat
+import os
 import shutil
 HERE=Path(__file__).resolve().parent
 
@@ -15,6 +17,32 @@ def sha(p):
     with p.open('rb') as f:
         for b in iter(lambda:f.read(1024*1024),b''):h.update(b)
     return h.hexdigest()
+
+def extract_native_zip(archive,destination):
+    destination=destination.resolve()
+    if destination.exists():raise ValueError('工具链解压目录必须全新')
+    with zipfile.ZipFile(archive) as z:
+        entries=z.infolist();links={};seen=set()
+        for info in entries:
+            name=Path(info.filename)
+            if name.is_absolute() or '..' in name.parts or str(name) in seen:raise ValueError('工具链 zip 路径非法或重复')
+            seen.add(str(name))
+            mode=info.external_attr>>16
+            if stat.S_ISLNK(mode):
+                target=z.read(info).decode()
+                if Path(target).is_absolute() or not (destination/name.parent/target).resolve().is_relative_to(destination):raise ValueError('工具链 symlink 路径逃逸')
+                links[str(name)]=target
+        for info in entries:
+            name=Path(info.filename)
+            if any(str(p) in links for p in name.parents):raise ValueError('拒绝经过 symlink 解压子文件')
+        for info in entries:
+            name=Path(info.filename);path=destination/name;mode=info.external_attr>>16
+            if str(name) in links:continue
+            if info.is_dir():path.mkdir(parents=True,exist_ok=True);continue
+            path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(z.read(info));path.chmod(stat.S_IMODE(mode) or 0o644)
+        for name,target in links.items():
+            path=destination/name;path.parent.mkdir(parents=True,exist_ok=True);path.symlink_to(target)
+
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--output',type=Path,required=True);a=p.parse_args();root=a.output.resolve()
@@ -39,15 +67,14 @@ def main():
         matches=[m for m in t.getmembers() if m.name.endswith('.zip') and '/native-linux-x64-' in m.name]
         if len(matches)!=1:raise ValueError('工具链 archive 中 native zip 不唯一')
         with (root/'native.zip').open('wb') as f:shutil.copyfileobj(t.extractfile(matches[0]),f)
-    with zipfile.ZipFile(root/'native.zip') as z:
-        for name in z.namelist():
-            if Path(name).is_absolute() or '..' in Path(name).parts:raise ValueError('工具链 zip 路径逃逸')
-        z.extractall(root/'ndk-unpacked')
+    extract_native_zip(root/'native.zip',root/'ndk-unpacked')
     natives=list((root/'ndk-unpacked').rglob('llvm/bin/clang'))
     if len(natives)!=1:raise ValueError('不能唯一识别 native NDK')
     ndk=natives[0].parents[2];ndk.rename(root/'ndk')
-    for f in (root/'ndk/llvm/bin').iterdir():
-        if f.is_file():f.chmod(f.stat().st_mode | 0o111)
+    compiler=root/'ndk/llvm/bin/aarch64-unknown-linux-ohos-clang'
+    subprocess.run([str(compiler),'--version'],check=True)
+    probe=root/'compiler-probe.c';probe.write_text('#include <stddef.h>\nint main(void) { return 0; }\n')
+    subprocess.run([str(compiler),str(probe),'-o',str(root/'compiler-probe')],check=True)
     report={'sourceArchiveVerified':True,'patchesVerified':True,'toolchainArchiveVerified':True,'hostToolsVerified':False,'hostToolsReason':'apt/Python 宿主环境尚未由固定镜像摘要绑定，实际工具摘要由 SDK 记录','toolchain':tool,'dependenciesLockSha256':lock['dependenciesLockSha256'],'formalReleaseAllowed':False}
     (root/'input-verification.json').write_text(json.dumps(report,indent=2)+'\n')
 if __name__=='__main__':main()

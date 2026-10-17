@@ -111,7 +111,7 @@ def verify_manifest(root, pinned=None):
     expected_patches = {Path(n).name: h for n, h in LOCK['patches'].items()}
     if {Path(r['path']).name: r['sha256'] for r in m['patches']} != expected_patches:
         raise ValueError('patch records 与锁定摘要不符')
-    if m['staticDependencies'].get('fullyVerified') is not False:
+    if m['staticDependencies'].get('fullyVerified') is not False and not (m['staticDependencies'].get('fullyVerified') is True and m['staticDependencies'].get('rebuiltFromSource') is True and m['staticDependencies'].get('closureProofPath')):
         raise ValueError('本迁移流程不能声称已从源码验证完整静态依赖闭包')
     for group in ('headers', 'pkgconfig'):
         if m[group].get('status') == 'ready' and not m[group]['files']:
@@ -133,6 +133,13 @@ def verify_manifest(root, pinned=None):
         proof = indexed.get(deps.get('sourceManifestPath'))
         if not proof or proof['sha256'] != deps.get('sourceManifestSha256'):
             raise ValueError('源码依赖声明缺少固定摘要的来源清单')
+        if deps.get('closureProofPath') or deps.get('newSourceClosureVerified'):
+            closure_ref=indexed.get(deps.get('closureProofPath'))
+            if not closure_ref or closure_ref['sha256']!=deps.get('closureProofSha256'):raise ValueError('闭包证据未绑定 SDK inventory')
+            source_m=json.loads(checked_path(root,deps['sourceManifestPath']).read_text())
+            result=verify_closure_claim(source_m,checked_path(root,deps['closureProofPath']).read_bytes())
+            if deps.get('fullyVerified')!=result['newSourceClosureVerified'] or deps.get('newSourceClosureVerified')!=result['newSourceClosureVerified']:raise ValueError('SDK 闭包声明与来源证据不符')
+            if {r['path']:r['sha256'] for r in deps['archives']}!={r['path']:r['sha256'] for r in source_m['archives']}:raise ValueError('SDK 静态输入与闭包产物不符')
     if m['artifactKind'] == 'source-build' and m['tools'].get('currentBuild') not in indexed:
         raise ValueError('source-build 缺少工具摘要清单')
     refs = m['libraries'] + m['patches'] + m['headers']['files'] + m['pkgconfig']['files'] + m['licenses'] + [m['sbom']]
@@ -191,6 +198,11 @@ def manifest(root, kind, extra=None):
     sbom = {'format': 'producer-inventory-v1', 'complete': False,
             'limitations': ['SMB/TLS 静态闭包未从全部依赖源码重建', '历史构建工具链字节身份未知'],
             'sources': (extra or {}).get('sources', sources), 'staticInputs': ({r['path']:r['sha256'] for r in extra['staticDependencies']['archives']} if extra and 'archives' in extra.get('staticDependencies', {}) else LOCK['staticInputs']), 'licenseFiles': inventory(root, 'licenses')}
+    if extra and extra.get('staticDependencies',{}).get('rebuiltFromSource'):
+        deps=extra['staticDependencies'];sbom['staticRebuiltFromSource']=True
+        sbom['newSourceClosureVerified']=deps.get('newSourceClosureVerified',False)
+        sbom['historicalSourceIdentityProven']=False
+        sbom['limitations']=['历史来源和历史工具链身份仍缺证']+([] if sbom['newSourceClosureVerified'] else ['新选来源的完整宿主/重复性闭包未验证'])
     write_json(root / 'sbom.json', sbom)
     m = {'schemaVersion': 1, 'artifactKind': kind, 'producer': producer,
          'baseline': {k: LOCK[k] for k in ('tvCommit','harSha256','mpvSha256')},
@@ -246,20 +258,40 @@ def import_baseline(args):
     print(f'imported-baseline: {root}')
 
 
+def closure_module():
+    import importlib.util
+    spec=importlib.util.spec_from_file_location('new_source_closure',HERE/'new-source-closure.py')
+    mod=importlib.util.module_from_spec(spec);spec.loader.exec_module(mod);return mod
+
+
+def verify_closure_claim(m,proof):
+    ref=m.get('closureProof',{})
+    if hashlib.sha256(proof).hexdigest()!=ref.get('sha256'):raise ValueError('新来源闭包证据摘要不符')
+    mod=closure_module();result=mod.verify(json.loads(proof),mod.inventory(m))
+    if m.get('fullyVerified')!=result['newSourceClosureVerified'] or m.get('newSourceClosureVerified')!=result['newSourceClosureVerified']:
+        raise ValueError('来源闭包状态与证据验证结果不符')
+    if m.get('historicalSourceIdentityProven') is not False:raise ValueError('新来源证据不能证明历史来源')
+    return result
+
+
 def static_input(args):
     source_manifest = getattr(args, 'static_manifest', None)
     if source_manifest:
         if not getattr(args, 'static_manifest_sha256', None) or sha(source_manifest) != args.static_manifest_sha256:
             raise ValueError('新源码依赖 manifest SHA256 未锁定或不匹配')
         m = json.loads(source_manifest.read_text())
-        if m.get('targetAbi') != 'arm64-v8a' or m.get('sourceBuildComplete') is not True or m.get('fullyVerified') is not False:
-            raise ValueError('新源码静态依赖状态不符合诊断构建合同')
+        if m.get('targetAbi') != 'arm64-v8a' or m.get('sourceBuildComplete') is not True or m.get('fullyVerified') not in (True,False):
+            raise ValueError('新源码静态依赖状态不符合构建合同')
         expected = {r['path']: r['sha256'] for r in m['archives']}
         if len(m['archives']) != len(LOCK['staticInputs']) or set(expected) != set(LOCK['staticInputs']):
             raise ValueError('新源码依赖必须包含准确八库集合')
         if 'headers' not in m or 'pkgconfig' not in m:
             raise ValueError('新源码依赖清单未绑定 headers/pkgconfig')
         check_files(args.smb, m['archives'] + m['headers'] + m['pkgconfig'])
+        if m.get('closureProof') or m.get('fullyVerified') or m.get('newSourceClosureVerified'):
+            proof=m.get('closureProof',{});file=checked_path(args.smb,proof.get('path','missing-closure-proof'))
+            if not file.is_file():raise ValueError('缺少固定摘要的闭包证据')
+            verify_closure_claim(m,file.read_bytes())
         return expected
     return LOCK['staticInputs']
 
@@ -273,6 +305,12 @@ def capture_inputs(args, root):
         static.update(status='source-rebuilt-diagnostic', rebuiltFromSource=True,
                       sourceManifestSha256=args.static_manifest_sha256,
                       sourceManifestPath='evidence/dependency-source-manifest.json')
+        source_m=json.loads(args.static_manifest.read_text())
+        if source_m.get('closureProof'):
+            proof=checked_path(args.smb,source_m['closureProof']['path'])
+            result=verify_closure_claim(source_m,proof.read_bytes())
+            shutil.copy2(proof,root/'dependency-closure.json')
+            static.update(result,fullyVerified=result['newSourceClosureVerified'],closureProofPath='evidence/dependency-closure.json',closureProofSha256=sha(proof))
     write_json(root / 'static-inputs.json', static)
     ndk_files = inventory(args.ndk, 'sysroot')
     write_json(root / 'ndk-sysroot.json', {'root': str(args.ndk), 'files': ndk_files})
@@ -363,6 +401,7 @@ def package_build(args):
         shutil.copy2(root / name, sdk / 'evidence' / name)
     if (root / 'dependency-source-manifest.json').exists():
         shutil.copy2(root / 'dependency-source-manifest.json', sdk / 'evidence/dependency-source-manifest.json')
+        if (root/'dependency-closure.json').exists():shutil.copy2(root/'dependency-closure.json',sdk/'evidence/dependency-closure.json')
         if (args.smb / 'licenses').is_dir():
             shutil.copytree(args.smb / 'licenses', sdk / 'licenses/source-dependencies')
     shutil.copy2(root / 'work/build/config.h', sdk / 'evidence/ffmpeg-config.h')

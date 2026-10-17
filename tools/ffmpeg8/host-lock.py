@@ -3,7 +3,7 @@
 import argparse,hashlib,json,os,platform,shutil,subprocess
 from pathlib import Path
 
-ENV_KEYS=['PATH','LC_ALL','TZ','SOURCE_DATE_EPOCH','PYTHONHASHSEED','SDKROOT','MACOSX_DEPLOYMENT_TARGET']
+ENV_KEYS=['PATH','LC_ALL','TZ','SOURCE_DATE_EPOCH','PYTHONHASHSEED','SDKROOT','MACOSX_DEPLOYMENT_TARGET','CC','CXX','CFLAGS','CXXFLAGS','CPPFLAGS','LDFLAGS','PKG_CONFIG_PATH','PKG_CONFIG_LIBDIR','BISON_PKGDATADIR','PERL5LIB','PYTHONPATH']
 COMMANDS=['bash','sh','make','cc','c++','clang','bison','flex','m4','perl','python3','pkg-config','sed','awk','tar','gzip','xz','find','sort','patch','git','ar','ld','ranlib','strip','install','cp','ln','env','uname','grep','cut','tr','head','xargs','autoconf','automake','glibtoolize','libtoolize','rsync']
 def sha(p):
     h=hashlib.sha256()

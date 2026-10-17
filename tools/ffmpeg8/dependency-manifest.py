@@ -32,7 +32,7 @@ def source_records(lock,cache,sysroot):
 
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--work',type=Path,required=True);p.add_argument('--sysroot',type=Path,required=True);p.add_argument('--cache',type=Path,required=True);p.add_argument('--ndk',type=Path,required=True);p.add_argument('--manifest-name',default='dependency-manifest.json');a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--work',type=Path,required=True);p.add_argument('--sysroot',type=Path,required=True);p.add_argument('--cache',type=Path,required=True);p.add_argument('--ndk',type=Path,required=True);p.add_argument('--manifest-name',default='dependency-manifest.json');p.add_argument('--recipe',type=Path,default=HERE);a=p.parse_args()
     root=a.sysroot.resolve();work=a.work.resolve();evidence=root/'evidence'/Path(a.manifest_name).stem;
     if evidence.exists():raise ValueError('拒绝覆盖已有 dependency evidence')
     evidence.mkdir(parents=True)
@@ -58,10 +58,11 @@ def main():
             file=src/rel
             if file.is_file():
                 dest=evidence/name/rel;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(file,dest)
-    for name in ['build-libsmbclient.sh','fetch-sources.py','dependency-sources.lock.json']:
-        shutil.copy2(HERE/name,evidence/name)
+    for name in ['build-libsmbclient.sh','fetch-sources.py','dependency-sources.lock.json','dependency-paths.py','generator-lock.py']:
+        
+        if (a.recipe/name).exists():shutil.copy2(a.recipe/name,evidence/name)
     samba=next(r for r in sources if r['name']=='samba-4.20.7');patch=[]
-    paths=['wscript','buildtools/wafsamba/samba_cross.py','lib/util/charset/wscript_build','lib/util/charset/iconv.c','lib/socket/interfaces.c','third_party/heimdal_build/wscript_build','lib/replace/wscript','source3/librpc/idl/wscript_build']
+    paths=['dynconfig/wscript','wscript','buildtools/wafsamba/samba_cross.py','lib/util/charset/wscript_build','lib/util/charset/iconv.c','lib/socket/interfaces.c','third_party/heimdal_build/wscript_build','lib/replace/wscript','source3/librpc/idl/wscript_build']
     with tarfile.open(a.cache/samba['archiveFile']) as tar:
         for name in paths:
             before=tar.extractfile(samba['archivePrefix']+name).read().decode().splitlines(True);after=(work/'samba'/name).read_text().splitlines(True)

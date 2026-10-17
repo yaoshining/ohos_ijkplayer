@@ -22,6 +22,7 @@ set -euo pipefail
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 
 NATIVE_BUILD_PATH="$PATH"
+export LC_ALL=C TZ=UTC SOURCE_DATE_EPOCH=1755820644 PYTHONHASHSEED=1
 
 log() { printf '\033[1;34m[smb]\033[0m %s\n' "$*"; }
 die() { printf '\033[1;31m[smb] 错误：%s\033[0m\n' "$*" >&2; exit 1; }
@@ -103,8 +104,8 @@ setup_cross_env() {
   export PKG_CONFIG_PATH="$PREFIX/lib/pkgconfig"
   export PKG_CONFIG_LIBDIR="$SYSROOT/usr/lib"
   export PKG_CONFIG_SYSROOT_DIR="$SYSROOT"
-  export CFLAGS="-fPIC -D__MUSL__=1 -I$PREFIX/include"
-  export CXXFLAGS="-fPIC -D__MUSL__=1 -I$PREFIX/include"
+  export CFLAGS="-fPIC -D__MUSL__=1 -I$PREFIX/include -ffile-prefix-map=$WORK_DIR=/usr/src/ohcodec-deps -ffile-prefix-map=$PREFIX=/opt/ohcodec-deps"
+  export CXXFLAGS="$CFLAGS"
   export LDFLAGS="-L$PREFIX/lib"
   # Samba 通过 pkg-config 取得 GnuTLS 链接参数。静态 GnuTLS 的 ASN.1、zlib、
   # nettle 等传递依赖仅会由 --static 输出，避免 Waf 链接 genrand 时漏库。
@@ -170,7 +171,7 @@ build_popt() {
   ( cd "$d"
     # release tarball 已含预生成 configure/build-aux, 不再运行 autopoint/glibtoolize
     # (glibtoolize --force 会覆盖 build-aux/compile 和 missing 导致 configure 失败)。
-    ./configure --host="$HOST_TRIPLET" --prefix="$PREFIX" --enable-static --disable-shared
+    ./configure --host="$HOST_TRIPLET" --prefix="$PREFIX" --sysconfdir=/etc --enable-static --disable-shared
     make -j"$JOBS" && make install )
 }
 
@@ -245,6 +246,15 @@ build_dependencies() {
 patch_samba_source() {
   log "应用 Samba 交叉编译补丁"
   cd "$SAMBA_DIR"
+
+  # SDK 静态库使用安装后的运行路径，不能嵌入构建树 bin/modules 等路径。
+  python3 - <<'PYPATH'
+p='dynconfig/wscript'
+s=open(p).read();old='if not bld.is_install:'
+assert s.count(old)==2
+s=s.replace(old,"if not bld.is_install and not bld.env.CROSS_COMPILE:")
+open(p,'w').write(s)
+PYPATH
 
   # 补丁 1：交叉编译时跳过 -framework CoreFoundation（ld.lld 不识别 -framework）。
   python3 - <<'PY'
@@ -550,8 +560,8 @@ build_samba() {
 install_libsmbclient() {
   log "归档 libsmbclient.a 并安装"
   local ar="$TOOLCHAIN/llvm-ar"
-  find "$SAMBA_DIR/bin/default" -name "*.o" -print > "$WORK_DIR/objlist.txt"
-  "$ar" rcs "$PREFIX/lib/libsmbclient.a" $(cat "$WORK_DIR/objlist.txt")
+  find "$SAMBA_DIR/bin/default" -name "*.o" -print | LC_ALL=C sort > "$WORK_DIR/objlist.txt"
+  "$ar" rcsD "$PREFIX/lib/libsmbclient.a" $(cat "$WORK_DIR/objlist.txt")
   cp "$SAMBA_DIR/bin/default/include/public/libsmbclient.h" "$PREFIX/include/libsmbclient.h"
 
   cat > "$PREFIX/lib/pkgconfig/smbclient.pc" <<EOF
@@ -578,6 +588,9 @@ EOF
 main() {
   fetch_samba
   build_modern_bison || die "无法提供现代 bison"
+  if [ -n "${FFMPEG8_HOST_LOCK_SHA256:-}" ]; then
+    python3 "$SCRIPT_DIR/generator-lock.py" --output "$WORK_DIR/generator-locks/bison.json" --host-lock-sha256 "$FFMPEG8_HOST_LOCK_SHA256" --directory "$PREFIX/share/bison" "$(command -v bison)"
+  fi
   setup_cross_env
   clean_src
   build_dependencies
@@ -585,9 +598,13 @@ main() {
   write_cross_answers
   # 先准备 host 工具目录以接收交叉树补丁之外的原始源码。
   build_host_tools
+  if [ -n "${FFMPEG8_HOST_LOCK_SHA256:-}" ]; then
+    python3 "$SCRIPT_DIR/generator-lock.py" --output "$WORK_DIR/generator-locks/heimdal.json" --host-lock-sha256 "$FFMPEG8_HOST_LOCK_SHA256" "$SAMBA_DIR/bin/compile_et" "$SAMBA_DIR/bin/asn1_compile"
+  fi
   configure_samba
   build_samba
   install_libsmbclient
+  python3 "$SCRIPT_DIR/dependency-paths.py" --prefix "$PREFIX" --work "$WORK_DIR"
   log "受控 libsmbclient 构建完成。sysroot：$PREFIX"
 }
 

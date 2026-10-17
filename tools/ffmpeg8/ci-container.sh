@@ -18,4 +18,7 @@ docker inspect "$container_id" > out/ci-container/container-inspect.json
 sha256sum tools/ffmpeg8/ci/Dockerfile > out/ci-container/dockerfile.sha256
 docker start -a "$container_id"
 code=$(docker inspect "$container_id" --format '{{.State.ExitCode}}')
+if [ "$code" = 0 ] && [ -n "${GITHUB_OUTPUT:-}" ]; then
+  echo "formal_artifact_allowed=$(python3 -c 'import json; print(str(json.load(open("out/ci-ohcodec/formal-gate.json"))["formalArtifactAllowed"]).lower())')" >> "$GITHUB_OUTPUT"
+fi
 exit "$code"

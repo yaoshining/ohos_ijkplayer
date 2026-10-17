@@ -7,6 +7,12 @@ sys.dont_write_bytecode=True
 spec=importlib.util.spec_from_file_location('gate',Path(__file__).parents[1]/'ci-gate.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
 class GateTest(unittest.TestCase):
     def valid(self):return {'artifactKind':'source-build','deviceAcceptanceStatus':'pending','staticDependencies':{'fullyVerified':True,'rebuiltFromSource':True}}, {'allMatch':True,'libraryCount':6}, {'sourceArchiveVerified':True,'patchesVerified':True,'toolchainArchiveVerified':True,'hostToolsVerified':True}
+    def test_diagnostic_toolchain_cannot_be_formal_release(self):
+        sdk,_,_=self.valid();lock={'formalReleaseAllowed':False,'toolchain':{'historicalToolchainIdentityProven':False}}
+        self.assertTrue(m.release_failures(lock,sdk))
+    def test_pending_device_never_authorizes_baseline_replacement(self):
+        sdk,_,_=self.valid();lock={'formalReleaseAllowed':True,'toolchain':{'historicalToolchainIdentityProven':True}}
+        self.assertTrue(m.release_failures(lock,sdk))
     def test_complete_inputs_pass(self):self.assertEqual(m.failures(*self.valid()),[])
     def test_cached_closure_blocks(self):
         s,r,i=self.valid();s['staticDependencies']['fullyVerified']=False

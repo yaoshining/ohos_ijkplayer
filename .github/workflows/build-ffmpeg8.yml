@@ -36,6 +36,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: 固定宿主镜像并执行源码闭包验证
+        id: validate
         run: bash tools/ffmpeg8/ci-container.sh
       - name: 保留诊断 SDK 与证据（不代表正式发布）
         if: always()
@@ -52,14 +53,17 @@ jobs:
             out/ci-ohcodec/host-provenance/
             out/ci-ohcodec/host-lock.json
             out/ci-ohcodec/dependencies/*/build.log
+            out/ci-ohcodec/dependencies/*/work/**/configure.log
+            out/ci-ohcodec/dependencies/*/work/**/config.log
             out/ci-ohcodec/dependencies/*/build-record.json
-            out/ci-ohcodec/dependencies/*/sysroot/dependency-manifest.json
+            out/ci-ohcodec/dependencies/*/sysroot/dependency-manifest*.json
+            out/ci-ohcodec/dependencies/*/sysroot/new-source-closure.json
             out/ci-ohcodec/dependencies/*/sysroot/evidence/
             out/ci-ohcodec/dependencies/*/sysroot/licenses/
           if-no-files-found: warn
           retention-days: 14
       - name: 正式 SDK（只有所有门禁通过才允许）
-        if: success()
+        if: success() && steps.validate.outputs.formal_artifact_allowed == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: ohcodec-source-sdk-verified
