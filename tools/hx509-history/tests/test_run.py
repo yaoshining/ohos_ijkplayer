@@ -42,6 +42,19 @@ class RunnerTests(unittest.TestCase):
                 result=runner.extract(archive,root/'output',hp.sha(archive))
             self.assertEqual((result/'file').read_bytes(),b'abc')
 
+    def test_pair_mismatch_requires_actual_fixed_root_control(self):
+        from unittest.mock import Mock
+        compare=Mock(side_effect=[{'allMatch':False},{'allMatch':True}]);build=Mock(return_value='fixed')
+        with tempfile.TemporaryDirectory() as tmp:
+            report=runner.compare_chains('a','b',Path(tmp),compare,build)
+        build.assert_called_once_with()
+        self.assertEqual(compare.call_args_list[1].args,('a','fixed'))
+        self.assertFalse(report['pairedAllMatch']);self.assertTrue(report['fixedRootAllMatch'])
+    def test_fixed_root_mismatch_is_not_promoted(self):
+        from unittest.mock import Mock
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaises(ValueError):runner.compare_chains('a','b',Path(tmp),Mock(return_value={'allMatch':False}),Mock(return_value='fixed'))
+
     def test_recipe_and_default_workflow_unchanged(self):
         r=Path(__file__).resolve().parents[3];base=r/'tools/ffmpeg8';workflow=r/'.github/workflows/build-ffmpeg8.yml'
         before=hp.pins([workflow,*[base/n for n in hp.RECIPE]])

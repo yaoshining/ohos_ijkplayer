@@ -89,6 +89,16 @@ def generators(root,cache,host,lock,ndk,recipe_root,jobs):
     waf_select.verify(descriptor);write(root/'descriptor.json',descriptor)
 
 
+def compare_chains(first,second,out,compare,build_fixed):
+    paired=compare(first,second);write(out/'ffmpeg-repeat.json',paired)
+    result={'pairedAllMatch':paired['allMatch'],'fixedRootAllMatch':None}
+    if not paired['allMatch']:
+        fixed=build_fixed();proof=compare(first,fixed);write(out/'ffmpeg-fixed-root-repeat.json',proof)
+        result.update(fixedRootAllMatch=proof['allMatch'],fixedRootSdk=str(fixed))
+        if not proof['allMatch']:raise ValueError('相同静态输入根的两次 FFmpeg 构建仍不一致')
+    return result
+
+
 def main():
     p=argparse.ArgumentParser();p.add_argument('--profile',required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--ndk',type=Path,required=True)
     p.add_argument('--dependency-cache',type=Path,required=True);p.add_argument('--generator-cache',type=Path,required=True);p.add_argument('--ffmpeg-repo',type=Path,required=True);p.add_argument('--builder-repo',type=Path,required=True);p.add_argument('--jobs',type=int,default=4);p.add_argument('--parallel',type=int,default=1)
@@ -106,14 +116,22 @@ def main():
         manifest=dep/'sysroot/dependency-manifest.json';m=json.loads(manifest.read_text())
         m['hx509Diagnostic']={'profile':'hx509-history','separateEvidence':str(root/'generators'),'files':hp.pins([root/'generators/descriptor.json',root/'generators/build-record.json',*[f for f in (root/'generators/tasks').glob('*.json')],*[f for f in (root/'generators/apply').glob('*')]]),'scope':'独立诊断证据；未提升原清单的完整来源资格'}
         write(manifest,m)
+        sdk=ffmpeg(root,dep)
+        return {'label':label,'sdkRoot':str(sdk),'manifestSha256':hp.sha(sdk/'manifest.json')}
+    def ffmpeg(root,dep):
+        manifest=dep/'sysroot/dependency-manifest.json'
         command([sys.executable,'-B',base/'producer-sdk.py','build','--ndk',a.ndk,'--smb',dep/'sysroot','--static-manifest',manifest,'--static-manifest-sha256',hp.sha(manifest),'--ffmpeg-repo',a.ffmpeg_repo,'--builder-repo',a.builder_repo,'--delivery',base/'baseline-evidence','--output',root/'ffmpeg','--jobs',a.jobs],root/'ffmpeg.log')
         sdk=root/'ffmpeg/work/prefix';command([sys.executable,'-B',base/'producer-sdk.py','verify','--sdk',sdk,'--manifest-sha256',hp.sha(sdk/'manifest.json')],root/'verify.log')
-        return {'label':label,'sdkRoot':str(sdk),'manifestSha256':hp.sha(sdk/'manifest.json')}
+        return sdk
+
     try:
         with concurrent.futures.ThreadPoolExecutor(max_workers=a.parallel) as pool:results=list(pool.map(build,['a','b']))
         command([sys.executable,'-B',base/'dependency-repeat.py','--first',out/'a/dependencies/sysroot','--second',out/'b/dependencies/sysroot','--require-build-records','--report',out/'static-repeat.json'],out/'static-repeat.log')
-        command([sys.executable,'-B',base/'compare-sdks.py','--first',results[0]['sdkRoot'],'--second',results[1]['sdkRoot'],'--report',out/'ffmpeg-repeat.json'],out/'ffmpeg-repeat.log')
-        host.verify(lock);host.verify_binding(lock,a.ndk,rec);status('complete',sdks=results,formalArtifactAllowed=False,deviceAcceptance='pending')
+        def fixed_control():
+            root=out/'fixed-root';root.mkdir();return ffmpeg(root,out/'a/dependencies')
+        comparison=module(base/'compare-sdks.py','hx_compare')
+        repeat=compare_chains(Path(results[0]['sdkRoot']),Path(results[1]['sdkRoot']),out,comparison.compare,fixed_control)
+        host.verify(lock);host.verify_binding(lock,a.ndk,rec);status('complete',sdks=results,repeat=repeat,formalArtifactAllowed=False,deviceAcceptance='pending')
     except Exception as exc:status('failed',error=str(exc));raise
 
 if __name__=='__main__':main()
