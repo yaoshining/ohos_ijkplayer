@@ -1,6 +1,9 @@
 name: Phase11 跨目录双 clean 验收
 on:
   workflow_dispatch:
+  push:
+    branches: ['codex/hx509-history-diagnostics']
+    paths: ['tools/cross-root-profile/**', '.github/workflows/phase11-cross-root.yml']
 permissions:
   contents: read
 jobs:
