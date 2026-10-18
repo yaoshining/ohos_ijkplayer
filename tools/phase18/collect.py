@@ -1,5 +1,6 @@
 from pathlib import Path
 import os,json,hashlib,shutil,subprocess
+from evidence_contract import host_package_file
 HERE=Path(__file__).resolve().parent;REPO=HERE.parents[1];R=REPO/'out/phase18-ci';D=REPO/'out/phase18-artifact';D.mkdir(parents=True,exist_ok=True)
 selected=[]
 for root in [R/'runs',R/'integration/runs',R/'locks']:
@@ -33,7 +34,10 @@ for p in sorted(set(selected)):
 for base,destroot in [(HERE,D/'execution/published'),(R/'runtime',D/'execution/runtime'),(R/'integration/runtime',D/'execution/integration-runtime'),(REPO/'out/phase18-host',D/'host-bootstrap')]:
  if not base.exists():continue
  for p in base.rglob('*'):
-  if not p.is_file() or any(x in p.relative_to(base).parts for x in ['venv','__pycache__','inputs']):continue
+  rel=p.relative_to(base)
+  if any(x in rel.parts for x in ['venv','__pycache__','inputs','partial']):continue
+  if destroot.name=='host-bootstrap' and rel.parts[0] in ['debs','wheels'] and not host_package_file(str(rel)):continue
+  if not p.is_file():continue
   dest=destroot/p.relative_to(base);dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(p,dest)
 workflow=REPO/'.github/workflows/phase18-dependency-closure.yml';dest=D/'execution/workflow.yml';dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(workflow,dest)
 rows=[]

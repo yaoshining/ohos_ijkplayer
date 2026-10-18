@@ -1,6 +1,7 @@
 """Observed runner identity plus isolated, digest-checked Meson installation."""
 from pathlib import Path
 import hashlib,json,os,shutil,subprocess,sys
+from evidence_contract import host_package_file
 HERE=Path(__file__).resolve().parent;REPO=HERE.parents[1];D=REPO/'out/phase18-host';D.mkdir(parents=True,exist_ok=False)
 def run(name,args):
  with (D/(name+'.log')).open('w') as f:r=subprocess.run(list(map(str,args)),stdout=f,stderr=subprocess.STDOUT)
@@ -23,7 +24,7 @@ run('pip-freeze',[python,'-m','pip','freeze','--all'])
 packages=[]
 for folder in ['debs','wheels']:
  for p in (D/folder).glob('*'):
-  if p.is_file():packages.append({'path':str(p.relative_to(D)),'size':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()})
+  if host_package_file(str(p.relative_to(D))) and p.is_file():packages.append({'path':str(p.relative_to(D)),'size':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()})
 (D/'package-observations.json').write_text(json.dumps({'runner':identity,'downloadedPackages':packages,'mesonRequirementSHA256':hashlib.sha256((HERE/'host-requirements.txt').read_bytes()).hexdigest()},indent=2)+'\n')
 with Path(os.environ['GITHUB_PATH']).open('a') as f:f.write(str(venv/'bin')+'\n')
 print('Isolated Meson installed; observed host package identity recorded')

@@ -25,3 +25,7 @@ def verify_index(rows,actual):
 def require_before_pin(path,digest,before):
  if before.get(path)!=digest:raise ValueError('non-generated input missing/changed in before manifest: '+path)
  return True
+
+def host_package_file(path):
+ p=PurePosixPath(path)
+ return len(p.parts)==2 and ((p.parts[0]=='debs' and p.suffix=='.deb') or (p.parts[0]=='wheels' and p.suffix=='.whl'))

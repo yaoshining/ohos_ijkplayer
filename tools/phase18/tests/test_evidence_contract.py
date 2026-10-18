@@ -37,3 +37,12 @@ class BeforePins(unittest.TestCase):
  def test_same_before_pin(self):
   from evidence_contract import require_before_pin
   self.assertTrue(require_before_pin('/sdk/header','s',{'/sdk/header':'s'}))
+
+class HostEvidenceSelection(unittest.TestCase):
+ def test_packages(self):
+  from evidence_contract import host_package_file
+  self.assertTrue(host_package_file('debs/gperf_3.1_amd64.deb'));self.assertTrue(host_package_file('wheels/meson.whl'))
+ def test_locks_and_partial_rejected(self):
+  from evidence_contract import host_package_file
+  for p in ['debs/lock','debs/partial/unfinished.deb','wheels/unknown','venv/lib/a.deb']:
+   self.assertFalse(host_package_file(p),p)
