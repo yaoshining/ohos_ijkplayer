@@ -31,6 +31,11 @@ jobs:
             out/phase10/linux/*/generators/*.log
             out/phase10/linux/*/generators/apply/
             out/phase10/linux/*/generators/tasks/
+            out/phase10/linux/*/generators/prefix/
+            out/phase10/linux/*/generators/*.patch
+            out/phase10/linux/*/generators/source/apple-data/**/data/
+            out/phase10/linux/*/generators/source/flex/**/src/main.c
+            out/phase10/linux/*/generators/source/flex/**/src/skel.c
             out/phase10/linux/*/dependencies/*.json
             out/phase10/linux/*/dependencies/*.log
             out/phase10/linux/*/dependencies/sysroot/

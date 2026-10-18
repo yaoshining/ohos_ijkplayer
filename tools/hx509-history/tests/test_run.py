@@ -78,6 +78,26 @@ class RunnerTests(unittest.TestCase):
             lib.write_bytes(b'library')
             with self.assertRaises(ValueError):runner.flex_environment({},root,lib)
 
+    def test_fixed_flex_source_patch_and_double_application_rejection(self):
+        import shutil
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);source=root/'source';(source/'src').mkdir(parents=True)
+            shutil.copy2(Path(__file__).parent/'fixtures/apple-flex35-main.c',source/'src/main.c')
+            skel=source/'src/skel.c';skel.write_bytes(b'unchanged skeleton')
+            pins=runner.patch_linux_flex(source,root)
+            runner.verify_extra(pins)
+            self.assertEqual(skel.read_bytes(),b'unchanged skeleton')
+            self.assertNotEqual(hp.sha(source/'src/main.c'),hp.sha(Path(__file__).parent/'fixtures/apple-flex35-main.c'))
+            self.assertTrue((root/'linux-flex-main.patch').is_file())
+            with self.assertRaises(ValueError):runner.patch_linux_flex(source,root)
+            skel.write_bytes(b'drift')
+            with self.assertRaises(ValueError):runner.verify_extra(pins)
+    def test_drifted_flex_source_is_rejected_before_patch(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);(root/'src').mkdir();p=root/'src/main.c';p.write_text('unknown source')
+            with self.assertRaises(ValueError):runner.patch_linux_flex(root,root)
+            self.assertEqual(p.read_text(),'unknown source');self.assertFalse((root/'linux-flex-main.patch').exists())
+
     def test_recipe_and_default_workflow_unchanged(self):
         r=Path(__file__).resolve().parents[3];base=r/'tools/ffmpeg8';workflow=r/'.github/workflows/build-ffmpeg8.yml'
         before=hp.pins([workflow,*[base/n for n in hp.RECIPE]])
