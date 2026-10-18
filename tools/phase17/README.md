@@ -11,3 +11,5 @@
 workflow 运行门禁测试、两次 build/install/strip、真实库静态分析和完整 SHA/ELF/输入/配置比较。始终上传成功或失败证据；运行 URL/commit/平台与 artifact-index 用于独立回读。`formalArtifactAllowed=false`，设备播放/HDR/同步/生命周期效果待验收。
 
 CI 初次因 PyPI 无 ninja==1.12.0 失败，现从官方发布下载并固定 ZIP/ELF 摘要与运行版本。第二次发现 configure executable probe 缺 Scrt1.o；目标包仅追加 API24 该启动对象（4648 bytes），旧包及失败证据保留。最终还按 Ninja 依赖记录对两次实际编译输入、生成文件、对象覆盖和 SHA 做独立比较；这是构建后字节与依赖日志绑定，不冒称编译时系统调用跟踪。
+
+第三次 workflow 虽同平台重复性通过，独立回读发现 PL_HAVE_VK_PROC_ADDR 自动关闭：默认 clang++ 的 -lc++/-lc++abi 配置探测缺输入。保留这次结果并追加 API24 libc++.so 链接脚本及 libc++abi.a，不改源码/强制宏。bootstrap 增加实际 C++ Vulkan 链接探测且不执行 ARM64；summarize 要求生成配置中128个mpv HAVE_与11个libplacebo PL_HAVE_状态精确匹配已固定的本地双clean基线。

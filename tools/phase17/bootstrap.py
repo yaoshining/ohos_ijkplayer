@@ -48,3 +48,10 @@ for name in ['clang','clang++','ld.lld']:
  p=sdk/'llvm/bin'/name;versions[name]={'sha256':sha(p),'version':subprocess.check_output([str(p),'--version'],text=True)}
 (OUT/'platform-binding.json').write_text(json.dumps({'platform':platform.platform(),'hostSdkArchive':lock,'hostSdkOriginalMetadata':old_metadata,'targetOverlayManifestSHA256':sha(overlay/'target-sdk.json'),'targetScope':target['scope'],'tools':versions,'identity':'OpenHarmony 5.0 Linux host clang + pinned API24 target headers/libraries from Phase16; diagnostic mixed SDK, not the macOS toolchain','formalArtifactAllowed':False},indent=2)+'\n')
 print(json.dumps({'sdk':str(sdk),'inputs':str(OUT/'input-package'),'hostSdkArchiveVerified':True,'API24TargetInputsVerified':True},indent=2))
+
+# The configuration probes link C++ executables but never run target ARM64 code.
+probe=OUT/'target-cxx-probe';probe.mkdir();source=probe/'main.cpp';source.write_text('int main() { return 0; }\n')
+argv=[str(sdk/'llvm/bin/clang++'),'--target=aarch64-linux-ohos','--sysroot='+str(sdk/'sysroot'),'-fuse-ld=lld','-lc++_shared','-lvulkan','-Wl,--allow-shlib-undefined','-Wl,--trace',str(source),'-o',str(probe/'probe')]
+with (probe/'link.log').open('w')as log:result=subprocess.run(argv,stdout=log,stderr=subprocess.STDOUT)
+(probe/'result.json').write_text(json.dumps({'argv':argv,'exitCode':result.returncode,'targetExecuted':False},indent=2)+'\n')
+assert result.returncode==0,'default C++ Vulkan configure probe failed; see target-cxx-probe/link.log'
