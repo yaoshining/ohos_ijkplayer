@@ -48,15 +48,23 @@ def module(path,name):
     spec=importlib.util.spec_from_file_location(name,path);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);return m
 
 
+def native_environment(home):
+    env={k:os.environ[k] for k in ['PATH','TMPDIR','DEVELOPER_DIR','SDKROOT','TOOLCHAINS'] if k in os.environ}
+    env.update(HOME=str(home),LANG='C',LC_ALL='C',TZ='UTC',SOURCE_DATE_EPOCH='1755820644',PYTHONHASHSEED='1',PYTHONDONTWRITEBYTECODE='1',CFLAGS='-O2')
+    for key,name in [('CC','clang'),('CXX','c++'),('M4','m4'),('INSTALL','install')]:
+        path=shutil.which(name)
+        if not path:raise ValueError('宿主工具缺失: '+name)
+        env[key]=path
+    if platform.system()=='Darwin':env['CFLAGS']+=' -isysroot '+env['SDKROOT']
+    return env
+
+
 def generators(root,cache,host,lock,ndk,recipe_root,jobs):
     prepare(root,'hx509-history');records=[]
     sources=json.loads((recipe_root/'sources.lock.json').read_text())['sources']
     host.verify(lock);host.verify_binding(lock,ndk,recipe_root)
     trees={row['name']:extract(cache/row['archiveFile'],root/'source'/row['name'],row['sha256']) for row in sources}
-    env={k:os.environ[k] for k in ['PATH','TMPDIR','DEVELOPER_DIR','SDKROOT','TOOLCHAINS'] if k in os.environ}
-    home=root/'home';home.mkdir()
-    env.update(HOME=str(home),LANG='C',LC_ALL='C',TZ='UTC',SOURCE_DATE_EPOCH='1755820644',PYTHONHASHSEED='1',PYTHONDONTWRITEBYTECODE='1',CC=shutil.which('clang'),M4=shutil.which('m4'),CFLAGS='-O2')
-    if platform.system()=='Darwin':env['CFLAGS']+=' -isysroot '+env['SDKROOT']
+    home=root/'home';home.mkdir();env=native_environment(home)
     write(root/'pre-build.json',{'sources':hp.pins(cache/row['archiveFile'] for row in sources),'environment':env,'hostLockSha256':hp.sha(Path(lock['recipeRoot']).parent/'host-lock.json'),'freshSourceTrees':True})
     for name in ['bison','flex']:
         prefix=root/'prefix'/name

@@ -18,6 +18,15 @@ class RunnerTests(unittest.TestCase):
             root=Path(tmp);archive=root/'source.tar.gz';archive.write_bytes(b'wrong')
             with self.assertRaises(ValueError):runner.extract(archive,root/'source','0'*64)
             self.assertFalse((root/'source').exists())
+    def test_native_install_and_cxx_are_explicit_locked_commands(self):
+        from unittest.mock import patch
+        with patch('run.shutil.which',side_effect=lambda name:'/locked/'+name), patch('run.platform.system',return_value='Linux'):
+            env=runner.native_environment(Path('/new/home'))
+        self.assertEqual(env['INSTALL'],'/locked/install')
+        self.assertEqual(env['CXX'],'/locked/c++')
+        self.assertEqual(env['CC'],'/locked/clang')
+        self.assertEqual(env['M4'],'/locked/m4')
+
     def test_recipe_and_default_workflow_unchanged(self):
         r=Path(__file__).resolve().parents[3];base=r/'tools/ffmpeg8';workflow=r/'.github/workflows/build-ffmpeg8.yml'
         before=hp.pins([workflow,*[base/n for n in hp.RECIPE]])
