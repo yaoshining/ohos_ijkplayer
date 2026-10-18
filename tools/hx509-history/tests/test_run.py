@@ -27,6 +27,21 @@ class RunnerTests(unittest.TestCase):
         self.assertEqual(env['CC'],'/locked/clang')
         self.assertEqual(env['M4'],'/locked/m4')
 
+    def test_extract_works_with_fixed_ci_python_without_filter_keyword(self):
+        import io, tarfile
+        from unittest.mock import patch
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);archive=root/'source.tar'
+            with tarfile.open(archive,'w') as tar:
+                info=tarfile.TarInfo('source/file');info.size=3;tar.addfile(info,io.BytesIO(b'abc'))
+            original=tarfile.TarFile.extractall
+            def old_api(tar,path,**kwargs):
+                if 'filter' in kwargs:raise TypeError('unexpected filter keyword')
+                return original(tar,path)
+            with patch.object(tarfile.TarFile,'extractall',old_api):
+                result=runner.extract(archive,root/'output',hp.sha(archive))
+            self.assertEqual((result/'file').read_bytes(),b'abc')
+
     def test_recipe_and_default_workflow_unchanged(self):
         r=Path(__file__).resolve().parents[3];base=r/'tools/ffmpeg8';workflow=r/'.github/workflows/build-ffmpeg8.yml'
         before=hp.pins([workflow,*[base/n for n in hp.RECIPE]])

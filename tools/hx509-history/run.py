@@ -32,7 +32,12 @@ def extract(archive,dest,digest):
         for m in tar.getmembers():
             p=(dest/m.name).resolve()
             if not p.is_relative_to(dest.resolve()):raise ValueError('非法归档路径')
-        tar.extractall(dest,filter='data')
+            if not (m.isfile() or m.isdir() or m.issym() or m.islnk()):raise ValueError('不支持的归档成员类型')
+            if m.issym() or m.islnk():
+                target=(p.parent/m.linkname).resolve() if m.issym() else (dest/m.linkname).resolve()
+                if not target.is_relative_to(dest.resolve()):raise ValueError('非法归档链接')
+        # Debian 固定 Python 3.11.2 尚无 filter 参数；固定SHA + 前置成员校验。
+        tar.extractall(dest)
     roots=list(dest.iterdir())
     if len(roots)!=1 or not roots[0].is_dir():raise ValueError('归档根目录不唯一')
     return roots[0]
