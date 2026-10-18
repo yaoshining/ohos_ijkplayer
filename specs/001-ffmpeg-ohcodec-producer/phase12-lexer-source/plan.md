@@ -20,10 +20,10 @@ HX509 profile 已有源码与双平台证据，直接复用。新增内部诊断
 
 ## 宪章检查
 
-设计前与设计后：三仓职责、当前 TV 基线、来源闭包与设备边界均符合；本轮实物边界见 `out/phase12/solution-review-boundary.json`，24,224 项通过。TDD 属后续实现门槛，当前未声称 RED/GREEN 已执行。运行目录 API、消费端接线、设备和已暂停的 parser 故障注入/sanitizer 均不纳入本轮实现。
+设计前与设计后：三仓职责、当前 TV 基线、来源闭包与设备边界均符合；本轮实物边界见 `out/phase12/solution-review-boundary.json`，24,224 项通过。TDD 已按本计划执行，21 项新门禁及相关 CI 通过，真实 RED/GREEN 见 Phase12 最终报告。运行目录 API、消费端接线、设备和已暂停的 parser 故障注入/sanitizer 均不纳入本轮实现。
 
 ## 工件与未决结果
 
-本目录包含 spec、plan、research、data-model、quickstart；内部构建诊断没有新增外部契约，省略 contracts。tasks/analyze/implement 依序执行。精确 Flex 来源尚未确认，这是实验结果缺口；设计已规定未找到时的可验收输出，不以猜测填补。运行目录另见 `docs/producer-remaining-solution-review.md`，只复核既有方案。
+本目录包含 spec、plan、research、data-model、quickstart；内部构建诊断没有新增外部契约，省略 contracts。tasks/analyze/implement 依序执行。后续实施已从固定 Apple 源码精确复现 C/对象；历史安装身份仍未证明。运行目录另见 `docs/producer-remaining-solution-review.md`，只复核既有方案。
 
 官方 setup-plan 已运行，输出在 `out/phase12/setup-plan.json`；没有切换 `.specify/feature.json`。规划前后均无 extensions.yml，无需执行扩展 hooks。没有宪章例外。

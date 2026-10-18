@@ -44,9 +44,11 @@
 
 ## TDD、CI 与调查范围
 
-新增 `tools/lexer-source-profile` 只核验诊断记录：来源包/原补丁/实际骨架输入 pin、工具/M4/头文件/原始 C/对象漂移、版本/特征伪阳性、真实 Waf 输出转换、编译输入关联和失败退出码。`profile-red.log`、`profile-red-v2.log` 保留缺失实现时的真实失败；最小实现后 16 项 GREEN，再补充已具备行为的 SIZE_MAX 定义及发行标签边界回归，共 18 项通过。没有把下载或构建故障当作 TDD RED。
+新增 `tools/lexer-source-profile` 只核验诊断记录：来源包/原补丁/实际骨架输入 pin、工具/M4/头文件/原始 C/对象漂移、版本/特征伪阳性、真实 Waf 输出转换、编译输入关联和失败退出码。`profile-red.log`、`profile-red-v2.log` 保留缺失实现时的真实失败；最小实现后 16 项 GREEN，再补充已具备行为的 SIZE_MAX 定义及发行标签边界回归，共 18 项通过。没有把下载或构建故障当作 TDD RED。封存前审查再补充 M4 环境、真实语法输入和头文件清单绑定三项回归：旧实现真实失败 3 项，最小修复后共 21 项通过，日志为 profile-binding-red.log / profile-binding-green.log；实际 fresh 记录经收紧门禁再次通过。
 
-[专用 CI 39127921005](https://github.com/yaoshining/ohos_ijkplayer/actions/runs/39127921005) 在诊断提交 `ae39397e81f9e598856f8ded5f3bac1fc1b104d6` 成功：18 项新门禁、8 项 Python 路径回归、21 项 HX509 回归，本机同样通过。下载制品 `12135804839` 为 2022 字节，ZIP SHA `0ed58feaf393a7511c390511a63f59f5c94cf35f928d368df549d497fe7bbff6` 与官方值一致，解压日志和提交号核验通过。CI 是 Linux 门禁回归，不是本轮 Linux 生成器/SDK 全链重建；Phase11 双平台两次 clean 证据保持引用。
+[专用 CI 39127921005](https://github.com/yaoshining/ohos_ijkplayer/actions/runs/39127921005) 在诊断提交 `ae39397e81f9e598856f8ded5f3bac1fc1b104d6` 成功：18 项新门禁、8 项 Python 路径回归、21 项 HX509 回归，本机同样通过。下载制品 `12135804839` 为 2022 字节，ZIP SHA `0ed58feaf393a7511c390511a63f59f5c94cf35f928d368df549d497fe7bbff6` 与官方值一致，解压日志和提交号核验通过。最终绑定修复提交 `e39b4295a2b85346397d14556c02126869026009` 的 [CI 39128603393](https://github.com/yaoshining/ohos_ijkplayer/actions/runs/39128603393) 也成功，21 项新门禁、8 项 Python、21 项 HX509 全部通过。最终制品 `12137355799` 为 2095 字节，官方 ZIP SHA `e3530b4f0dbc454cc133ab394f9fb13c992cd3f0d7a772cf772406ead8823f81`，下载日志与提交号独立复验见 ci-binding-verification.json；前一次 CI 证据保留。
+
+CI 是 Linux 门禁回归，不是本轮 Linux 生成器/SDK 全链重建；Phase11 双平台两次 clean 证据保持引用。
 
 upstream 2.6.0–2.6.4 骨架、当前 Homebrew、Debian、Android、ANGLE 原输入及排除范围都有固定 revision/SHA。Homebrew 历史 API 的 500 保留为检索缺口。已找到 Apple 完整源码复现，无需反向套用其他来源补丁。来源研究旧 66 项和新 1082 项均独立摘要复核；历史归档同版本不等于同补丁的结论仍成立。
 

@@ -1,3 +1,5 @@
+> 此为实施前的方案复核快照。后续 tasks、正式分析、TDD 和 CI 已完成，最终状态见 producer-phase12-report.md。
+
 # 方案语义复核
 
 本文件是当前方案阅读复核，不替代后续 tasks 完成后的 speckit-analyze。官方前置脚本结果见 out/phase12/plan-prerequisites.json。
