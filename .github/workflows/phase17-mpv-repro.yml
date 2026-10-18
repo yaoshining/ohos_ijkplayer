@@ -1,0 +1,49 @@
+name: Phase17 mpv 双目录交叉构建诊断
+on:
+  workflow_dispatch:
+  push:
+    branches: ['codex/phase17-mpv-repro']
+    paths: ['tools/phase17/**', '.github/workflows/phase17-mpv-repro.yml']
+permissions:
+  contents: read
+jobs:
+  cross-build:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      LC_ALL: C
+      TZ: UTC
+    steps:
+      - uses: actions/checkout@v4
+      - name: 固定宿主 Python 工具
+        run: |
+          python3 -m venv out/phase17-ci-venv
+          out/phase17-ci-venv/bin/python -m pip install meson==1.10.2 ninja==1.12.0
+      - name: 实际门禁测试
+        run: |
+          set -euo pipefail
+          out/phase17-ci-venv/bin/python -B -m unittest discover -s tools/phase17/tests -v
+          out/phase17-ci-venv/bin/python -B -m unittest discover -s tools/phase17/repeat -p 'test_*.py' -v
+      - name: 校验固定输入与 Linux 宿主 API24 目标组合
+        run: out/phase17-ci-venv/bin/python -B tools/phase17/bootstrap.py
+      - name: 第一次全新交叉构建与静态互操作验收
+        run: |
+          out/phase17-ci-venv/bin/python -B tools/phase17/repeat/fresh_build.py --input-root "$PWD/out/phase17-ci/input-package" --run-root "$PWD/out/phase17-ci/clean-a" --sdk "$PWD/out/phase17-ci/sdk" --meson "$PWD/out/phase17-ci-venv/bin/meson" --ninja "$PWD/out/phase17-ci-venv/bin/ninja" --pkg-config /usr/bin/pkg-config --stable-prefix=/usr/local --jobs 4
+      - name: 第二次不同绝对目录全新交叉构建与静态验收
+        run: |
+          out/phase17-ci-venv/bin/python -B tools/phase17/repeat/fresh_build.py --input-root "$PWD/out/phase17-ci/input-package" --run-root "$PWD/out/phase17-ci/longer-ci-absolute-directory/clean-b" --sdk "$PWD/out/phase17-ci/sdk" --meson "$PWD/out/phase17-ci-venv/bin/meson" --ninja "$PWD/out/phase17-ci-venv/bin/ninja" --pkg-config /usr/bin/pkg-config --stable-prefix=/usr/local --jobs 4
+      - name: 比较实际产物与声明 CI 覆盖
+        run: out/phase17-ci-venv/bin/python -B tools/phase17/summarize.py
+      - name: 保留实际成功或失败证据
+        if: always()
+        run: |
+          mkdir -p out/phase17-ci
+          if [ -x out/phase17-ci-venv/bin/python ]; then out/phase17-ci-venv/bin/python -m pip freeze > out/phase17-ci/pip-freeze.txt; fi
+          python3 -B tools/phase17/collect.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: phase17-mpv-cross-build-not-release
+          path: out/phase17-ci-artifacts/
+          retention-days: 14
