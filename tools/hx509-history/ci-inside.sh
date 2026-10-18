@@ -6,6 +6,9 @@ cd "$root"
 export PYTHONDONTWRITEBYTECODE=1 LC_ALL=C TZ=UTC SOURCE_DATE_EPOCH=1755820644 PYTHONHASHSEED=1
 source tools/ffmpeg8/ci-repo-env.sh
 lock_git_repository "$root"
+SPECIFY_FEATURE_DIRECTORY=specs/001-ffmpeg-ohcodec-producer/phase10-hx509-profile SPECIFY_FEATURE_NO_PERSIST=1 bash .specify/scripts/bash/check-prerequisites.sh --json --require-spec --require-tasks --include-tasks
+python3 -B -m unittest discover -s tools/ffmpeg8/tests -p 'test_*.py' -v
+bash tools/ffmpeg8/tests/test-sdk-contract.sh
 python3 -B -m unittest discover -s tools/hx509-history/tests -v
 out="$root/out/phase10"
 python3 -B tools/ffmpeg8/ci-prepare-inputs.py --output "$out/inputs"
