@@ -74,3 +74,7 @@
 - [ ] T018 本轮新SDK exact relink及version/GnuTLS/runtime对象/保留occurrence的归档排序控制，产出独立resume报告/交接/索引。
 
 只读analyze：新增事项映射FR10-01/03/05/07/08；Linux兼容仅诊断分支，Mac已执行路径不变；无CRITICAL。T010/T011仍暂停，不包含在本轮恢复范围。
+
+- [ ] T019 M4 单变量原文/同 NDK 对象归因；为精确版本输出门禁写真实 RED，再最小实现、GREEN、真实 Waf/CI 验证。对应 FR10-03/04/05/07，原文差异分列，不放宽为通用归一化比较。
+
+T019 只读一致性分析：与 US1 的原文验收范围已同步；默认路径、设备和暂停项边界不变，无 CRITICAL。
