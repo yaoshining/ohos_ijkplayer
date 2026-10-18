@@ -19,23 +19,21 @@ for name in support-av3a-audio-vivid.patch support-zero-copy-hardware-decode.pat
   patch -d "$OUTPUT_ROOT/source" -p1 < "$OUTPUT_ROOT/$name"
 done
 patch -d "$OUTPUT_ROOT/source" -p1 < "$root/patches/0001-libsmbclient-private-credentials.patch"
-ndk="$OHOS_NDK"
-smb="$SMB_PREFIX"
-export PKG_CONFIG_PATH="$smb/lib/pkgconfig"
-export PKG_CONFIG_LIBDIR="$PKG_CONFIG_PATH"
-export PKG_CONFIG_SYSROOT_DIR=
+prepare_build_inputs "$OUTPUT_ROOT/build" "$SMB_PREFIX" "$OHOS_NDK"
+ndk=./toolchain
 unset CFLAGS CXXFLAGS CPPFLAGS LDFLAGS CPATH LIBRARY_PATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH SDKROOT MACOSX_DEPLOYMENT_TARGET
 prepare_source_link "$OUTPUT_ROOT"
 cd "$OUTPUT_ROOT/build"
 "$OUTPUT_ROOT/source/configure" --prefix="$FFMPEG_CONFIGURE_PREFIX" --arch=aarch64 --target-os=linux --enable-cross-compile \
  --cc="$ndk/llvm/bin/aarch64-unknown-linux-ohos-clang" --cxx="$ndk/llvm/bin/aarch64-unknown-linux-ohos-clang++" \
  --ar="$ndk/llvm/bin/llvm-ar" --nm="$ndk/llvm/bin/llvm-nm" --ranlib="$ndk/llvm/bin/llvm-ranlib" --strip="$ndk/llvm/bin/llvm-strip" \
- --sysroot="$ndk/sysroot" --extra-cflags="-fPIC -I$smb/include" --extra-ldflags="-L$smb/lib" \
+ --sysroot="$ndk/sysroot" --extra-cflags="$FFMPEG_INPUT_CFLAGS" --extra-ldflags="$FFMPEG_INPUT_LDFLAGS" \
  --pkg-config-flags=--static --disable-static --enable-shared --enable-pic --disable-programs --disable-doc --disable-avdevice \
  --disable-autodetect --disable-xlib --disable-sdl2 --enable-network --enable-gnutls --enable-libsmbclient --enable-gpl --enable-version3 --disable-nonfree --enable-ohcodec
 make -j"${JOBS:-8}"
 make install DESTDIR="$OUTPUT_ROOT/install"
 mv "$OUTPUT_ROOT/install$FFMPEG_CONFIGURE_PREFIX" "$OUTPUT_ROOT/prefix"
+verify_build_inputs "$OUTPUT_ROOT/build"
 
 printf '%s\n' "ffmpeg_commit=$ffmpeg_commit" "builder_commit=$builder_commit" > "$OUTPUT_ROOT/SOURCE.txt"
 python3 - "$OUTPUT_ROOT/prefix/lib" <<'PYMETA'

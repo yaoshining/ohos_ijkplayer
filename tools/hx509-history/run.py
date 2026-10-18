@@ -137,10 +137,12 @@ def compare_chains(first,second,out,compare,build_fixed):
     return result
 
 
-def main():
+def main(*, labels=('a','b'), comparison_policy=None, extra_recipe_files=()):
     p=argparse.ArgumentParser();p.add_argument('--profile',required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--ndk',type=Path,required=True)
     p.add_argument('--dependency-cache',type=Path,required=True);p.add_argument('--generator-cache',type=Path,required=True);p.add_argument('--ffmpeg-repo',type=Path,required=True);p.add_argument('--builder-repo',type=Path,required=True);p.add_argument('--jobs',type=int,default=4);p.add_argument('--parallel',type=int,default=1)
     a=p.parse_args();out=a.output.resolve();prepare(out,a.profile);base=ROOT/'tools/ffmpeg8';rec=out/'recipe';recipe(base,rec,a.profile)
+    if len(labels)!=2 or labels[0]==labels[1] or any(Path(v).name!=v or v in ('.','..') for v in labels):raise ValueError('必须提供两个独立构建目录名')
+    for path in extra_recipe_files:shutil.copy2(path,rec/('entry-'+Path(path).name))
     os.environ.update(LC_ALL='C',TZ='UTC',SOURCE_DATE_EPOCH='1755820644',PYTHONHASHSEED='1',PYTHONDONTWRITEBYTECODE='1')
     if platform.system()=='Darwin':os.environ['SDKROOT']=subprocess.check_output(['xcrun','--show-sdk-path'],text=True).strip()
     host=module(rec/'host-lock.py','hx_host');lock=host.capture(a.ndk,rec,'hx509-history-'+platform.system());write(out/'host-lock.json',lock)
@@ -163,12 +165,12 @@ def main():
         return sdk
 
     try:
-        with concurrent.futures.ThreadPoolExecutor(max_workers=a.parallel) as pool:results=list(pool.map(build,['a','b']))
-        command([sys.executable,'-B',base/'dependency-repeat.py','--first',out/'a/dependencies/sysroot','--second',out/'b/dependencies/sysroot','--require-build-records','--report',out/'static-repeat.json'],out/'static-repeat.log')
+        with concurrent.futures.ThreadPoolExecutor(max_workers=a.parallel) as pool:results=list(pool.map(build,labels))
+        command([sys.executable,'-B',base/'dependency-repeat.py','--first',out/labels[0]/'dependencies/sysroot','--second',out/labels[1]/'dependencies/sysroot','--require-build-records','--report',out/'static-repeat.json'],out/'static-repeat.log')
         def fixed_control():
-            root=out/'fixed-root';root.mkdir();return ffmpeg(root,out/'a/dependencies')
+            root=out/'fixed-root';root.mkdir();return ffmpeg(root,out/labels[0]/'dependencies')
         comparison=module(base/'compare-sdks.py','hx_compare')
-        repeat=compare_chains(Path(results[0]['sdkRoot']),Path(results[1]['sdkRoot']),out,comparison.compare,fixed_control)
+        repeat=(comparison_policy or compare_chains)(Path(results[0]['sdkRoot']),Path(results[1]['sdkRoot']),out,comparison.compare,fixed_control)
         host.verify(lock);host.verify_binding(lock,a.ndk,rec);status('complete',sdks=results,repeat=repeat,formalArtifactAllowed=False,deviceAcceptance='pending')
     except Exception as exc:status('failed',error=str(exc));raise
 

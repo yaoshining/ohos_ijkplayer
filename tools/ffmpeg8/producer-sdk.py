@@ -407,6 +407,7 @@ def package_build(args):
             shutil.copytree(args.smb / 'licenses', sdk / 'licenses/source-dependencies')
     shutil.copy2(root / 'work/build/config.h', sdk / 'evidence/ffmpeg-config.h')
     shutil.copy2(root / 'work/build/ffbuild/config.mak', sdk / 'evidence/ffmpeg-config.mak')
+    shutil.copy2(root / 'work/build/input-bindings.json', sdk / 'evidence/build-input-bindings.json')
     for pc in (sdk / 'lib/pkgconfig').glob('*.pc'):
         text = pc.read_text()
         for key, value in {'prefix':'${pcfiledir}/../..','exec_prefix':'${prefix}','libdir':'${exec_prefix}/lib','includedir':'${prefix}/include'}.items():
