@@ -55,9 +55,34 @@ class RunnerTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             with self.assertRaises(ValueError):runner.compare_chains('a','b',Path(tmp),Mock(return_value={'allMatch':False}),Mock(return_value='fixed'))
 
+    def test_flex_compatibility_is_linux_only_and_does_not_change_parent_env(self):
+        from unittest.mock import patch
+        env={'CFLAGS':'-O2'}
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);lib=root/'libbsd.so.0';lib.write_bytes(b'library')
+            header=root/'linux-flex-compat.h';header.write_bytes(b'header')
+            with patch('run.platform.system',return_value='Linux'):
+                selected,pins=runner.flex_environment(env,root,lib)
+            self.assertEqual(selected['LIBS'],str(lib.resolve()))
+            self.assertIn(str(header),selected['CPPFLAGS'])
+            self.assertEqual(len(pins),2);self.assertEqual(env,{'CFLAGS':'-O2'})
+            with patch('run.platform.system',return_value='Darwin'):
+                selected,pins=runner.flex_environment(env,root,lib)
+            self.assertEqual(selected,env);self.assertEqual(pins,[])
+
+    def test_linux_compatibility_rejects_missing_library_or_header(self):
+        from unittest.mock import patch
+        with tempfile.TemporaryDirectory() as tmp, patch('run.platform.system',return_value='Linux'):
+            root=Path(tmp);lib=root/'libbsd.so.0'
+            with self.assertRaises(ValueError):runner.flex_environment({},root,lib)
+            lib.write_bytes(b'library')
+            with self.assertRaises(ValueError):runner.flex_environment({},root,lib)
+
     def test_recipe_and_default_workflow_unchanged(self):
         r=Path(__file__).resolve().parents[3];base=r/'tools/ffmpeg8';workflow=r/'.github/workflows/build-ffmpeg8.yml'
         before=hp.pins([workflow,*[base/n for n in hp.RECIPE]])
-        with tempfile.TemporaryDirectory() as tmp:runner.recipe(base,Path(tmp)/'recipe','hx509-history')
+        with tempfile.TemporaryDirectory() as tmp:
+            dest=Path(tmp)/'recipe';runner.recipe(base,dest,'hx509-history')
+            self.assertEqual((dest/'linux-flex-compat.h').read_bytes(),(base.parent/'hx509-history/linux-flex-compat.h').read_bytes())
         self.assertEqual(before,hp.pins([workflow,*[base/n for n in hp.RECIPE]]))
 if __name__=='__main__':unittest.main()

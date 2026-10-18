@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """新建两条完整诊断链；不更新候选或默认指针。"""
-import argparse, concurrent.futures, importlib.util, json, os, platform, shutil, subprocess, sys, tarfile, time
+import argparse, difflib, shlex, concurrent.futures, importlib.util, json, os, platform, shutil, subprocess, sys, tarfile, time
 from pathlib import Path
 import profile as hp
 import waf_select
@@ -20,7 +20,7 @@ def prepare(root,profile):
 
 def recipe(base,dest,profile):
     hp.materialize(base,dest,profile)
-    for name in ['run.py','sources.lock.json']:shutil.copy2(HERE/name,dest/name)
+    for name in ['run.py','sources.lock.json','linux-flex-compat.h']:shutil.copy2(HERE/name,dest/name)
 
 
 def extract(archive,dest,digest):
@@ -64,25 +64,62 @@ def native_environment(home):
     return env
 
 
+def flex_environment(env,recipe_root,bsd_library=None):
+    selected=dict(env)
+    if platform.system()!='Linux':return selected,[]
+    library=Path(bsd_library) if bsd_library is not None else Path('/usr/lib/x86_64-linux-gnu/libbsd.so.0')
+    header=recipe_root/'linux-flex-compat.h'
+    if not library.is_file() or not header.is_file():raise ValueError('Linux Flex 兼容库或头文件缺失')
+    selected['CPPFLAGS']='-include '+shlex.quote(str(header))
+    selected['LIBS']=str(library.resolve())
+    return selected,hp.pins([header,library])
+
+
+def patch_linux_flex(source,evidence):
+    path=source/'src/main.c';old=path.read_text()
+    if hp.sha(path)!='d2365c9c2e9457747604021288a37b756d894c085436281fc68f0f44d5d35299':raise ValueError('Apple Flex main.c 与固定源码不符')
+    text=hp.replace_once(old,'#include <mach-o/dyld.h>','#ifdef __APPLE__\n#include <mach-o/dyld.h>\n#endif')
+    anchor='static int _makerelative(char *path, size_t pathlen, const char *baseprog)\n{'
+    text=hp.replace_once(text,anchor,anchor+'\n#ifndef __APPLE__\n\t(void)path; (void)pathlen; (void)baseprog;\n\treturn 1; /* Linux 使用已显式锁定的 M4，保留原有未定位时的回退。 */\n#else')
+    text=hp.replace_once(text,'\treturn 1;\n}\n\nvoid usage','\treturn 1;\n#endif\n}\n\nvoid usage')
+    patch=evidence/'linux-flex-main.patch'
+    patch.write_text(''.join(difflib.unified_diff(old.splitlines(True),text.splitlines(True),fromfile='a/src/main.c',tofile='b/src/main.c')))
+    path.write_text(text)
+    return hp.pins([path,patch,source/'src/skel.c'])
+
+
+def verify_extra(pins):
+    for row in pins:
+        p=Path(row['path'])
+        if not p.is_file() or hp.sha(p)!=row['sha256']:raise ValueError('兼容层输入漂移: '+str(p))
+
+
 def generators(root,cache,host,lock,ndk,recipe_root,jobs):
     prepare(root,'hx509-history');records=[]
     sources=json.loads((recipe_root/'sources.lock.json').read_text())['sources']
     host.verify(lock);host.verify_binding(lock,ndk,recipe_root)
     trees={row['name']:extract(cache/row['archiveFile'],root/'source'/row['name'],row['sha256']) for row in sources}
     home=root/'home';home.mkdir();env=native_environment(home)
-    write(root/'pre-build.json',{'sources':hp.pins(cache/row['archiveFile'] for row in sources),'environment':env,'hostLockSha256':hp.sha(Path(lock['recipeRoot']).parent/'host-lock.json'),'freshSourceTrees':True})
+    flex_env,extra=flex_environment(env,recipe_root)
+    if platform.system()=='Linux':
+        extra+=patch_linux_flex(trees['flex'],root)
+        provenance=recipe_root.parent.parent/'host-provenance'
+        extra+=hp.pins([Path('/usr/lib/x86_64-linux-gnu/libmd.so.0'),provenance/'packages.tsv',provenance/'deb-sha256.txt',provenance/'sources.list'])
+    verify_extra(extra)
+    write(root/'pre-build.json',{'sources':hp.pins(cache/row['archiveFile'] for row in sources),'environment':env,'hostLockSha256':hp.sha(Path(lock['recipeRoot']).parent/'host-lock.json'),'freshSourceTrees':True,'linuxFlexCompatibility':extra,'flexEnvironment':flex_env})
     for name in ['bison','flex']:
+        tool_env=flex_env if name=='flex' else env
         prefix=root/'prefix'/name
         commands=[['/bin/sh','./configure','--prefix='+str(prefix),'--disable-nls'],['make','-j'+str(jobs)],['make','install']]
         for i,cmd in enumerate(commands):
             host.verify(lock);host.verify_binding(lock,ndk,recipe_root)
             started=time.time_ns();log=root/(name+'-'+str(i)+'.log')
-            command(cmd,log,env,trees[name]);host.verify(lock);host.verify_binding(lock,ndk,recipe_root)
-            records.append({'command':cmd,'cwd':str(trees[name]),'startedNs':started,'finishedNs':time.time_ns(),'log':str(log),'exitCode':0})
+            verify_extra(extra);command(cmd,log,tool_env,trees[name]);verify_extra(extra);host.verify(lock);host.verify_binding(lock,ndk,recipe_root)
+            records.append({'command':cmd,'cwd':str(trees[name]),'startedNs':started,'finishedNs':time.time_ns(),'log':str(log),'exitCode':0,'environment':tool_env})
             write(root/'build-record.json',{'records':records,'environment':env,'freshSourceTrees':True,'hostLockVerifiedAfter':True})
     data=trees['apple-data']/'data';bison=root/'prefix/bison/bin/bison';flex=root/'prefix/flex/bin/flex'
     descriptor={'profile':'hx509-history','bison':str(bison),'flex':str(flex),'data':str(data),'m4':env['M4'],
-       'files':hp.pins([bison,flex,Path(env['M4']),*[p for p in data.rglob('*') if p.is_file()]]),
+       'files':hp.pins([bison,flex,Path(env['M4']),*[p for p in data.rglob('*') if p.is_file()]])+extra,'linuxFlexCompatibility':extra,
        'trees':[{'root':str(data),'files':sorted(str(p.relative_to(data)) for p in data.rglob('*') if p.is_file())}],
        'hostLockSha256':hp.sha(recipe_root.parent/'host-lock.json'),'sourceArchives':hp.pins(cache/row['archiveFile'] for row in sources),
        'historicalInstallationIdentityProven':False}
