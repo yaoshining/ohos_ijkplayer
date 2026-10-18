@@ -69,15 +69,12 @@ for tree,role in [(sdk,'mixed diagnostic SDK'),(rust,'prebuilt Rust compiler and
  for p in sorted(tree.rglob('*')):pin(p,role)
 for name in ['python3','meson','pkg-config','gcc','g++','ar','strip','gperf','make','git','ld','as','sh','bash','sed','awk','grep','perl','m4']:
  p=shutil.which(name);assert p,name;pin(p,'host tool')
-stdlib=Path(sysconfig.get_path('stdlib'))
-for p in sorted(stdlib.rglob('*')):
- if any(x in p.parts for x in ['site-packages','dist-packages','__pycache__']):continue
- pin(p,'Python standard library')
+from tool_inputs import python_inputs
+stdlib=Path(sysconfig.get_path('stdlib'));modules={}
 for name in ['mesonbuild','mako','markupsafe']:
  spec=importlib.util.find_spec(name)
- if spec:
-  for p in sorted(Path(spec.origin).parent.rglob('*')):
-   if '__pycache__' not in p.parts:pin(p,'Python module '+name)
+ if spec:modules[name]=Path(spec.origin).parent
+for p,role in python_inputs(stdlib,modules):pin(p,role)
 for base in ['/lib/x86_64-linux-gnu','/usr/lib/x86_64-linux-gnu']:
  for pattern in ['*.so*','crt*.o','libc_nonshared.a','libpthread_nonshared.a']:
   for p in Path(base).glob(pattern):pin(p,'host shared libraries and link startup inputs')

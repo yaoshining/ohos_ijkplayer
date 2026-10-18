@@ -10,3 +10,6 @@ class HostIsolation(unittest.TestCase):
   self.assertIn("'-m','venv'",script)
   self.assertIn("venv/'bin/python'",script)
   self.assertIn('--require-hashes',script)
+ def test_artifact_keeps_curated_hidden_checksums(self):
+  workflow=(R/'.github/workflows/phase18-dependency-closure.yml').read_text()
+  self.assertIn('include-hidden-files: true',workflow)

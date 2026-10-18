@@ -39,6 +39,19 @@ for base,destroot in [(HERE,D/'execution/published'),(R/'runtime',D/'execution/r
   if destroot.name=='host-bootstrap' and rel.parts[0] in ['debs','wheels'] and not host_package_file(str(rel)):continue
   if not p.is_file():continue
   dest=destroot/p.relative_to(base);dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(p,dest)
+# License texts for the exact source/tool distributions consumed by this run.
+license_rows=[]
+for root,label in [(R/'source-package/source','native-sources'),(R/'dovi-input/vendor','rust-vendor'),(R/'dovi-input/source','dovi-source'),(R/'sdk','diagnostic-sdk'),(R/'dovi-input/toolchain/share/doc/rust','rust-toolchain')]:
+ if not root.exists():continue
+ for p in root.rglob('*'):
+  if not p.is_file() or not p.name.lower().startswith(('license','licence','copying','copyright','notice')):continue
+  dest=D/'licenses'/label/p.relative_to(root);dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(p,dest)
+  license_rows.append({'source':str(p),'artifactPath':str(dest.relative_to(D)),'sha256':hashlib.sha256(p.read_bytes()).hexdigest()})
+lua=R/'source-package/source/lua/doc/readme.html'
+if lua.is_file():
+ dest=D/'licenses/native-sources/lua/doc/readme.html';dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(lua,dest)
+ license_rows.append({'source':str(lua),'artifactPath':str(dest.relative_to(D)),'sha256':hashlib.sha256(lua.read_bytes()).hexdigest(),'note':'Lua MIT license is inside official readme'})
+(D/'license-evidence.json').write_text(json.dumps({'files':license_rows,'scope':'Observed exact distribution license texts; not legal approval or toolchain source bootstrap'},indent=2)+'\n')
 workflow=REPO/'.github/workflows/phase18-dependency-closure.yml';dest=D/'execution/workflow.yml';dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(workflow,dest)
 rows=[]
 for p in sorted(D.rglob('*')):

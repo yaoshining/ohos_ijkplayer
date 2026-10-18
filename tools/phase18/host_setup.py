@@ -19,7 +19,7 @@ run('apt-policy',['apt-cache','policy','gperf','pkg-config','pkgconf','gcc','pyt
 venv=D/'venv';run('venv',[sys.executable,'-m','venv',venv]);python=venv/'bin/python'
 run('pip-version',[python,'-m','pip','--version'])
 run('meson-download',[python,'-m','pip','download','--disable-pip-version-check','--require-hashes','--only-binary=:all:','--no-deps','-r',HERE/'host-requirements.txt','-d',D/'wheels'])
-run('meson-install',[python,'-m','pip','install','--disable-pip-version-check','--no-index','--find-links',D/'wheels','--require-hashes','--no-deps','-r',HERE/'host-requirements.txt'])
+run('meson-install',[python,'-m','pip','install','--disable-pip-version-check','--no-index','--no-compile','--find-links',D/'wheels','--require-hashes','--no-deps','-r',HERE/'host-requirements.txt'])
 run('pip-freeze',[python,'-m','pip','freeze','--all'])
 packages=[]
 for folder in ['debs','wheels']:
