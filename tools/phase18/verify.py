@@ -14,4 +14,5 @@ for run in ['origin-a','longer-ci-absolute-directory/origin-b']:
  inputs=json.loads((R/'integration/runs'/run/'link-inputs.json').read_text());actual={v['path'].removeprefix('run/deps/'):v['sha256'] for v in inputs if v['path'].startswith('run/deps/') and v['path'].endswith('.a')};assert actual==archives
 for rel in ['integration/input-package/package.json','source-package/source-final.json','locks/tools-before.json']:
  assert (R/rel).is_file()
+subprocess.run([sys.executable,'-B',str(HERE/'verify_evidence.py')],check=True)
 (R/'phase18-verification.json').write_text(json.dumps({'allPassed':True,'features':results,'newDependenciesLinked':10,'formalArtifactAllowed':False,'deviceAcceptanceStatus':'pending','oldHistoricalCacheFullyVerified':False,'provenanceScope':'new source builds only; Rust compiler/std and SDK remain prebuilt tool/platform boundaries'},indent=2)+'\n')

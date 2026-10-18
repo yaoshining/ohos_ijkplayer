@@ -67,7 +67,7 @@ def pin(p,role):
  seen.add(str(p));rows.append({'path':str(p),'realpath':str(p.resolve()),'size':p.stat().st_size,'sha256':sha(p),'role':role})
 for tree,role in [(sdk,'mixed diagnostic SDK'),(rust,'prebuilt Rust compiler and std'),(tools,'prebuilt cargo-c/cbindgen'),(Path('/usr/include'),'native generator platform'),(Path('/usr/lib/gcc'),'native GCC internals')]:
  for p in sorted(tree.rglob('*')):pin(p,role)
-for name in ['python3','meson','pkg-config','gcc','g++','ar','strip','gperf','make','git','ld']:
+for name in ['python3','meson','pkg-config','gcc','g++','ar','strip','gperf','make','git','ld','as','sh','bash','sed','awk','grep','perl','m4']:
  p=shutil.which(name);assert p,name;pin(p,'host tool')
 stdlib=Path(sysconfig.get_path('stdlib'))
 for p in sorted(stdlib.rglob('*')):
@@ -78,7 +78,9 @@ for name in ['mesonbuild','mako','markupsafe']:
  if spec:
   for p in sorted(Path(spec.origin).parent.rglob('*')):
    if '__pycache__' not in p.parts:pin(p,'Python module '+name)
-for p in Path('/lib/x86_64-linux-gnu').glob('*.so*'):pin(p,'host shared libraries')
+for base in ['/lib/x86_64-linux-gnu','/usr/lib/x86_64-linux-gnu']:
+ for pattern in ['*.so*','crt*.o','libc_nonshared.a','libpthread_nonshared.a']:
+  for p in Path(base).glob(pattern):pin(p,'host shared libraries and link startup inputs')
 versions={name:subprocess.check_output([shutil.which(name),'--version'],text=True).splitlines()[0] for name in ['python3','meson','pkg-config','gcc','gperf','make']}
 tooldata={'SDK':str(sdk),'nativeSDK':'/usr','nativeClang':shutil.which('gcc'),'nativeCXX':shutil.which('g++'),'nativeCompilerArgs':[],'meson':shutil.which('meson'),'pkgConfig':shutil.which('pkg-config'),'python':sys.executable,'tools':rows,'versions':versions,'platform':platform.platform(),'toolchainBoundary':'prebuilt host/compiler/std/platform inputs; not source bootstrap'};(OUT/'locks/tools-before.json').write_text(json.dumps(tooldata,indent=2)+'\n');(OUT/'platform-binding.json').write_text(json.dumps({'hostSDK':lock,'targetManifestSHA256':sha(overlay/'target-sdk.json'),'rustDistributions':rustlock,'targetRuntime':'pending','formalArtifactAllowed':False},indent=2)+'\n')
 print('Phase18 bootstrap complete',len(rows),'tool inputs')

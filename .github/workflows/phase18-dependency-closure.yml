@@ -15,15 +15,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: 准备固定宿主工具
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y gperf pkg-config
-          python3 -m pip install --disable-pip-version-check meson==1.10.2
+        run: python3 -B tools/phase18/host_setup.py
       - name: 校验原始输入并准备隔离 SDK 和 Rust 工具链
         run: python3 -B tools/phase18/bootstrap.py
       - name: 输入及版本门禁回归
         run: |
-          python3 -B -m unittest discover -s out/phase18-ci/tests -v
+          python3 -B -m unittest discover -s tools/phase18/tests -p test_evidence_contract.py -v
+          python3 -B -m unittest discover -s tools/phase18/tests -p test_host_isolation.py -v
+          python3 -B -m unittest discover -s out/phase18-ci/tests -p test_inputs.py -v
+          python3 -B -m unittest discover -s out/phase18-ci/tests -p test_recipes.py -v
           python3 -B -m unittest discover -s out/phase18-ci/integration/runtime -p 'test_*.py' -v
       - name: 从源码构建八个 C 与 C++ 依赖
         run: python3 -B out/phase18-ci/runtime/build_deps.py --run out/phase18-ci/runs/native-01 --jobs 4
