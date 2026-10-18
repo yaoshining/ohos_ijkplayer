@@ -19,7 +19,8 @@ jobs:
       - name: 固定宿主 Python 工具
         run: |
           python3 -m venv out/phase17-ci-venv
-          out/phase17-ci-venv/bin/python -m pip install meson==1.10.2 ninja==1.12.0
+          out/phase17-ci-venv/bin/python -m pip install meson==1.10.2
+          out/phase17-ci-venv/bin/python -B tools/phase17/host_ninja.py
       - name: 实际门禁测试
         run: |
           set -euo pipefail
@@ -29,10 +30,10 @@ jobs:
         run: out/phase17-ci-venv/bin/python -B tools/phase17/bootstrap.py
       - name: 第一次全新交叉构建与静态互操作验收
         run: |
-          out/phase17-ci-venv/bin/python -B tools/phase17/repeat/fresh_build.py --input-root "$PWD/out/phase17-ci/input-package" --run-root "$PWD/out/phase17-ci/clean-a" --sdk "$PWD/out/phase17-ci/sdk" --meson "$PWD/out/phase17-ci-venv/bin/meson" --ninja "$PWD/out/phase17-ci-venv/bin/ninja" --pkg-config /usr/bin/pkg-config --stable-prefix=/usr/local --jobs 4
+          out/phase17-ci-venv/bin/python -B tools/phase17/repeat/fresh_build.py --input-root "$PWD/out/phase17-ci/input-package" --run-root "$PWD/out/phase17-ci/clean-a" --sdk "$PWD/out/phase17-ci/sdk" --meson "$PWD/out/phase17-ci-venv/bin/meson" --ninja "$PWD/out/phase17-host-tools/ninja" --pkg-config /usr/bin/pkg-config --stable-prefix=/usr/local --jobs 4
       - name: 第二次不同绝对目录全新交叉构建与静态验收
         run: |
-          out/phase17-ci-venv/bin/python -B tools/phase17/repeat/fresh_build.py --input-root "$PWD/out/phase17-ci/input-package" --run-root "$PWD/out/phase17-ci/longer-ci-absolute-directory/clean-b" --sdk "$PWD/out/phase17-ci/sdk" --meson "$PWD/out/phase17-ci-venv/bin/meson" --ninja "$PWD/out/phase17-ci-venv/bin/ninja" --pkg-config /usr/bin/pkg-config --stable-prefix=/usr/local --jobs 4
+          out/phase17-ci-venv/bin/python -B tools/phase17/repeat/fresh_build.py --input-root "$PWD/out/phase17-ci/input-package" --run-root "$PWD/out/phase17-ci/longer-ci-absolute-directory/clean-b" --sdk "$PWD/out/phase17-ci/sdk" --meson "$PWD/out/phase17-ci-venv/bin/meson" --ninja "$PWD/out/phase17-host-tools/ninja" --pkg-config /usr/bin/pkg-config --stable-prefix=/usr/local --jobs 4
       - name: 比较实际产物与声明 CI 覆盖
         run: out/phase17-ci-venv/bin/python -B tools/phase17/summarize.py
       - name: 保留实际成功或失败证据
