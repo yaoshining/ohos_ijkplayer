@@ -1,0 +1,37 @@
+{
+  "distributionManifest": "/Users/yaoshining/.rustup/toolchains/stable-aarch64-apple-darwin/lib/rustlib/multirust-channel-manifest.toml",
+  "date": "2026-07-16",
+  "version": "1.97.1",
+  "archives": [
+    {
+      "package": "rustc",
+      "target": "x86_64-unknown-linux-gnu",
+      "url": "https://static.rust-lang.org/dist/2026-07-16/rustc-1.97.1-x86_64-unknown-linux-gnu.tar.xz",
+      "sha256": "9819d0a32d56bd339585319c80260e332779f5541fd66838ab7e016d6c814819"
+    },
+    {
+      "package": "cargo",
+      "target": "x86_64-unknown-linux-gnu",
+      "url": "https://static.rust-lang.org/dist/2026-07-16/cargo-1.97.1-x86_64-unknown-linux-gnu.tar.xz",
+      "sha256": "e1be5f5ff7f7f80ca506fb65770b759edbdc6d303781ed71c5de8ec8a8394779"
+    },
+    {
+      "package": "rust-std",
+      "target": "x86_64-unknown-linux-gnu",
+      "url": "https://static.rust-lang.org/dist/2026-07-16/rust-std-1.97.1-x86_64-unknown-linux-gnu.tar.xz",
+      "sha256": "1c1e704ae80126b7de34f72ea2825f7fd01736dec20732faed47374b95282fba"
+    },
+    {
+      "package": "rust-std",
+      "target": "aarch64-unknown-linux-ohos",
+      "url": "https://static.rust-lang.org/dist/2026-07-16/rust-std-1.97.1-aarch64-unknown-linux-ohos.tar.xz",
+      "sha256": "c4742e7c72416bbd80863a5ad428742d0e8895d80c87dc0681420f42e6654842"
+    },
+    {
+      "package": "cargo-c",
+      "target": "x86_64-unknown-linux-musl",
+      "url": "https://github.com/lu-zero/cargo-c/releases/download/v0.10.24/cargo-c-x86_64-unknown-linux-musl.tar.gz",
+      "sha256": "503a6de066897b810051f2944e4157629c580d0e36219cddb39ad45116d0e8f5"
+    }
+  ]
+}

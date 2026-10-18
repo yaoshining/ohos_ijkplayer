@@ -1,0 +1,53 @@
+[
+  {
+    "name": "sources",
+    "archive": "sources.tar.gz",
+    "size": 220635775,
+    "sha256": "f3f2770ff6383a385e336222955a8f0abe38809e788d53962e0d129c555d585c",
+    "parts": [
+      {
+        "file": "sources.part0",
+        "size": 41943040,
+        "sha256": "046446fc60727a617dfdad98defad70271ab4f36bcbc9299e232604aa270cadd"
+      },
+      {
+        "file": "sources.part1",
+        "size": 41943040,
+        "sha256": "c82993d50c45fb690b947ac1ce4f72c90e3758008d9868cc23c0e851dea39aca"
+      },
+      {
+        "file": "sources.part2",
+        "size": 41943040,
+        "sha256": "453a01e7b2935d89e24614e5a6757109c1e056281ad8f6c9c6d5b69f77d903b9"
+      },
+      {
+        "file": "sources.part3",
+        "size": 41943040,
+        "sha256": "5229a938e70f523b3d953afa5f539a1ebafba8bd1b6bc881b3a573e4e846bd01"
+      },
+      {
+        "file": "sources.part4",
+        "size": 41943040,
+        "sha256": "c01a6e9449981733738c66343b29301b4d2e3a7c40772e453056ae391b5e1719"
+      },
+      {
+        "file": "sources.part5",
+        "size": 10920575,
+        "sha256": "5fc5e0e5bf3b8e0207888597cb7925bdf267c4d51c57f6441a14521c8cd418d0"
+      }
+    ]
+  },
+  {
+    "name": "target-sdk",
+    "archive": "target-sdk.tar.gz",
+    "size": 33313035,
+    "sha256": "ec2b6a744a1bfe8867c0fdbef92ad4f475b7ad08847a4dae84244abd3ed32591",
+    "parts": [
+      {
+        "file": "target-sdk.part0",
+        "size": 33313035,
+        "sha256": "ec2b6a744a1bfe8867c0fdbef92ad4f475b7ad08847a4dae84244abd3ed32591"
+      }
+    ]
+  }
+]
