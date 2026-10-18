@@ -5,6 +5,7 @@ import hashlib
 import json
 from pathlib import Path
 import shutil
+import subprocess
 import waf_select
 
 HERE = Path(__file__).resolve().parent
@@ -19,6 +20,21 @@ EXPECTED = {'sel-gram.tab.c':'cabc0ce2710b7a26508b47934710a5a07d87a0a2f336bfde64
             'sel-gram.tab.h':'5c2e827b6f9e35e7845b8601327e09a7066bdb858515586248a18cd52bec51c2',
             'sel-lex.lex.c':'c5a76e4a4e4078eba9c1e04ac6a060dc7db934077d34a978c61ac06eed4d07a4'}
 sha = waf_select.sha
+
+
+def expected_for_m4(version):
+    expected = dict(EXPECTED)
+    if version == 'GNU M4 1.4.6':
+        return expected
+    if version == 'm4 (GNU M4) 1.4.19':
+        expected.update({'sel-gram.tab.c': '5795a6b81485d81ff7012c2e3ec6b5c4b93c700ede172217e3fb2f5d4162f015',
+                         'sel-gram.tab.h': '54e2ce535ff5c3f1cc06436f02b0ae1bd8e3e452750f8f1649f6b0c9defa521c'})
+        return expected
+    raise ValueError('未经输出验证的 M4 版本: ' + version)
+
+
+def m4_version(path):
+    return subprocess.check_output([str(path), '--version'], text=True).splitlines()[0]
 
 
 def require_profile(value):
@@ -57,13 +73,16 @@ def replace_once(text, old, new):
 def apply(source, descriptor, profile):
     require_profile(profile); source = source.resolve()
     binding = json.loads(descriptor.read_text()); waf_select.verify(binding)
+    version = m4_version(binding['m4'])
+    expected = expected_for_m4(version)
+    waf_select.verify(binding)
     for rel, digest in {**INPUTS, **MODULES}.items():
         if sha(source / rel) != digest:
             raise ValueError('Samba 输入或 Waf 模块不符: ' + rel)
     dest = source / 'buildtools/wafsamba'
     if (dest / 'hx509-binding.json').exists():
         raise ValueError('拒绝重复应用 profile')
-    binding.update(sourceRoot=str(source), expected=EXPECTED, evidence=str(descriptor.parent / 'tasks'))
+    binding.update(sourceRoot=str(source), expected=expected, m4Version=version, evidence=str(descriptor.parent / 'tasks'))
     binding['files'] += pins(source / p for p in INPUTS)
     bison = source / 'third_party/waf/waflib/Tools/bison.py'
     flex = dest / 'samba_waf18.py'

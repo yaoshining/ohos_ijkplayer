@@ -42,6 +42,28 @@ class ProfileTests(unittest.TestCase):
             hp.require_profile('default')
         self.assertEqual(hp.require_profile('hx509-history'), 'hx509-history')
 
+    def test_m4_variants_enforce_exact_raw_outputs_and_reject_cross_variant(self):
+        from types import SimpleNamespace
+        for version, label in [('GNU M4 1.4.6', 'm4-1.4.6'), ('m4 (GNU M4) 1.4.19', 'm4-1.4.19')]:
+            expected = hp.expected_for_m4(version)
+            self.binding.update(expected=expected, evidence=str(self.root/'evidence'))
+            t = self.task('third_party/heimdal/lib/hx509/sel-gram.y')
+            t.outputs = []
+            for name in ['sel-gram.tab.c', 'sel-gram.tab.h']:
+                p = self.root/name
+                p.write_bytes((Path(__file__).parent/'fixtures'/label/name).read_bytes())
+                t.outputs.append(SimpleNamespace(abspath=lambda p=p: str(p)))
+            ws.finish(t, 'bison', self.binding)
+            other = 'm4-1.4.19' if label == 'm4-1.4.6' else 'm4-1.4.6'
+            p.write_bytes((Path(__file__).parent/'fixtures'/other/p.name).read_bytes())
+            with self.assertRaises(ValueError): ws.finish(t, 'bison', self.binding)
+            p.write_bytes((Path(__file__).parent/'fixtures'/label/p.name).read_bytes()+b'\n')
+            with self.assertRaises(ValueError): ws.finish(t, 'bison', self.binding)
+
+    def test_unverified_m4_versions_fail_closed(self):
+        for version in ['', 'm4 (GNU M4) 1.4.20', 'unknown 1.4.19']:
+            with self.assertRaises(ValueError): hp.expected_for_m4(version)
+
     def test_only_exact_hx509_task_gets_private_environment(self):
         t = self.task('third_party/heimdal/lib/hx509/sel-gram.y'); original = t.env
         selected = ws.select_env(t, 'bison', self.binding)

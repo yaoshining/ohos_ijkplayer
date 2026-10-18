@@ -32,7 +32,8 @@ def exercise(source, descriptor, output):
     t=types.SimpleNamespace(env=env,generator=gen,inputs=[node(s/'third_party/heimdal/lib/hx509/sel-lex.l')],outputs=[node(cwd/'sel-lex.lex.c')],get_cwd=lambda:node(cwd))
     scope['flexfun'](t)
     assert env.BISON==['not-used'] and env.FLEX==['not-used']
-    assert all(hp.sha(cwd/n)==v for n,v in hp.EXPECTED.items())
+    binding=json.loads((s/'buildtools/wafsamba/hx509-binding.json').read_text())
+    assert all(hp.sha(cwd/n)==v for n,v in binding['expected'].items())
     print('实际 Waf 两任务输出、私有环境和默认工具隔离检查通过')
 
 if __name__=='__main__':

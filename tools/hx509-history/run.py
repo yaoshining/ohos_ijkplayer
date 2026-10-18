@@ -100,13 +100,14 @@ def generators(root,cache,host,lock,ndk,recipe_root,jobs):
     host.verify(lock);host.verify_binding(lock,ndk,recipe_root)
     trees={row['name']:extract(cache/row['archiveFile'],root/'source'/row['name'],row['sha256']) for row in sources}
     home=root/'home';home.mkdir();env=native_environment(home)
+    m4_version=hp.m4_version(env['M4']);hp.expected_for_m4(m4_version)
     flex_env,extra=flex_environment(env,recipe_root)
     if platform.system()=='Linux':
         extra+=patch_linux_flex(trees['flex'],root)
         provenance=recipe_root.parent.parent/'host-provenance'
         extra+=hp.pins([Path('/usr/lib/x86_64-linux-gnu/libmd.so.0'),provenance/'packages.tsv',provenance/'deb-sha256.txt',provenance/'sources.list'])
     verify_extra(extra)
-    write(root/'pre-build.json',{'sources':hp.pins(cache/row['archiveFile'] for row in sources),'environment':env,'hostLockSha256':hp.sha(Path(lock['recipeRoot']).parent/'host-lock.json'),'freshSourceTrees':True,'linuxFlexCompatibility':extra,'flexEnvironment':flex_env})
+    write(root/'pre-build.json',{'sources':hp.pins(cache/row['archiveFile'] for row in sources),'environment':env,'m4Version':m4_version,'hostLockSha256':hp.sha(Path(lock['recipeRoot']).parent/'host-lock.json'),'freshSourceTrees':True,'linuxFlexCompatibility':extra,'flexEnvironment':flex_env})
     for name in ['bison','flex']:
         tool_env=flex_env if name=='flex' else env
         prefix=root/'prefix'/name
@@ -118,7 +119,7 @@ def generators(root,cache,host,lock,ndk,recipe_root,jobs):
             records.append({'command':cmd,'cwd':str(trees[name]),'startedNs':started,'finishedNs':time.time_ns(),'log':str(log),'exitCode':0,'environment':tool_env})
             write(root/'build-record.json',{'records':records,'environment':env,'freshSourceTrees':True,'hostLockVerifiedAfter':True})
     data=trees['apple-data']/'data';bison=root/'prefix/bison/bin/bison';flex=root/'prefix/flex/bin/flex'
-    descriptor={'profile':'hx509-history','bison':str(bison),'flex':str(flex),'data':str(data),'m4':env['M4'],
+    descriptor={'profile':'hx509-history','bison':str(bison),'flex':str(flex),'data':str(data),'m4':env['M4'],'m4Version':m4_version,
        'files':hp.pins([bison,flex,Path(env['M4']),*[p for p in data.rglob('*') if p.is_file()]])+extra,'linuxFlexCompatibility':extra,
        'trees':[{'root':str(data),'files':sorted(str(p.relative_to(data)) for p in data.rglob('*') if p.is_file())}],
        'hostLockSha256':hp.sha(recipe_root.parent/'host-lock.json'),'sourceArchives':hp.pins(cache/row['archiveFile'] for row in sources),
