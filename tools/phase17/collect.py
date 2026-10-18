@@ -5,7 +5,7 @@ for p in sorted(src.rglob('*')):
  if not p.is_file():continue
  rel=p.relative_to(src)
  if any(part in ['input-package','target-overlay','sdk','unpacked','deps','ffmpeg','source','host-cache','package-cache','tmp']for part in rel.parts):continue
- keep=p.suffix in ['.json','.log','.txt','.ini','.md'] or (p.name=='libmpv.so'and 'install'in rel.parts)or p.name=='install-unstripped.so'or(p.name=='libplacebo.a'and'install'in rel.parts)or p.name=='link.map'
+ keep=p.suffix in ['.json','.log','.txt','.ini','.md','.h'] or (p.name=='libmpv.so'and 'install'in rel.parts)or p.name=='install-unstripped.so'or(p.name=='libplacebo.a'and'install'in rel.parts)or p.name=='link.map'
  if not keep:continue
  q=dest/rel;q.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(p,q)
 host=repo/'out/phase17-host-tools/binding.json'

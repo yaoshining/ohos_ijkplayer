@@ -9,3 +9,5 @@
 `MPV_CONFDIR=/usr/local/etc/mpv` 与诊断字符串是本轮明确的配置变化，尚未真机验收。只比较同一平台、同一工具链的两次产物；历史依赖编译来源仍不完整，`fullyVerified=false`。既有 FFmpeg Python 目标路径修复保留。
 
 workflow 运行门禁测试、两次 build/install/strip、真实库静态分析和完整 SHA/ELF/输入/配置比较。始终上传成功或失败证据；运行 URL/commit/平台与 artifact-index 用于独立回读。`formalArtifactAllowed=false`，设备播放/HDR/同步/生命周期效果待验收。
+
+CI 初次因 PyPI 无 ninja==1.12.0 失败，现从官方发布下载并固定 ZIP/ELF 摘要与运行版本。第二次发现 configure executable probe 缺 Scrt1.o；目标包仅追加 API24 该启动对象（4648 bytes），旧包及失败证据保留。最终还按 Ninja 依赖记录对两次实际编译输入、生成文件、对象覆盖和 SHA 做独立比较；这是构建后字节与依赖日志绑定，不冒称编译时系统调用跟踪。

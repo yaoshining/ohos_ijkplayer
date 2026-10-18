@@ -23,13 +23,13 @@
   },
   {
     "archive": "target-sdk.tar.gz",
-    "sha256": "ef16ce11ce156df941b9a2c1737615752628a74eacef01857e99aca77ab72571",
-    "size": 6305824,
+    "sha256": "2dbc56575e734955bb0e9f009a784afe847fe8b5d4739bc77795af5f26cd62a1",
+    "size": 6307439,
     "parts": [
       {
         "file": "target-sdk.tar.gz.part0",
-        "sha256": "ef16ce11ce156df941b9a2c1737615752628a74eacef01857e99aca77ab72571",
-        "size": 6305824
+        "sha256": "2dbc56575e734955bb0e9f009a784afe847fe8b5d4739bc77795af5f26cd62a1",
+        "size": 6307439
       }
     ]
   }
