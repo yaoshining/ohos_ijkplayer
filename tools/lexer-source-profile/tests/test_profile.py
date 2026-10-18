@@ -50,7 +50,7 @@ class ProfileTests(unittest.TestCase):
         inp = self.pin('lex.l'); compiler = self.pin('clang'); obj = self.pin('lex.o', b'object')
         return {'source': source, 'generation': {'tool': tool, 'm4': m4,
             'inputs': [inp], 'command': [tool['path'], '-t', inp['path']],
-            'cwd': str(self.root), 'environment': {'LC_ALL': 'C'}, 'exitCode': 0,
+            'cwd': str(self.root), 'environment': {'LC_ALL': 'C', 'M4': m4['path']}, 'exitCode': 0,
             'stdout': stdout, 'output': output, 'postprocess': 'waf-utf8-latin1-universal-newlines'},
             'compilation': {'compiler': compiler, 'inputs': [output, self.pin('header.h')],
             'command': [compiler['path'], '-c', output['path'], '-o', obj['path']],
@@ -158,6 +158,20 @@ class ProfileTests(unittest.TestCase):
 
     def test_tool_must_be_bound_to_source_build(self):
         r = self.record(); r['source']['builtTool'] = self.pin('other-flex', b'other')
+        with self.assertRaises(ValueError): self.m.evaluate(r)
+
+    def test_m4_environment_must_match_pinned_executable(self):
+        r = self.record(); r['generation']['environment']['M4'] = '/unrecorded/m4'
+        with self.assertRaises(ValueError): self.m.evaluate(r)
+        del r['generation']['environment']['M4']
+        with self.assertRaises(ValueError): self.m.evaluate(r)
+
+    def test_header_inventory_cannot_be_replaced_by_generated_c_only(self):
+        r = self.record(); r['compilation']['inputs'] = [r['generation']['output']]
+        with self.assertRaises(ValueError): self.m.evaluate(r)
+
+    def test_grammar_invocation_must_reference_a_pinned_lex_input(self):
+        r = self.record(); r['generation']['command'][-1] = '/unrecorded/lex.l'
         with self.assertRaises(ValueError): self.m.evaluate(r)
 
     def test_duplicate_conflicting_pins_rejected(self):

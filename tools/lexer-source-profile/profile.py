@@ -130,6 +130,12 @@ def evaluate(record):
     if not isinstance(gen['environment'], dict) or not all(isinstance(k, str) and isinstance(v, str)
                                                          for k, v in gen['environment'].items()):
         fail('generation environment must be a string mapping')
+    if gen['environment'].get('M4') != gen['m4']['path']:
+        fail('M4 environment differs from pinned executable')
+    if not any(Path(row['path']).suffix == '.l' and row['path'] in gen['command'] for row in gen['inputs']):
+        fail('generation command is not bound to pinned lexer grammar')
+    if not any(Path(row['path']).suffix == '.h' for row in comp['inputs']):
+        fail('target header input inventory is required')
     if gen['postprocess'] != 'waf-utf8-latin1-universal-newlines':
         fail('unknown generated-output transformation')
     stdout, output = verify_pin(gen['stdout']), verify_pin(gen['output'])
