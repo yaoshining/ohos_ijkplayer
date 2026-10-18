@@ -6,7 +6,7 @@ selected=[]
 for root in [R/'runs',R/'integration/runs',R/'locks']:
  if not root.exists():continue
  for p in root.rglob('*'):
-  if not p.is_file() or any(x in p.parts for x in ['source','toolchain','home','cache','cargo-home','target-host-tests']):continue
+  if not p.is_file() or any(x in p.relative_to(root).parts for x in ['source','toolchain','home','cache','cargo-home','target-host-tests']):continue
   if p.suffix in ['.json','.log','.txt','.ini','.h','.pc','.d','.map'] or p.name in ['libass.a','libdovi.a','libfontconfig.a','libfreetype.a','libfribidi.a','libharfbuzz.a','liblcms2.a','liblua.a','libshaderc_combined.a','libxml2.a','libplacebo.a','libmpv.so','install-unstripped.so']:selected.append(p)
 for folder in [R,R/'integration']:
  if folder.exists():selected += [p for p in folder.iterdir() if p.is_file() and p.suffix in ['.json','.log']]
@@ -53,6 +53,21 @@ if lua.is_file():
  license_rows.append({'source':str(lua),'artifactPath':str(dest.relative_to(D)),'sha256':hashlib.sha256(lua.read_bytes()).hexdigest(),'note':'Lua MIT license is inside official readme'})
 (D/'license-evidence.json').write_text(json.dumps({'files':license_rows,'scope':'Observed exact distribution license texts; not legal approval or toolchain source bootstrap'},indent=2)+'\n')
 workflow=REPO/'.github/workflows/phase18-dependency-closure.yml';dest=D/'execution/workflow.yml';dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(workflow,dest)
+# A green build must upload replayable bytes, not merely a green summary.
+marker=R/'phase18-verification.json'
+if marker.is_file() and json.loads(marker.read_text()).get('allPassed'):
+ required=[R/'dependency-object-binding.json',R/'locks/tools-before.json',R/'integration/comparison.json',R/'evidence-cross-check.json']
+ if not binding.is_file():raise ValueError('missing required successful-build archive binding')
+ required += [Path(c['archive']) for c in json.loads(binding.read_text())['components']]
+ validations=list((R/'integration/runs').rglob('validation/static-validation.json'))
+ if len(validations)!=2:raise ValueError('missing two successful static-validation records')
+ for p in validations:
+  root=p.parent.parent;v=json.loads(p.read_text())
+  required += [p,Path(v['artifact']['path']),Path(v['symbolCompanion']['path']),root/'mpv/build/config.h',root/'libplacebo/build/src/include/libplacebo/config.h',root/'mpv/build/compile_commands.json',root/'mpv/link.map',root/'logs/mpv-link-command.txt',root/'link-inputs.json']
+  required += [Path(x['object']) for x in json.loads((root/'validation/selected-interop-inputs.json').read_text())['inputs']]
+ for p in required:
+  q=D/p.relative_to(R)
+  if not q.is_file() or hashlib.sha256(q.read_bytes()).digest()!=hashlib.sha256(p.read_bytes()).digest():raise ValueError('missing/changed required successful-build evidence: '+str(q))
 rows=[]
 for p in sorted(D.rglob('*')):
  if p.is_file() and p!=D/'evidence-index.json':rows.append({'path':str(p.relative_to(D)),'size':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()})

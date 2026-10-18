@@ -23,6 +23,7 @@ jobs:
           python3 -B -m unittest discover -s tools/phase18/tests -p test_evidence_contract.py -v
           python3 -B -m unittest discover -s tools/phase18/tests -p test_host_isolation.py -v
           python3 -B -m unittest discover -s tools/phase18/tests -p test_tool_inputs.py -v
+          python3 -B -m unittest discover -s tools/phase18/tests -p test_collect_paths.py -v
           python3 -B -m unittest discover -s out/phase18-ci/tests -p test_inputs.py -v
           python3 -B -m unittest discover -s out/phase18-ci/tests -p test_recipes.py -v
           python3 -B -m unittest discover -s out/phase18-ci/integration/runtime -p 'test_*.py' -v
