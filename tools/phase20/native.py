@@ -7,10 +7,13 @@ HERE=Path(__file__).resolve().parent
 CASES=['explicit','append-only','aliases','parse-failure','pending','init-failure','last-free','legacy-null','legacy-auth','cache-write','cache-denied','unconfigured-home','unconfigured-append','unconfigured-reload','callback-reentry','posix-threads']
 def run(argv,path,cwd=None,env=None):
  with Path(path).open('w') as f:r=subprocess.run(list(map(str,argv)),cwd=cwd,env=env,stdout=f,stderr=subprocess.STDOUT)
- if r.returncode:raise RuntimeError(str(path)+' exit '+str(r.returncode))
+ if r.returncode:
+  print('\n'.join(Path(path).read_text(errors='replace').splitlines()[-100:]),flush=True)
+  raise RuntimeError(str(path)+' exit '+str(r.returncode))
 def main():
  ap=argparse.ArgumentParser();ap.add_argument('--out',type=Path,required=True);ap.add_argument('--archive',type=Path,required=True);a=ap.parse_args()
  out=a.out.resolve();build.require_fresh(out);assert sys.platform=='linux' and os.geteuid()!=0
+ os.environ.update(PYTHONHASHSEED='1',PYTHONDONTWRITEBYTECODE='1',PYTHONNOUSERSITE='1',LC_ALL='C',TZ='UTC')
  row=next(r for r in json.loads((HERE/'recipe/dependency-sources.lock.json').read_text())['sources'] if r['name']=='samba-4.20.7');build.require_sha(a.archive,row['sha256']);out.mkdir(parents=True)
  extraction=extract_source(a.archive,out,allow_external_symlinks=False);build.write(out/'extraction.json',extraction)
  src=out/row['archivePrefix'].rstrip('/');assert src.is_dir()
