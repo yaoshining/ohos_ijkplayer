@@ -1,6 +1,7 @@
 import { common } from '@kit.AbilityKit';
 import { fileIo as fs } from '@kit.CoreFileKit';
 import probe from 'libphase22.so';
+import { RunGate } from '../lifecycle/RunGate';
 
 @Entry
 @Component
@@ -13,6 +14,7 @@ struct Index {
   private prepared: boolean = false;
   private ready: boolean = false;
   private started: boolean = false;
+  private gate: RunGate = new RunGate();
 
   private write(path: string, content: string | ArrayBuffer): void {
     const f = fs.openSync(path, fs.OpenMode.CREATE | fs.OpenMode.READ_WRITE | fs.OpenMode.TRUNC);
@@ -36,18 +38,20 @@ struct Index {
     this.maybeStart();
   }
   aboutToAppear(): void { this.prepare().catch((e: Error) => { this.status = '准备失败: ' + e.message; }); }
-  aboutToDisappear(): void { probe.stop(); }
+  aboutToDisappear(): void { this.gate.cancel(); probe.stop(); }
   private maybeStart(): void {
     if (this.prepared && this.ready && !this.started) {
       this.started = true;
-      this.runAll().catch((e: Error) => { this.status = '诊断异常: ' + e.message; });
+      this.runAll(this.gate.begin()).catch((e: Error) => { this.status = '诊断异常: ' + e.message; });
     }
   }
-  private async runAll(): Promise<void> {
+  private async runAll(token: number): Promise<void> {
     const modes: string[] = ['init', 'repeat', 'conflict', 'smb-read', 'gl-sw', 'gl-h264', 'gl-hevc', 'vk-h264', 'vk-hevc'];
     for (const mode of modes) {
+      if (!this.gate.accepts(token, this.ready)) { return; }
       this.status = '正在验证 ' + mode + '（独立应用）';
       const result = await probe.run(this.root, this.controller.getXComponentSurfaceId(), 1280, 720, mode);
+      if (!this.gate.accepts(token, this.ready)) { return; }
       console.info('Phase22 ' + mode + ': ' + result);
       this.write(this.root + '/' + mode + '-result.txt', result);
       this.status = mode + ': ' + result;
@@ -61,9 +65,9 @@ struct Index {
         XComponent({ id: 'phase22-' + this.generation, type: XComponentType.SURFACE, controller: this.controller })
           .width(1280).height(720)
           .onLoad(() => { this.ready = true; this.maybeStart(); })
-          .onDestroy(() => { this.ready = false; probe.stop(); });
+          .onDestroy(() => { this.ready = false; this.gate.cancel(); probe.stop(); });
       }
-      Button('停止独立诊断').onClick(() => { probe.stop(); this.status = '已请求停止当前场景'; });
+      Button('停止独立诊断').onClick(() => { this.gate.cancel(); probe.stop(); this.status = '已请求停止当前场景'; });
     }.width('100%').height('100%').backgroundColor(Color.Black);
   }
 }
