@@ -5,7 +5,10 @@ from common import *
 from resources import prepare
 from collect import CASES
 
-def host_mpv_options():return ['--default-library=shared','-Dauto_features=disabled','-Dlibmpv=true','-Dcplayer=false','-Dbuild-date=false','-Dmanpage-build=disabled','-Dgl=disabled','-Dohos=disabled','-Degl-ohos=disabled','--wrap-mode=nodownload']
+def host_mpv_options():return ['--default-library=shared','-Dauto_features=disabled','-Dlibmpv=true','-Dcplayer=false','-Dbuild-date=false','-Dmanpage-build=disabled','-Dgl=disabled','-Dcplugins=enabled','-Dohos=disabled','-Degl-ohos=disabled','--wrap-mode=nodownload']
+
+def isolated_build_environment(out,loader,prefix):
+ return dict(ENV,LD_LIBRARY_PATH=loader,PKG_CONFIG_PATH=str(prefix/'lib/pkgconfig'),PYTHONHASHSEED='1',GIT_CEILING_DIRECTORIES=str(out))
 
 def build_stack(out,inputs):
  assert sys.platform=='linux' and os.geteuid()!=0
@@ -20,7 +23,13 @@ def build_stack(out,inputs):
  write(out/'source-before.json',{'files':tree(src),'binding':pin(inputs/'source-binding.json')})
  original=tree(src)
  samba_root=inputs/'native/execution/native';samba_dsos=sorted(p for p in samba_root.rglob('*.so*') if p.is_file());assert len(samba_dsos)>=80
- dirs=sorted({str(p.parent) for p in samba_dsos});loader=':'.join([str(prefix/'lib'),*dirs]);env=dict(ENV,LD_LIBRARY_PATH=loader,PKG_CONFIG_PATH=str(prefix/'lib/pkgconfig'),PYTHONHASHSEED='1')
+ dirs=sorted({str(p.parent) for p in samba_dsos});loader=':'.join([str(prefix/'lib'),*dirs]);env=isolated_build_environment(out,loader,prefix)
+ version_script=src/'ffmpeg/ffbuild/version.sh'
+ unscoped=dict(ENV);unscoped.pop('GIT_CEILING_DIRECTORIES',None)
+ bad=subprocess.check_output(['sh',str(version_script),str(src/'ffmpeg')],env=unscoped,text=True).strip()
+ good=subprocess.check_output(['sh',str(version_script),str(src/'ffmpeg')],env=env,text=True).strip()
+ write(out/'version-scope.json',{'actualScript':pin(version_script),'withoutCeiling':bad,'withCeiling':good,'expectedRelease':(src/'ffmpeg/RELEASE').read_text().strip()})
+ assert good==(src/'ffmpeg/RELEASE').read_text().strip()=='8.0' and bad!=good
  write(out/'loader-inputs.json',{'samba':[pin(p) for p in samba_dsos],'LD_LIBRARY_PATH':loader})
  # 固定公共Samba头来自原始归档，DSO来自已复验native06；不编第二份runtime。
  slock=json.loads((inputs/'native-source-lock.json').read_text())['samba'];header=prefix/'include/libsmbclient.h';header.parent.mkdir(parents=True)
@@ -39,7 +48,9 @@ def build_stack(out,inputs):
  mpvb=out/'mpv-build';run([meson,'setup',mpvb,src/'mpv','--prefix='+str(prefix),'--libdir=lib',*host_mpv_options()],out/'mpv-configure.log',env=env)
  run([ninja,'-C',mpvb,'-j4'],out/'mpv-build.log',env=env);run([ninja,'-C',mpvb,'install'],out/'mpv-install.log',env=env)
  cfg=(mpvb/'config.h').read_text()
- for key,value in [('HAVE_GL',0),('HAVE_OHOS',0),('HAVE_VULKAN',0),('HAVE_LIBASS',1)]:assert re.search(r'^#define '+key+' '+str(value)+r'$' ,cfg,re.M),(key,value)
+ for key,value in [('HAVE_GL',0),('HAVE_OHOS',0),('HAVE_VULKAN',0),('HAVE_LIBASS',1),('HAVE_LUA',0),('HAVE_JAVASCRIPT',0),('HAVE_CPLUGINS',1)]:assert re.search(r'^#define '+key+' '+str(value)+r'$' ,cfg,re.M),(key,value)
+ version=(mpvb/'common/version.h').read_text();assert 'v0.41.0' in version
+ write(out/'version-binding.json',{'mpv':version,'ffmpeg':(ffbuild/'libavutil/ffversion.h').read_text()})
  flags=subprocess.check_output(['pkg-config','--cflags','--libs','mpv','libavformat','libavutil'],env=env,text=True).split()
  exe=out/'phase21-probe';run(['cc','-std=c11','-O2','-DP21_HOST','-pthread',HERE/'integration.c',HERE/'preflight.c',HERE/'probe.c',*flags,'-ldl','-Wl,-rpath,'+str(prefix/'lib'),*['-Wl,-rpath-link,'+d for d in dirs],'-Wl,-Map,'+str(out/'probe.map'),'-o',exe],out/'probe-build.log',env=env)
  run(['readelf','-dWs',exe],out/'probe-elf.txt',env=env)
@@ -87,6 +98,7 @@ def run_cases(out,exe,env):
   negative=name in ['missing-directory','empty-fonts','corrupt-font','font-unreadable','cache-unwritable','symlink']
   assert rc==(1 if negative else 0),(name,rc,log[-2500:])
   if negative:assert 'create stage=resources' in log
+  assert 'ffmpeg=8.0' in log,(name,'FFmpeg version polluted by enclosing Git checkout')
   if name not in ['late']:
    assert str(home/'.smb/smb.conf') not in trace and str(poison) not in trace,(name,'default configuration read')
   assert not (home/'.cache').exists()

@@ -42,4 +42,13 @@ class HostProfile(unittest.TestCase):
  def test_software_profile_explicitly_disables_default_enabled_gl(self):
   import native
   opts=native.host_mpv_options()
-  for option in ['-Dgl=disabled','-Dohos=disabled','-Degl-ohos=disabled','-Dauto_features=disabled']:self.assertIn(option,opts)
+  for option in ['-Dgl=disabled','-Dcplugins=enabled','-Dohos=disabled','-Degl-ohos=disabled','-Dauto_features=disabled']:self.assertIn(option,opts)
+
+class GitScope(unittest.TestCase):
+ def test_enclosing_repository_cannot_pollute_source_version(self):
+  import native,subprocess
+  with tempfile.TemporaryDirectory() as td:
+   root=Path(td).resolve();subprocess.run(['git','init','-q',str(root)],check=True);out=root/'build';source=out/'source/component';source.mkdir(parents=True)
+   self.assertEqual(subprocess.run(['git','rev-parse','--show-toplevel'],cwd=source,capture_output=True).returncode,0)
+   env=native.isolated_build_environment(out,'/controlled/libs',out/'prefix')
+   self.assertNotEqual(subprocess.run(['git','rev-parse','--show-toplevel'],cwd=source,env=env,capture_output=True).returncode,0)

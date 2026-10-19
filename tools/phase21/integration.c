@@ -19,7 +19,9 @@ int p21_create(const struct p21_config *c, mpv_handle **out, struct p21_error *e
     int m=snprintf(cache,sizeof(cache),"%s/demux",c->cache_root);
     if (n<0||m<0||(size_t)n>=sizeof(fonts)||(size_t)m>=sizeof(cache)) {e->stage="resources";e->code=ENAMETOOLONG;goto fail;}
     const char *options[][2]={
-      {"config","no"},{"load-scripts","no"},{"sub-auto","no"},{"embeddedfonts","no"},
+      {"config","no"},
+      {"load-scripts","no"},
+      {"sub-auto","no"},{"embeddedfonts","no"},
       {"sub-font-provider","none"},{"osd-font-provider","none"},
       {"sub-fonts-dir",fonts},{"osd-fonts-dir",fonts},
       {"sub-font","Pixel Operator Mono"},{"osd-font","Pixel Operator Mono"},
