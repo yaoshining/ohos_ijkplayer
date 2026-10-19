@@ -4,13 +4,18 @@ import argparse,json,shutil,subprocess,re
 from common import *
 from resources import prepare
 
+def resolve_library(root,soname,digest):
+ candidates={p.resolve() for p in Path(root).glob(soname+'*') if p.is_file() and (p.name==soname or p.name.startswith(soname+'.'))}
+ if len(candidates)!=1:raise ValueError('missing or ambiguous target library: '+soname)
+ result=next(iter(candidates));require(result,digest);return result
+
 def main():
  p=argparse.ArgumentParser()
  for n in ['out','ndk','ffmpeg','headers','mpv-prefix','placebo']:p.add_argument('--'+n,type=Path,required=True)
  p.add_argument('--profile',choices=['macOS','Linux'],required=True);a=p.parse_args()
  for n in ['out','ndk','ffmpeg','headers','mpv_prefix','placebo']:setattr(a,n,getattr(a,n).resolve())
  a.out.mkdir(parents=True,exist_ok=False);lock=json.loads((HERE/'binding-lock.json').read_text());expected=lock[a.profile]
- libs={name:a.ffmpeg/name for name in expected['ffmpeg']};libs['libmpv.so']=a.mpv_prefix/'lib/libmpv.so'
+ libs={name:resolve_library(a.ffmpeg,name,digest) for name,digest in expected['ffmpeg'].items()};libs['libmpv.so']=a.mpv_prefix/'lib/libmpv.so'
  for n,f in libs.items():require(f,expected['mpv'] if n=='libmpv.so' else expected['ffmpeg'][n])
  require(a.placebo,expected['libplacebo']);headers={a.headers/n:h for n,h in lock['headers'].items() if n!='libavformat/ohcodec_smb_runtime.h'}
  headers.update({a.mpv_prefix/'include/mpv'/n:h for n,h in lock['mpvHeaders'].items()})
@@ -34,7 +39,7 @@ def main():
   imports=set(re.findall(r'\b(\w+)@(LIB(?:AV\w+|SW\w+)_\d+)',mpvdump));exports=set()
   for n in libs:
    if n=='libmpv.so':continue
-   t=run([readelf,'--wide','--dyn-syms','lib/'+n],r/(n+'.symbols.txt'),r);exports.update(re.findall(r'\b(\w+)@@(LIB(?:AV\w+|SW\w+)_\d+)',t))
+   t=run([readelf,'--wide','-d','--dyn-syms','lib/'+n],r/(n+'.symbols.txt'),r);assert 'Library soname: ['+n+']' in t;exports.update(re.findall(r'\b(\w+)@@(LIB(?:AV\w+|SW\w+)_\d+)',t))
   assert len(imports)==247 and imports<=exports,(len(imports),imports-exports)
   link=(r/'link.log').read_text();assert all('lib/'+n in link for n in libs)
   prepare(r/'runtime-example')

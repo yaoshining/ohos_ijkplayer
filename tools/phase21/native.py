@@ -3,6 +3,9 @@ from pathlib import Path
 import argparse,json,os,shutil,subprocess,tarfile,sys,importlib.util,re,signal
 from common import *
 from resources import prepare
+from collect import CASES
+
+def host_mpv_options():return ['--default-library=shared','-Dauto_features=disabled','-Dlibmpv=true','-Dcplayer=false','-Dbuild-date=false','-Dmanpage-build=disabled','-Dgl=disabled','-Dohos=disabled','-Degl-ohos=disabled','--wrap-mode=nodownload']
 
 def build_stack(out,inputs):
  assert sys.platform=='linux' and os.geteuid()!=0
@@ -33,14 +36,17 @@ def build_stack(out,inputs):
  ffbuild=out/'ffmpeg-build';ffbuild.mkdir()
  ffargs=[src/'ffmpeg/configure','--prefix='+str(prefix),'--enable-shared','--disable-static','--disable-programs','--disable-doc','--disable-autodetect','--disable-x86asm','--enable-gpl','--enable-version3','--enable-libsmbclient','--disable-everything','--enable-protocol=file,libsmbclient','--enable-demuxer=image2,ass','--enable-decoder=ppm,ass,rawvideo','--enable-filter=buffer,buffersink,format,scale','--extra-ldflags='+' '.join('-Wl,-rpath-link,'+d for d in dirs)]
  run(ffargs,out/'ffmpeg-configure.log',ffbuild,env);run(['make','-j4'],out/'ffmpeg-build.log',ffbuild,env);run(['make','install'],out/'ffmpeg-install.log',ffbuild,env)
- mpvb=out/'mpv-build';run([meson,'setup',mpvb,src/'mpv','--prefix='+str(prefix),'--libdir=lib','--default-library=shared','-Dauto_features=disabled','-Dlibmpv=true','-Dcplayer=false','-Dbuild-date=false','-Dmanpage-build=disabled','-Dohos=disabled','-Degl-ohos=disabled','--wrap-mode=nodownload'],out/'mpv-configure.log',env=env)
+ mpvb=out/'mpv-build';run([meson,'setup',mpvb,src/'mpv','--prefix='+str(prefix),'--libdir=lib',*host_mpv_options()],out/'mpv-configure.log',env=env)
  run([ninja,'-C',mpvb,'-j4'],out/'mpv-build.log',env=env);run([ninja,'-C',mpvb,'install'],out/'mpv-install.log',env=env)
+ cfg=(mpvb/'config.h').read_text()
+ for key,value in [('HAVE_GL',0),('HAVE_OHOS',0),('HAVE_VULKAN',0),('HAVE_LIBASS',1)]:assert re.search(r'^#define '+key+' '+str(value)+r'$' ,cfg,re.M),(key,value)
  flags=subprocess.check_output(['pkg-config','--cflags','--libs','mpv','libavformat','libavutil'],env=env,text=True).split()
  exe=out/'phase21-probe';run(['cc','-std=c11','-O2','-DP21_HOST','-pthread',HERE/'integration.c',HERE/'preflight.c',HERE/'probe.c',*flags,'-ldl','-Wl,-rpath,'+str(prefix/'lib'),*['-Wl,-rpath-link,'+d for d in dirs],'-Wl,-Map,'+str(out/'probe.map'),'-o',exe],out/'probe-build.log',env=env)
  run(['readelf','-dWs',exe],out/'probe-elf.txt',env=env)
  after=tree(src);assert original==after,'source inputs changed by build';assert not list(src.rglob('*.pyc'))
  write(out/'source-after.json',{'unchanged':True,'sourceBeforeSHA256':sha(out/'source-before.json')})
  write(out/'capabilities.json',{'hostSoftwareRender':True,'OHCodec':False,'GPU':False,'Dovi':False,'targetExecuted':False,'deviceAcceptanceStatus':'pending','systemDependencies':'Observed apt headers/static/runtime libraries; not full source closure'})
+ run([sys.executable,'-B','-m','unittest','discover','-s',HERE/'tests','-v'],out/'full-contract-tests.log',env=env)
  return exe,env
 
 def execute(exe,root,mode,env,extra=()):
@@ -51,9 +57,16 @@ def execute(exe,root,mode,env,extra=()):
   except subprocess.TimeoutExpired:os.killpg(p.pid,signal.SIGKILL);p.wait();rc=-9
  return rc
 
+def restore_fixture_permissions(root):
+ # 真实负例运行已结束；保留原mode，恢复仅这一测试字体以供严格收集。
+ path=Path(root)/'resources/fonts/font1.ttf';rows=[]
+ if path.is_file() and not path.is_symlink() and path.stat().st_mode&0o777==0:
+  rows.append({'path':str(path),'before':0,'after':0o644});path.chmod(0o644)
+ return rows
+
 def run_cases(out,exe,env):
  results=[]
- cases=['init','repeat','conflict','late','cache-write','cache-denied','render','readonly','missing-directory','empty-fonts','corrupt-font','font-unreadable','cache-unwritable','symlink','no-font','cjk']
+ cases=CASES
  for name in cases:
   root=out/'cases'/name;prepare(root);root=root.resolve();caseenv=dict(env);extra=[];mode=name
   # Poisoned settings are passed only to this diagnostic child, never changed by adapter.
@@ -70,7 +83,7 @@ def run_cases(out,exe,env):
   if name=='font-unreadable':(root/'resources/fonts/font1.ttf').chmod(0);mode='init'
   if name=='cache-unwritable':(root/'cache/demux').chmod(0o500);mode='init'
   if name=='symlink':p=root/'resources/fonts/font1.ttf';p.rename(root/'original-font.ttf');p.symlink_to(root/'original-font.ttf');mode='init'
-  print('real native case',name,flush=True);rc=execute(exe,root,mode,caseenv,extra);log=(root/'result.log').read_text();trace=(root/'files.trace').read_text()
+  print('real native case',name,flush=True);rc=execute(exe,root,mode,caseenv,extra);restored=restore_fixture_permissions(root);write(root/'post-test-permissions.json',restored);log=(root/'result.log').read_text();trace=(root/'files.trace').read_text()
   negative=name in ['missing-directory','empty-fonts','corrupt-font','font-unreadable','cache-unwritable','symlink']
   assert rc==(1 if negative else 0),(name,rc,log[-2500:])
   if negative:assert 'create stage=resources' in log
@@ -80,11 +93,13 @@ def run_cases(out,exe,env):
   images={}
   if mode in ['render','no-font','cjk']:
    for n in ['baseline','subtitle','osd']:
-    p=root/(n+'.ppm');data=p.read_bytes().split(b'\n',3)[3];assert len(data)==640*360*3;images[n]={'sha256':sha(p),'nonzeroComponents':sum(v!=0 for v in data)}
+    p=root/(n+'.ppm');data=p.read_bytes().split(b'\n',3)[3];assert len(data)==640*360*3;images[n]={'sha256':sha(p),'nonzeroComponents':sum(v!=0 for v in data),'topHalfNonzero':sum(v!=0 for v in data[:640*180*3]),'bottomHalfNonzero':sum(v!=0 for v in data[640*180*3:])}
    if mode=='render':
     assert images['baseline']['nonzeroComponents']==0,images
     assert images['subtitle']['nonzeroComponents']>100 and images['osd']['nonzeroComponents']>100
     assert images['subtitle']['sha256']!=images['osd']['sha256']
+    assert images['subtitle']['bottomHalfNonzero']>100 and images['subtitle']['topHalfNonzero']==0
+    assert images['osd']['topHalfNonzero']>100 and images['osd']['bottomHalfNonzero']==0
     assert 'PixelOperatorMono-Bold' in log and log.count('fontselect:')>=2
     assert str(root/'resources/fonts/font1.ttf') in trace
    if mode=='no-font':assert 'failed to find any fallback' in log

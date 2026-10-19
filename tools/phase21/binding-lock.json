@@ -9,6 +9,14 @@
       "libavutil.so.60": "ba410532a07b16e018d6d57bc744576b3cfa2e246d4fa028c2adae95205777e2",
       "libswresample.so.6": "4244a9e1e2697bd8ec35436148d55d5e8b2c09080c40754cc505a05c5fc52e3b",
       "libswscale.so.9": "f1982cde4d2b6d899f99e38ae4cfb50dcda4859e9912a6b4f18913ebaf9836a0"
+    },
+    "files": {
+      "libavcodec.so.62": "libavcodec.so.62.11.100",
+      "libavfilter.so.11": "libavfilter.so.11.4.100",
+      "libavformat.so.62": "libavformat.so.62.3.100",
+      "libavutil.so.60": "libavutil.so.60.8.100",
+      "libswresample.so.6": "libswresample.so.6.1.100",
+      "libswscale.so.9": "libswscale.so.9.1.100"
     }
   },
   "Linux": {
@@ -21,6 +29,14 @@
       "libavutil.so.60": "671d7394ccffcfb8578b278b8751646902cbe81da091eb45c0d6168dd5ef828b",
       "libswresample.so.6": "4244a9e1e2697bd8ec35436148d55d5e8b2c09080c40754cc505a05c5fc52e3b",
       "libswscale.so.9": "f1982cde4d2b6d899f99e38ae4cfb50dcda4859e9912a6b4f18913ebaf9836a0"
+    },
+    "files": {
+      "libavcodec.so.62": "libavcodec.so.62.11.100",
+      "libavfilter.so.11": "libavfilter.so.11.4.100",
+      "libavformat.so.62": "libavformat.so.62.3.100",
+      "libavutil.so.60": "libavutil.so.60.8.100",
+      "libswresample.so.6": "libswresample.so.6.1.100",
+      "libswscale.so.9": "libswscale.so.9.1.100"
     }
   },
   "headers": {
