@@ -2,12 +2,13 @@ from pathlib import Path
 import importlib.util,os,subprocess,tempfile,unittest,shutil
 R=Path(__file__).resolve().parents[1]
 class Factory(unittest.TestCase):
+ flags=[]
  @classmethod
  def setUpClass(cls):
   cls.tmp=tempfile.TemporaryDirectory();cls.exe=Path(cls.tmp.name)/'factory'
   inc=Path(cls.tmp.name)/'include/libavformat';inc.mkdir(parents=True)
   shutil.copyfile(R.parent/'phase20/runtime/smb_runtime.h',inc/'ohcodec_smb_runtime.h')
-  subprocess.run(['cc','-std=c11','-Wall','-Wextra','-Werror','-I'+str(R),'-I'+str(R/'tests/stubs'),'-I'+str(inc.parent),str(R/'tests/factory.c'),str(R/'integration.c'),'-o',str(cls.exe)],check=True)
+  subprocess.run(['cc',*cls.flags,'-std=c11','-Wall','-Wextra','-Werror','-I'+str(R),'-I'+str(R/'tests/stubs'),'-I'+str(inc.parent),str(R/'tests/factory.c'),str(R/'integration.c'),'-o',str(cls.exe)],check=True)
  @classmethod
  def tearDownClass(cls):cls.tmp.cleanup()
  def test_success_order_and_idempotent_destroy(self):self.run_case(0)

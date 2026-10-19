@@ -19,18 +19,20 @@
 #endif
 #define W 640
 #define H 360
-struct render_state {mpv_handle *mpv;pthread_mutex_t lock;pthread_cond_t cond;int ready,rc;atomic_int stop;unsigned char pixels[W*H*4];};
+struct render_state {mpv_handle *mpv;pthread_mutex_t lock;pthread_cond_t cond;int ready,rc;atomic_int stop,update;unsigned char pixels[W*H*4];};
+static void render_update(void *arg){struct render_state *s=arg;atomic_store(&s->update,1);}
 static void *render_thread(void *arg) {
- struct render_state *s=arg;mpv_render_context *ctx=NULL;int advanced=1;
+ struct render_state *s=arg;mpv_render_context *ctx=NULL;int advanced=0;
  mpv_render_param create[]={{MPV_RENDER_PARAM_API_TYPE,MPV_RENDER_API_TYPE_SW},{MPV_RENDER_PARAM_ADVANCED_CONTROL,&advanced},{0,NULL}};
  int rc=mpv_render_context_create(&ctx,s->mpv,create);
+ if(rc>=0)mpv_render_context_set_update_callback(ctx,render_update,s);
  pthread_mutex_lock(&s->lock);s->rc=rc;s->ready=1;pthread_cond_signal(&s->cond);pthread_mutex_unlock(&s->lock);
  if(rc<0)return NULL;
  unsigned char *pixels=calloc(1,W*H*4);if(!pixels){pthread_mutex_lock(&s->lock);s->rc=-1;pthread_mutex_unlock(&s->lock);mpv_render_context_free(ctx);return NULL;}
  int size[2]={W,H},block=0;size_t stride=W*4;
  mpv_render_param params[]={{MPV_RENDER_PARAM_SW_SIZE,size},{MPV_RENDER_PARAM_SW_FORMAT,"rgb0"},{MPV_RENDER_PARAM_SW_STRIDE,&stride},{MPV_RENDER_PARAM_SW_POINTER,pixels},{MPV_RENDER_PARAM_BLOCK_FOR_TARGET_TIME,&block},{0,NULL}};
  while(!atomic_load(&s->stop)) {
-  mpv_render_context_update(ctx);
+  if(atomic_exchange(&s->update,0))mpv_render_context_update(ctx);
   rc=mpv_render_context_render(ctx,params);
   pthread_mutex_lock(&s->lock);if(rc<0)s->rc=rc;memcpy(s->pixels,pixels,W*H*4);pthread_mutex_unlock(&s->lock);
   struct timespec pause={0,10000000};nanosleep(&pause,NULL);
