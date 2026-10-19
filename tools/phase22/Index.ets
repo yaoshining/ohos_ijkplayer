@@ -1,7 +1,9 @@
+import { window } from '@kit.ArkUI';
 import { common } from '@kit.AbilityKit';
 import { fileIo as fs } from '@kit.CoreFileKit';
 import probe from 'libphase22.so';
 import { RunGate } from '../lifecycle/RunGate';
+import { RecreationGuard } from '../lifecycle/RecreationGuard';
 
 @Entry
 @Component
@@ -14,7 +16,9 @@ struct Index {
   private prepared: boolean = false;
   private ready: boolean = false;
   private started: boolean = false;
+  private cycles: number = 0;
   private gate: RunGate = new RunGate();
+  private recreation: RecreationGuard = new RecreationGuard();
 
   private write(path: string, content: string | ArrayBuffer): void {
     const f = fs.openSync(path, fs.OpenMode.CREATE | fs.OpenMode.READ_WRITE | fs.OpenMode.TRUNC);
@@ -37,37 +41,69 @@ struct Index {
     this.prepared = true;
     this.maybeStart();
   }
-  aboutToAppear(): void { this.prepare().catch((e: Error) => { this.status = '准备失败: ' + e.message; }); }
-  aboutToDisappear(): void { this.gate.cancel(); probe.stop(); }
+  aboutToAppear(): void { this.recreation.begin(); this.prepare().catch((e: Error) => { this.status = '准备失败: ' + e.message; }); }
+  private releaseKeepAwake(): void {
+    const context = this.getUIContext().getHostContext() as common.UIAbilityContext;
+    window.getLastWindow(context).then((w: window.Window) => w.setWindowKeepScreenOn(false)).catch((e: Error) => { console.error('Phase22 release keep-awake: ' + e.message); });
+  }
+  aboutToDisappear(): void { this.recreation.cancel(); this.gate.cancel(); probe.stop(); this.releaseKeepAwake(); }
   private maybeStart(): void {
     if (this.prepared && this.ready && !this.started) {
       this.started = true;
-      this.runAll(this.gate.begin()).catch((e: Error) => { this.status = '诊断异常: ' + e.message; console.error('Phase22 scheduling error: ' + e.message); });
+      (this.cycles > 0 ? this.runRecreated(this.gate.begin()) : this.runAll(this.gate.begin())).catch((e: Error) => { this.status = '诊断异常: ' + e.message; console.error('Phase22 scheduling error: ' + e.message); });
     }
   }
   private async runAll(token: number): Promise<void> {
-    const modes: string[] = ['init', 'repeat', 'conflict', 'smb-read', 'gl-sw', 'gl-h264', 'gl-hevc', 'vk-h264', 'vk-hevc'];
+    const modes: string[] = ['init', 'repeat', 'conflict', 'resource-negatives', 'smb-read', 'vk-missing', 'vk-h264', 'vk-hevc', 'gl-window-rgba8-sw', 'gl-window-rgba8-h264'];
     for (const mode of modes) {
       if (!this.gate.accepts(token, this.ready)) { return; }
       this.status = '正在验证 ' + mode + '（独立应用）';
-      const result = await probe.run(this.root, this.controller.getXComponentSurfaceId(), 1280, 720, mode);
+      const result = await probe.run(this.root, this.controller.getXComponentSurfaceId(), 960, 540, mode);
       if (!this.gate.accepts(token, this.ready)) { return; }
       console.info('Phase22 ' + mode + ': ' + result);
       this.write(this.root + '/' + mode + '-result.txt', result);
       this.status = mode + ': ' + result;
     }
-    this.status = '本轮已结束，日志等待核验。这里不自动宣称验收通过。';
+    await this.interruptAndRecreate(token);
+  }
+  private async interruptAndRecreate(token: number): Promise<void> {
+    if (!this.gate.accepts(token, this.ready)) { return; }
+    await this.recreation.perform(async () => {
+      this.status = 'Surface 主动停止与重建 ' + this.cycles;
+      const timer = setTimeout(() => { probe.stop(); }, 2000);
+      let result: string = '';
+      try { result = await probe.run(this.root, this.controller.getXComponentSurfaceId(), 960, 540, 'vk-h264'); }
+      finally { clearTimeout(timer); }
+      console.info('Phase22 surface-stop-' + this.cycles + ': ' + result);
+      this.write(this.root + '/surface-stop-' + this.cycles + '.txt', result);
+    }, () => {
+      this.gate.cancel(); this.ready = false; this.surfaceVisible = false;
+    }, () => {
+      this.controller = new XComponentController(); this.generation++; this.cycles++;
+      this.started = false; this.surfaceVisible = true;
+    }, () => new Promise<void>((resolve) => { setTimeout(resolve, 500); }));
+  }
+  private async runRecreated(token: number): Promise<void> {
+    if (!this.gate.accepts(token, this.ready)) { return; }
+    const id = this.controller.getXComponentSurfaceId();
+    console.info('Phase22 recreated generation=' + this.generation + ' surface=' + id);
+    const result = await probe.run(this.root, id, 960, 540, 'vk-h264');
+    if (!this.gate.accepts(token, this.ready)) { return; }
+    console.info('Phase22 recreated-' + this.cycles + ': ' + result);
+    this.write(this.root + '/recreated-' + this.cycles + '.txt', result);
+    if (this.cycles < 2) { await this.interruptAndRecreate(token); }
+    else { this.status = '本轮已结束：含两次 Surface 重建，结果等待日志核验'; this.releaseKeepAwake(); }
   }
   build() {
     Column() {
-      Text(this.status).fontSize(18).width('100%').height(90).fontColor(Color.White);
+      Text(this.status).fontSize(18).width('100%').height(65).fontColor(Color.White);
       if (this.surfaceVisible) {
         XComponent({ id: 'phase22-' + this.generation, type: XComponentType.SURFACE, controller: this.controller })
-          .width(1280).height(720)
+          .width(960).height(540)
           .onLoad(() => { this.ready = true; this.maybeStart(); })
           .onDestroy(() => { this.ready = false; this.gate.cancel(); probe.stop(); });
       }
-      Button('停止独立诊断').onClick(() => { this.gate.cancel(); probe.stop(); this.status = '已请求停止当前场景'; });
+      Button('停止独立诊断').onClick(() => { this.recreation.cancel(); this.gate.cancel(); probe.stop(); this.status = '已请求停止当前场景'; this.releaseKeepAwake(); });
     }.width('100%').height('100%').backgroundColor(Color.Black);
   }
 }
