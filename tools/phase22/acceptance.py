@@ -1,4 +1,6 @@
 import math
+def accept_libraries(actual,expected):
+ return len(expected)==7 and actual==expected
 def accept_playback(d,gpu,hardware):
  errors=[]
  for key in ['loaded','eof']:

@@ -3,6 +3,7 @@
 #include <mpv/client.h>
 #include "play_factory.h"
 #include "expected.h"
+#include "smb_probe.h"
 extern "C" {
 #include "integration.h"
 #include <libavformat/ohcodec_smb_runtime.h>
@@ -41,6 +42,7 @@ static void execute(napi_env,void *data){Job &j=*(Job*)data;std::ofstream f(j.ro
   if(j.mode=="conflict"){std::string other=j.root+"/other.conf";c.config_file=other.c_str();mpv_handle *q=nullptr;rc=p21_create(&c,&q,&e);if(q)p21_destroy(&q);log(f,"conflict stage="+std::string(e.stage)+" code="+std::to_string(e.code));rc=rc<0&&std::string(e.stage)=="samba"&&e.code==EBUSY?0:-1;}
   finish(rc==0?"passed initialization":"failed initialization");return;
  }
+ if(j.mode=="smb-read") {int rc=p21_create(&c,&p,&e);if(rc||!maps(j.root,f)){finish("failed SMB preparation");return;}p21_destroy(&p);finish(p22_smb_read(j.root,[&](const std::string &s){log(f,s);}));return;}
  bool vk=j.mode.rfind("vk-",0)==0,gl=j.mode.rfind("gl-",0)==0,hevc=j.mode.find("hevc")!=std::string::npos,hw=j.mode!="gl-sw";
  if(!(j.mode=="gl-sw"||j.mode=="gl-h264"||j.mode=="gl-hevc"||j.mode=="vk-h264"||j.mode=="vk-hevc")||!p22_surface_valid(j.surface.c_str(),j.width,j.height)){finish("unsupported mode or invalid surface");return;}
  if(p21_validate(&c,&e)){finish("failed resources "+std::to_string(e.code));return;}
