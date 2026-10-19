@@ -10,7 +10,7 @@ def validate_libraries(root,expected):
  if actual!=set(expected):raise ValueError('target库集合不完整')
  for name,digest in expected.items():require(Path(root)/name,digest)
 def select_file(rel,kind):
- return rel.suffix in ['.json','.log','.txt','.trace','.ppm','.ass','.map','.ttf'] or rel.name in ['phase21-probe','config.h','config.mak','smb.conf'] or 'prefix' in rel.parts or (kind=='target' and 'lib' in rel.parts)
+ return rel.suffix in ['.json','.log','.txt','.trace','.ppm','.ass','.map','.ttf'] or rel.name in ['phase21-probe','config.h','config_components.h','config.mak','smb.conf'] or 'prefix' in rel.parts or (kind=='target' and 'lib' in rel.parts)
 
 def main():
  p=argparse.ArgumentParser();p.add_argument('--kind',choices=['native','target'],required=True);p.add_argument('--job-status',required=True);a=p.parse_args();base=Path('out/phase21-ci');out=Path('out/phase21-artifact-'+a.kind);out.mkdir(parents=True,exist_ok=False);failure=None

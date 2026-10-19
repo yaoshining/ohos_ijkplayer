@@ -43,8 +43,10 @@ def build_stack(out,inputs):
   b=out/(name+'-build');run([meson,'setup',b,src/name,'--prefix='+str(prefix),'--libdir=lib','--default-library=static','-Dauto_features=disabled','--wrap-mode=nodownload',*extra],out/(name+'-configure.log'),env=env)
   run([ninja,'-C',b,'-j4'],out/(name+'-build.log'),env=env);run([ninja,'-C',b,'install'],out/(name+'-install.log'),env=env)
  ffbuild=out/'ffmpeg-build';ffbuild.mkdir()
- ffargs=[src/'ffmpeg/configure','--prefix='+str(prefix),'--enable-shared','--disable-static','--disable-programs','--disable-doc','--disable-autodetect','--disable-x86asm','--enable-gpl','--enable-version3','--enable-libsmbclient','--disable-everything','--enable-protocol=file,libsmbclient','--enable-demuxer=image2,ass','--enable-decoder=ppm,ass,rawvideo','--enable-filter=buffer,buffersink,format,scale','--extra-ldflags='+' '.join('-Wl,-rpath-link,'+d for d in dirs)]
+ ffargs=[src/'ffmpeg/configure','--prefix='+str(prefix),'--enable-shared','--disable-static','--disable-programs','--disable-doc','--disable-autodetect','--disable-x86asm','--enable-gpl','--enable-version3','--enable-libsmbclient','--disable-everything','--enable-protocol=file,libsmbclient','--enable-demuxer=image2,image2pipe,image_ppm_pipe,ass','--enable-decoder=ppm,ass,rawvideo','--enable-parser=pnm','--enable-filter=buffer,buffersink,format,scale','--extra-ldflags='+' '.join('-Wl,-rpath-link,'+d for d in dirs)]
  run(ffargs,out/'ffmpeg-configure.log',ffbuild,env);run(['make','-j4'],out/'ffmpeg-build.log',ffbuild,env);run(['make','install'],out/'ffmpeg-install.log',ffbuild,env)
+ ffconfig=(ffbuild/'config_components.h').read_text()
+ for macro in ['CONFIG_IMAGE_PPM_PIPE_DEMUXER','CONFIG_PNM_PARSER','CONFIG_PPM_DECODER']:assert '#define '+macro+' 1' in ffconfig
  mpvb=out/'mpv-build';run([meson,'setup',mpvb,src/'mpv','--prefix='+str(prefix),'--libdir=lib',*host_mpv_options()],out/'mpv-configure.log',env=env)
  run([ninja,'-C',mpvb,'-j4'],out/'mpv-build.log',env=env);run([ninja,'-C',mpvb,'install'],out/'mpv-install.log',env=env)
  cfg=(mpvb/'config.h').read_text()
@@ -79,61 +81,67 @@ def run_cases(out,exe,env):
  results=[]
  cases=CASES
  for name in cases:
-  root=out/'cases'/name;prepare(root);root=root.resolve();caseenv=dict(env);extra=[];mode=name
-  # Poisoned settings are passed only to this diagnostic child, never changed by adapter.
-  home=root/'home';home.mkdir();(home/'.smb').mkdir();(home/'.smb/smb.conf').write_text('[global]\nworkgroup=WRONG_HOME\n')
-  poison=root/'poison-fonts.conf';poison.write_text('<fontconfig><dir>/must-not-load-system-fonts</dir></fontconfig>')
-  caseenv.update(HOME=str(home),FONTCONFIG_FILE=str(poison),FONTCONFIG_PATH=str(root/'poison-fontdir'))
-  if name=='conflict':other=out/'cases/conflict-other';prepare(other);extra=[other.resolve()]
-  if name=='readonly':
-   for p in [root/'resources/fonts/font1.ttf',root/'resources/fonts',root/'resources']:p.chmod(0o444 if p.is_file() else 0o555)
-   mode='render'
-  if name=='missing-directory':shutil.rmtree(root/'state/private');mode='init'
-  if name=='empty-fonts':(root/'resources/fonts/font1.ttf').unlink();mode='init'
-  if name=='corrupt-font':(root/'resources/fonts/font1.ttf').write_bytes(b'bad');mode='init'
-  if name=='font-unreadable':(root/'resources/fonts/font1.ttf').chmod(0);mode='init'
-  if name=='cache-unwritable':(root/'cache/demux').chmod(0o500);mode='init'
-  if name=='symlink':p=root/'resources/fonts/font1.ttf';p.rename(root/'original-font.ttf');p.symlink_to(root/'original-font.ttf');mode='init'
-  print('real native case',name,flush=True);rc=execute(exe,root,mode,caseenv,extra);restored=restore_fixture_permissions(root);write(root/'post-test-permissions.json',restored);log=(root/'result.log').read_text();trace=(root/'files.trace').read_text()
-  negative=name in ['missing-directory','empty-fonts','corrupt-font','font-unreadable','cache-unwritable','symlink']
-  assert rc==(1 if negative else 0),(name,rc,log[-2500:])
-  if negative:assert 'create stage=resources' in log
-  assert 'ffmpeg=8.0' in log,(name,'FFmpeg version polluted by enclosing Git checkout')
-  if name not in ['late']:
-   assert str(home/'.smb/smb.conf') not in trace and str(poison) not in trace,(name,'default configuration read')
-  assert not (home/'.cache').exists()
-  images={}
-  if mode in ['render','no-font','cjk']:
-   for n in ['baseline','subtitle','osd']:
-    p=root/(n+'.ppm');data=p.read_bytes().split(b'\n',3)[3];assert len(data)==640*360*3;images[n]={'sha256':sha(p),'nonzeroComponents':sum(v!=0 for v in data),'topHalfNonzero':sum(v!=0 for v in data[:640*180*3]),'bottomHalfNonzero':sum(v!=0 for v in data[640*180*3:])}
-   if mode=='render':
-    assert images['baseline']['nonzeroComponents']==0,images
-    assert images['subtitle']['nonzeroComponents']>100 and images['osd']['nonzeroComponents']>100
-    assert images['subtitle']['sha256']!=images['osd']['sha256']
-    assert images['subtitle']['bottomHalfNonzero']>100 and images['subtitle']['topHalfNonzero']==0
-    assert images['osd']['topHalfNonzero']>100 and images['osd']['bottomHalfNonzero']==0
-    assert 'PixelOperatorMono-Bold' in log and log.count('fontselect:')>=2
-    assert str(root/'resources/fonts/font1.ttf') in trace
-   if mode=='no-font':assert 'failed to find any fallback' in log
-   if mode=='cjk':assert '0x4E2D' in log or '0x4e2d' in log
-   for forbidden in ['/etc/fonts','/usr/share/fonts','/usr/local/share/fonts','/must-not-load-system-fonts']:
-    assert forbidden not in trace,(name,forbidden)
-   assert 'Using font provider fontconfig' not in log
-  loaded={}
-  if (root/'maps.txt').is_file():
-   for line in (root/'maps.txt').read_text().splitlines():
-    fields=line.split();path=fields[-1]
-    if path.startswith('/') and Path(path).is_file():loaded[path]=sha(path)
-   # Six own FFmpeg and own mpv, no same-SONAME system substitutions.
-   for n in ['libmpv.so','libavcodec.so','libavfilter.so','libavformat.so','libavutil.so','libswresample.so','libswscale.so']:
-    matches=[p for p in loaded if Path(p).name.startswith(n+'.') or Path(p).name==n];assert len(matches)==1 and Path(matches[0]).is_relative_to(out/'prefix'),(name,n,matches)
-   samba=[p for p in loaded if 'samba' in Path(p).name];assert samba and all('/inputs/native/' in p for p in samba),(name,samba)
-  elif not negative:raise ValueError('maps missing '+name)
-  if name=='cache-write':assert (root/'state/lock/gencache.tdb').is_file()
-  if name=='cache-denied':assert 'EACCES' in trace and not (root/'state/lock/gencache.tdb').exists()
-  results.append({'case':name,'returncode':rc,'passed':True,'images':images,'loadedLibraries':loaded,'traceSHA256':sha(root/'files.trace'),'logSHA256':sha(root/'result.log')})
-  write(out/'results.json',{'cases':results,'executable':pin(exe),'actualHostLibraries':True,'targetExecuted':False})
- write(out/'status.json',{'passed':True,'caseCount':len(results)})
+  try:
+   root=out/'cases'/name;prepare(root);root=root.resolve();caseenv=dict(env);extra=[];mode=name
+   # Poisoned settings are passed only to this diagnostic child, never changed by adapter.
+   home=root/'home';home.mkdir();(home/'.smb').mkdir();(home/'.smb/smb.conf').write_text('[global]\nworkgroup=WRONG_HOME\n')
+   poison=root/'poison-fonts.conf';poison.write_text('<fontconfig><dir>/must-not-load-system-fonts</dir></fontconfig>')
+   caseenv.update(HOME=str(home),FONTCONFIG_FILE=str(poison),FONTCONFIG_PATH=str(root/'poison-fontdir'))
+   if name=='conflict':other=out/'cases/conflict-other';prepare(other);extra=[other.resolve()]
+   if name=='readonly':
+    for p in [root/'resources/fonts/font1.ttf',root/'resources/fonts',root/'resources']:p.chmod(0o444 if p.is_file() else 0o555)
+    mode='render'
+   if name=='missing-directory':shutil.rmtree(root/'state/private');mode='init'
+   if name=='empty-fonts':(root/'resources/fonts/font1.ttf').unlink();mode='init'
+   if name=='corrupt-font':(root/'resources/fonts/font1.ttf').write_bytes(b'bad');mode='init'
+   if name=='font-unreadable':(root/'resources/fonts/font1.ttf').chmod(0);mode='init'
+   if name=='cache-unwritable':(root/'cache/demux').chmod(0o500);mode='init'
+   if name=='symlink':p=root/'resources/fonts/font1.ttf';p.rename(root/'original-font.ttf');p.symlink_to(root/'original-font.ttf');mode='init'
+   print('real native case',name,flush=True);rc=execute(exe,root,mode,caseenv,extra);restored=restore_fixture_permissions(root);write(root/'post-test-permissions.json',restored);log=(root/'result.log').read_text();trace=(root/'files.trace').read_text()
+   negative=name in ['missing-directory','empty-fonts','corrupt-font','font-unreadable','cache-unwritable','symlink']
+   assert rc==(1 if negative else 0),(name,rc,log[-2500:])
+   if negative:assert 'create stage=resources' in log
+   assert 'ffmpeg=8.0' in log,(name,'FFmpeg version polluted by enclosing Git checkout')
+   if name not in ['late']:
+    assert str(home/'.smb/smb.conf') not in trace and str(poison) not in trace,(name,'default configuration read')
+   assert not (home/'.cache').exists()
+   images={}
+   if mode in ['render','no-font','cjk']:
+    for n in ['baseline','subtitle','osd']:
+     p=root/(n+'.ppm');data=p.read_bytes().split(b'\n',3)[3];assert len(data)==640*360*3;images[n]={'sha256':sha(p),'nonzeroComponents':sum(v!=0 for v in data),'topHalfNonzero':sum(v!=0 for v in data[:640*180*3]),'bottomHalfNonzero':sum(v!=0 for v in data[640*180*3:])}
+    if mode=='render':
+     assert images['baseline']['nonzeroComponents']==0,images
+     assert images['subtitle']['nonzeroComponents']>100 and images['osd']['nonzeroComponents']>100
+     assert images['subtitle']['sha256']!=images['osd']['sha256']
+     assert images['subtitle']['bottomHalfNonzero']>100 and images['subtitle']['topHalfNonzero']==0
+     assert images['osd']['topHalfNonzero']>100 and images['osd']['bottomHalfNonzero']==0
+     assert 'PixelOperatorMono-Bold' in log and log.count('fontselect:')>=2
+     assert str(root/'resources/fonts/font1.ttf') in trace
+    if mode=='no-font':assert 'failed to find any fallback' in log
+    if mode=='cjk':assert '0x4E2D' in log or '0x4e2d' in log
+    for forbidden in ['/etc/fonts','/usr/share/fonts','/usr/local/share/fonts','/must-not-load-system-fonts']:
+     assert forbidden not in trace,(name,forbidden)
+    assert 'Using font provider fontconfig' not in log
+   loaded={}
+   if (root/'maps.txt').is_file():
+    for line in (root/'maps.txt').read_text().splitlines():
+     fields=line.split();path=fields[-1]
+     if path.startswith('/') and Path(path).is_file():loaded[path]=sha(path)
+    # Six own FFmpeg and own mpv, no same-SONAME system substitutions.
+    for n in ['libmpv.so','libavcodec.so','libavfilter.so','libavformat.so','libavutil.so','libswresample.so','libswscale.so']:
+     matches=[p for p in loaded if Path(p).name.startswith(n+'.') or Path(p).name==n];assert len(matches)==1 and Path(matches[0]).is_relative_to(out/'prefix'),(name,n,matches)
+    samba=[p for p in loaded if 'samba' in Path(p).name];assert samba and all('/inputs/native/' in p for p in samba),(name,samba)
+   elif not negative:raise ValueError('maps missing '+name)
+   if name=='cache-write':assert (root/'state/lock/gencache.tdb').is_file()
+   if name=='cache-denied':assert 'EACCES' in trace and not (root/'state/lock/gencache.tdb').exists()
+   results.append({'case':name,'returncode':rc,'passed':True,'images':images,'loadedLibraries':loaded,'traceSHA256':sha(root/'files.trace'),'logSHA256':sha(root/'result.log')})
+   write(out/'results.json',{'cases':results,'executable':pin(exe),'actualHostLibraries':True,'targetExecuted':False})
+  except Exception as error:
+   failed={'case':name,'passed':False,'error':repr(error),'loadedLibraries':{}}
+   results.append(failed);write(out/'results.json',{'cases':results,'executable':pin(exe),'actualHostLibraries':True,'targetExecuted':False})
+   print('case FAILED',name,repr(error),flush=True)
+ write(out/'status.json',{'passed':all(r['passed'] for r in results),'caseCount':len(results)})
+ if not all(r['passed'] for r in results):raise AssertionError('native failures: '+repr([r for r in results if not r['passed']]))
 
 def main():
  p=argparse.ArgumentParser();p.add_argument('--out',type=Path,required=True);p.add_argument('--inputs',type=Path,required=True);a=p.parse_args();out=a.out.resolve();out.mkdir(parents=True,exist_ok=False);exe,env=build_stack(out,a.inputs.resolve());run_cases(out,exe,env)

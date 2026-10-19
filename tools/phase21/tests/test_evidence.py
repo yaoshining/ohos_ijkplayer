@@ -52,3 +52,16 @@ class GitScope(unittest.TestCase):
    self.assertEqual(subprocess.run(['git','rev-parse','--show-toplevel'],cwd=source,capture_output=True).returncode,0)
    env=native.isolated_build_environment(out,'/controlled/libs',out/'prefix')
    self.assertNotEqual(subprocess.run(['git','rev-parse','--show-toplevel'],cwd=source,env=env,capture_output=True).returncode,0)
+class IndependentCases(unittest.TestCase):
+ def test_all_cases_reported_even_when_runtime_assertions_fail(self):
+  import native,json,unittest.mock
+  calls=[]
+  def fake(exe,root,mode,env,extra):
+   calls.append(root.name);(root/'result.log').write_text('create stage=resources code=0 ffmpeg=8.0\n');(root/'files.trace').write_text('')
+   return 1 if root.name in {'missing-directory','empty-fonts','corrupt-font','font-unreadable','cache-unwritable','symlink'} else 0
+  with tempfile.TemporaryDirectory() as td:
+   root=Path(td).resolve();exe=root/'fake';exe.write_bytes(b'fixture')
+   with unittest.mock.patch.object(native,'execute',fake):
+    with self.assertRaises(Exception):native.run_cases(root,exe,{})
+   self.assertEqual(len(calls),len(collect.CASES))
+   results=json.loads((root/'results.json').read_text());self.assertEqual(len(results['cases']),len(collect.CASES));self.assertFalse(json.loads((root/'status.json').read_text())['passed'])

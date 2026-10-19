@@ -40,7 +40,8 @@ static void *render_thread(void *arg) {
  free(pixels);mpv_render_context_free(ctx);return NULL;
 }
 static void event_log(mpv_event *e){if(e->event_id==MPV_EVENT_LOG_MESSAGE){mpv_event_log_message *m=e->data;fprintf(stderr,"[%s/%s] %s",m->prefix,m->level,m->text);}}
-static void pump(mpv_handle *p,int millis){for(int i=0;i<millis/10;i++){mpv_event *e=mpv_wait_event(p,0.01);event_log(e);}}
+static double monotonic_seconds(void){struct timespec t;clock_gettime(CLOCK_MONOTONIC,&t);return t.tv_sec+t.tv_nsec/1e9;}
+static void pump(mpv_handle *p,int millis){double end=monotonic_seconds()+millis/1000.0;while(monotonic_seconds()<end){mpv_event *e=mpv_wait_event(p,0.01);event_log(e);}}
 static int command(mpv_handle *p,const char **args){int rc=mpv_command(p,args);if(rc<0)fprintf(stderr,"command %s: %s\n",args[0],mpv_error_string(rc));return rc;}
 static int capture(struct render_state *s,const char *root,const char *name){char path[4096];snprintf(path,sizeof(path),"%s/%s.ppm",root,name);FILE *f=fopen(path,"wb");if(!f)return -1;fprintf(f,"P6\n%d %d\n255\n",W,H);pthread_mutex_lock(&s->lock);for(int i=0;i<W*H;i++)fwrite(s->pixels+i*4,1,3,f);int rc=s->rc;pthread_mutex_unlock(&s->lock);if(fclose(f))return -1;return rc;}
 static void maps(const char *root){
@@ -58,7 +59,8 @@ static int render(mpv_handle *p,const char *root,const char *mode){
  char ppm[4096],ass[4096];snprintf(ppm,sizeof(ppm),"%s/black.ppm",root);snprintf(ass,sizeof(ass),"%s/subtitle.ass",root);
  const char *load[]={"loadfile",ppm,NULL};if(command(p,load)<0){rc=-1;goto done;}
  int loaded=0;
- for(int i=0;i<500;i++){mpv_event *e=mpv_wait_event(p,0.01);event_log(e);if(e->event_id==MPV_EVENT_FILE_LOADED){loaded=1;break;}if(e->event_id==MPV_EVENT_END_FILE){fprintf(stderr,"early end file\n");break;}}
+ double deadline=monotonic_seconds()+5.0;
+ while(monotonic_seconds()<deadline){mpv_event *e=mpv_wait_event(p,0.01);event_log(e);if(e->event_id==MPV_EVENT_FILE_LOADED){loaded=1;break;}if(e->event_id==MPV_EVENT_END_FILE){fprintf(stderr,"early end file\n");break;}}
  if(!loaded){rc=-1;goto done;}pump(p,500);if(capture(s,root,"baseline")<0){rc=-1;goto done;}
  const char *sub[]={"sub-add",ass,"select",NULL};if(command(p,sub)<0){rc=-1;goto done;}pump(p,1000);if(capture(s,root,"subtitle")<0){rc=-1;goto done;}
  const char *hide[]={"set","sub-visibility","no",NULL};if(command(p,hide)<0){rc=-1;goto done;}
@@ -93,7 +95,7 @@ int main(int argc,char **argv){
 #endif
  if(mpv_request_log_messages(p,"debug")<0){p21_destroy(&p);return 6;}
  if(!strcmp(argv[2],"repeat")){p21_destroy(&p);p21_destroy(&p);if(p21_create(&c,&p,&e))return 7;}
- if(!strcmp(argv[2],"conflict")){if(argc!=4){p21_destroy(&p);return 2;}char other[4096];snprintf(other,sizeof(other),"%s/smb.conf",argv[3]);c.config_file=other;mpv_handle *q=NULL;rc=p21_create(&c,&q,&e);fprintf(stderr,"conflict stage=%s code=%d\n",e.stage,e.code);if(q)p21_destroy(&q);p21_destroy(&p);return rc<0&&!strcmp(e.stage,"samba")&&e.code==EBUSY?0:8;}
+ if(!strcmp(argv[2],"conflict")){if(argc!=4){p21_destroy(&p);return 2;}char other[4096];snprintf(other,sizeof(other),"%s/smb.conf",argv[3]);c.config_file=other;mpv_handle *q=NULL;rc=p21_create(&c,&q,&e);fprintf(stderr,"conflict stage=%s code=%d\n",e.stage,e.code);if(q)p21_destroy(&q);maps(argv[1]);p21_destroy(&p);return rc<0&&!strcmp(e.stage,"samba")&&e.code==EBUSY?0:8;}
  if(!strcmp(argv[2],"no-font")){char font[4096];snprintf(font,sizeof(font),"%s/resources/fonts/font1.ttf",argv[1]);if(unlink(font)){p21_destroy(&p);return 9;}}
  if(!strcmp(argv[2],"render")||!strcmp(argv[2],"no-font")||!strcmp(argv[2],"cjk"))rc=render(p,argv[1],argv[2]);
  maps(argv[1]);p21_destroy(&p);return rc<0?10:0;
