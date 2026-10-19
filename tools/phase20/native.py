@@ -2,6 +2,7 @@
 from pathlib import Path
 import argparse,json,os,shutil,subprocess,tarfile,sys,hashlib
 import build
+from extract import extract_source
 HERE=Path(__file__).resolve().parent
 CASES=['explicit','append-only','aliases','parse-failure','pending','init-failure','last-free','legacy-null','legacy-auth','cache-write','cache-denied','unconfigured-home','unconfigured-append','unconfigured-reload','callback-reentry','posix-threads']
 def run(argv,path,cwd=None,env=None):
@@ -11,10 +12,7 @@ def main():
  ap=argparse.ArgumentParser();ap.add_argument('--out',type=Path,required=True);ap.add_argument('--archive',type=Path,required=True);a=ap.parse_args()
  out=a.out.resolve();build.require_fresh(out);assert sys.platform=='linux' and os.geteuid()!=0
  row=next(r for r in json.loads((HERE/'recipe/dependency-sources.lock.json').read_text())['sources'] if r['name']=='samba-4.20.7');build.require_sha(a.archive,row['sha256']);out.mkdir(parents=True)
- with tarfile.open(a.archive) as t:
-  for m in t:
-   if Path(m.name).is_absolute() or '..' in Path(m.name).parts:raise ValueError('source path escape')
-  t.extractall(out,filter='data')
+ extraction=extract_source(a.archive,out,allow_external_symlinks=False);build.write(out/'extraction.json',extraction)
  src=out/row['archivePrefix'].rstrip('/');assert src.is_dir()
  run([sys.executable,'-B',HERE/'apply.py','samba',src,'--evidence',out/'runtime-patch.json'],out/'patch.log')
  shutil.copyfile(HERE/'tests/native_integration.c',src/'source3/torture/phase20_runtime_integration.c')

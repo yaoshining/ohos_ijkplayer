@@ -46,6 +46,8 @@ def main():
  for src in base.rglob('*'):
   if not src.is_file() or src.is_symlink():continue
   rel=src.relative_to(base)
+  # Prebuilt SDK bytecode is part of the pinned input SDK, never a recipe file.
+  if 'inputs' in rel.parts:continue
   if '__pycache__' in rel.parts:raise ValueError('Python bytecode contamination: '+str(src))
   if select_file(rel):
    dest=out/'execution'/rel;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(src,dest);selected.append(str(rel))

@@ -2,15 +2,12 @@
 from pathlib import Path
 import argparse,json,subprocess,sys,tarfile,shutil,importlib.util
 import build
+from extract import extract_source
 HERE=Path(__file__).resolve().parent;OLD=HERE.parent/'phase18'
 def module(name,path):
  s=importlib.util.spec_from_file_location(name,path);m=importlib.util.module_from_spec(s);s.loader.exec_module(m);return m
-def extract(archive,dest):
- dest.mkdir(parents=True,exist_ok=False)
- with tarfile.open(archive) as t:
-  for m in t:
-   if Path(m.name).is_absolute() or '..' in Path(m.name).parts:raise ValueError('archive path escape')
-  t.extractall(dest,filter='data')
+def extract(archive,dest,allow_external=False):
+ return extract_source(archive,dest,allow_external)
 def main():
  p=argparse.ArgumentParser();p.add_argument('--native-only',action='store_true');a=p.parse_args();out=Path('out/phase20-ci/inputs').resolve();out.mkdir(parents=True,exist_ok=False)
  fetch=module('fetch',HERE/'recipe/fetch-sources.py');sources=json.loads((HERE/'recipe/dependency-sources.lock.json').read_text())['sources'];cache=out/'cache'
@@ -39,6 +36,6 @@ def main():
  for row in json.loads((overlay/'target-sdk.json').read_text())['files']:
   src=overlay/row['path'];build.require_sha(src,row['sha256']);dest=sdk/row['path'];dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(src,dest)
  build.write(out/'sdk-binding.json',{'linuxCompilerArchive':tool,'targetOverlaySHA256':bundle['sha256'],'targetManifestSHA256':build.sha(overlay/'target-sdk.json'),'formalArtifactAllowed':False})
- extract(ff,out/'test-ffmpeg');samba=next(r for r in sources if r['name']=='samba-4.20.7');extract(cache/samba['archiveFile'],out/'test-samba')
+ extract(ff,out/'test-ffmpeg');samba=next(r for r in sources if r['name']=='samba-4.20.7');build.write(out/'samba-extraction.json',extract(cache/samba['archiveFile'],out/'test-samba',False))
  with Path(__import__('os').environ['GITHUB_ENV']).open('a') as f:f.write('PHASE20_FFMPEG_SOURCE='+str(out/'test-ffmpeg')+'\nPHASE20_SAMBA_SOURCE='+str(out/'test-samba'/samba['archivePrefix'])+'\n')
 if __name__=='__main__':main()
