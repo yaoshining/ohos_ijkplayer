@@ -1,0 +1,80 @@
+{
+  "source": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase18/source-package/source/libass/compare/test/font1.ttf",
+  "size": 16744,
+  "sha256": "7b8a5f6cfd5fdb06ddac7d976935babf05afa5ef7bf6b8c1b8cf919b481d33e1",
+  "names": [
+    {
+      "id": 0,
+      "value": "Released by Jayvee Enaguas (HarvettFox96) <harvettfox96 [at] protonmail [dot] com>, licensed under a Creative Commons Zero (CC0) 1.0 <https://creativecommons.org/licenses/zero/1.0/>. (c) 2009-2018."
+    },
+    {
+      "id": 1,
+      "value": "Pixel Operator Mono"
+    },
+    {
+      "id": 2,
+      "value": "Bold"
+    },
+    {
+      "id": 4,
+      "value": "Pixel Operator Mono Bold"
+    },
+    {
+      "id": 6,
+      "value": "PixelOperatorMono-Bold"
+    },
+    {
+      "id": 13,
+      "value": "Creative Commons Zero (CC0) 1.0"
+    },
+    {
+      "id": 14,
+      "value": "https://creativecommons.org/licenses/zero/1.0/"
+    }
+  ],
+  "unicodeCmaps": [
+    {
+      "platform": 0,
+      "encoding": 3,
+      "format": 4,
+      "coveredPrintableASCII": true,
+      "fixtureGlyphs": {
+        "U+0020": 3,
+        "U+0030": 19,
+        "U+0041": 36,
+        "U+0042": 37,
+        "U+0043": 38,
+        "U+0061": 68,
+        "U+0062": 69,
+        "U+0063": 70,
+        "U+4E2D": 0,
+        "U+6587": 0,
+        "U+1F600": 0
+      },
+      "glyphMappedCodepointCount": 238
+    },
+    {
+      "platform": 3,
+      "encoding": 1,
+      "format": 4,
+      "coveredPrintableASCII": true,
+      "fixtureGlyphs": {
+        "U+0020": 3,
+        "U+0030": 19,
+        "U+0041": 36,
+        "U+0042": 37,
+        "U+0043": 38,
+        "U+0061": 68,
+        "U+0062": 69,
+        "U+0063": 70,
+        "U+4E2D": 0,
+        "U+6587": 0,
+        "U+1F600": 0
+      },
+      "glyphMappedCodepointCount": 238
+    }
+  ],
+  "method": "Read-only Python stdlib SFNT name/cmap format4 parser; no rendering executed",
+  "suggestedFixtureText": "ABC abc 012",
+  "licenseEvidence": "Embedded name IDs 0,13,14 explicitly identify CC0 1.0; no assumption from repository code license."
+}
