@@ -20,7 +20,8 @@ def main():
  src=out/row['archivePrefix'].rstrip('/');assert src.is_dir()
  run([sys.executable,'-B',HERE/'apply.py','samba',src,'--evidence',out/'runtime-patch.json'],out/'patch.log')
  shutil.copyfile(HERE/'tests/native_integration.c',src/'source3/torture/phase20_runtime_integration.c')
- with (src/'source3/wscript_build').open('a') as f:f.write("\nbld.SAMBA3_BINARY('phase20_runtime_integration', source='torture/phase20_runtime_integration.c libsmb/libsmb_thread_posix.c', deps='smbclient smbconf samba3-util samba-util talloc', cflags='-UNDEBUG', install=False)\n")
+ shutil.copyfile(HERE/'tests/native_thread_adapter.c',src/'source3/torture/phase20_thread_adapter.c')
+ with (src/'source3/wscript_build').open('a') as f:f.write("\nbld.SAMBA3_BINARY('phase20_runtime_integration', source='torture/phase20_runtime_integration.c torture/phase20_thread_adapter.c', deps='smbclient smbconf samba3-util samba-util talloc', cflags='-UNDEBUG', install=False)\n")
  input_lock=native_inputs.capture(src);build.write(out/'native-inputs-before.json',input_lock)
  options=['--bundled-libraries=ALL','--private-libraries=ALL','--disable-python','--without-ad-dc','--disable-fault-handling','--without-ldb-lmdb','--without-gettext','--without-json','--without-systemd','--without-libarchive','--without-acl-support','--without-ldap','--without-ads','--without-pam','--disable-cups','--disable-avahi','--with-static-modules=ALL,!vfs_snapper','--with-shared-modules=!DEFAULT,!vfs_snapper']
  run(['./configure','--prefix='+str(out/'install'),*options],out/'configure.log',src)

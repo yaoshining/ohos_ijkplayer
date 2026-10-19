@@ -18,7 +18,7 @@ def capture(src):
  for p in Path(__file__).resolve().parent.rglob('*'):pin(p,'published phase20 recipe')
  for p in src.rglob('*.py'):
   if 'bin' not in p.relative_to(src).parts:pin(p,'Samba build Python')
- for n in ['dynconfig/dynconfig.c','source3/libsmb/libsmb_context.c','source3/libsmb/libsmb_setget.c','source3/param/loadparm.c','source3/lib/gencache.c','source3/wscript_build','source3/torture/phase20_runtime_integration.c','source3/libsmb/libsmb_thread_posix.c']:pin(src/n,'patched source')
+ for n in ['dynconfig/dynconfig.c','source3/libsmb/libsmb_context.c','source3/libsmb/libsmb_setget.c','source3/param/loadparm.c','source3/lib/gencache.c','source3/wscript_build','source3/torture/phase20_runtime_integration.c','source3/libsmb/libsmb_thread_posix.c','lib/util/smb_threads.h','source3/torture/phase20_thread_adapter.c']:pin(src/n,'patched source')
  for p in (src/'dynconfig').glob('smb_*'):pin(p,'runtime implementation')
  return {'files':sorted(paths.values(),key=lambda r:r['path']),'versions':versions,'environment':{k:os.environ.get(k) for k in ['PATH','PYTHONHASHSEED','PYTHONDONTWRITEBYTECODE','PYTHONNOUSERSITE','LC_ALL','TZ']},'scope':'Observed compiler/tools, native headers, Samba build Python and reviewed source/recipe; not every host OS file or reproducible host bootstrap'}
 def verify(lock):
