@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "tvCommit": "4a004afb5ea036ee12cf479cfcdd29b5e610c1e4",
+  "harSha256": "826b667dcd315e75e71f89065c3aef4bd60ea73743916ee629469f93228c66a9",
+  "mpvSha256": "3ae9969ac13a58aaa5827520a44e56461f566aff66b9bdd7fe4b78f0da31b076",
+  "ffmpegCommit": "140fd653aed8cad774f991ba083e2d01e86420c7",
+  "builderCommit": "1bab837e662ffa47ce51efd0720d3ed7c4988944",
+  "libraries": {
+    "libavcodec.so.62": "9a4b5a7504f7a0f5580918a99f921032527cadc9c9a56b69aa769d732b69d2f2",
+    "libavformat.so.62": "79a662542a888a767b33dd4dd241c1eee263ad2e0b29ae5e1720fc52d11073b4",
+    "libavutil.so.60": "baf6fb10d7a1d50df87d7a96c4373668fa98a1524c09ffa391f5f483a04f8178",
+    "libavfilter.so.11": "7d1ba8ecdad89e962082e7e7ad6f5932af91768bb85506e2fb855400e45911df",
+    "libswresample.so.6": "bfae9d5fe2b49d27af6b08355323180d2e31aa9fb6f9b05f7fe1ab1e354b86de",
+    "libswscale.so.9": "f08467c3ba1f3b66f7c66225cd983ff0b3637323aec56ec1da6bf090d77b5519"
+  },
+  "staticInputs": {
+    "lib/libgmp.a": "b2d1c43246830e9fe63998e8f416c93bf2ddcb6d26248f8c74c0ba93adbdcae0",
+    "lib/libgnutls.a": "49030a218c6554b2ff4ecc71fa273ca7d8a463548b25651851d826a51fcbf23f",
+    "lib/libhogweed.a": "320341698f2c22241cad88b699b22db67a95d8f9df0a514bce166b6710954dc7",
+    "lib/libnettle.a": "cc1d4dba0c465698020f460a5922badebb6949efd707774d8231b33255fa2720",
+    "lib/libpopt.a": "be001054fc15eb65f9b62bc390470d4e3d7227d0e9a5b825996eb3c6c525f800",
+    "lib/libsmbclient.a": "68638c39b485dac559b3c92df6201a8ef2e6637af17490623dd64cb32a2a09a4",
+    "lib/libtasn1.a": "e8b38cb0b6e9410d973f88eaabc3ad89e1b0fa527acd9bc24a4f5f8cd402a251",
+    "lib/libz.a": "e7ca826ba83de22fd4516309f91196dd97a4b5877f58a63b66bb1d122844a68d"
+  },
+  "deliveryFiles": {
+    "delivery.json": "48db053ff2f51fa71432ef7103077c74fd6405fd36a3d408733ee96c72ddb76a",
+    "evidence/SOURCE.txt": "e5fea257d782b0cb0fa646a1b28e58b9206dc1066aaf327c7ac9995c2bdb326a",
+    "evidence/build-ohcodec-ffmpeg.sh": "31784b56a387a6124bd32ea2f8dbef1de199252467491cc6de2748f5a46c757d",
+    "evidence/ffmpeg-config.h": "09b73f6d736e539d39bcc47fcef5088da0967b363936db41f43076b6cc29532f",
+    "evidence/ffmpeg-config.mak": "5e5edeb2aa2749c9d192823c7bd6b80d35dc4890e73440e503a25d6bd3581cb6",
+    "evidence/smb-static-inputs.json": "99574b643e11f2485ac372b70ec1980d4b02902adb5c7ecd1420a50cf1017e7f",
+    "evidence/0001-libsmbclient-private-credentials.patch": "8bc8c8e7fbe25f1622158b346bef39c146b0bc81742e651c488f604431678930",
+    "evidence/support-av3a-audio-vivid.patch": "79e970caeaf121c0c866265f70aae92f3a4328724fe061c0a8c4e76e2935f23b",
+    "evidence/support-zero-copy-hardware-decode.patch": "c15790cf227aaaa4727fe28f85f4d1e403a1d8f9485aea78e328efe552ef6720",
+    "licenses/FFmpeg-COPYING.GPLv2": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643",
+    "licenses/FFmpeg-COPYING.GPLv3": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+    "licenses/FFmpeg-COPYING.LGPLv2.1": "246041b6ecf9bc32d718a62c57877c78b5eb397b6467e74ed7ae2626ab189c30",
+    "licenses/FFmpeg-COPYING.LGPLv3": "da7eabb7bafdf7d3ae5e9f223aa5bdc1eece45ac569dc21b3b037520b4464768",
+    "licenses/gmp-6.3.0-COPYING": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+    "licenses/gmp-6.3.0-COPYING.LESSERv3": "a853c2ffec17057872340eee242ae4d96cbf2b520ae27d903e1b2fef1a5f9d1c",
+    "licenses/gmp-6.3.0-COPYINGv2": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643",
+    "licenses/gmp-6.3.0-COPYINGv3": "e6037104443f9a7829b2aa7c5370d0789a7bda3ca65a0b904cdc0c2e285d9195",
+    "licenses/gnutls-3.8.7-LICENSE": "3e043d77917e48e262301b8f880812fcd82236482630a421d555a38804eee643",
+    "licenses/gnutls-3.8.7-doc-COPYING.LESSER": "dc626520dcd53a22f727af3ee42c770e56c97a64fe3adb063799d8ab032fe551",
+    "licenses/libtasn1-4.19.0-COPYING": "7446831f659f7ebfd8d497acc7f05dfa8e31c6cb6ba1b45df33d4895ab80f5a6",
+    "licenses/libtasn1-4.19.0-doc-COPYING.LESSER": "dc626520dcd53a22f727af3ee42c770e56c97a64fe3adb063799d8ab032fe551",
+    "licenses/nettle-3.9.1-COPYING.LESSERv3": "a853c2ffec17057872340eee242ae4d96cbf2b520ae27d903e1b2fef1a5f9d1c",
+    "licenses/nettle-3.9.1-COPYINGv2": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643",
+    "licenses/nettle-3.9.1-COPYINGv3": "e6037104443f9a7829b2aa7c5370d0789a7bda3ca65a0b904cdc0c2e285d9195",
+    "licenses/popt-COPYING": "2b488b239927935f34769a39309c0680be16e3725a1f55dbb06ed20d53852801",
+    "licenses/samba-COPYING": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+    "licenses/zlib-LICENSE": "845efc77857d485d91fb3e0b884aaa929368c717ae8186b66fe1ed2495753243"
+  },
+  "patches": {
+    "patches/0001-libsmbclient-private-credentials.patch": "8bc8c8e7fbe25f1622158b346bef39c146b0bc81742e651c488f604431678930",
+    "patches/ohcodec/support-av3a-audio-vivid.patch": "79e970caeaf121c0c866265f70aae92f3a4328724fe061c0a8c4e76e2935f23b",
+    "patches/ohcodec/support-zero-copy-hardware-decode.patch": "c15790cf227aaaa4727fe28f85f4d1e403a1d8f9485aea78e328efe552ef6720"
+  }
+}
