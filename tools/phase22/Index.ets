@@ -42,7 +42,7 @@ struct Index {
   private maybeStart(): void {
     if (this.prepared && this.ready && !this.started) {
       this.started = true;
-      this.runAll(this.gate.begin()).catch((e: Error) => { this.status = '诊断异常: ' + e.message; });
+      this.runAll(this.gate.begin()).catch((e: Error) => { this.status = '诊断异常: ' + e.message; console.error('Phase22 scheduling error: ' + e.message); });
     }
   }
   private async runAll(token: number): Promise<void> {
