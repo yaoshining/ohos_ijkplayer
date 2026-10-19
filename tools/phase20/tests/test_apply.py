@@ -12,7 +12,7 @@ class SourceHooks(unittest.TestCase):
    for n in self.mod.SAMBA_FILES:
     p=root/n;p.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source/n,p)
    self.mod.samba(root)
-   s=(root/'source3/libsmb/libsmb_context.c').read_text();self.assertIn('rt_module_error',s);self.assertNotIn('SMB_THREAD_ONCE(&SMBC_initialized',s);self.assertIn('runtime_was_initialized && initialized_ctx_count',s);self.assertIn('smb_context_wrappers.inc',s)
+   s=(root/'source3/libsmb/libsmb_context.c').read_text();self.assertIn('rt_module_error',s);self.assertIn('else {\n            SMB_THREAD_ONCE(&SMBC_initialized, SMBC_module_init, NULL);',s);self.assertIn('runtime_was_initialized && initialized_ctx_count',s);self.assertIn('smb_context_wrappers.inc',s)
    s=(root/'source3/param/loadparm.c').read_text();self.assertEqual(s.count('pszParmValue = rt_loadparm_value(pszParmName, pszParmValue);'),2);self.assertIn('parm_table[id].offset',s)
    s=(root/'source3/lib/gencache.c').read_text();self.assertIn('!rt_dyn("CONFIGFILE") && cache == NULL',s)
    with self.assertRaises(ValueError):self.mod.samba(root)

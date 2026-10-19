@@ -27,7 +27,11 @@ int main(int argc,char **argv)
  assert(geteuid()!=0);
  if(!strncmp(test,"unconfigured-",13)) {
   SMBCCTX *c=smbc_new_context();assert(c);assert(smbc_init_context(c));
-  assert(!strcmp(lp_workgroup(),!strcmp(test,"unconfigured-home")?"WRONG_HOME":"WRONG_APPEND"));
+  assert(!strcmp(lp_workgroup(),!strcmp(test,"unconfigured-append")?"WRONG_APPEND":"WRONG_HOME"));
+  if(!strcmp(test,"unconfigured-reload")) {
+   char file[4096];snprintf(file,sizeof(file),"%s/.smb/smb.conf",getenv("HOME"));FILE *f=fopen(file,"w");assert(f);assert(fputs("[global]\nworkgroup = RELOADED\n",f)>=0);assert(!fclose(f));
+   SMBCCTX *b=smbc_new_context();assert(b);assert(!strcmp(lp_workgroup(),"RELOADED"));assert(smbc_init_context(b));assert(!smbc_free_context(b,1));
+  }
   assert(ohcodec_smb_runtime_configure_internal(&config)==-1 && errno==EBUSY);assert(!smbc_free_context(c,1));
  } else {
  assert(ohcodec_smb_runtime_configure_internal(&config)==0);

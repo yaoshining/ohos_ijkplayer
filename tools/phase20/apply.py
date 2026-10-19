@@ -41,7 +41,8 @@ static bool rt_apply_paths(void)
 '''+legacy+'\n    }\n'
  s=s[:start]+explicit+s[end:]
  s=once(s,'SMBCCTX *\nsmbc_new_context(void)','static SMBCCTX *\nsmbc_new_context_runtime_original(void)')
- s=once(s,'SMB_THREAD_ONCE(&SMBC_initialized, SMBC_module_init, NULL);','''if (!SMBC_initialized) {
+ s=once(s,'SMB_THREAD_ONCE(&SMBC_initialized, SMBC_module_init, NULL);','''if (rt_dyn("CONFIGFILE")) {
+          if (!SMBC_initialized) {
             rt_module_error = 0;
             SMBC_module_init(NULL);
             if (rt_module_error) {
@@ -51,6 +52,9 @@ static bool rt_apply_paths(void)
                 return NULL;
             }
             SMBC_initialized = true;
+          }
+        } else {
+            SMB_THREAD_ONCE(&SMBC_initialized, SMBC_module_init, NULL);
         }''')
  s=once(s,'int\nsmbc_free_context(SMBCCTX *context,','static int\nsmbc_free_context_runtime_original(SMBCCTX *context,')
  s=once(s,'        /* Things we have to clean up */','        bool runtime_was_initialized = context->internal->initialized;\n        /* Things we have to clean up */')

@@ -3,7 +3,7 @@ from pathlib import Path
 import argparse,json,os,shutil,subprocess,tarfile,sys,hashlib
 import build
 HERE=Path(__file__).resolve().parent
-CASES=['explicit','append-only','aliases','parse-failure','pending','init-failure','last-free','legacy-null','legacy-auth','cache-write','cache-denied','unconfigured-home','unconfigured-append','callback-reentry','posix-threads']
+CASES=['explicit','append-only','aliases','parse-failure','pending','init-failure','last-free','legacy-null','legacy-auth','cache-write','cache-denied','unconfigured-home','unconfigured-append','unconfigured-reload','callback-reentry','posix-threads']
 def run(argv,path,cwd=None,env=None):
  with Path(path).open('w') as f:r=subprocess.run(list(map(str,argv)),cwd=cwd,env=env,stdout=f,stderr=subprocess.STDOUT)
  if r.returncode:raise RuntimeError(str(path)+' exit '+str(r.returncode))
