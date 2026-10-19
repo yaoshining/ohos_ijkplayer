@@ -3,6 +3,7 @@ from pathlib import Path
 import argparse,json,os,shutil,subprocess,tarfile,sys,hashlib
 import build
 from extract import extract_source
+import native_inputs
 HERE=Path(__file__).resolve().parent
 CASES=['explicit','append-only','aliases','parse-failure','pending','init-failure','last-free','legacy-null','legacy-auth','cache-write','cache-denied','unconfigured-home','unconfigured-append','unconfigured-reload','callback-reentry','posix-threads']
 def run(argv,path,cwd=None,env=None):
@@ -19,7 +20,8 @@ def main():
  src=out/row['archivePrefix'].rstrip('/');assert src.is_dir()
  run([sys.executable,'-B',HERE/'apply.py','samba',src,'--evidence',out/'runtime-patch.json'],out/'patch.log')
  shutil.copyfile(HERE/'tests/native_integration.c',src/'source3/torture/phase20_runtime_integration.c')
- with (src/'source3/wscript_build').open('a') as f:f.write("\nbld.SAMBA3_BINARY('phase20_runtime_integration', source='torture/phase20_runtime_integration.c', deps='smbclient smbconf samba3-util samba-util talloc', cflags='-UNDEBUG', install=False)\n")
+ with (src/'source3/wscript_build').open('a') as f:f.write("\nbld.SAMBA3_BINARY('phase20_runtime_integration', source='torture/phase20_runtime_integration.c libsmb/libsmb_thread_posix.c', deps='smbclient smbconf samba3-util samba-util talloc', cflags='-UNDEBUG', install=False)\n")
+ input_lock=native_inputs.capture(src);build.write(out/'native-inputs-before.json',input_lock)
  options=['--bundled-libraries=ALL','--private-libraries=ALL','--disable-python','--without-ad-dc','--disable-fault-handling','--without-ldb-lmdb','--without-gettext','--without-json','--without-systemd','--without-libarchive','--without-acl-support','--without-ldap','--without-ads','--without-pam','--disable-cups','--disable-avahi','--with-static-modules=ALL,!vfs_snapper','--with-shared-modules=!DEFAULT,!vfs_snapper']
  run(['./configure','--prefix='+str(out/'install'),*options],out/'configure.log',src)
  run([sys.executable,'-B','buildtools/bin/waf','build','--targets=smbclient,phase20_runtime_integration','-j4','-v'],out/'build.log',src)
@@ -53,5 +55,6 @@ def main():
    owned=[Path(p) for p in libs if required in Path(p).name];assert owned and all(p.resolve().is_relative_to(src) for p in owned),(required,owned)
   results.append({'case':case,'pass':True,'loadedLibraries':libs,'traceSHA256':build.sha(trace),'freshSambaLibrariesBound':True})
   build.write(out/'results.json',{'cases':results,'actualSamba':True,'targetExecuted':False,'formalArtifactAllowed':False,'executable':{'path':str(exe.resolve()),'sha256':build.sha(exe)},'testSourceSHA256':build.sha(src/'source3/torture/phase20_runtime_integration.c')})
+ native_inputs.verify(input_lock);build.write(out/'native-inputs-after.json',{'beforeSHA256':build.sha(out/'native-inputs-before.json'),'unchanged':True})
  build.require_sha(a.archive,row['sha256']);build.write(out/'status.json',{'status':'passed','caseCount':len(results),'formalArtifactAllowed':False})
 if __name__=='__main__':main()

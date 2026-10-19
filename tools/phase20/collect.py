@@ -16,7 +16,9 @@ def validate_success(base,kind):
    if not c.get('pass') or not c.get('freshSambaLibrariesBound'):raise ValueError('native binding missing')
    for path,digest in c['loadedLibraries'].items():build.require_sha(path,digest)
    build.require_sha(root/'cases'/c['case']/'files.trace',c['traceSHA256'])
-  for n in ['configure.log','build.log','runtime-patch.json','executable-elf.log']:need(root/n)
+  for n in ['configure.log','build.log','runtime-patch.json','executable-elf.log','native-inputs-before.json','native-inputs-after.json']:need(root/n)
+  after=read(root/'native-inputs-after.json');build.require_sha(root/'native-inputs-before.json',after['beforeSHA256'])
+  if not after.get('unchanged'):raise ValueError('native input drift')
  else:
   root=base/'target';status=read(root/'status.json');comp=read(root/'comparison.json');verification=read(root/'verification.json')
   if status.get('status')!='builds_complete' or not comp.get('ffmpegBytesEqual') or not comp.get('smbBytesEqual') or len(verification['runs'])!=2:raise ValueError('target completion missing')
