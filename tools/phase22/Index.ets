@@ -24,8 +24,8 @@ struct Index {
     for (const name of ['', '/state', '/state/private', '/state/state', '/state/lock', '/cache', '/cache/demux', '/resources', '/resources/fonts', '/resources/cjk']) {
       if (!fs.accessSync(this.root + name)) { fs.mkdirSync(this.root + name); }
     }
-    const names: string[] = ['font1.ttf', 'Mplus1p-Regular.ttf', 'h264.mp4', 'hevc.mp4', 'subtitle.ass'];
-    const destinations: string[] = ['/resources/fonts/font1.ttf', '/resources/cjk/Mplus1p-Regular.ttf', '/h264.mp4', '/hevc.mp4', '/subtitle.ass'];
+    const names: string[] = ['font1.ttf', 'Mplus1p-Regular.ttf', 'h264.mp4', 'hevc.mp4', 'subtitle.ass', 'smb-test.txt', 'smb-wrong.txt'];
+    const destinations: string[] = ['/resources/fonts/font1.ttf', '/resources/cjk/Mplus1p-Regular.ttf', '/h264.mp4', '/hevc.mp4', '/subtitle.ass', '/smb-test.txt', '/smb-wrong.txt'];
     for (let i = 0; i < names.length; i++) {
       const data = await context.resourceManager.getRawFileContent(names[i]);
       this.write(this.root + destinations[i], data.buffer as ArrayBuffer);
@@ -44,7 +44,7 @@ struct Index {
     }
   }
   private async runAll(): Promise<void> {
-    const modes: string[] = ['init', 'repeat', 'conflict', 'gl-sw', 'gl-h264', 'gl-hevc', 'vk-h264', 'vk-hevc'];
+    const modes: string[] = ['init', 'repeat', 'conflict', 'smb-read', 'gl-sw', 'gl-h264', 'gl-hevc', 'vk-h264', 'vk-hevc'];
     for (const mode of modes) {
       this.status = '正在验证 ' + mode + '（独立应用）';
       const result = await probe.run(this.root, this.controller.getXComponentSurfaceId(), 1280, 720, mode);
