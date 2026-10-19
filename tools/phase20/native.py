@@ -1,16 +1,21 @@
 """Build and run real Linux Samba in isolated roots. No target runtime claim."""
 from pathlib import Path
-import argparse,json,os,shutil,subprocess,tarfile,sys,hashlib
+import argparse,json,os,shutil,subprocess,tarfile,sys,hashlib,signal
 import build
 from extract import extract_source
 import native_inputs
 HERE=Path(__file__).resolve().parent
 CASES=['explicit','append-only','aliases','parse-failure','pending','init-failure','last-free','legacy-null','legacy-auth','cache-write','cache-denied','unconfigured-home','unconfigured-append','unconfigured-reload','callback-reentry','posix-threads']
 def run(argv,path,cwd=None,env=None):
- with Path(path).open('w') as f:r=subprocess.run(list(map(str,argv)),cwd=cwd,env=env,stdout=f,stderr=subprocess.STDOUT)
- if r.returncode:
+ timeout=30 if str(argv[0])=='strace' else 1200
+ with Path(path).open('w') as f:
+  r=subprocess.Popen(list(map(str,argv)),cwd=cwd,env=env,stdout=f,stderr=subprocess.STDOUT,start_new_session=True)
+  try:code=r.wait(timeout=timeout)
+  except subprocess.TimeoutExpired:
+   os.killpg(r.pid,signal.SIGKILL);r.wait();code=-signal.SIGKILL
+ if code:
   print('\n'.join(Path(path).read_text(errors='replace').splitlines()[-100:]),flush=True)
-  raise RuntimeError(str(path)+' exit '+str(r.returncode))
+  raise RuntimeError(str(path)+' exit '+str(code)+' (timeout bound '+str(timeout)+'s)')
 def main():
  ap=argparse.ArgumentParser();ap.add_argument('--out',type=Path,required=True);ap.add_argument('--archive',type=Path,required=True);a=ap.parse_args()
  out=a.out.resolve();build.require_fresh(out);assert sys.platform=='linux' and os.geteuid()!=0
@@ -30,6 +35,7 @@ def main():
  run(['readelf','-dWs',exe],out/'executable-elf.log')
  results=[]
  for case in CASES:
+  print('Running real Samba case:',case,flush=True)
   root=out/'cases'/case;root.mkdir(parents=True);home=root/'home';state=root/'state';cache=root/'cache';res=root/'resources'
   for p in [home,home/'.smb',state,state/'private',state/'state',state/'lock',cache,res]:p.mkdir()
   if case not in ['append-only','unconfigured-append']:(home/'.smb/smb.conf').write_text('[global]\nworkgroup = WRONG_HOME\n')
