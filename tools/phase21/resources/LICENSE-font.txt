@@ -1,0 +1,5 @@
+Pixel Operator Mono Bold, Jayvee Enaguas (HarvettFox96), 2009–2018.
+字体自身 name table 声明 CC0 1.0 Universal。许可地址 https://creativecommons.org/publicdomain/zero/1.0/
+来自固定 libass 源码 compare/test/font1.ttf；完整 name table 与字符覆盖见 font-metadata.json。
+SHA256 7b8a5f6cfd5fdb06ddac7d976935babf05afa5ef7bf6b8c1b8cf919b481d33e1
+此测试仅覆盖 ASCII，不代表 CJK/emoji 字体交付。

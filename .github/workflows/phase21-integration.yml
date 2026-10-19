@@ -1,0 +1,68 @@
+name: Phase21 独立播放器集成验证
+on:
+  push:
+    branches: [codex/phase21-player-integration]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  native:
+    if: ${{ !contains(github.event.head_commit.message, '[target-only]') }}
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONNOUSERSITE: '1'
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: 记录工具与安装隔离宿主依赖
+        run: python3 -B tools/phase21/host_setup.py
+      - name: 工厂与资源合同回归
+        run: python3 -B -m unittest discover -s tools/phase21/tests -v 2>&1 | tee out/phase21-ci/unit-tests.log
+      - name: 校验既有批准来源及真实Samba制品
+        run: python3 -B tools/phase21/prepare.py --kind native
+      - name: 同源真实软件渲染与资源失败验证
+        run: python3 -B tools/phase21/native.py --out out/phase21-ci/native --inputs out/phase21-ci/inputs
+      - name: 收集必要成功或失败证据
+        if: always()
+        run: python3 -B tools/phase21/collect.py --kind native --job-status '${{ job.status }}'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: phase21-native
+          path: out/phase21-artifact-native
+          include-hidden-files: true
+          if-no-files-found: error
+  target:
+    if: ${{ !contains(github.event.head_commit.message, '[native-only]') }}
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONNOUSERSITE: '1'
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: 校验既有目标制品和SDK
+        run: python3 -B tools/phase21/prepare.py --kind target
+      - name: 两根目标编译链接和实际ELF验证
+        run: >-
+          python3 -B tools/phase21/build.py --out out/phase21-ci/target
+          --ndk out/phase21-ci/inputs/sdk
+          --ffmpeg out/phase21-ci/inputs/target/execution/target/origin-a/ffmpeg/prefix/lib
+          --headers out/phase21-ci/inputs/sources/integration/base/ffmpeg/include
+          --mpv-prefix out/phase21-ci/inputs/mpv/integration/runs/origin-a/install/usr/local
+          --placebo out/phase21-ci/inputs/mpv/integration/runs/origin-a/libplacebo/install/lib/libplacebo.a
+          --profile Linux
+      - name: 收集必要成功或失败证据
+        if: always()
+        run: python3 -B tools/phase21/collect.py --kind target --job-status '${{ job.status }}'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: phase21-target
+          path: out/phase21-artifact-target
+          include-hidden-files: true
+          if-no-files-found: error
