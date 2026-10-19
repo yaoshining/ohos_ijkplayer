@@ -500,6 +500,7 @@ PC
     if [ "${!selector+x}" = x ]; then host_select_env+=("$selector=${!selector}"); fi
   done
   env -i "${host_select_env[@]}" HOME="$HOME" PATH="$PREFIX/bin:$NATIVE_BUILD_PATH" LC_ALL=C TZ=UTC SOURCE_DATE_EPOCH="$SOURCE_DATE_EPOCH" \
+    PYTHONDONTWRITEBYTECODE=1 PYTHONNOUSERSITE=1 \
     PKG_CONFIG_PATH="$host_pc:/usr/local/lib/pkgconfig:/opt/homebrew/lib/pkgconfig:/usr/lib/pkgconfig" \
     bash -c "cd '$SAMBA_HOST_DIR' && \
       unset CC CXX PKG_CONFIG_LIBDIR && \
