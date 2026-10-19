@@ -3,7 +3,7 @@ def accept_libraries(actual,expected):
  return len(expected)==7 and actual==expected
 def accept_playback(d,gpu,hardware):
  errors=[]
- for key in ['loaded','eof']:
+ for key in ['loaded','eof','seekConfirmed']:
   if d.get(key) is not True:errors.append(key)
  if d.get('frames',0)<=0:errors.append('frames')
  if hardware and d.get('hwdec')!='ohcodec':errors.append('hardware fallback')

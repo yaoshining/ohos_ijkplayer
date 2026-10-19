@@ -9,7 +9,7 @@ int main(){assert(p22_surface_valid("123456789012345",640,360));assert(!p22_surf
 ''');subprocess.run(['cc',str(p/'main.c'),str(ROOT/'play_policy.c'),'-o',str(p/'test')],check=True);subprocess.run([str(p/'test')],check=True)
  def test_acceptance_rejects_fallback_and_no_frames(self):
   from acceptance import accept_playback
-  valid=dict(loaded=True,eof=True,frames=360,hwdec='ohcodec',ao='ohaudio',gpu='ohos',maxDrift=.02,driftSamples=20)
+  valid=dict(loaded=True,eof=True,frames=360,hwdec='ohcodec',ao='ohaudio',gpu='ohos',maxDrift=.02,driftSamples=20,seekConfirmed=True)
   self.assertTrue(accept_playback(valid,'ohos',True)['passed'])
-  for key,value in [('loaded',False),('eof',False),('frames',0),('hwdec','no'),('ao','null'),('gpu',''),('maxDrift',None),('maxDrift',float('nan')),('maxDrift',float('inf')),('maxDrift','0.01'),('driftSamples',0),('driftSamples',None)]:
+  for key,value in [('seekConfirmed',False),('loaded',False),('eof',False),('frames',0),('hwdec','no'),('ao','null'),('gpu',''),('maxDrift',None),('maxDrift',float('nan')),('maxDrift',float('inf')),('maxDrift','0.01'),('driftSamples',0),('driftSamples',None)]:
    x=valid.copy();x[key]=value;self.assertFalse(accept_playback(x,'ohos',True)['passed'],key)
