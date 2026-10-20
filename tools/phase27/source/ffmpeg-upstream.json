@@ -1,0 +1,33 @@
+{
+  "url": "https://codeload.github.com/FFmpeg/FFmpeg/tar.gz/140fd653aed8cad774f991ba083e2d01e86420c7",
+  "sha256": "5c4a9e51e706b8deba835f02ea70e1e1101187f601adae72b36ec2b17b6f15be",
+  "size": 16424114,
+  "changedFiles": [
+    "configure",
+    "libavcodec/Makefile",
+    "libavcodec/allcodecs.c",
+    "libavcodec/av3a.h",
+    "libavcodec/av3a_parser.c",
+    "libavcodec/bsf/hevc_mp4toannexb.c",
+    "libavcodec/codec_desc.c",
+    "libavcodec/codec_id.h",
+    "libavcodec/ohaudiodec.c",
+    "libavcodec/ohcodec_buffer.h",
+    "libavcodec/ohcodec_hdr.c",
+    "libavcodec/ohcodec_hdr.h",
+    "libavcodec/ohdec.c",
+    "libavcodec/parsers.c",
+    "libavcodec/utils.c",
+    "libavformat/Makefile",
+    "libavformat/allformats.c",
+    "libavformat/av3adec.c",
+    "libavformat/isom_tags.c",
+    "libavformat/libavformat.v",
+    "libavformat/libsmbclient.c",
+    "libavformat/mov.c",
+    "libavformat/mpegts.c",
+    "libavformat/ohcodec_smb_runtime.h"
+  ],
+  "binaryDifferences": [],
+  "patchBytes": 111839
+}
