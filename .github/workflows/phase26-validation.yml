@@ -1,0 +1,31 @@
+name: Phase26 diagnostic validation
+on:
+  push:
+    branches: [codex/phase26-validation]
+    paths:
+      - 'tools/phase26/**'
+      - '.github/workflows/phase26-validation.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  diagnostic-contract:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONNOUSERSITE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Actual Phase25 functions and Python contracts
+        run: python3 -B tools/phase26/runner.py --output out/phase26-ci
+      - name: Upload bounded evidence even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase26-diagnostic-contract
+          path: |
+            out/phase26-ci/artifact/
+            out/phase26-ci/record.json
+            out/phase26-ci/collection-error.txt
+          if-no-files-found: error
