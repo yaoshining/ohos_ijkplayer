@@ -1,0 +1,156 @@
+{
+  "mode": "vk-h264",
+  "completedCycles": 13,
+  "requiredWarmup": 3,
+  "requiredObservation": 10,
+  "status": "persistent-growth",
+  "singleProcess": true,
+  "uniqueCycles": true,
+  "actualPlaybackVerified": true,
+  "rows": [
+    {
+      "cycle": 1,
+      "surface": "5171140624660",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=202 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=432 seekConfirmed=1 stopped=0",
+      "ashmem": 2,
+      "dmabuf": 2,
+      "fdDetails": 54,
+      "reportedFd": 56,
+      "temporarySamplingFdOverhead": 2,
+      "countsAgree": true
+    },
+    {
+      "cycle": 2,
+      "surface": "5171140624661",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=202 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=432 seekConfirmed=1 stopped=0",
+      "ashmem": 3,
+      "dmabuf": 3,
+      "fdDetails": 56,
+      "reportedFd": 58,
+      "temporarySamplingFdOverhead": 2,
+      "countsAgree": true
+    },
+    {
+      "cycle": 3,
+      "surface": "5171140624662",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=205 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=433 seekConfirmed=1 stopped=0",
+      "ashmem": 4,
+      "dmabuf": 4,
+      "fdDetails": 58,
+      "reportedFd": 60,
+      "temporarySamplingFdOverhead": 2,
+      "countsAgree": true
+    },
+    {
+      "cycle": 4,
+      "surface": "5171140624663",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=204 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=430 seekConfirmed=1 stopped=0",
+      "ashmem": 5,
+      "dmabuf": 5,
+      "fdDetails": 62,
+      "reportedFd": 64,
+      "temporarySamplingFdOverhead": 2,
+      "countsAgree": true
+    },
+    {
+      "cycle": 5,
+      "surface": "5171140624664",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=204 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=432 seekConfirmed=1 stopped=0",
+      "ashmem": 6,
+      "dmabuf": 6,
+      "fdDetails": 64,
+      "reportedFd": 66,
+      "temporarySamplingFdOverhead": 2,
+      "countsAgree": true
+    },
+    {
+      "cycle": 6,
+      "surface": "5171140624665",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=202 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=428 seekConfirmed=1 stopped=0",
+      "ashmem": 7,
+      "dmabuf": 7,
+      "fdDetails": 66,
+      "reportedFd": 68,
+      "temporarySamplingFdOverhead": 2,
+      "countsAgree": true
+    },
+    {
+      "cycle": 7,
+      "surface": "5171140624666",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=205 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=432 seekConfirmed=1 stopped=0",
+      "ashmem": 8,
+      "dmabuf": 8,
+      "fdDetails": 68,
+      "reportedFd": 70,
+      "temporarySamplingFdOverhead": 2,
+      "countsAgree": true
+    },
+    {
+      "cycle": 8,
+      "surface": "5171140624667",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=203 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=432 seekConfirmed=1 stopped=0",
+      "ashmem": 9,
+      "dmabuf": 9,
+      "fdDetails": 70,
+      "reportedFd": 72,
+      "temporarySamplingFdOverhead": 2,
+      "countsAgree": true
+    },
+    {
+      "cycle": 9,
+      "surface": "5171140624668",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=204 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=432 seekConfirmed=1 stopped=0",
+      "ashmem": 10,
+      "dmabuf": 10,
+      "fdDetails": 72,
+      "reportedFd": 74,
+      "temporarySamplingFdOverhead": 2,
+      "countsAgree": true
+    },
+    {
+      "cycle": 10,
+      "surface": "5171140624669",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=204 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=433 seekConfirmed=1 stopped=0",
+      "ashmem": 11,
+      "dmabuf": 11,
+      "fdDetails": 74,
+      "reportedFd": 76,
+      "temporarySamplingFdOverhead": 2,
+      "countsAgree": true
+    },
+    {
+      "cycle": 11,
+      "surface": "5171140624670",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=203 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=433 seekConfirmed=1 stopped=0",
+      "ashmem": 12,
+      "dmabuf": 12,
+      "fdDetails": 76,
+      "reportedFd": 78,
+      "temporarySamplingFdOverhead": 2,
+      "countsAgree": true
+    },
+    {
+      "cycle": 12,
+      "surface": "5171140624671",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=204 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=435 seekConfirmed=1 stopped=0",
+      "ashmem": 13,
+      "dmabuf": 13,
+      "fdDetails": 78,
+      "reportedFd": 80,
+      "temporarySamplingFdOverhead": 2,
+      "countsAgree": true
+    },
+    {
+      "cycle": 13,
+      "surface": "5171140624672",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=204 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=433 seekConfirmed=1 stopped=0",
+      "ashmem": 14,
+      "dmabuf": 14,
+      "fdDetails": 80,
+      "reportedFd": 82,
+      "temporarySamplingFdOverhead": 2,
+      "countsAgree": true
+    }
+  ],
+  "objectIdentityCaveat": "fstat inode/dev may be non-unique for anonymous buffers; cannot identify objects from those numbers alone; stable descriptor counts are not proof of all memory being leak-free"
+}

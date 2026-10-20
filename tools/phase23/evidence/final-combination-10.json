@@ -1,0 +1,709 @@
+{
+  "pid": 30155,
+  "hapSHA256": "55b6e2928fed041d6a61140588eae1ca935f5632b9d558af7f4e8de7e973310c",
+  "libraries": {
+    "libavcodec.so.62": "6f541583c4dd1ff3e4e5472404809340b4594a790e66917bfec4bbd40844e4dd",
+    "libavfilter.so.11": "82b431c76910f2a826c7679b3cfb9273dd131c1566d06cee1f80818f23c2622c",
+    "libavformat.so.62": "92e495c730a48604976bd5b1507113f7ae820ee51307542a36a61111c9da8c4c",
+    "libavutil.so.60": "671d7394ccffcfb8578b278b8751646902cbe81da091eb45c0d6168dd5ef828b",
+    "libmpv.so": "da6fcbc59b743d1afdaead29cbdf4d3994646f371d6b9202aa7295d958c5aaf9",
+    "libswresample.so.6": "4244a9e1e2697bd8ec35436148d55d5e8b2c09080c40754cc505a05c5fc52e3b",
+    "libswscale.so.9": "f1982cde4d2b6d899f99e38ae4cfb50dcda4859e9912a6b4f18913ebaf9836a0"
+  },
+  "nativeLogSHA256": "b1d67ae80390c26708bd4182f62a7626b3fabd29eee831e3523d7b53ce45e9f9",
+  "cases": [
+    {
+      "mode": "gl-h264",
+      "cycle": 0,
+      "surface": "5171140624694",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=203 hwdec=ohcodec ao=ohaudio gpu=ohos maxLogicalDrift=0.0333333 driftSamples=1198 seekConfirmed=1 stopped=0",
+      "reportedFd": 57,
+      "tasks": 37,
+      "rssKiB": 209564,
+      "mapsMatch": true
+    },
+    {
+      "mode": "gl-sw",
+      "cycle": 1,
+      "surface": "5171140624694",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=207 hwdec=no ao=ohaudio gpu=ohos maxLogicalDrift=0.0333274 driftSamples=1417 seekConfirmed=1 stopped=0",
+      "reportedFd": 57,
+      "tasks": 34,
+      "rssKiB": 215672,
+      "mapsMatch": true
+    },
+    {
+      "mode": "gl-hevc",
+      "cycle": 2,
+      "surface": "5171140624694",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=203 hwdec=ohcodec ao=ohaudio gpu=ohos maxLogicalDrift=0.0333333 driftSamples=1196 seekConfirmed=1 stopped=0",
+      "reportedFd": 57,
+      "tasks": 32,
+      "rssKiB": 211860,
+      "mapsMatch": true
+    },
+    {
+      "mode": "gl-missing",
+      "cycle": 3,
+      "surface": "5171140624694",
+      "result": "loaded=0 eof=0 observedDistinctPlaybackPTSWithFrame=0 hwdec=unavailable ao=unavailable gpu=unavailable maxLogicalDrift=-1 driftSamples=0 seekConfirmed=0 stopped=0",
+      "reportedFd": 57,
+      "tasks": 33,
+      "rssKiB": 195892,
+      "mapsMatch": true
+    },
+    {
+      "mode": "gl-h264",
+      "cycle": 4,
+      "surface": "5171140624694",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=203 hwdec=ohcodec ao=ohaudio gpu=ohos maxLogicalDrift=0.0333333 driftSamples=1203 seekConfirmed=1 stopped=0",
+      "reportedFd": 57,
+      "tasks": 33,
+      "rssKiB": 211956,
+      "mapsMatch": true
+    },
+    {
+      "mode": "vk-hevc",
+      "cycle": 5,
+      "surface": "5171140624694",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=202 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=438 seekConfirmed=1 stopped=0",
+      "reportedFd": 59,
+      "tasks": 35,
+      "rssKiB": 242228,
+      "mapsMatch": true
+    },
+    {
+      "mode": "gl-h264",
+      "cycle": 6,
+      "surface": "5171140624694",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=203 hwdec=ohcodec ao=ohaudio gpu=ohos maxLogicalDrift=0.0333333 driftSamples=1200 seekConfirmed=1 stopped=0",
+      "reportedFd": 59,
+      "tasks": 33,
+      "rssKiB": 212432,
+      "mapsMatch": true
+    },
+    {
+      "mode": "gl-rgba8-h264",
+      "cycle": 7,
+      "surface": "5171140624694",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=204 hwdec=ohcodec ao=ohaudio gpu=ohos maxLogicalDrift=0.0333333 driftSamples=1203 seekConfirmed=1 stopped=0",
+      "reportedFd": 59,
+      "tasks": 34,
+      "rssKiB": 229912,
+      "mapsMatch": true
+    },
+    {
+      "mode": "smb-read",
+      "cycle": 8,
+      "surface": "5171140624694",
+      "result": "passed URL and AVOptions auth/read/seek, missing/closed-port, forced disconnect and explicit reopen; no transparent reconnect claim",
+      "reportedFd": 59,
+      "tasks": 33,
+      "rssKiB": 220068,
+      "mapsMatch": true
+    },
+    {
+      "mode": "noop",
+      "cycle": 9,
+      "surface": "5171140624694",
+      "result": "passed no-player control",
+      "reportedFd": 59,
+      "tasks": 33,
+      "rssKiB": 220076,
+      "mapsMatch": false
+    },
+    {
+      "mode": "vk-h264",
+      "cycle": 10,
+      "surface": "5171140624694",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=203 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=430 seekConfirmed=1 stopped=0",
+      "reportedFd": 59,
+      "tasks": 32,
+      "rssKiB": 220780,
+      "mapsMatch": true
+    },
+    {
+      "mode": "vk-h264",
+      "cycle": 11,
+      "surface": "5171140624694",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=206 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=433 seekConfirmed=1 stopped=0",
+      "reportedFd": 59,
+      "tasks": 33,
+      "rssKiB": 250288,
+      "mapsMatch": true
+    },
+    {
+      "mode": "vk-h264",
+      "cycle": 12,
+      "surface": "5171140624694",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=203 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=431 seekConfirmed=1 stopped=0",
+      "reportedFd": 59,
+      "tasks": 31,
+      "rssKiB": 226296,
+      "mapsMatch": true
+    },
+    {
+      "mode": "vk-h264",
+      "cycle": 13,
+      "surface": "5171140624694",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=203 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=431 seekConfirmed=1 stopped=0",
+      "reportedFd": 59,
+      "tasks": 34,
+      "rssKiB": 252712,
+      "mapsMatch": true
+    },
+    {
+      "mode": "vk-h264",
+      "cycle": 14,
+      "surface": "5171140624694",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=202 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=432 seekConfirmed=1 stopped=0",
+      "reportedFd": 59,
+      "tasks": 30,
+      "rssKiB": 254316,
+      "mapsMatch": true
+    },
+    {
+      "mode": "vk-h264",
+      "cycle": 15,
+      "surface": "5171140624694",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=203 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=430 seekConfirmed=1 stopped=0",
+      "reportedFd": 59,
+      "tasks": 33,
+      "rssKiB": 254864,
+      "mapsMatch": true
+    },
+    {
+      "mode": "vk-h264",
+      "cycle": 16,
+      "surface": "5171140624694",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=203 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=432 seekConfirmed=1 stopped=0",
+      "reportedFd": 59,
+      "tasks": 32,
+      "rssKiB": 253196,
+      "mapsMatch": true
+    },
+    {
+      "mode": "vk-h264",
+      "cycle": 17,
+      "surface": "5171140624694",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=205 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=430 seekConfirmed=1 stopped=0",
+      "reportedFd": 59,
+      "tasks": 34,
+      "rssKiB": 226776,
+      "mapsMatch": true
+    },
+    {
+      "mode": "vk-h264",
+      "cycle": 18,
+      "surface": "5171140624694",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=203 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=429 seekConfirmed=1 stopped=0",
+      "reportedFd": 59,
+      "tasks": 30,
+      "rssKiB": 229812,
+      "mapsMatch": true
+    },
+    {
+      "mode": "vk-h264",
+      "cycle": 19,
+      "surface": "5171140624694",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=203 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=430 seekConfirmed=1 stopped=0",
+      "reportedFd": 59,
+      "tasks": 33,
+      "rssKiB": 251352,
+      "mapsMatch": true
+    },
+    {
+      "mode": "vk-h264",
+      "cycle": 20,
+      "surface": "5171140624694",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=202 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=431 seekConfirmed=1 stopped=0",
+      "reportedFd": 59,
+      "tasks": 32,
+      "rssKiB": 233588,
+      "mapsMatch": true
+    },
+    {
+      "mode": "vk-h264",
+      "cycle": 21,
+      "surface": "5171140624694",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=204 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=434 seekConfirmed=1 stopped=0",
+      "reportedFd": 59,
+      "tasks": 33,
+      "rssKiB": 227704,
+      "mapsMatch": true
+    },
+    {
+      "mode": "vk-h264",
+      "cycle": 22,
+      "surface": "5171140624694",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=203 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=432 seekConfirmed=1 stopped=0",
+      "reportedFd": 59,
+      "tasks": 31,
+      "rssKiB": 251944,
+      "mapsMatch": true
+    },
+    {
+      "mode": "vk-h264",
+      "cycle": 23,
+      "surface": "5171140624695",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=204 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=430 seekConfirmed=1 stopped=0",
+      "reportedFd": 59,
+      "tasks": 35,
+      "rssKiB": 228352,
+      "mapsMatch": true
+    },
+    {
+      "mode": "vk-h264",
+      "cycle": 24,
+      "surface": "5171140624696",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=205 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=434 seekConfirmed=1 stopped=0",
+      "reportedFd": 59,
+      "tasks": 33,
+      "rssKiB": 225212,
+      "mapsMatch": true
+    },
+    {
+      "mode": "vk-h264",
+      "cycle": 25,
+      "surface": "5171140624697",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=203 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=432 seekConfirmed=1 stopped=0",
+      "reportedFd": 59,
+      "tasks": 33,
+      "rssKiB": 249108,
+      "mapsMatch": true
+    },
+    {
+      "mode": "vk-h264",
+      "cycle": 26,
+      "surface": "5171140624698",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=201 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=428 seekConfirmed=1 stopped=0",
+      "reportedFd": 59,
+      "tasks": 33,
+      "rssKiB": 242408,
+      "mapsMatch": true
+    },
+    {
+      "mode": "vk-h264",
+      "cycle": 27,
+      "surface": "5171140624699",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=203 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=432 seekConfirmed=1 stopped=0",
+      "reportedFd": 59,
+      "tasks": 34,
+      "rssKiB": 255616,
+      "mapsMatch": true
+    },
+    {
+      "mode": "vk-h264",
+      "cycle": 28,
+      "surface": "5171140624700",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=202 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=430 seekConfirmed=1 stopped=0",
+      "reportedFd": 59,
+      "tasks": 33,
+      "rssKiB": 243268,
+      "mapsMatch": true
+    },
+    {
+      "mode": "vk-h264",
+      "cycle": 29,
+      "surface": "5171140624701",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=205 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=432 seekConfirmed=1 stopped=0",
+      "reportedFd": 59,
+      "tasks": 33,
+      "rssKiB": 229348,
+      "mapsMatch": true
+    },
+    {
+      "mode": "vk-h264",
+      "cycle": 30,
+      "surface": "5171140624702",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=205 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=432 seekConfirmed=1 stopped=0",
+      "reportedFd": 59,
+      "tasks": 33,
+      "rssKiB": 253252,
+      "mapsMatch": true
+    },
+    {
+      "mode": "vk-h264",
+      "cycle": 31,
+      "surface": "5171140624703",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=204 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=434 seekConfirmed=1 stopped=0",
+      "reportedFd": 59,
+      "tasks": 34,
+      "rssKiB": 249332,
+      "mapsMatch": true
+    },
+    {
+      "mode": "vk-h264",
+      "cycle": 32,
+      "surface": "5171140624704",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=205 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=432 seekConfirmed=1 stopped=0",
+      "reportedFd": 59,
+      "tasks": 34,
+      "rssKiB": 256804,
+      "mapsMatch": true
+    },
+    {
+      "mode": "vk-h264",
+      "cycle": 33,
+      "surface": "5171140624705",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=202 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=430 seekConfirmed=1 stopped=0",
+      "reportedFd": 59,
+      "tasks": 35,
+      "rssKiB": 244472,
+      "mapsMatch": true
+    },
+    {
+      "mode": "vk-h264",
+      "cycle": 34,
+      "surface": "5171140624706",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=206 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=433 seekConfirmed=1 stopped=0",
+      "reportedFd": 59,
+      "tasks": 33,
+      "rssKiB": 255828,
+      "mapsMatch": true
+    },
+    {
+      "mode": "vk-h264",
+      "cycle": 35,
+      "surface": "5171140624707",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=203 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=433 seekConfirmed=1 stopped=0",
+      "reportedFd": 59,
+      "tasks": 33,
+      "rssKiB": 226136,
+      "mapsMatch": true
+    }
+  ],
+  "targetExecuted": true,
+  "humanAudiovisualAcceptance": false,
+  "formalArtifactAllowed": false,
+  "fixedSurface": {
+    "mode": "vk-h264",
+    "completedCycles": 13,
+    "requiredWarmup": 3,
+    "requiredObservation": 10,
+    "status": "stable-observed-counts",
+    "singleProcess": true,
+    "uniqueCycles": true,
+    "actualPlaybackVerified": true,
+    "rows": [
+      {
+        "cycle": 10,
+        "surface": "5171140624694",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=203 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=430 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 57,
+        "reportedFd": 59,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 11,
+        "surface": "5171140624694",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=206 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=433 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 57,
+        "reportedFd": 59,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 12,
+        "surface": "5171140624694",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=203 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=431 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 57,
+        "reportedFd": 59,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 13,
+        "surface": "5171140624694",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=203 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=431 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 57,
+        "reportedFd": 59,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 14,
+        "surface": "5171140624694",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=202 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=432 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 57,
+        "reportedFd": 59,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 15,
+        "surface": "5171140624694",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=203 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=430 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 57,
+        "reportedFd": 59,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 16,
+        "surface": "5171140624694",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=203 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=432 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 57,
+        "reportedFd": 59,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 17,
+        "surface": "5171140624694",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=205 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=430 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 57,
+        "reportedFd": 59,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 18,
+        "surface": "5171140624694",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=203 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=429 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 57,
+        "reportedFd": 59,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 19,
+        "surface": "5171140624694",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=203 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=430 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 57,
+        "reportedFd": 59,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 20,
+        "surface": "5171140624694",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=202 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=431 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 57,
+        "reportedFd": 59,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 21,
+        "surface": "5171140624694",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=204 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=434 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 57,
+        "reportedFd": 59,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 22,
+        "surface": "5171140624694",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=203 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=432 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 57,
+        "reportedFd": 59,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      }
+    ],
+    "objectIdentityCaveat": "fstat inode/dev may be non-unique for anonymous buffers; cannot identify objects from those numbers alone; stable descriptor counts are not proof of all memory being leak-free",
+    "observation": {
+      "rssKiBMin": 226776,
+      "rssKiBMax": 254864,
+      "rssKiBFirst": 252712,
+      "rssKiBLast": 251944,
+      "reportedFdMin": 59,
+      "reportedFdMax": 59,
+      "scope": "process RSS and descriptor counts; not allocator-level proof of no leaks"
+    }
+  },
+  "newSurface": {
+    "mode": "vk-h264",
+    "completedCycles": 13,
+    "requiredWarmup": 3,
+    "requiredObservation": 10,
+    "status": "stable-observed-counts",
+    "singleProcess": true,
+    "uniqueCycles": true,
+    "actualPlaybackVerified": true,
+    "rows": [
+      {
+        "cycle": 23,
+        "surface": "5171140624695",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=204 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=430 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 57,
+        "reportedFd": 59,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 24,
+        "surface": "5171140624696",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=205 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=434 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 57,
+        "reportedFd": 59,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 25,
+        "surface": "5171140624697",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=203 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=432 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 57,
+        "reportedFd": 59,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 26,
+        "surface": "5171140624698",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=201 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=428 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 57,
+        "reportedFd": 59,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 27,
+        "surface": "5171140624699",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=203 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=432 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 57,
+        "reportedFd": 59,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 28,
+        "surface": "5171140624700",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=202 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=430 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 57,
+        "reportedFd": 59,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 29,
+        "surface": "5171140624701",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=205 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=432 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 57,
+        "reportedFd": 59,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 30,
+        "surface": "5171140624702",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=205 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=432 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 57,
+        "reportedFd": 59,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 31,
+        "surface": "5171140624703",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=204 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=434 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 57,
+        "reportedFd": 59,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 32,
+        "surface": "5171140624704",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=205 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=432 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 57,
+        "reportedFd": 59,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 33,
+        "surface": "5171140624705",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=202 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=430 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 57,
+        "reportedFd": 59,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 34,
+        "surface": "5171140624706",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=206 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=433 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 57,
+        "reportedFd": 59,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 35,
+        "surface": "5171140624707",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=203 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=433 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 57,
+        "reportedFd": 59,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      }
+    ],
+    "objectIdentityCaveat": "fstat inode/dev may be non-unique for anonymous buffers; cannot identify objects from those numbers alone; stable descriptor counts are not proof of all memory being leak-free",
+    "observation": {
+      "rssKiBMin": 226136,
+      "rssKiBMax": 256804,
+      "rssKiBFirst": 242408,
+      "rssKiBLast": 226136,
+      "reportedFdMin": 59,
+      "reportedFdMax": 59,
+      "scope": "process RSS and descriptor counts; not allocator-level proof of no leaks"
+    }
+  }
+}

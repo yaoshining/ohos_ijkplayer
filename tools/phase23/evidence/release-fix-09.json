@@ -1,0 +1,316 @@
+{
+  "pid": 26354,
+  "fixedSurface": {
+    "mode": "vk-h264",
+    "completedCycles": 13,
+    "requiredWarmup": 3,
+    "requiredObservation": 10,
+    "status": "stable-observed-counts",
+    "singleProcess": true,
+    "uniqueCycles": true,
+    "actualPlaybackVerified": true,
+    "rows": [
+      {
+        "cycle": 1,
+        "surface": "5171140624675",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=203 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=436 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 54,
+        "reportedFd": 56,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 2,
+        "surface": "5171140624675",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=203 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=431 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 54,
+        "reportedFd": 56,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 3,
+        "surface": "5171140624675",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=205 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=436 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 54,
+        "reportedFd": 56,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 4,
+        "surface": "5171140624675",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=202 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333215 driftSamples=433 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 56,
+        "reportedFd": 58,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 5,
+        "surface": "5171140624675",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=204 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=431 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 56,
+        "reportedFd": 58,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 6,
+        "surface": "5171140624675",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=204 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=429 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 56,
+        "reportedFd": 58,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 7,
+        "surface": "5171140624675",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=202 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=432 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 56,
+        "reportedFd": 58,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 8,
+        "surface": "5171140624675",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=203 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=432 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 56,
+        "reportedFd": 58,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 9,
+        "surface": "5171140624675",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=203 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=433 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 56,
+        "reportedFd": 58,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 10,
+        "surface": "5171140624675",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=204 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=434 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 56,
+        "reportedFd": 58,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 11,
+        "surface": "5171140624675",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=203 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=431 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 56,
+        "reportedFd": 58,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 12,
+        "surface": "5171140624675",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=204 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=433 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 56,
+        "reportedFd": 58,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 13,
+        "surface": "5171140624675",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=204 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=434 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 56,
+        "reportedFd": 58,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      }
+    ],
+    "objectIdentityCaveat": "fstat inode/dev may be non-unique for anonymous buffers; cannot identify objects from those numbers alone; stable descriptor counts are not proof of all memory being leak-free"
+  },
+  "newSurface": {
+    "mode": "vk-h264",
+    "completedCycles": 13,
+    "requiredWarmup": 3,
+    "requiredObservation": 10,
+    "status": "stable-observed-counts",
+    "singleProcess": true,
+    "uniqueCycles": true,
+    "actualPlaybackVerified": true,
+    "rows": [
+      {
+        "cycle": 14,
+        "surface": "5171140624676",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=204 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=432 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 56,
+        "reportedFd": 58,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 15,
+        "surface": "5171140624677",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=206 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=431 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 56,
+        "reportedFd": 58,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 16,
+        "surface": "5171140624678",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=204 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=433 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 56,
+        "reportedFd": 58,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 17,
+        "surface": "5171140624679",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=204 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=431 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 56,
+        "reportedFd": 58,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 18,
+        "surface": "5171140624680",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=204 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=433 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 56,
+        "reportedFd": 58,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 19,
+        "surface": "5171140624681",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=203 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=430 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 56,
+        "reportedFd": 58,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 20,
+        "surface": "5171140624682",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=204 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=432 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 56,
+        "reportedFd": 58,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 21,
+        "surface": "5171140624683",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=203 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=432 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 56,
+        "reportedFd": 58,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 22,
+        "surface": "5171140624684",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=203 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=433 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 56,
+        "reportedFd": 58,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 23,
+        "surface": "5171140624685",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=203 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=432 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 56,
+        "reportedFd": 58,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 24,
+        "surface": "5171140624686",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=204 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=432 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 56,
+        "reportedFd": 58,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 25,
+        "surface": "5171140624687",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=204 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=433 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 56,
+        "reportedFd": 58,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      },
+      {
+        "cycle": 26,
+        "surface": "5171140624688",
+        "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=204 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=432 seekConfirmed=1 stopped=0",
+        "ashmem": 1,
+        "dmabuf": 1,
+        "fdDetails": 56,
+        "reportedFd": 58,
+        "temporarySamplingFdOverhead": 2,
+        "countsAgree": true
+      }
+    ],
+    "objectIdentityCaveat": "fstat inode/dev may be non-unique for anonymous buffers; cannot identify objects from those numbers alone; stable descriptor counts are not proof of all memory being leak-free"
+  },
+  "nativeLogSHA256": "d19e649fcc1f05646ddb622b31ae6e9203619b746a562dbd14fc243faa523d57"
+}

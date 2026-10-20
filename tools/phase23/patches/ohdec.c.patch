@@ -1,0 +1,82 @@
+--- a/ohdec.c
++++ b/ohdec.c
+@@ -243,6 +243,7 @@
+     else
+         av_log(NULL, AV_LOG_ERROR, "Destroy decoder failed, %d, %s\n",
+                err, av_err2str(ff_oh_err_to_ff_err(err)));
++    av_free(ref);
+ }
+ 
+ static int oh_decode_create(OHCodecDecContext *s, AVCodecContext *avctx)
+@@ -280,14 +281,20 @@
+     av_log(avctx, AV_LOG_DEBUG, "Create decoder %s success\n", name);
+ 
+     OHCodecDecRef *ref = av_mallocz(sizeof(*ref));
+-    if (!ref)
+-        return AVERROR(ENOMEM);
++    if (!ref) {
++        OH_VideoDecoder_Destroy(s->dec);
++        s->dec = NULL;
++        return AVERROR(ENOMEM);
++    }
+     ref->dec = s->dec;
+     atomic_init(&ref->generation, 0);
+     s->dec_ref = av_buffer_create((uint8_t *)ref, sizeof(*ref),
+                                   oh_decode_release, NULL, 0);
+-    if (!s->dec_ref)
+-        return AVERROR(ENOMEM);
++    if (!s->dec_ref) {
++        oh_decode_release(NULL, (uint8_t *)ref);
++        s->dec = NULL;
++        return AVERROR(ENOMEM);
++    }
+ 
+     return 0;
+ }
+@@ -700,6 +707,18 @@
+     av_free(buffer);
+ }
+ 
++static void oh_decode_discard_output(OHCodecDecContext *s,
++                                     OHCodecDecQueueItem *output)
++{
++    AVOHCodecBuffer buffer = {
++        .dec_ref = s->dec_ref,
++        .index = output->index,
++        .generation = output->generation,
++    };
++    atomic_init(&buffer.released, false);
++    av_ohcodec_release_buffer(&buffer, 0);
++}
++
+ static int oh_decode_wrap_hw_buffer(AVCodecContext *avctx, AVFrame *frame,
+                                     OHCodecDecQueueItem *output,
+                                     const OH_AVCodecBufferAttr *attr)
+@@ -709,17 +728,22 @@
+     frame->width = s->width;
+     frame->height = s->height;
+     int ret = ff_decode_frame_props(avctx, frame);
+-    if (ret < 0)
+-        return ret;
++    if (ret < 0) {
++        oh_decode_discard_output(s, output);
++        return ret;
++    }
+ 
+     frame->format = AV_PIX_FMT_OHCODEC;
+     AVOHCodecBuffer *buffer = av_mallocz(sizeof(*buffer));
+-    if (!buffer)
+-        return AVERROR(ENOMEM);
++    if (!buffer) {
++        oh_decode_discard_output(s, output);
++        return AVERROR(ENOMEM);
++    }
+ 
+     buffer->dec_ref = av_buffer_ref(s->dec_ref);
+     if (!buffer->dec_ref) {
+-        oh_buffer_release(buffer, NULL);
++        oh_decode_discard_output(s, output);
++        av_free(buffer);
+         return AVERROR(ENOMEM);
+     }
+ 
