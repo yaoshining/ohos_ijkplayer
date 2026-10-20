@@ -1,0 +1,108 @@
+{
+  "pid": 37617,
+  "hapSHA256": "ef504813cdcb81484cfda63feba526ddad9d5ef08f6ead21fac437fcbbf9ccc8",
+  "libraries": {
+    "libavcodec.so.62": "6f541583c4dd1ff3e4e5472404809340b4594a790e66917bfec4bbd40844e4dd",
+    "libavfilter.so.11": "82b431c76910f2a826c7679b3cfb9273dd131c1566d06cee1f80818f23c2622c",
+    "libavformat.so.62": "92e495c730a48604976bd5b1507113f7ae820ee51307542a36a61111c9da8c4c",
+    "libavutil.so.60": "671d7394ccffcfb8578b278b8751646902cbe81da091eb45c0d6168dd5ef828b",
+    "libmpv.so": "da6fcbc59b743d1afdaead29cbdf4d3994646f371d6b9202aa7295d958c5aaf9",
+    "libswresample.so.6": "4244a9e1e2697bd8ec35436148d55d5e8b2c09080c40754cc505a05c5fc52e3b",
+    "libswscale.so.9": "f1982cde4d2b6d899f99e38ae4cfb50dcda4859e9912a6b4f18913ebaf9836a0"
+  },
+  "nativeLogSHA256": "e49dae318d5286273fe98deb056b4508583814dd371fe9df52d66df97ff8508c",
+  "cases": [
+    {
+      "mode": "gl-h264",
+      "cycle": 0,
+      "surface": "5171140624727",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=202 hwdec=ohcodec ao=ohaudio gpu=ohos maxLogicalDrift=0.0333333 driftSamples=1196 seekConfirmed=1 stopped=0",
+      "reportedFd": 57,
+      "tasks": 37,
+      "rssKiB": 209776,
+      "mapsMatch": true
+    },
+    {
+      "mode": "vk-h264",
+      "cycle": 1,
+      "surface": "5171140624727",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=203 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=438 seekConfirmed=1 stopped=0",
+      "reportedFd": 57,
+      "tasks": 33,
+      "rssKiB": 242744,
+      "mapsMatch": true
+    },
+    {
+      "mode": "gl-sw",
+      "cycle": 2,
+      "surface": "5171140624727",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=206 hwdec=no ao=ohaudio gpu=ohos maxLogicalDrift=0.0333333 driftSamples=1419 seekConfirmed=1 stopped=0",
+      "reportedFd": 57,
+      "tasks": 33,
+      "rssKiB": 243680,
+      "mapsMatch": true
+    },
+    {
+      "mode": "gl-hevc",
+      "cycle": 3,
+      "surface": "5171140624727",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=204 hwdec=ohcodec ao=ohaudio gpu=ohos maxLogicalDrift=0.0333333 driftSamples=1200 seekConfirmed=1 stopped=0",
+      "reportedFd": 57,
+      "tasks": 33,
+      "rssKiB": 229308,
+      "mapsMatch": true
+    },
+    {
+      "mode": "vk-hevc",
+      "cycle": 4,
+      "surface": "5171140624727",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=203 hwdec=ohcodec ao=ohaudio gpu=ohosvk maxLogicalDrift=0.0333333 driftSamples=432 seekConfirmed=1 stopped=0",
+      "reportedFd": 59,
+      "tasks": 35,
+      "rssKiB": 222336,
+      "mapsMatch": true
+    },
+    {
+      "mode": "gl-h264",
+      "cycle": 5,
+      "surface": "5171140624727",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=203 hwdec=ohcodec ao=ohaudio gpu=ohos maxLogicalDrift=0.0333333 driftSamples=1199 seekConfirmed=1 stopped=0",
+      "reportedFd": 59,
+      "tasks": 33,
+      "rssKiB": 229464,
+      "mapsMatch": true
+    },
+    {
+      "mode": "gl-h264",
+      "cycle": 6,
+      "surface": "5171140624728",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=204 hwdec=ohcodec ao=ohaudio gpu=ohos maxLogicalDrift=0.0333232 driftSamples=1202 seekConfirmed=1 stopped=0",
+      "reportedFd": 59,
+      "tasks": 35,
+      "rssKiB": 227208,
+      "mapsMatch": true
+    },
+    {
+      "mode": "gl-sw",
+      "cycle": 7,
+      "surface": "5171140624729",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=207 hwdec=no ao=ohaudio gpu=ohos maxLogicalDrift=0.0333333 driftSamples=1413 seekConfirmed=1 stopped=0",
+      "reportedFd": 59,
+      "tasks": 32,
+      "rssKiB": 251848,
+      "mapsMatch": true
+    }
+  ],
+  "targetExecuted": true,
+  "humanAudiovisualAcceptance": false,
+  "formalArtifactAllowed": false,
+  "surfacePixelContract": {
+    "requested": {
+      "width": 2880,
+      "height": 1620
+    },
+    "nativeGeometrySamples": 16,
+    "allMatch": true,
+    "probeOnlyFix": true
+  }
+}

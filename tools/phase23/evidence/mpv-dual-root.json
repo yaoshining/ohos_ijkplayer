@@ -1,0 +1,19 @@
+{
+  "libraries": [
+    {
+      "path": "install/usr/local/lib/libmpv.so",
+      "a": "da6fcbc59b743d1afdaead29cbdf4d3994646f371d6b9202aa7295d958c5aaf9",
+      "b": "da6fcbc59b743d1afdaead29cbdf4d3994646f371d6b9202aa7295d958c5aaf9",
+      "equal": true
+    },
+    {
+      "path": "libplacebo/install/lib/libplacebo.a",
+      "a": "4124ab8e1d7a64beeda1419b7ddc99c309cef4c0ad9e2b44c4928ada1c1ff1d4",
+      "b": "4124ab8e1d7a64beeda1419b7ddc99c309cef4c0ad9e2b44c4928ada1c1ff1d4",
+      "equal": true
+    }
+  ],
+  "sourcePackageSHA256": "0c85736f8ad904bdd34dcc259721dbf3ffa3164a9fdfe1e246c0269ef8b1d7f9",
+  "noDiagnosticHilogDependency": true,
+  "scope": "fresh mpv and libplacebo with locked prebuilt dependency and FFmpeg inputs"
+}

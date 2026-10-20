@@ -1,0 +1,17 @@
+{
+  "deviceLibrarySHA256": "aa161df553e23da3aec7638cc062b1755f9b5510bc3d09fe6cf9e5204346730c",
+  "deviceLibraryBytes": 100440,
+  "symbol": "OH_NativeImage_ReleaseNativeWindowBuffer",
+  "address": "0x16174",
+  "errorBranch": "0x161e4",
+  "successUnreferenceCall": "0x161cc",
+  "analysis": "ReleaseBuffer error branch bypasses wrapper Unreference; SDK documentation transfers fence ownership to system",
+  "sdkHeaderSHA256": "445ffb3855736ce5962093acb1fcab98f7ca706427578d19d0f9987ae5913d39",
+  "referenceSource": {
+    "commit": "23df5aa7667e9c9c37042ccb441c9b654e6a4c9f",
+    "sha256": "2a0f32f9a3f811f2e0067ed95f0a2c0a97cf08da5314aa6752b71c27c0366f0b",
+    "scope": "official reference, not target firmware source identity"
+  },
+  "targetSourceIdentityClaimed": false,
+  "rawSystemBinaryPublic": false
+}
