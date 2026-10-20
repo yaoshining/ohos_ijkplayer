@@ -1,0 +1,29 @@
+{
+  "stage": "Phase24 checkpoint 01",
+  "complete": false,
+  "hostTests": 10,
+  "completeDeviceScenarios": 19,
+  "hapCount": 2,
+  "mapsSevenLibrariesUnchanged": true,
+  "defaultGLBits": [
+    8,
+    8,
+    8,
+    0
+  ],
+  "explicitGLRGB10Bits": [
+    10,
+    10,
+    10,
+    2
+  ],
+  "vulkanFormat": "A2B10G10R10_UNORM_PACK32 + SRGB_NONLINEAR",
+  "HDR10StaticMetadata": "failed/incomplete on OHCodec; 1000/2000 sources become target10000",
+  "nativeWindowMetadataReadback": "not tested",
+  "decoderActualP010Allocation": "not directly observed",
+  "VulkanRelease41210000Count": 5,
+  "NASLongPlayback": "blocked-awaiting-credential-save",
+  "privateCredentialsRead": false,
+  "humanAcceptance": false,
+  "formalArtifactAllowed": false
+}
