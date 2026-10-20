@@ -28,4 +28,5 @@ jobs:
             out/phase26-ci/artifact/
             out/phase26-ci/record.json
             out/phase26-ci/collection-error.txt
+          include-hidden-files: true
           if-no-files-found: error
