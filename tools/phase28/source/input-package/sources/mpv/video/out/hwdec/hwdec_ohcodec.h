@@ -51,6 +51,9 @@ struct ohcodec_priv {
     struct ohcodec_surface *surface;
     void *interop_owner_priv;
     const struct ohcodec_interop *interop;
+    /* Surface/owner-scoped terminal state: a release failure forbids a new
+     * OHCodec producer on this Surface even after the decoder is recreated. */
+    bool surface_invalid;
 };
 
 struct ohcodec_mapper_priv {
@@ -75,3 +78,5 @@ bool ohcodec_interop_pl_init(struct ra_hwdec *hw);
 int ohcodec_mapper_drain(struct ra_hwdec_mapper *mapper, int reason,
                          int *platform_error);
 bool ohcodec_mapper_can_drain(struct ra_hwdec_mapper *mapper);
+bool ohcodec_mapper_surface_invalid(struct ra_hwdec_mapper *mapper);
+void ohcodec_mapper_mark_surface_invalid(struct ra_hwdec_mapper *mapper);

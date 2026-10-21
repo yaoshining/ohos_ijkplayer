@@ -213,6 +213,10 @@ typedef struct lavc_ctx {
     bool eof_deferred;
     bool lifecycle_unsafe;
     bool lifecycle_release_error;
+    /* Terminal for this decoder filter and for a new filter on the same
+     * Surface. A failed release/Stop/Destroy must not silently start a new
+     * producer; safe Close remains allowed. */
+    bool lifecycle_failed;
     struct lavc_state state;
     const char *decoder;
     bool hwdec_failed;
@@ -255,6 +259,8 @@ typedef struct lavc_ctx {
 
     struct mp_decoder public;
 } vd_ffmpeg_ctx;
+
+static bool ohcodec_lifecycle_refuse_init(vd_ffmpeg_ctx *ctx);
 
 enum {
     HWDEC_FLAG_AUTO         = (1 << 0), // prioritize in autoprobe order
@@ -672,6 +678,12 @@ static void force_fallback(struct mp_filter *vd)
 {
     vd_ffmpeg_ctx *ctx = vd->priv;
 
+    if (ctx->lifecycle_failed) {
+        MP_ERR(vd, "Refusing fallback after terminal OHCodec lifecycle "
+                   "failure\n");
+        return;
+    }
+
     uninit_avctx(vd);
     int lev = ctx->hwdec_notified ? MSGL_WARN : MSGL_V;
     mp_msg(vd->log, lev, "Attempting next decoding method after failure of %.*s.\n",
@@ -700,10 +712,10 @@ static void reinit(struct mp_filter *vd)
 
     bool use_hwdec = ctx->use_hwdec;
     init_avctx(vd);
-    if (!ctx->avctx && use_hwdec) {
+    if (!ctx->avctx && use_hwdec && !ctx->lifecycle_failed) {
         do {
             force_fallback(vd);
-        } while (!ctx->avctx);
+        } while (!ctx->avctx && !ctx->lifecycle_failed);
     }
 }
 
@@ -712,6 +724,13 @@ static void init_avctx(struct mp_filter *vd)
     vd_ffmpeg_ctx *ctx = vd->priv;
     struct vd_lavc_params *lavc_param = ctx->opts;
     struct mp_codec_params *c = ctx->codec;
+
+    if (ohcodec_lifecycle_refuse_init(ctx)) {
+        MP_ERR(vd, "OHCodec Surface is terminal after a release/Stop/Destroy "
+                   "failure; refusing to create a new producer\n");
+        ctx->force_eof = true;
+        return;
+    }
 
     m_config_cache_update(ctx->opts_cache);
 
@@ -886,6 +905,43 @@ static bool ohcodec_lifecycle_enabled(vd_ffmpeg_ctx *ctx)
            ctx->hwdec.lavc_device == AV_HWDEVICE_TYPE_OHCODEC;
 }
 
+static bool ohcodec_surface_query_enabled(vd_ffmpeg_ctx *ctx)
+{
+    return ctx->use_hwdec && ctx->vo &&
+           ctx->hwdec.lavc_device == AV_HWDEVICE_TYPE_OHCODEC;
+}
+
+static bool ohcodec_surface_invalid(vd_ffmpeg_ctx *ctx)
+{
+    if (!ohcodec_surface_query_enabled(ctx))
+        return false;
+    struct vo_ohcodec_surface_req req = {0};
+    int r = vo_control(ctx->vo, VOCTRL_OHCODEC_SURFACE, &req);
+    if (r < 0)
+        return false;
+    return req.invalid != 0;
+}
+
+static void ohcodec_mark_surface_invalid(vd_ffmpeg_ctx *ctx)
+{
+    if (!ohcodec_surface_query_enabled(ctx))
+        return;
+    struct vo_ohcodec_surface_req req = { .mark_invalid = 1 };
+    vo_control(ctx->vo, VOCTRL_OHCODEC_SURFACE, &req);
+}
+
+static bool ohcodec_lifecycle_refuse_init(vd_ffmpeg_ctx *ctx)
+{
+    if (ctx->lifecycle_failed)
+        return true;
+    if (!ohcodec_surface_invalid(ctx))
+        return false;
+    ctx->lifecycle_failed = true;
+    ctx->force_eof = true;
+    MP_ERR(ctx, "OHCodec Surface is already terminal; refusing new producer\n");
+    return true;
+}
+
 static bool ohcodec_lifecycle_preflight(struct mp_filter *vd, int reason)
 {
     vd_ffmpeg_ctx *ctx = vd->priv;
@@ -913,7 +969,9 @@ static bool ohcodec_lifecycle_preflight(struct mp_filter *vd, int reason)
                    "consumer buffer failed (%d); ending playback without "
                    "reusing this Surface.\n", req.platform_error);
         ctx->lifecycle_release_error = true;
+        ctx->lifecycle_failed = true;
         ctx->force_eof = true;
+        ohcodec_mark_surface_invalid(ctx);
         return true;
     }
 
@@ -921,6 +979,7 @@ static bool ohcodec_lifecycle_preflight(struct mp_filter *vd, int reason)
                "normal FFmpeg free/restart for this context.\n",
            req.platform_error);
     ctx->lifecycle_unsafe = true;
+    ctx->lifecycle_failed = true;
     ctx->force_eof = true;
 #ifdef MP_OHCODEC_LIFECYCLE_EXPERIMENT
     /* Diagnostic experiment only. The external watchdog owns bounded
@@ -1411,7 +1470,11 @@ static int receive_frame(struct mp_filter *vd, struct mp_frame *out_frame)
          */
         do {
             force_fallback(vd);
-        } while (!ctx->avctx);
+        } while (!ctx->avctx && !ctx->lifecycle_failed);
+        if (ctx->lifecycle_failed) {
+            ctx->force_eof = true;
+            return AVERROR_EOF;
+        }
 
         ctx->requeue_packets = pkts;
         ctx->num_requeue_packets = num_pkts;

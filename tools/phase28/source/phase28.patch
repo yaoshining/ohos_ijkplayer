@@ -1,6 +1,20 @@
 --- a/libavcodec/ohdec.c
 +++ b/libavcodec/ohdec.c
-@@ -66,6 +66,19 @@
+@@ -51,6 +51,13 @@
+ 
+ #define OH_DOVI_QUEUE_SIZE 64
+ 
++/* A platform Stop/Destroy failure leaves a Surface producer in an unknown
++ * state. Do not create another OHCodec decoder in this process: the failure is
++ * terminal for this diagnostic run, while the close itself remains safe to
++ * complete. */
++static atomic_bool ohcodec_terminal_failure = ATOMIC_VAR_INIT(false);
++static atomic_int ohcodec_failed_destroy_count;
++
+ typedef struct OHCodecDecQueueItem {
+     uint32_t index;
+     OH_AVBuffer *buffer;
+@@ -66,6 +73,19 @@
  typedef struct OHCodecDecRef {
      OH_AVCodec *dec;
      atomic_uint_fast64_t generation;
@@ -20,7 +34,7 @@
  } OHCodecDecRef;
  
  typedef struct OHCodecDecContext {
-@@ -96,9 +109,12 @@
+@@ -96,9 +116,12 @@
      int decode_status;
      bool eof_sent;
      atomic_bool accepting_callbacks;
@@ -33,7 +47,7 @@
      int width;
      int height;
      int stride;
-@@ -132,6 +148,47 @@
+@@ -132,6 +155,47 @@
  {
      atomic_fetch_add_explicit(&oh_decode_ref(s)->generation, 1,
                                memory_order_acq_rel);
@@ -81,7 +95,7 @@
  }
  
  static void oh_decode_clear_dovi(OHCodecDecContext *s)
-@@ -246,16 +303,17 @@
+@@ -246,16 +310,17 @@
  static void oh_decode_release(void *opaque, uint8_t *data)
  {
      OHCodecDecRef *ref = (OHCodecDecRef *)data;
@@ -109,7 +123,21 @@
      av_free(ref);
  }
  
-@@ -301,11 +359,28 @@
+@@ -263,6 +328,13 @@
+ {
+     const char *name = s->name;
+ 
++    if (atomic_load_explicit(&ohcodec_terminal_failure, memory_order_acquire)) {
++        av_log(avctx, AV_LOG_ERROR,
++               "Refusing to create a new OHCodec decoder after a terminal "
++               "platform Stop/Destroy failure\n");
++        return AVERROR_EXTERNAL;
++    }
++
+     if (!name) {
+         const char *mime = ff_oh_mime(avctx->codec_id, avctx);
+         if (!mime)
+@@ -301,11 +373,28 @@
      }
      ref->dec = s->dec;
      atomic_init(&ref->generation, 0);
@@ -139,7 +167,7 @@
          return AVERROR(ENOMEM);
      }
  
-@@ -406,26 +481,22 @@
+@@ -406,26 +495,22 @@
  
  static void oh_decode_on_err(OH_AVCodec *codec, int32_t err, void *userdata)
  {
@@ -179,7 +207,7 @@
      int32_t n, graphic_format;
      double d;
  
-@@ -523,21 +594,35 @@
+@@ -523,21 +608,35 @@
      }
  
      s->got_stream_info = true;
@@ -221,7 +249,7 @@
      OHCodecDecQueueItem item = {
          index, buffer, oh_decode_generation(s),
      };
-@@ -549,16 +634,19 @@
+@@ -549,16 +648,19 @@
      ff_mutex_unlock(&s->input_mutex);
  
      if (ret < 0)
@@ -245,7 +273,7 @@
      OHCodecDecQueueItem item = {
          index, buffer, oh_decode_generation(s),
      };
-@@ -570,13 +658,15 @@
+@@ -570,13 +672,15 @@
      ff_mutex_unlock(&s->output_mutex);
  
      if (ret < 0)
@@ -262,7 +290,7 @@
      OH_AVCodecCallback cb = {
          .onError = oh_decode_on_err,
          .onStreamChanged = oh_decode_on_stream_changed,
-@@ -584,7 +674,18 @@
+@@ -584,7 +688,18 @@
          .onNewOutputBuffer = oh_decode_on_output,
      };
  
@@ -282,7 +310,7 @@
      if (err != AV_ERR_OK) {
          ret = ff_oh_err_to_ff_err(err);
          av_log(avctx, AV_LOG_ERROR, "Register callback failed, %d, %s\n",
-@@ -598,20 +699,26 @@
+@@ -598,20 +713,26 @@
                 err, av_err2str(ret));
          return ret;
      }
@@ -313,7 +341,7 @@
  static av_cold int oh_decode_init(AVCodecContext *avctx)
  {
      OHCodecDecContext *s = avctx->priv_data;
-@@ -629,10 +736,12 @@
+@@ -629,10 +750,12 @@
      }
  
      // Initialize these fields first, so oh_decode_close can destroy them safely
@@ -330,7 +358,7 @@
  
      int ret = oh_decode_create(s, avctx);
      if (ret < 0)
-@@ -646,8 +755,12 @@
+@@ -646,8 +769,12 @@
                                      AV_FIFO_FLAG_AUTO_GROW);
      s->output_queue = av_fifo_alloc2(fifo_size, sizeof(OHCodecDecQueueItem),
                                       AV_FIFO_FLAG_AUTO_GROW);
@@ -344,7 +372,7 @@
  
      ret = oh_decode_start(s, avctx);
      if (ret < 0)
-@@ -659,23 +772,60 @@
+@@ -659,23 +786,70 @@
  static av_cold int oh_decode_close(AVCodecContext *avctx)
  {
      OHCodecDecContext *s = avctx->priv_data;
@@ -388,9 +416,14 @@
 +            ref->stopped = true;
 +            av_log(avctx, AV_LOG_INFO, "P28_CODEC t=%"PRId64" op=stop-end dec=%p rc=%d\n",
 +                   p27_monotonic_us(), s->dec, stop_err);
-+            if (stop_err != AV_ERR_OK)
-+                av_log(avctx, AV_LOG_ERROR, "Stop decoder failed, %d, %s\n",
++            if (stop_err != AV_ERR_OK) {
++                atomic_store_explicit(&ohcodec_terminal_failure, true,
++                                      memory_order_release);
++                av_log(avctx, AV_LOG_ERROR,
++                       "Stop decoder failed, %d, %s; OHCodec lifecycle is now "
++                       "terminal and no new decoder will be created\n",
 +                       stop_err, av_err2str(ff_oh_err_to_ff_err(stop_err)));
++            }
 +        }
 +
 +        OH_AVErrCode destroy_err = OH_VideoDecoder_Destroy(s->dec);
@@ -407,19 +440,24 @@
 +             * userdata that a late platform callback could still enter. This
 +             * is an explicit, visible process-lifetime quarantine; it is not
 +             * reported as a safe close. */
-+            if (ref)
-+                ref->dec = NULL;
++            atomic_store_explicit(&ohcodec_terminal_failure, true,
++                                  memory_order_release);
++            atomic_fetch_add_explicit(&ohcodec_failed_destroy_count, 1,
++                                      memory_order_acq_rel);
 +            av_log(avctx, AV_LOG_ERROR,
 +                   "Destroy decoder failed, %d; callback lifetime unsafe, "
-+                   "quarantining stable reference shell\n",
-+                   destroy_err);
++                   "quarantining stable reference shell and native handle "
++                   "(failedDestroyCount=%d). New OHCodec decoders are refused.\n",
++                   destroy_err,
++                   atomic_load_explicit(&ohcodec_failed_destroy_count,
++                                        memory_order_acquire));
 +            s->dec_ref = NULL;
 +        }
 +    } else if (s->dec_ref) {
          av_buffer_unref(&s->dec_ref);
      }
  
-@@ -685,31 +835,54 @@
+@@ -685,31 +859,54 @@
      ff_h2645_packet_uninit(&s->dovi_pkt);
      ff_dovi_ctx_unref(&s->dovi_ctx);
  
@@ -486,7 +524,7 @@
      return ff_oh_err_to_ff_err(err);
  }
  
-@@ -860,7 +1033,10 @@
+@@ -860,7 +1057,10 @@
              return AVERROR_EXTERNAL;
          }
  
@@ -498,7 +536,7 @@
          OH_AVFormat_Destroy(format);
          if (!s->got_stream_info)
              return AVERROR_EXTERNAL;
-@@ -1044,31 +1220,67 @@
+@@ -1044,31 +1244,67 @@
  static void oh_decode_flush(AVCodecContext *avctx)
  {
      OHCodecDecContext *s = avctx->priv_data;

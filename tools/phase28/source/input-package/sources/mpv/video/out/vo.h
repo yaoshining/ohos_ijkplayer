@@ -75,6 +75,10 @@ struct vo_ohcodec_drain_req {
     int platform_error;
     int reason;
 };
+struct vo_ohcodec_surface_req {
+    int invalid;
+    int mark_invalid;
+};
 /* VO-thread only: drop queued/retained frames so a retired OHCodec epoch
  * cannot be mapped or redrawn again. Call only after the active interop has
  * confirmed a real Vulkan drain capability. */
@@ -87,6 +91,9 @@ enum mp_voctrl {
      * consumer buffers before Flush/Stop/Destroy. data is
      * struct vo_ohcodec_drain_req*. */
     VOCTRL_OHCODEC_DRAIN,
+    /* Phase28: query/mark the OHCodec owner Surface as terminal after a
+     * SAFE_RELEASE_ERROR. data is struct vo_ohcodec_surface_req*. */
+    VOCTRL_OHCODEC_SURFACE,
     /* Handle input and redraw events, called by vo_check_events() */
     VOCTRL_CHECK_EVENTS,
     /* signal a device pause */

@@ -44,17 +44,67 @@ def main():
                                    timeout=timeout)
                 return p.returncode, p.stdout, p.stderr, False
             except subprocess.TimeoutExpired as e:
-                return 124, (e.stdout or "") if isinstance(e.stdout,str) else "",
-                # timeout metadata is recorded, not treated as success
+                so = e.stdout or ""
+                se = e.stderr or ""
+                if isinstance(so, bytes): so = so.decode("utf-8", "replace")
+                if isinstance(se, bytes): se = se.decode("utf-8", "replace")
+                return 124, so, se + "\nTIMEOUT", True
         code, stdout, stderr, timedout = run("unsafe-preflight", 5)
         (out/("run-"+name+"-unsafe.log")).write_text(stdout+stderr)
         if name == "experiment":
-            passed = timedout or code != 0
+            # Only the explicit experiment fail-stop is accepted: SIGABRT
+            # (-6/134). A plain FAIL exit, a timeout or any other crash is a
+            # gate failure, not evidence of fail-stop.
+            passed = (not timedout and code in (-6, 134)
+                      and "FAIL" not in stdout)
         else:
             passed = not timedout and code == 0 and "PASS unsafe-preflight-quarantine" in stdout
         results["cases"].append({"build":name,"case":"unsafe-preflight",
                                  "exitCode":code,"timedOut":timedout,
                                  "passed":passed,"stdout":stdout,"stderr":stderr})
+    # Negative test for the experiment gate: removing the fail-stop must be
+    # rejected even though it exits nonzero and prints FAIL.
+    mutant = out/"harness-mutant.c"
+    mutdir = out/"mutant"
+    mutdir.mkdir()
+    src = (ex/"actual-vd.inc").read_text()
+    mutated = src.replace("    abort();", "    return false;", 1)
+    if mutated == src:
+        results["cases"].append({"build":"mutant","case":"missing-abort",
+                                 "passed":False,
+                                 "error":"could not create missing-abort mutant"})
+    else:
+        (mutdir/"actual-vd.inc").write_text(mutated)
+        mutant.write_text((out/"harness.c").read_text())
+        cmd = ["clang","-std=c11","-D_POSIX_C_SOURCE=200809L","-DPHASE28",
+               "-DMP_OHCODEC_LIFECYCLE_EXPERIMENT=1",
+               "-Wall","-Wextra","-Werror","-Wno-unused-function",
+               "-Wno-unused-parameter","-Wno-unused-but-set-variable","-g","-O0",
+               "-I",str(out),"-I",str(mutdir),"-I",str(ex),str(mutant),"-o",str(out/"harness-mutant")]
+        mc = subprocess.run(cmd,capture_output=True,text=True)
+        (out/"compile-mutant.log").write_text(mc.stdout+mc.stderr)
+        if mc.returncode:
+            results["cases"].append({"build":"mutant","case":"missing-abort",
+                                     "passed":False,"compileExit":mc.returncode})
+        else:
+            try:
+                mp = subprocess.run([str(out/"harness-mutant"), "unsafe-preflight"],
+                                    capture_output=True, text=True, timeout=5)
+                code, stdout, stderr, timedout = mp.returncode, mp.stdout, mp.stderr, False
+            except subprocess.TimeoutExpired as e:
+                so = e.stdout or ""
+                se = e.stderr or ""
+                if isinstance(so, bytes): so = so.decode("utf-8", "replace")
+                if isinstance(se, bytes): se = se.decode("utf-8", "replace")
+                code, stdout, stderr, timedout = 124, so, se + "\nTIMEOUT", True
+            (out/"run-mutant-unsafe.log").write_text(stdout+stderr)
+            rejected = (not timedout and (code not in (-6, 134)
+                                         or "FAIL" in stdout))
+            results["cases"].append({"build":"mutant","case":"missing-abort",
+                                     "exitCode":code,"timedOut":timedout,
+                                     "passed":rejected,"stdout":stdout,
+                                     "stderr":stderr,
+                                     "note":"gate must reject a missing fail-stop"})
     # External watchdog bound: a deliberate hang must be terminated by the
     # host timeout, outside the diagnostic worker.
     binp = out/"harness-normal"

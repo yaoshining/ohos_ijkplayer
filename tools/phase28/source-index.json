@@ -12,7 +12,7 @@
   {
     "path": "source/ffmpeg-index.json",
     "size": 1512072,
-    "sha256": "a13ed6b3d0b82262d4e1117bbcd00fac8efe380e1a14b43b7db07b1410d9c879"
+    "sha256": "1285dcc991c9e5bc9bdaeebe0d0dc5a564d83a00698d312c0a289fe2cf17f687"
   },
   {
     "path": "source/ffmpeg-upstream.json",
@@ -36,23 +36,23 @@
   },
   {
     "path": "source/input-package/sources/mpv/video/decode/vd_lavc.c",
-    "size": 53611,
-    "sha256": "e6b4021ca57bd82950988ad3e3d8bdf78a55f70d25c4663df54c1cd6bd96619a"
+    "size": 55671,
+    "sha256": "f745a27d2071c7b7695897a053b8a4d6cadfb1bf6e620158338991dfc443a0b7"
   },
   {
     "path": "source/input-package/sources/mpv/video/out/hwdec/hwdec_ohcodec.c",
-    "size": 10008,
-    "sha256": "c789d1909dca3d76f35628e5504621162045ae5f15091dba12832479a0e41c7d"
+    "size": 10662,
+    "sha256": "206c4bdcdfb2620a31523a3490f90adefbfc0bdd5be6bd1ca2d41222f9c3f964"
   },
   {
     "path": "source/input-package/sources/mpv/video/out/hwdec/hwdec_ohcodec.h",
-    "size": 2405,
-    "sha256": "5a4085dc2e2cf8609aa73f7be288e0deb1ef06b838ff5914b33d70483bfaf818"
+    "size": 2730,
+    "sha256": "4d32c6eb2a95792e0dccdbffd04ab728d504e6b8772b069d4ef19fb7e5eaa384"
   },
   {
     "path": "source/input-package/sources/mpv/video/out/hwdec/hwdec_ohcodec_pl.c",
-    "size": 30058,
-    "sha256": "4dc6a8b2265837f285d6760293b97027769c17635853c345d4cef465a81dd3b8"
+    "size": 31102,
+    "sha256": "c44d0634eaaacee351abc9f4dfd15e8e7f45e4ac16eb4d4490c1ac9777273f23"
   },
   {
     "path": "source/input-package/sources/mpv/video/out/vo.c",
@@ -61,18 +61,18 @@
   },
   {
     "path": "source/input-package/sources/mpv/video/out/vo.h",
-    "size": 22647,
-    "sha256": "7b5758db6135c2b208fb7b7d5b860d271653a09763bf7b8c4214f5a853899eb2"
+    "size": 22892,
+    "sha256": "c89aa5e5bddfea5d4b4dc484dfe51ba5aef00a25c6c3eb3d13e71f772c7e4712"
   },
   {
     "path": "source/input-package/sources/mpv/video/out/vo_gpu_next.c",
-    "size": 98105,
-    "sha256": "895e860a6b3dde22a038e86267ccd6d941412ef7b2edda6b0c05a1794d1db48f"
+    "size": 98746,
+    "sha256": "0188135a828122e215b8c5f38d70d1bdd7f16e4be0ca5f3f226cfb6da4b5e261"
   },
   {
     "path": "source/phase28.patch",
-    "size": 21272,
-    "sha256": "064ade89846d5fe511496276b3aba7659a1022de0ce98b085a12295c6ff5fad8"
+    "size": 22949,
+    "sha256": "3cfab7bf66541941e794317e21e66b75e8d3993ac81fb650d8c780c62d398275"
   },
   {
     "path": "source/tests/lifecycle/baseline/ffmpeg/libavcodec/ohcodec.h",
@@ -151,33 +151,33 @@
   },
   {
     "path": "source/tests/lifecycle/extract.py",
-    "size": 8373,
-    "sha256": "e830b7dd9716f64d62d9ac362bce16c5528966fe643390a97e55d7be76fd947c"
+    "size": 8593,
+    "sha256": "11e108b2a799066330e1da7b3dca49afc2d73e6d46f2dabaca37627581be085b"
   },
   {
     "path": "source/tests/lifecycle/mpv/harness.c",
-    "size": 24271,
-    "sha256": "2b25d8336d37aad07e1f5405de729399a35a6441c4cf996915f9534fc6db0240"
+    "size": 28668,
+    "sha256": "6ff927b0928d9f0395b41190f3598bfcadc58429d7a22b8ba625fcc1506078c5"
   },
   {
     "path": "source/tests/lifecycle/ohdec/harness.c",
-    "size": 29613,
-    "sha256": "b82cb8f5874eed34fbe7cac6dddbedceb81eb0baec768ecc602eaf00432fcf03"
+    "size": 31502,
+    "sha256": "2c22a890807c14e08fe0b5df5ec5156502aa10e812c2d69e89b73318f67a6a35"
   },
   {
     "path": "source/tests/lifecycle/run_mpv.py",
-    "size": 4136,
-    "sha256": "fd1ac91c54f132cea8c306eaea1286395692ff03d5eaed09f3bbfdd225075f35"
+    "size": 4185,
+    "sha256": "5cb49dc4cc79e0a63e3fd5225a44ad41c92b29fb3dfe6fe21622eabaf5c3cf7d"
   },
   {
     "path": "source/tests/lifecycle/run_ohdec.py",
-    "size": 3299,
-    "sha256": "972a10e73501dcc78698930511e165627a773e9b067d8550900f6aa2fdec39eb"
+    "size": 3352,
+    "sha256": "76ed5dc5052d2bc9a23ecbfb7b19ceb9e0760b1e3d31a76244e824458d83d5b3"
   },
   {
     "path": "source/tests/lifecycle/run_watchdog.py",
-    "size": 4002,
-    "sha256": "d6e43347ace98c436bff533c761b839f7c6bcf4157ceb7ac004c0a1b1c7dd3ad"
+    "size": 6974,
+    "sha256": "ba152c4b5699d3a9ae5049ebdc2f718819e78eeb89085bebb4379137cd871af4"
   },
   {
     "path": "source/tests/regression/ffmpeg/annexb_test.c",

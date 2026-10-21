@@ -73,6 +73,9 @@ struct vk_mapper {
     struct vk_import *current;
     OHNativeWindowBuffer *window_buffer;
     const char *release_reason;
+    /* A successful signal_release is an external queue operation that may
+     * still be in flight after mapper_release cleared current. */
+    bool external_release_inflight;
 };
 
 static int64_t p27_monotonic_us(void)
@@ -642,6 +645,8 @@ static void mapper_release(struct ra_hwdec_mapper *mapper)
             MP_ERR(mapper, "vkQueueSignalReleaseImageOHOS failed: %d\n", res);
             fence_fd = -1;
             pl_gpu_finish(v->gpu);
+        } else {
+            v->external_release_inflight = true;
         }
     } else {
         MP_ERR(mapper, "Failed to hold OHCodec external image for release\n");
@@ -720,6 +725,7 @@ static int ohcodec_drain(struct ra_hwdec_mapper *mapper, int reason,
                 *platform_error = wait;
             return OHCODEC_DRAIN_UNSAFE;
         }
+        v->external_release_inflight = false;
         int release_ret = release_window_buffer(mapper, fence_fd);
         if (release_ret != NATIVE_ERROR_OK) {
             if (platform_error)
@@ -736,6 +742,23 @@ static int ohcodec_drain(struct ra_hwdec_mapper *mapper, int reason,
                 *platform_error = release_ret;
             result = OHCODEC_DRAIN_SAFE_RELEASE_ERROR;
         }
+    }
+
+    /* 2b. mapper_release may have submitted an external release and then
+     * cleared current. The graphics queue is the only completion proof we
+     * have for that historical operation; wait it before destroying imports. */
+    if (!v->current && v->external_release_inflight) {
+        v->vk->lock_queue(v->vk, v->qf, 0);
+        VkResult wait = v->wait_idle(v->queue);
+        v->vk->unlock_queue(v->vk, v->qf, 0);
+        MP_INFO(mapper, "P28_DRAIN t=%"PRId64" op=history-wait-idle rc=%d\n",
+                p27_monotonic_us(), wait);
+        if (wait != VK_SUCCESS) {
+            if (platform_error)
+                *platform_error = wait;
+            return OHCODEC_DRAIN_UNSAFE;
+        }
+        v->external_release_inflight = false;
     }
 
     /* 3. Retired frames must not be re-mapped into the next producer. */

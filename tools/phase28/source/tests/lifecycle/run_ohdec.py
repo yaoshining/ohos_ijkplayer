@@ -5,7 +5,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[3]
 CASES = ["close-held-frame", "callback-after-close", "token-close-race",
-         "callback-inflight-close", "prepare-fail", "duplicate-close"]
+         "callback-inflight-close", "prepare-fail", "duplicate-close", "destroy-fail", "stop-fail"]
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--source", choices=["baseline", "phase28"], required=True)
@@ -24,7 +24,7 @@ def main():
     define = "-DBASELINE" if args.source == "baseline" else "-DPHASE28"
     cmd = ["clang", "-std=c11", "-D_POSIX_C_SOURCE=200809L", define,
            "-Wall", "-Wextra", "-Werror", "-Wno-unused-function",
-           "-Wno-unused-parameter", "-Wno-unused-but-set-variable", "-Wno-sign-compare", "-g", "-O0",
+           "-Wno-unused-parameter", "-Wno-unused-but-set-variable", "-Wno-unused-variable", "-Wno-sign-compare", "-g", "-O0",
            "-I", str(out), "-I", str(ex), str(out/"harness.c"),
            "-o", str(out/"harness"), "-pthread"]
     c = subprocess.run(cmd, capture_output=True, text=True)

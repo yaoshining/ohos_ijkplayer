@@ -49,7 +49,10 @@ UNITS = {
             "static int decode_frame(struct mp_filter *vd)",
             "static bool ohcodec_lifecycle_preflight(struct mp_filter *vd, int reason)",
             "static bool ohcodec_lifecycle_enabled(vd_ffmpeg_ctx *ctx)",
-            "static bool ohcodec_lifecycle_needs_preflight(vd_ffmpeg_ctx *ctx)",
+            "static bool ohcodec_surface_query_enabled(vd_ffmpeg_ctx *ctx)",
+            "static bool ohcodec_surface_invalid(vd_ffmpeg_ctx *ctx)",
+            "static void ohcodec_mark_surface_invalid(vd_ffmpeg_ctx *ctx)",
+            "static bool ohcodec_lifecycle_refuse_init(vd_ffmpeg_ctx *ctx)",
         ]),
         ("video/out/vo.c", "vo", [
             "void vo_ohcodec_retire_frames(struct vo *vo)",

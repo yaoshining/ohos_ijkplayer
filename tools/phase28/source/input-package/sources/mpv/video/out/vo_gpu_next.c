@@ -1862,6 +1862,21 @@ static int control(struct vo *vo, uint32_t request, void *data)
         return VO_TRUE;
     }
 
+    case VOCTRL_OHCODEC_SURFACE: {
+        struct vo_ohcodec_surface_req *req = data;
+        if (!req)
+            return VO_FALSE;
+        req->invalid = 0;
+        struct ra_hwdec_mapper *mapper = p->hwdec_mapper;
+        if (!mapper || !mapper->owner ||
+            mapper->owner->driver->device_type != AV_HWDEVICE_TYPE_OHCODEC)
+            return VO_TRUE;
+        if (req->mark_invalid)
+            ohcodec_mapper_mark_surface_invalid(mapper);
+        req->invalid = ohcodec_mapper_surface_invalid(mapper);
+        return VO_TRUE;
+    }
+
     case VOCTRL_OHCODEC_DRAIN: {
         struct vo_ohcodec_drain_req *req = data;
         if (!req)
@@ -1889,8 +1904,10 @@ static int control(struct vo *vo, uint32_t request, void *data)
         MP_INFO(p, "P28_DRAIN t=%"PRId64" op=vo-end result=%d platform=%d\n",
                 mp_time_ns() / 1000, result, platform_error);
         if (result == VO_OHCODEC_DRAIN_SAFE_RELEASE_ERROR) {
+            ohcodec_mapper_mark_surface_invalid(mapper);
             MP_ERR(p, "OHCodec drain: GPU completed but consumer buffer "
-                      "return failed (%d)\n", platform_error);
+                      "return failed (%d); Surface is terminal\n",
+                   platform_error);
         } else if (result == VO_OHCODEC_DRAIN_UNSAFE) {
             MP_ERR(p, "OHCodec drain: GPU completion unknown (%d)\n",
                    platform_error);
