@@ -27,7 +27,13 @@ ROOTS = {
 UNITS = {
     "mpv": [
         ("video/out/hwdec/hwdec_ohcodec.c", "generic", [
+            "static int mapper_init(struct ra_hwdec_mapper *mapper)",
             "static void mapper_uninit(struct ra_hwdec_mapper *mapper)",
+            "bool ohcodec_mapper_surface_invalid(struct ra_hwdec_mapper *mapper)",
+            "void ohcodec_mapper_mark_surface_invalid(struct ra_hwdec_mapper *mapper)",
+            "bool ohcodec_hwdec_surface_invalid(struct ra_hwdec *hw)",
+            "void ohcodec_hwdec_mark_surface_invalid(struct ra_hwdec *hw)",
+            "struct ra_hwdec *ohcodec_hwdec_find(struct ra_hwdec **hwdecs, int num)",
         ]),
         ("video/out/hwdec/hwdec_ohcodec_pl.c", "vk", [
             "static int64_t p27_monotonic_us(void)",

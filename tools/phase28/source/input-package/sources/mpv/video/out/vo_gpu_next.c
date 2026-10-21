@@ -1868,12 +1868,18 @@ static int control(struct vo *vo, uint32_t request, void *data)
             return VO_FALSE;
         req->invalid = 0;
         struct ra_hwdec_mapper *mapper = p->hwdec_mapper;
-        if (!mapper || !mapper->owner ||
-            mapper->owner->driver->device_type != AV_HWDEVICE_TYPE_OHCODEC)
+        struct ra_hwdec *owner = NULL;
+        if (mapper && mapper->owner && mapper->owner->driver &&
+            mapper->owner->driver->device_type == AV_HWDEVICE_TYPE_OHCODEC)
+            owner = mapper->owner;
+        else
+            owner = ohcodec_hwdec_find(p->hwdec_ctx.hwdecs,
+                                       p->hwdec_ctx.num_hwdecs);
+        if (!owner)
             return VO_TRUE;
         if (req->mark_invalid)
-            ohcodec_mapper_mark_surface_invalid(mapper);
-        req->invalid = ohcodec_mapper_surface_invalid(mapper);
+            ohcodec_hwdec_mark_surface_invalid(owner);
+        req->invalid = ohcodec_hwdec_surface_invalid(owner);
         return VO_TRUE;
     }
 

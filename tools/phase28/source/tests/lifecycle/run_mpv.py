@@ -17,7 +17,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[3]
 CASES = ["mapper-uninit-order", "vd-lavc-preflight",
-         "vd-lavc-preflight-uninit", "vo-drain-control", "eof-deferred", "surface-invalid-reinit", "empty-current-drain"]
+         "vd-lavc-preflight-uninit", "vo-drain-control", "eof-deferred", "surface-invalid-reinit", "empty-current-drain", "mapper-teardown-release-error", "surface-owner-invalid"]
 
 
 def sha(path):

@@ -153,6 +153,10 @@ static void uninit(struct ra_hwdec *hw)
 static int mapper_init(struct ra_hwdec_mapper *mapper)
 {
     struct ohcodec_priv *owner = mapper->owner->priv;
+    if (owner->surface_invalid) {
+        MP_ERR(mapper, "Refusing new OHCodec mapper on a terminal Surface\n");
+        return -1;
+    }
     return owner->interop->mapper_init(mapper) ? 0 : -1;
 }
 
@@ -164,6 +168,13 @@ static void mapper_uninit(struct ra_hwdec_mapper *mapper)
         int platform_error = 0;
         int result = owner->interop->drain(mapper, OHCODEC_DRAIN_REASON_CLOSE,
                                            &platform_error);
+        if (result == OHCODEC_DRAIN_SAFE_RELEASE_ERROR ||
+            result == OHCODEC_DRAIN_UNSAFE) {
+            /* A generic mapper teardown is another drain entry point. Latch
+             * the owner/Surface terminal state here as well; cleanup may
+             * finish, but rebuilding a consumer on this Surface is refused. */
+            ohcodec_mapper_mark_surface_invalid(mapper);
+        }
         if (result == OHCODEC_DRAIN_UNSAFE) {
             /* Completion is unknown. Keep the retained frame and platform
              * resources alive rather than finalizing the decoder context. The
@@ -186,6 +197,40 @@ bool ohcodec_mapper_surface_invalid(struct ra_hwdec_mapper *mapper)
         return false;
     struct ohcodec_priv *owner = mapper->owner->priv;
     return owner && owner->surface_invalid;
+}
+
+bool ohcodec_hwdec_surface_invalid(struct ra_hwdec *hw)
+{
+    if (!hw || !hw->driver ||
+        hw->driver->device_type != AV_HWDEVICE_TYPE_OHCODEC)
+        return false;
+    struct ohcodec_priv *owner = hw->priv;
+    return owner && owner->surface_invalid;
+}
+
+void ohcodec_hwdec_mark_surface_invalid(struct ra_hwdec *hw)
+{
+    if (!hw || !hw->driver ||
+        hw->driver->device_type != AV_HWDEVICE_TYPE_OHCODEC)
+        return;
+    struct ohcodec_priv *owner = hw->priv;
+    if (!owner)
+        return;
+    if (!owner->surface_invalid)
+        MP_ERR(hw, "OHCodec owner Surface marked terminal after release "
+                   "failure; no new producer is allowed\n");
+    owner->surface_invalid = true;
+}
+
+struct ra_hwdec *ohcodec_hwdec_find(struct ra_hwdec **hwdecs, int num)
+{
+    for (int i = 0; i < num; i++) {
+        struct ra_hwdec *hw = hwdecs ? hwdecs[i] : NULL;
+        if (hw && hw->driver &&
+            hw->driver->device_type == AV_HWDEVICE_TYPE_OHCODEC)
+            return hw;
+    }
+    return NULL;
 }
 
 void ohcodec_mapper_mark_surface_invalid(struct ra_hwdec_mapper *mapper)
@@ -223,6 +268,10 @@ int ohcodec_mapper_drain(struct ra_hwdec_mapper *mapper, int reason,
 static int mapper_map(struct ra_hwdec_mapper *mapper)
 {
     struct ohcodec_priv *owner = mapper->owner->priv;
+    if (owner->surface_invalid) {
+        MP_ERR(mapper, "Refusing to map OHCodec frame on a terminal Surface\n");
+        return -1;
+    }
     AVOHCodecBuffer *token = mapper->src && mapper->src->imgfmt == IMGFMT_OHCODEC
                            ? (AVOHCodecBuffer *)mapper->src->planes[3] : NULL;
     struct ohcodec_mapper_priv *p = mapper->priv;

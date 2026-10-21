@@ -122,6 +122,7 @@ struct ohcodec_priv {
     struct ohcodec_interop *interop;
     void *interop_owner_priv;
     struct ohcodec_surface *surface;
+    bool surface_invalid;
 };
 struct ohcodec_mapper_priv {
     void *priv;
@@ -384,6 +385,11 @@ static void forget_frames(struct vo *vo) {
 /* Forward declarations required by the verbatim slices. */
 int vo_control(struct vo *vo, int request, void *data);
 static void mapper_release(struct ra_hwdec_mapper *mapper);
+void ohcodec_mapper_mark_surface_invalid(struct ra_hwdec_mapper *mapper);
+bool ohcodec_hwdec_surface_invalid(struct ra_hwdec *hw);
+void ohcodec_hwdec_mark_surface_invalid(struct ra_hwdec *hw);
+struct ra_hwdec *ohcodec_hwdec_find(struct ra_hwdec **hwdecs, int num);
+static bool fake_mapper_init(struct ra_hwdec_mapper *mapper) { (void)mapper; return true; }
 static void uninit_avctx(struct mp_filter *vd);
 static void reset_vsync_timings(struct vo *vo);
 static void wakeup_locked(struct vo *vo);
@@ -461,6 +467,75 @@ static int mode_mapper_uninit(void) {
     }
     printf("PASS mapper-uninit-order\n");
     return 0;
+}
+
+static int mode_mapper_teardown_release_error(void) {
+#ifdef PHASE28
+    struct ra_hwdec_mapper mapper = {0};
+    struct ohcodec_priv owner = {0};
+    struct ohcodec_mapper_priv mp = {0};
+    struct mp_image *img = calloc(1, sizeof(*img));
+    struct ohcodec_interop interop = {0};
+    struct ohcodec_surface surface = { .image = (void *)(uintptr_t)0x55 };
+    struct ra_hwdec hw = {0};
+    hw.priv = &owner;
+    owner.interop = &interop;
+    owner.surface = &surface;
+    mapper.owner = &hw;
+    mapper.priv = &mp;
+    mp.last_token = (AVOHCodecBuffer *)(uintptr_t)0x200;
+    mp.last_src = img;
+    make_vk(&mapper, &mp);
+    interop.drain = ohcodec_drain;
+    interop.release = mapper_release;
+    interop.mapper_init = fake_mapper_init;
+    interop.mapper_uninit = vk_mapper_uninit;
+    release_result = -123;
+    mapper_uninit(&mapper);
+    release_result = NATIVE_ERROR_OK;
+    bool invalid = owner.surface_invalid;
+    struct ra_hwdec_mapper next = { .owner = &hw };
+    struct ohcodec_mapper_priv next_mp = {0};
+    next.priv = &next_mp;
+    int init_ret = mapper_init(&next);
+    dump_events();
+    if (!invalid || init_ret == 0) {
+        printf("FAIL mapper-teardown-release-error: invalid=%d init=%d\n",
+               invalid, init_ret);
+        return 1;
+    }
+    printf("PASS mapper-teardown-release-error\n");
+    return 0;
+#else
+    printf("FAIL mapper-teardown-release-error: baseline has no generic "
+           "release-error latch\n");
+    return 1;
+#endif
+}
+
+static int mode_surface_owner_invalid(void) {
+#ifdef PHASE28
+    struct ohcodec_priv owner = { .surface_invalid = true };
+    struct ra_hwdec_driver drv = { .device_type = AV_HWDEVICE_TYPE_OHCODEC };
+    struct ra_hwdec hw = { .driver = &drv, .priv = &owner };
+    struct ra_hwdec *list[1] = { &hw };
+    bool found = ohcodec_hwdec_find(list, 1) == &hw;
+    bool invalid = ohcodec_hwdec_surface_invalid(&hw);
+    struct ra_hwdec_mapper mapper = { .owner = &hw };
+    struct ohcodec_mapper_priv mp = {0};
+    mapper.priv = &mp;
+    int init_ret = mapper_init(&mapper);
+    if (!found || !invalid || init_ret == 0) {
+        printf("FAIL surface-owner-invalid: found=%d invalid=%d init=%d\n",
+               found, invalid, init_ret);
+        return 1;
+    }
+    printf("PASS surface-owner-invalid\n");
+    return 0;
+#else
+    printf("FAIL surface-owner-invalid: baseline has no persistent owner query\n");
+    return 1;
+#endif
 }
 
 static int mode_empty_current_drain(void) {
@@ -731,6 +806,8 @@ int main(int argc, char **argv) {
     if (!strcmp(argv[1], "mapper-uninit-order")) return mode_mapper_uninit();
     if (!strcmp(argv[1], "vd-lavc-preflight")) return mode_vd_preflight();
     if (!strcmp(argv[1], "empty-current-drain")) return mode_empty_current_drain();
+    if (!strcmp(argv[1], "mapper-teardown-release-error")) return mode_mapper_teardown_release_error();
+    if (!strcmp(argv[1], "surface-owner-invalid")) return mode_surface_owner_invalid();
     if (!strcmp(argv[1], "vd-lavc-preflight-uninit")) return mode_vd_uninit();
     if (!strcmp(argv[1], "vo-drain-control")) return mode_vo_control();
     if (!strcmp(argv[1], "eof-deferred")) return mode_eof_deferred();
