@@ -4,7 +4,7 @@ p=Path(__file__).resolve().parent
 stage=sys.argv[1];out=p/stage;out.mkdir(exist_ok=False)
 subprocess.run([sys.executable,'-B',str(p/'extract.py')],check=True)
 for n in ['harness.c','actual-functions.inc','source-binding.json']:shutil.copy2(p/n,out/n)
-cmd=['clang','-std=c11','-Wall','-Wextra','-Werror','-Wno-unused-function','-fsanitize=address,undefined','-g',str(out/'harness.c'),'-o',str(out/'harness')]
+cmd=['clang','-D_POSIX_C_SOURCE=200809L','-std=c11','-Wall','-Wextra','-Werror','-Wno-unused-function','-fsanitize=address,undefined','-g',str(out/'harness.c'),'-o',str(out/'harness')]
 r=subprocess.run(cmd,capture_output=True,text=True);(out/'compile.log').write_text(r.stdout+r.stderr)
 if r.returncode:raise SystemExit(r.returncode)
 rows=[]

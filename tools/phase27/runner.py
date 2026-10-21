@@ -57,6 +57,28 @@ def artifact_audit(root):
         rows.append({'path': p.relative_to(root).as_posix(), 'size': p.stat().st_size, 'sha256': sha(p)})
     return rows
 
+def prepare_output(repo, output):
+    repo = Path(repo).resolve(); output = Path(output).resolve()
+    if output == repo or repo in output.parents:
+        raise ValueError('output must be outside checkout')
+    output.mkdir(parents=True, exist_ok=False)
+    return output
+
+def collect_diagnostics(phase, artifact):
+    phase = Path(phase).resolve(); artifact = Path(artifact).resolve()
+    # Only known stage roots, no recursive collection of build trees or binaries.
+    for rel in ['tests/mpv/ci-green', 'tests/ffmpeg/ci-green', 'tests/ffmpeg/ci-integration', 'research/host-sei']:
+        root = phase / rel
+        if not root.exists(): continue
+        if any(p.is_symlink() for p in [root, *root.parents] if p != phase.parent):
+            raise ValueError('diagnostic directory symlink')
+        for p in sorted(root.iterdir()):
+            if p.suffix not in {'.json', '.log'}: continue
+            if p.is_symlink() or not p.is_file() or p.stat().st_size > 8 * 1024 * 1024:
+                raise ValueError('invalid diagnostic: ' + str(p))
+            q = artifact / 'results' / rel / p.name
+            q.parent.mkdir(parents=True, exist_ok=True); shutil.copyfile(p, q)
+
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument('--out', type=Path, required=True); ap.add_argument('--archive', type=Path); ap.add_argument('--allow-dirty', action='store_true')
     a = ap.parse_args(); here = Path(__file__).resolve().parent
@@ -70,9 +92,10 @@ def main():
     workflow_sha = sha(workflow)
     if workflow_sha != sha(here / 'source/workflow.yml'): raise ValueError('workflow input drift')
     provenance['workflowSHA256'] = workflow_sha
-    out = a.out.resolve(); out.mkdir(parents=True, exist_ok=False)
+    out = prepare_output(repo, a.out)
     artifact = out / 'artifact'; artifact.mkdir()
     commands = []; tests_passed = False; host_built = False
+    phase = out / 'work/out/phase27'
     env = dict(os.environ, PYTHONDONTWRITEBYTECODE='1', PYTHONNOUSERSITE='1', ASAN_OPTIONS='halt_on_error=1:detect_leaks=' + ('0' if sys.platform == 'darwin' else '1'), UBSAN_OPTIONS='halt_on_error=1:print_stacktrace=1')
     def run(label, argv, cwd=None):
         with (artifact / (label + '.log')).open('w') as log:
@@ -89,7 +112,7 @@ def main():
         path = Path(sys.executable).resolve(); tool_rows.append({'name':'python','path':str(path),'sha256':sha(path),'version':sys.version})
         (artifact/'host-tools.json').write_text(json.dumps(tool_rows,indent=2)+'\n')
         run('runner-tests', [sys.executable, '-B', '-m', 'unittest', 'discover', '-s', here / 'tests', '-v'])
-        phase = out / 'work/out/phase27'; phase.mkdir(parents=True)
+        phase.mkdir(parents=True)
         upstream = json.loads((here / 'source/ffmpeg-upstream.json').read_text())
         archive = out / 'ffmpeg-base.tar.gz'
         if a.archive: shutil.copyfile(a.archive, archive)
@@ -130,12 +153,9 @@ def main():
             run(name+'-compile', ['clang', '-O1', '-g', '-fsanitize=address,undefined', '-fno-omit-frame-pointer', '-I'+str(host/'build'), '-I'+str(src), '-I'+str(src/'libavcodec'), phase/'tests/ffmpeg'/(name+'_test.c'), src/'libavcodec/ohcodec_hdr.c', host/'build/libavcodec/libavcodec.a', host/'build/libavutil/libavutil.a', '-lm', '-pthread', '-o', exe])
             for case in cases: run(name+'-'+case, [exe, case])
         exact_source(src, pins); verify(here)
-        for root in [phase/'tests/mpv/ci-green', phase/'tests/ffmpeg/ci-green', phase/'tests/ffmpeg/ci-integration', host]:
-            for p in root.iterdir():
-                if p.is_file() and p.suffix in {'.json', '.log'}:
-                    q = artifact / 'results' / root.relative_to(phase) / p.name; q.parent.mkdir(parents=True, exist_ok=True); shutil.copyfile(p, q)
         tests_passed = True
     finally:
+        collect_diagnostics(phase, artifact)
         for row in rows:
             q = artifact / 'execution/tools/phase27' / row['path']; q.parent.mkdir(parents=True, exist_ok=True); shutil.copyfile(here / row['path'], q)
         shutil.copyfile(here/'source-index.json', artifact/'source-index.json')
