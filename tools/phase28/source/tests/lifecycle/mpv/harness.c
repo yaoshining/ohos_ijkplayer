@@ -129,7 +129,7 @@ struct ohcodec_mapper_priv {
     AVOHCodecBuffer *last_token;
     struct mp_image *last_src;
 };
-struct ra_hwdec { const struct ra_hwdec_driver *driver; void *priv; struct mp_log *log; };
+struct ra_hwdec { const struct ra_hwdec_driver *driver; void *priv; struct mp_log *log; bool resource_retained; };
 struct ra { int unused; };
 struct ra_hwdec_mapper {
     const struct ra_hwdec_mapper_driver *driver;
@@ -137,12 +137,13 @@ struct ra_hwdec_mapper {
     struct ra *ra;
     void *priv;
     struct ra_hwdec *owner;
+    bool resource_retained;
     struct mp_image *src;
     struct ra_tex *tex[4];
     int src_params_placeholder;
 };
 struct ra_hwdec_mapper_driver { size_t priv_size; int (*init)(struct ra_hwdec_mapper *); void (*uninit)(struct ra_hwdec_mapper *); int (*map)(struct ra_hwdec_mapper *); void (*unmap)(struct ra_hwdec_mapper *); };
-struct ra_hwdec_driver { const char *name; int device_type; };
+struct ra_hwdec_driver { const char *name; int device_type; void (*uninit)(struct ra_hwdec *); };
 #define AV_HWDEVICE_TYPE_OHCODEC 100
 
 /* ---------------------------------------------------- Vulkan/libplacebo */
@@ -389,6 +390,7 @@ void ohcodec_mapper_mark_surface_invalid(struct ra_hwdec_mapper *mapper);
 bool ohcodec_hwdec_surface_invalid(struct ra_hwdec *hw);
 void ohcodec_hwdec_mark_surface_invalid(struct ra_hwdec *hw);
 struct ra_hwdec *ohcodec_hwdec_find(struct ra_hwdec **hwdecs, int num);
+void ra_hwdec_mapper_unmap(struct ra_hwdec_mapper *mapper);
 static bool fake_mapper_init(struct ra_hwdec_mapper *mapper) { (void)mapper; return true; }
 static void uninit_avctx(struct mp_filter *vd);
 static void reset_vsync_timings(struct vo *vo);
@@ -400,6 +402,7 @@ static void forget_frames(struct vo *vo);
 #include "actual-vk.inc"
 #undef mapper_uninit
 #include "actual-generic.inc"
+#include "actual-gpu.inc"
 #include "actual-vd.inc"
 #include "actual-vo.inc"
 
@@ -534,6 +537,57 @@ static int mode_surface_owner_invalid(void) {
     return 0;
 #else
     printf("FAIL surface-owner-invalid: baseline has no persistent owner query\n");
+    return 1;
+#endif
+}
+
+static int fake_hw_uninit_calls, fake_mapper_uninit_calls;
+static void fake_hw_uninit(struct ra_hwdec *hw) { (void)hw; fake_hw_uninit_calls++; }
+static void fake_mapper_uninit(struct ra_hwdec_mapper *mapper) { (void)mapper; fake_mapper_uninit_calls++; }
+
+static int mode_unsafe_outer_free(void) {
+#ifdef PHASE28
+    struct ra_hwdec_mapper mapper = {0};
+    struct ohcodec_priv owner = {0};
+    struct ohcodec_mapper_priv mp = {0};
+    struct mp_image *img = calloc(1, sizeof(*img));
+    struct ohcodec_interop interop = {0};
+    struct ohcodec_surface surface = { .image = (void *)(uintptr_t)0x55 };
+    struct ra_hwdec_driver drv = { .device_type = AV_HWDEVICE_TYPE_OHCODEC,
+                                   .uninit = fake_hw_uninit };
+    struct ra_hwdec_mapper_driver mdrv = { .uninit = mapper_uninit };
+    struct ra_hwdec hw = { .driver = &drv, .priv = &owner };
+    owner.interop = &interop;
+    owner.surface = &surface;
+    mapper.owner = &hw;
+    mapper.driver = &mdrv;
+    mapper.priv = &mp;
+    mp.last_token = (AVOHCodecBuffer *)(uintptr_t)0x200;
+    mp.last_src = img;
+    make_vk(&mapper, &mp);
+    interop.drain = ohcodec_drain;
+    interop.release = mapper_release;
+    interop.mapper_init = fake_mapper_init;
+    interop.mapper_uninit = fake_mapper_uninit;
+    queue_wait_result = (VkResult)-4;
+    struct ra_hwdec_mapper *mapper_p = &mapper;
+    ra_hwdec_mapper_free(&mapper_p);
+    ra_hwdec_uninit(&hw);
+    queue_wait_result = VK_SUCCESS;
+    dump_events();
+    if (!owner.surface_invalid || !hw.resource_retained ||
+        mapper_p != NULL || fake_mapper_uninit_calls != 0 ||
+        fake_hw_uninit_calls != 0) {
+        printf("FAIL unsafe-outer-free: invalid=%d retained=%d mapper=%p "
+               "mapper_uninit=%d hw_uninit=%d\n", owner.surface_invalid,
+               hw.resource_retained, (void *)mapper_p, fake_mapper_uninit_calls,
+               fake_hw_uninit_calls);
+        return 1;
+    }
+    printf("PASS unsafe-outer-free\n");
+    return 0;
+#else
+    printf("FAIL unsafe-outer-free: baseline frees mapper after UNSAFE\n");
     return 1;
 #endif
 }
@@ -807,6 +861,7 @@ int main(int argc, char **argv) {
     if (!strcmp(argv[1], "vd-lavc-preflight")) return mode_vd_preflight();
     if (!strcmp(argv[1], "empty-current-drain")) return mode_empty_current_drain();
     if (!strcmp(argv[1], "mapper-teardown-release-error")) return mode_mapper_teardown_release_error();
+    if (!strcmp(argv[1], "unsafe-outer-free")) return mode_unsafe_outer_free();
     if (!strcmp(argv[1], "surface-owner-invalid")) return mode_surface_owner_invalid();
     if (!strcmp(argv[1], "vd-lavc-preflight-uninit")) return mode_vd_uninit();
     if (!strcmp(argv[1], "vo-drain-control")) return mode_vo_control();

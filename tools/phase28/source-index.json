@@ -40,9 +40,19 @@
     "sha256": "f745a27d2071c7b7695897a053b8a4d6cadfb1bf6e620158338991dfc443a0b7"
   },
   {
+    "path": "source/input-package/sources/mpv/video/out/gpu/hwdec.c",
+    "size": 12061,
+    "sha256": "c27baa56daeb036f2407beb3b1d96332ed1c8abe25902a96e23268f993705475"
+  },
+  {
+    "path": "source/input-package/sources/mpv/video/out/gpu/hwdec.h",
+    "size": 6649,
+    "sha256": "44c0a8d5cc94eb11fd474d4fa5098308b533761d20eefd62dd72601c331134a5"
+  },
+  {
     "path": "source/input-package/sources/mpv/video/out/hwdec/hwdec_ohcodec.c",
-    "size": 12366,
-    "sha256": "f42a1f18ca6289fe3fc00cf717d9dd7f5490d6dbd32a57e99b74c37e8da7b4d0"
+    "size": 12600,
+    "sha256": "d4aea72269fe24f894978e06f852e69fac2c1b2f59e01ec490d326f3dcdfb3ce"
   },
   {
     "path": "source/input-package/sources/mpv/video/out/hwdec/hwdec_ohcodec.h",
@@ -151,13 +161,13 @@
   },
   {
     "path": "source/tests/lifecycle/extract.py",
-    "size": 9067,
-    "sha256": "8c6992ad0e288089005be743641994ec77abbd0dce402602a974dd41aff59c70"
+    "size": 9330,
+    "sha256": "899b975b48b32ab7cd990cd3c57ad0921d45ff9a6bbf5876c8652e55b8395205"
   },
   {
     "path": "source/tests/lifecycle/mpv/harness.c",
-    "size": 31653,
-    "sha256": "9066436fae639435ef6aecb312bc5673cf129894935ab6bacfe1d13a4dcbbc51"
+    "size": 33994,
+    "sha256": "3f0530d989dd33213b99c702a746b5bc72fb8b4de75b8f90158c3636423820d9"
   },
   {
     "path": "source/tests/lifecycle/ohdec/harness.c",
@@ -166,8 +176,8 @@
   },
   {
     "path": "source/tests/lifecycle/run_mpv.py",
-    "size": 4243,
-    "sha256": "8b7152c83a60cf06335b46a970905407fae8c1602c0c239917f5aca06fedef8f"
+    "size": 4264,
+    "sha256": "ad6f1e2d497d34c2807f1a34e4d857648e9dc21948f13d005af59e1420f02646"
   },
   {
     "path": "source/tests/lifecycle/run_ohdec.py",

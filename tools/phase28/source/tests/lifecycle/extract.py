@@ -35,6 +35,11 @@ UNITS = {
             "void ohcodec_hwdec_mark_surface_invalid(struct ra_hwdec *hw)",
             "struct ra_hwdec *ohcodec_hwdec_find(struct ra_hwdec **hwdecs, int num)",
         ]),
+        ("video/out/gpu/hwdec.c", "gpu", [
+            "void ra_hwdec_mapper_free(struct ra_hwdec_mapper **mapper)",
+            "void ra_hwdec_mapper_unmap(struct ra_hwdec_mapper *mapper)",
+            "void ra_hwdec_uninit(struct ra_hwdec *hwdec)",
+        ]),
         ("video/out/hwdec/hwdec_ohcodec_pl.c", "vk", [
             "static int64_t p27_monotonic_us(void)",
             "static int release_acquired_buffer(struct ra_hwdec_mapper *mapper,",
