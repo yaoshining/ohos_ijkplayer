@@ -1,0 +1,29 @@
+name: Phase28 OHCodec 生命周期真实函数验证
+on:
+  push:
+    branches: [codex/phase28-validation]
+    paths:
+      - 'tools/phase28/**'
+      - '.github/workflows/phase28-validation.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lifecycle-regression:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONNOUSERSITE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - name: 重建固定 FFmpeg 源并运行真实函数 RED/GREEN 与 HDR 回归
+        run: python3 -B tools/phase28/runner.py --out "${{ runner.temp }}/phase28-ci"
+      - name: 上传允许列表文本证据和完整索引
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase28-lifecycle-regression
+          path: ${{ runner.temp }}/phase28-ci/artifact/
+          include-hidden-files: true
+          if-no-files-found: error

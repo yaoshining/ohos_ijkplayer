@@ -1,0 +1,591 @@
+--- a/libavcodec/ohdec.c
++++ b/libavcodec/ohdec.c
+@@ -66,6 +66,19 @@
+ typedef struct OHCodecDecRef {
+     OH_AVCodec *dec;
+     atomic_uint_fast64_t generation;
++
++    /* Phase28 callback/token lifetime gate. This object outlives the
++     * AVCodecContext while any hardware frame/token still holds it. */
++    AVMutex gate;
++    AVCond gate_cond;
++    bool gate_initialized;
++    int active;
++    bool detached;
++    bool paused;
++    bool start_attempted;
++    bool stopped;
++    bool destroyed;
++    AVCodecContext *attached;
+ } OHCodecDecRef;
+ 
+ typedef struct OHCodecDecContext {
+@@ -96,9 +109,12 @@
+     int decode_status;
+     bool eof_sent;
+     atomic_bool accepting_callbacks;
++    bool locks_initialized;
++    bool queues_initialized;
+ 
+     bool output_to_window;
+     bool got_stream_info;
++    bool platform_started;
+     int width;
+     int height;
+     int stride;
+@@ -132,6 +148,47 @@
+ {
+     atomic_fetch_add_explicit(&oh_decode_ref(s)->generation, 1,
+                               memory_order_acq_rel);
++}
++
++/* Phase28 admission: callbacks and token native operations share one active
++ * count. Close detaches under the gate, then waits for active==0 without
++ * holding any queue lock or the platform callback mutex. */
++static bool oh_decode_admit(OHCodecDecRef *ref, AVCodecContext **out)
++{
++    *out = NULL;
++    if (!ref || !ref->gate_initialized)
++        return false;
++    ff_mutex_lock(&ref->gate);
++    if (!ref->detached && !ref->paused && ref->attached) {
++        ref->active++;
++        *out = ref->attached;
++    }
++    ff_mutex_unlock(&ref->gate);
++    return *out != NULL;
++}
++
++static void oh_decode_end(OHCodecDecRef *ref)
++{
++    if (!ref || !ref->gate_initialized)
++        return;
++    ff_mutex_lock(&ref->gate);
++    if (ref->active > 0)
++        ref->active--;
++    ff_cond_broadcast(&ref->gate_cond);
++    ff_mutex_unlock(&ref->gate);
++}
++
++static void oh_decode_report_error(OHCodecDecContext *s, int32_t err)
++{
++    // Careful on the lock order. Always lock input first.
++    ff_mutex_lock(&s->input_mutex);
++    ff_mutex_lock(&s->output_mutex);
++    s->decode_status = ff_oh_err_to_ff_err(err);
++    ff_mutex_unlock(&s->output_mutex);
++    ff_mutex_unlock(&s->input_mutex);
++
++    ff_cond_signal(&s->output_cond);
++    ff_cond_signal(&s->input_cond);
+ }
+ 
+ static void oh_decode_clear_dovi(OHCodecDecContext *s)
+@@ -246,16 +303,17 @@
+ static void oh_decode_release(void *opaque, uint8_t *data)
+ {
+     OHCodecDecRef *ref = (OHCodecDecRef *)data;
+-    OH_AVCodec *dec = ref->dec;
+-    av_log(NULL, AV_LOG_INFO, "P27_CODEC t=%"PRId64" op=destroy-begin dec=%p gen=%"PRIuFAST64"\n",
+-           p27_monotonic_us(), dec, atomic_load(&ref->generation));
+-    OH_AVErrCode err = OH_VideoDecoder_Destroy(dec);
+-    av_log(NULL, AV_LOG_INFO, "P27_CODEC t=%"PRId64" op=destroy-end dec=%p rc=%d\n", p27_monotonic_us(), dec, err);
+-    if (err == AV_ERR_OK)
+-        av_log(NULL, AV_LOG_DEBUG, "Destroy decoder success\n");
+-    else
+-        av_log(NULL, AV_LOG_ERROR, "Destroy decoder failed, %d, %s\n",
+-               err, av_err2str(ff_oh_err_to_ff_err(err)));
++    if (!ref)
++        return;
++    /* Phase28: the platform decoder is destroyed synchronously in
++     * oh_decode_close. Any token/AVFrame that still holds this reference only
++     * keeps an inert shell alive; it must never issue a second Destroy. */
++    if (ref->gate_initialized) {
++        ff_mutex_destroy(&ref->gate);
++        ff_cond_destroy(&ref->gate_cond);
++        ref->gate_initialized = false;
++    }
++    av_log(NULL, AV_LOG_DEBUG, "Release OHCodec decoder reference shell\n");
+     av_free(ref);
+ }
+ 
+@@ -301,11 +359,28 @@
+     }
+     ref->dec = s->dec;
+     atomic_init(&ref->generation, 0);
++    if (ff_mutex_init(&ref->gate, NULL)) {
++        OH_VideoDecoder_Destroy(s->dec);
++        s->dec = NULL;
++        av_free(ref);
++        return AVERROR(ENOMEM);
++    }
++    if (ff_cond_init(&ref->gate_cond, NULL)) {
++        ff_mutex_destroy(&ref->gate);
++        OH_VideoDecoder_Destroy(s->dec);
++        s->dec = NULL;
++        av_free(ref);
++        return AVERROR(ENOMEM);
++    }
++    ref->gate_initialized = true;
+     s->dec_ref = av_buffer_create((uint8_t *)ref, sizeof(*ref),
+                                   oh_decode_release, NULL, 0);
+     if (!s->dec_ref) {
+-        oh_decode_release(NULL, (uint8_t *)ref);
++        /* No platform callback has been registered yet. Destroy directly; the
++         * finalizer no longer owns decoder destruction. */
++        OH_VideoDecoder_Destroy(s->dec);
+         s->dec = NULL;
++        oh_decode_release(NULL, (uint8_t *)ref);
+         return AVERROR(ENOMEM);
+     }
+ 
+@@ -406,26 +481,22 @@
+ 
+ static void oh_decode_on_err(OH_AVCodec *codec, int32_t err, void *userdata)
+ {
+-    AVCodecContext *avctx = userdata;
+-    OHCodecDecContext *s = avctx->priv_data;
+-
+-    // Careful on the lock order.
+-    // Always lock input first.
+-    ff_mutex_lock(&s->input_mutex);
+-    ff_mutex_lock(&s->output_mutex);
+-    s->decode_status = ff_oh_err_to_ff_err(err);
+-    ff_mutex_unlock(&s->output_mutex);
+-    ff_mutex_unlock(&s->input_mutex);
+-
+-    ff_cond_signal(&s->output_cond);
+-    ff_cond_signal(&s->input_cond);
++    (void)codec;
++    OHCodecDecRef *ref = userdata;
++    AVCodecContext *avctx = NULL;
++    if (!oh_decode_admit(ref, &avctx))
++        return;
++    oh_decode_report_error(avctx->priv_data, err);
++    oh_decode_end(ref);
+ }
+ 
+-static void oh_decode_on_stream_changed(OH_AVCodec *codec, OH_AVFormat *format,
+-                                        void *userdata)
++/* Format-application body shared by the platform callback and the synchronous
++ * output_frame fallback. The caller owns admission when entering via a
++ * platform callback; the synchronous path runs on the decoding thread. */
++static int oh_decode_apply_stream_changed(OHCodecDecContext *s,
++                                          AVCodecContext *avctx,
++                                          OH_AVFormat *format)
+ {
+-    AVCodecContext *avctx = userdata;
+-    OHCodecDecContext *s = avctx->priv_data;
+     int32_t n, graphic_format;
+     double d;
+ 
+@@ -523,21 +594,35 @@
+     }
+ 
+     s->got_stream_info = true;
+-
+-    return;
++    return 0;
+ out:
+     av_log(avctx, AV_LOG_ERROR, "Invalid format from decoder: %s\n",
+            OH_AVFormat_DumpInfo(format));
+-    oh_decode_on_err(codec, AV_ERR_UNKNOWN, userdata);
++    return AVERROR_EXTERNAL;
+ }
+ 
++static void oh_decode_on_stream_changed(OH_AVCodec *codec, OH_AVFormat *format,
++                                        void *userdata)
++{
++    (void)codec;
++    OHCodecDecRef *ref = userdata;
++    AVCodecContext *avctx = NULL;
++    if (!oh_decode_admit(ref, &avctx))
++        return;
++    if (oh_decode_apply_stream_changed(avctx->priv_data, avctx, format) < 0)
++        oh_decode_report_error(avctx->priv_data, AV_ERR_UNKNOWN);
++    oh_decode_end(ref);
++}
++
+ static void oh_decode_on_need_input(OH_AVCodec *codec, uint32_t index,
+                                     OH_AVBuffer *buffer, void *userdata)
+ {
+-    AVCodecContext *avctx = userdata;
+-    OHCodecDecContext *s = avctx->priv_data;
+-    if (!atomic_load_explicit(&s->accepting_callbacks, memory_order_acquire))
++    (void)codec;
++    OHCodecDecRef *ref = userdata;
++    AVCodecContext *avctx = NULL;
++    if (!oh_decode_admit(ref, &avctx))
+         return;
++    OHCodecDecContext *s = avctx->priv_data;
+     OHCodecDecQueueItem item = {
+         index, buffer, oh_decode_generation(s),
+     };
+@@ -549,16 +634,19 @@
+     ff_mutex_unlock(&s->input_mutex);
+ 
+     if (ret < 0)
+-        oh_decode_on_err(codec, AV_ERR_NO_MEMORY, userdata);
++        oh_decode_report_error(s, AV_ERR_NO_MEMORY);
++    oh_decode_end(ref);
+ }
+ 
+ static void oh_decode_on_output(OH_AVCodec *codec, uint32_t index,
+                                 OH_AVBuffer *buffer, void *userdata)
+ {
+-    AVCodecContext *avctx = userdata;
+-    OHCodecDecContext *s = avctx->priv_data;
+-    if (!atomic_load_explicit(&s->accepting_callbacks, memory_order_acquire))
++    (void)codec;
++    OHCodecDecRef *ref = userdata;
++    AVCodecContext *avctx = NULL;
++    if (!oh_decode_admit(ref, &avctx))
+         return;
++    OHCodecDecContext *s = avctx->priv_data;
+     OHCodecDecQueueItem item = {
+         index, buffer, oh_decode_generation(s),
+     };
+@@ -570,13 +658,15 @@
+     ff_mutex_unlock(&s->output_mutex);
+ 
+     if (ret < 0)
+-        oh_decode_on_err(codec, AV_ERR_NO_MEMORY, userdata);
++        oh_decode_report_error(s, AV_ERR_NO_MEMORY);
++    oh_decode_end(ref);
+ }
+ 
+ static int oh_decode_start(OHCodecDecContext *s, AVCodecContext *avctx)
+ {
+     int ret;
+     OH_AVErrCode err;
++    OHCodecDecRef *ref = s->dec_ref ? oh_decode_ref(s) : NULL;
+     OH_AVCodecCallback cb = {
+         .onError = oh_decode_on_err,
+         .onStreamChanged = oh_decode_on_stream_changed,
+@@ -584,7 +674,18 @@
+         .onNewOutputBuffer = oh_decode_on_output,
+     };
+ 
+-    err = OH_VideoDecoder_RegisterCallback(s->dec, cb, avctx);
++    if (!ref)
++        return AVERROR_EXTERNAL;
++
++    ff_mutex_lock(&ref->gate);
++    if (ref->detached) {
++        ff_mutex_unlock(&ref->gate);
++        return AVERROR_EXTERNAL;
++    }
++    ref->attached = avctx;
++    ff_mutex_unlock(&ref->gate);
++
++    err = OH_VideoDecoder_RegisterCallback(s->dec, cb, ref);
+     if (err != AV_ERR_OK) {
+         ret = ff_oh_err_to_ff_err(err);
+         av_log(avctx, AV_LOG_ERROR, "Register callback failed, %d, %s\n",
+@@ -598,20 +699,26 @@
+                err, av_err2str(ret));
+         return ret;
+     }
+-    atomic_store_explicit(&s->accepting_callbacks, true, memory_order_release);
++
++    ff_mutex_lock(&ref->gate);
++    if (ref->detached) {
++        ff_mutex_unlock(&ref->gate);
++        return AVERROR_EXTERNAL;
++    }
++    ref->start_attempted = true;
++    ff_mutex_unlock(&ref->gate);
++
+     err = OH_VideoDecoder_Start(s->dec);
+     if (err != AV_ERR_OK) {
+-        atomic_store_explicit(&s->accepting_callbacks, false,
+-                              memory_order_release);
+         ret = ff_oh_err_to_ff_err(err);
+         av_log(avctx, AV_LOG_ERROR, "Start failed, %d, %s\n",
+                err, av_err2str(ret));
+         return ret;
+     }
++    s->platform_started = true;
+ 
+     return 0;
+ }
+-
+ static av_cold int oh_decode_init(AVCodecContext *avctx)
+ {
+     OHCodecDecContext *s = avctx->priv_data;
+@@ -629,10 +736,12 @@
+     }
+ 
+     // Initialize these fields first, so oh_decode_close can destroy them safely
+-    ff_mutex_init(&s->input_mutex, NULL);
+-    ff_cond_init(&s->input_cond, NULL);
+-    ff_mutex_init(&s->output_mutex, NULL);
+-    ff_cond_init(&s->output_cond, NULL);
++    if (ff_mutex_init(&s->input_mutex, NULL) ||
++        ff_cond_init(&s->input_cond, NULL) ||
++        ff_mutex_init(&s->output_mutex, NULL) ||
++        ff_cond_init(&s->output_cond, NULL))
++        return AVERROR(ENOMEM);
++    s->locks_initialized = true;
+ 
+     int ret = oh_decode_create(s, avctx);
+     if (ret < 0)
+@@ -646,8 +755,12 @@
+                                     AV_FIFO_FLAG_AUTO_GROW);
+     s->output_queue = av_fifo_alloc2(fifo_size, sizeof(OHCodecDecQueueItem),
+                                      AV_FIFO_FLAG_AUTO_GROW);
+-    if (!s->input_queue || !s->output_queue)
++    if (!s->input_queue || !s->output_queue) {
++        av_fifo_freep2(&s->input_queue);
++        av_fifo_freep2(&s->output_queue);
+         return AVERROR(ENOMEM);
++    }
++    s->queues_initialized = true;
+ 
+     ret = oh_decode_start(s, avctx);
+     if (ret < 0)
+@@ -659,23 +772,60 @@
+ static av_cold int oh_decode_close(AVCodecContext *avctx)
+ {
+     OHCodecDecContext *s = avctx->priv_data;
++    OHCodecDecRef *ref = s->dec_ref ? oh_decode_ref(s) : NULL;
+ 
+     if (s->dec) {
+-        atomic_store_explicit(&s->accepting_callbacks, false,
+-                              memory_order_release);
+-        oh_decode_invalidate_outputs(s);
+-        /* Stop but don't destroy dec directly, to keep hardware frames on
+-         * the fly valid.
+-         */
+-        av_log(avctx, AV_LOG_INFO, "P27_CODEC t=%"PRId64" op=stop-begin dec=%p gen=%"PRIu64"\n", p27_monotonic_us(), s->dec, oh_decode_generation(s));
+-        OH_AVErrCode err = OH_VideoDecoder_Stop(s->dec);
+-        av_log(avctx, AV_LOG_INFO, "P27_CODEC t=%"PRId64" op=stop-end dec=%p rc=%d\n", p27_monotonic_us(), s->dec, err);
+-        if (err == AV_ERR_OK)
+-            av_log(avctx, AV_LOG_DEBUG, "Stop decoder success\n");
+-        else
+-            av_log(avctx, AV_LOG_ERROR, "Stop decoder failed, %d, %s\n",
+-                   err, av_err2str(ff_oh_err_to_ff_err(err)));
++        bool start_attempted = false;
++        if (ref) {
++            oh_decode_invalidate_outputs(s);
++            /* Detach first: no new callback/token admission. Wait for already
++             * admitted callbacks and native token operations without holding
++             * queue, gate or platform callback locks. */
++            ff_mutex_lock(&ref->gate);
++            ref->detached = true;
++            ref->attached = NULL;
++            while (ref->active > 0)
++                ff_cond_wait(&ref->gate_cond, &ref->gate);
++            start_attempted = ref->start_attempted;
++            ff_mutex_unlock(&ref->gate);
++        }
++
++        OH_AVErrCode stop_err = AV_ERR_OK;
++        if (start_attempted && !ref->stopped) {
++            av_log(avctx, AV_LOG_INFO, "P28_CODEC t=%"PRId64" op=stop-begin dec=%p gen=%"PRIu64"\n",
++                   p27_monotonic_us(), s->dec, oh_decode_generation(s));
++            stop_err = OH_VideoDecoder_Stop(s->dec);
++            ref->stopped = true;
++            av_log(avctx, AV_LOG_INFO, "P28_CODEC t=%"PRId64" op=stop-end dec=%p rc=%d\n",
++                   p27_monotonic_us(), s->dec, stop_err);
++            if (stop_err != AV_ERR_OK)
++                av_log(avctx, AV_LOG_ERROR, "Stop decoder failed, %d, %s\n",
++                       stop_err, av_err2str(ff_oh_err_to_ff_err(stop_err)));
++        }
++
++        OH_AVErrCode destroy_err = OH_VideoDecoder_Destroy(s->dec);
++        av_log(avctx, AV_LOG_INFO, "P28_CODEC t=%"PRId64" op=destroy-close dec=%p rc=%d\n",
++               p27_monotonic_us(), s->dec, destroy_err);
+         s->dec = NULL;
++        if (destroy_err == AV_ERR_OK) {
++            if (ref)
++                ref->destroyed = true;
++            av_buffer_unref(&s->dec_ref);
++        } else {
++            /* Successful Destroy is the callback-sealing boundary we rely on.
++             * If it fails, keep the stable gate/shell alive rather than free
++             * userdata that a late platform callback could still enter. This
++             * is an explicit, visible process-lifetime quarantine; it is not
++             * reported as a safe close. */
++            if (ref)
++                ref->dec = NULL;
++            av_log(avctx, AV_LOG_ERROR,
++                   "Destroy decoder failed, %d; callback lifetime unsafe, "
++                   "quarantining stable reference shell\n",
++                   destroy_err);
++            s->dec_ref = NULL;
++        }
++    } else if (s->dec_ref) {
+         av_buffer_unref(&s->dec_ref);
+     }
+ 
+@@ -685,31 +835,54 @@
+     ff_h2645_packet_uninit(&s->dovi_pkt);
+     ff_dovi_ctx_unref(&s->dovi_ctx);
+ 
+-    ff_mutex_destroy(&s->input_mutex);
+-    ff_cond_destroy(&s->input_cond);
+-    av_fifo_freep2(&s->input_queue);
++    if (s->locks_initialized) {
++        ff_mutex_destroy(&s->input_mutex);
++        ff_cond_destroy(&s->input_cond);
++        ff_mutex_destroy(&s->output_mutex);
++        ff_cond_destroy(&s->output_cond);
++        s->locks_initialized = false;
++    }
++    if (s->queues_initialized) {
++        av_fifo_freep2(&s->input_queue);
++        av_fifo_freep2(&s->output_queue);
++        s->queues_initialized = false;
++    }
+ 
+-    ff_mutex_destroy(&s->output_mutex);
+-    ff_cond_destroy(&s->output_cond);
+-    av_fifo_freep2(&s->output_queue);
+-
+     return 0;
+ }
+-
+ int av_ohcodec_release_buffer(AVOHCodecBuffer *buffer, int render)
+ {
+     OHCodecDecRef *ref;
++    OH_AVCodec *dec;
+     OH_AVErrCode err;
+     if (!buffer)
+         return AVERROR(EINVAL);
+     if (atomic_exchange_explicit(&buffer->released, true, memory_order_acq_rel))
+         return render ? AVERROR(EALREADY) : 0;
+     ref = (OHCodecDecRef *)buffer->dec_ref->data;
+-    if (buffer->generation != atomic_load_explicit(&ref->generation,
+-                                                    memory_order_acquire))
++
++    if (!ref || !ref->gate_initialized)
+         return render ? AVERROR(ESTALE) : 0;
+-    err = render ? OH_VideoDecoder_RenderOutputBuffer(ref->dec, buffer->index)
+-                 : OH_VideoDecoder_FreeOutputBuffer(ref->dec, buffer->index);
++
++    ff_mutex_lock(&ref->gate);
++    if (ref->detached || ref->paused || !ref->attached || !ref->dec ||
++        buffer->generation != atomic_load_explicit(&ref->generation,
++                                                    memory_order_acquire)) {
++        ff_mutex_unlock(&ref->gate);
++        return render ? AVERROR(ESTALE) : 0;
++    }
++    ref->active++;
++    dec = ref->dec;
++    ff_mutex_unlock(&ref->gate);
++
++    err = render ? OH_VideoDecoder_RenderOutputBuffer(dec, buffer->index)
++                 : OH_VideoDecoder_FreeOutputBuffer(dec, buffer->index);
++
++    ff_mutex_lock(&ref->gate);
++    if (ref->active > 0)
++        ref->active--;
++    ff_cond_broadcast(&ref->gate_cond);
++    ff_mutex_unlock(&ref->gate);
+     return ff_oh_err_to_ff_err(err);
+ }
+ 
+@@ -860,7 +1033,10 @@
+             return AVERROR_EXTERNAL;
+         }
+ 
+-        oh_decode_on_stream_changed(s->dec, format, avctx);
++        if (oh_decode_apply_stream_changed(s, avctx, format) < 0) {
++            OH_AVFormat_Destroy(format);
++            return AVERROR_EXTERNAL;
++        }
+         OH_AVFormat_Destroy(format);
+         if (!s->got_stream_info)
+             return AVERROR_EXTERNAL;
+@@ -1044,31 +1220,67 @@
+ static void oh_decode_flush(AVCodecContext *avctx)
+ {
+     OHCodecDecContext *s = avctx->priv_data;
++    OHCodecDecRef *ref = s->dec_ref ? oh_decode_ref(s) : NULL;
+ 
+-    atomic_store_explicit(&s->accepting_callbacks, false,
+-                          memory_order_release);
+-    oh_decode_invalidate_outputs(s);
+-    av_log(avctx, AV_LOG_INFO, "P27_CODEC t=%"PRId64" op=flush-begin dec=%p gen=%"PRIu64"\n", p27_monotonic_us(), s->dec, oh_decode_generation(s));
+-    OH_AVErrCode flush_err = OH_VideoDecoder_Flush(s->dec);
+-    av_log(avctx, AV_LOG_INFO, "P27_CODEC t=%"PRId64" op=flush-end dec=%p rc=%d\n", p27_monotonic_us(), s->dec, flush_err);
+-
+-    ff_mutex_lock(&s->input_mutex);
+-    ff_mutex_lock(&s->output_mutex);
+-    av_fifo_reset2(s->input_queue);
+-    av_fifo_reset2(s->output_queue);
+-    s->decode_status = 0;
+-    s->eof_sent = false;
+-    av_packet_unref(&s->pkt);
+-    ff_oh_hdr_reset(&s->hdr);
+-    oh_decode_clear_dovi(s);
+-    ff_dovi_ctx_flush(&s->dovi_ctx);
+-    ff_mutex_unlock(&s->output_mutex);
+-    ff_mutex_unlock(&s->input_mutex);
++    if (ref) {
++        oh_decode_invalidate_outputs(s);
++        ff_mutex_lock(&ref->gate);
++        if (ref->detached) {
++            ff_mutex_unlock(&ref->gate);
++            return;
++        }
++        ref->paused = true;
++        while (ref->active > 0)
++            ff_cond_wait(&ref->gate_cond, &ref->gate);
++        if (ref->detached) {
++            ref->paused = false;
++            ff_mutex_unlock(&ref->gate);
++            return;
++        }
++        ff_mutex_unlock(&ref->gate);
++    }
+ 
+-    atomic_store_explicit(&s->accepting_callbacks, true, memory_order_release);
+-    if (OH_VideoDecoder_Start(s->dec) != AV_ERR_OK)
+-        atomic_store_explicit(&s->accepting_callbacks, false,
+-                              memory_order_release);
++    av_log(avctx, AV_LOG_INFO, "P28_CODEC t=%"PRId64" op=flush-begin dec=%p gen=%"PRIu64"\n",
++           p27_monotonic_us(), s->dec, ref ? oh_decode_generation(s) : 0);
++    OH_AVErrCode flush_err = s->dec ? OH_VideoDecoder_Flush(s->dec) : AV_ERR_INVALID_VAL;
++    av_log(avctx, AV_LOG_INFO, "P28_CODEC t=%"PRId64" op=flush-end dec=%p rc=%d\n",
++           p27_monotonic_us(), s->dec, flush_err);
++
++    if (s->locks_initialized) {
++        ff_mutex_lock(&s->input_mutex);
++        ff_mutex_lock(&s->output_mutex);
++        if (s->queues_initialized) {
++            av_fifo_reset2(s->input_queue);
++            av_fifo_reset2(s->output_queue);
++        }
++        s->decode_status = 0;
++        s->eof_sent = false;
++        av_packet_unref(&s->pkt);
++        ff_oh_hdr_reset(&s->hdr);
++        oh_decode_clear_dovi(s);
++        ff_dovi_ctx_flush(&s->dovi_ctx);
++        ff_mutex_unlock(&s->output_mutex);
++        ff_mutex_unlock(&s->input_mutex);
++    }
++
++    if (ref) {
++        ff_mutex_lock(&ref->gate);
++        ref->paused = false;
++        ff_cond_broadcast(&ref->gate_cond);
++        ff_mutex_unlock(&ref->gate);
++    }
++
++    if (flush_err != AV_ERR_OK) {
++        av_log(avctx, AV_LOG_ERROR, "Flush decoder failed, %d, %s\n",
++               flush_err, av_err2str(ff_oh_err_to_ff_err(flush_err)));
++        oh_decode_report_error(s, flush_err);
++        return;
++    }
++
++    if (s->dec && OH_VideoDecoder_Start(s->dec) != AV_ERR_OK) {
++        av_log(avctx, AV_LOG_ERROR, "Restart after flush failed\n");
++        oh_decode_report_error(s, AV_ERR_UNKNOWN);
++    }
+ }
+ 
+ static const AVCodecHWConfigInternal *const oh_hw_configs[] = {
