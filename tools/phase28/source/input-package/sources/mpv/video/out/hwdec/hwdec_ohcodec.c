@@ -180,6 +180,27 @@ static void mapper_uninit(struct ra_hwdec_mapper *mapper)
     owner->interop->mapper_uninit(mapper);
 }
 
+bool ohcodec_mapper_surface_invalid(struct ra_hwdec_mapper *mapper)
+{
+    if (!mapper || !mapper->owner)
+        return false;
+    struct ohcodec_priv *owner = mapper->owner->priv;
+    return owner && owner->surface_invalid;
+}
+
+void ohcodec_mapper_mark_surface_invalid(struct ra_hwdec_mapper *mapper)
+{
+    if (!mapper || !mapper->owner)
+        return;
+    struct ohcodec_priv *owner = mapper->owner->priv;
+    if (!owner)
+        return;
+    if (!owner->surface_invalid)
+        MP_ERR(mapper, "OHCodec owner Surface marked terminal after release "
+                       "failure; no new producer is allowed\n");
+    owner->surface_invalid = true;
+}
+
 bool ohcodec_mapper_can_drain(struct ra_hwdec_mapper *mapper)
 {
     if (!mapper || !mapper->owner)

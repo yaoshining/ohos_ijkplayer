@@ -429,6 +429,10 @@ static void oh_decode_clear_dovi(OHCodecDecContext *s) {
     s->nb_dovi_frames = 0;
 }
 
+/* Phase28 terminal-failure globals referenced by the extracted functions. */
+static atomic_bool ohcodec_terminal_failure = ATOMIC_VAR_INIT(false);
+static atomic_int ohcodec_failed_destroy_count;
+
 /* Actual production functions. */
 #include "actual-ohdec.inc"
 
@@ -700,6 +704,59 @@ static int mode_prepare_fail(void) {
     return 0;
 }
 
+static int mode_destroy_fail(void) {
+    struct env e;
+    if (env_start(&e, false) < 0) return 70;
+    destroy_result = AV_ERR_UNKNOWN;
+    oh_decode_close(&e.avctx);
+    destroy_result = AV_ERR_OK;
+    dump_events();
+    if (destroy_calls != 1) {
+        printf("FAIL destroy-fail: Destroy not attempted exactly once (%d)\n",
+               destroy_calls);
+        return 1;
+    }
+    struct env e2;
+    int rc = env_start(&e2, false);
+    if (rc == 0) {
+        printf("FAIL destroy-fail: a new OHCodec decoder was created after a "
+               "failed Destroy\n");
+        oh_decode_close(&e2.avctx);
+        return 1;
+    }
+    if (count_ev(EV_CREATE) != 1) {
+        printf("FAIL destroy-fail: unexpected create attempts (%d)\n",
+               count_ev(EV_CREATE));
+        return 1;
+    }
+    printf("PASS destroy-fail\n");
+    return 0;
+}
+
+static int mode_stop_fail(void) {
+    struct env e;
+    if (env_start(&e, false) < 0) return 70;
+    stop_result = AV_ERR_UNKNOWN;
+    oh_decode_close(&e.avctx);
+    stop_result = AV_ERR_OK;
+    dump_events();
+    if (stop_calls != 1 || destroy_calls != 1) {
+        printf("FAIL stop-fail: expected Stop and Destroy once (stop=%d destroy=%d)\n",
+               stop_calls, destroy_calls);
+        return 1;
+    }
+    struct env e2;
+    int rc = env_start(&e2, false);
+    if (rc == 0) {
+        printf("FAIL stop-fail: a new OHCodec decoder was created after a "
+               "failed Stop\n");
+        oh_decode_close(&e2.avctx);
+        return 1;
+    }
+    printf("PASS stop-fail\n");
+    return 0;
+}
+
 static int mode_duplicate_close(void) {
     struct env e;
     if (env_start(&e, false) < 0) return 70;
@@ -727,5 +784,7 @@ int main(int argc, char **argv) {
     if (!strcmp(argv[1], "callback-inflight-close")) return mode_callback_inflight_close();
     if (!strcmp(argv[1], "prepare-fail")) return mode_prepare_fail();
     if (!strcmp(argv[1], "duplicate-close")) return mode_duplicate_close();
+    if (!strcmp(argv[1], "destroy-fail")) return mode_destroy_fail();
+    if (!strcmp(argv[1], "stop-fail")) return mode_stop_fail();
     return 64;
 }

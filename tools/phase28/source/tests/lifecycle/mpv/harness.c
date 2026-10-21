@@ -177,6 +177,7 @@ struct vk_mapper {
     struct vk_import *current;
     OHNativeWindowBuffer *window_buffer;
     const char *release_reason;
+    bool external_release_inflight;
 };
 struct pl_vulkan_hold_params {
     void *tex;
@@ -255,6 +256,7 @@ struct vd_ffmpeg_ctx {
     bool eof_deferred;              /* Phase28 addition */
     bool lifecycle_unsafe;          /* Phase28 addition */
     bool lifecycle_release_error;   /* Phase28 addition */
+    bool lifecycle_failed;          /* Phase28 addition */
     struct vo *vo;
     struct mp_hwdec_devices *hwdec_devs;
     AVBufferRef *hwdec_dev;
@@ -293,7 +295,9 @@ enum {
     VO_OHCODEC_DRAIN_UNSAFE = 3,
 };
 struct vo_ohcodec_drain_req { int result; int platform_error; int reason; };
+struct vo_ohcodec_surface_req { int invalid; int mark_invalid; };
 #define VOCTRL_OHCODEC_DRAIN 0x4f484344 /* 'OHCD' */
+#define VOCTRL_OHCODEC_SURFACE 0x4f484353 /* 'OHCS' */
 
 /* --------------------------------------------------------------- VO stubs */
 void vo_ohcodec_retire_frames(struct vo *vo);
@@ -319,9 +323,20 @@ static int driver_saw_current;
 static int driver_saw_queued;
 static struct vo_ohcodec_drain_req *driver_req;
 static int driver_result = VO_OHCODEC_DRAIN_SAFE;
+static int surface_invalid, surface_marks, surface_queries;
 static int fake_driver_control(struct vo *vo, uint32_t request, void *data) {
     (void)vo;
     ev(EV_DRIVER);
+    if (request == VOCTRL_OHCODEC_SURFACE && data) {
+        struct vo_ohcodec_surface_req *req = data;
+        surface_queries++;
+        if (req->mark_invalid) {
+            surface_marks++;
+            surface_invalid = 1;
+        }
+        req->invalid = surface_invalid;
+        return 0;
+    }
     if (request == VOCTRL_OHCODEC_DRAIN && data) {
         ev(EV_PREFLIGHT);
 #ifdef PHASE28
@@ -446,6 +461,58 @@ static int mode_mapper_uninit(void) {
     }
     printf("PASS mapper-uninit-order\n");
     return 0;
+}
+
+static int mode_empty_current_drain(void) {
+    struct ra_hwdec_mapper mapper = {0};
+    struct ohcodec_priv owner = {0};
+    struct ohcodec_mapper_priv mp = {0};
+    struct mp_image *img = calloc(1, sizeof(*img));
+    struct ohcodec_interop interop = {0};
+    struct ohcodec_surface surface = { .image = (void *)(uintptr_t)0x55 };
+    struct ra_hwdec hw = {0};
+    hw.priv = &owner;
+    owner.interop = &interop;
+    owner.surface = &surface;
+    mapper.owner = &hw;
+    mapper.priv = &mp;
+    mp.last_token = (AVOHCodecBuffer *)(uintptr_t)0x200;
+    mp.last_src = img;
+    struct vk_mapper *v = make_vk(&mapper, &mp);
+    struct vk_import *e = v->current;
+    v->imports = e;              /* historical external release, current to be cleared */
+    v->num_imports = 1;
+    interop.release = mapper_release;
+    interop.mapper_uninit = vk_mapper_uninit;
+#ifdef PHASE28
+    interop.drain = ohcodec_drain;
+    mapper_release(&mapper);
+    int result = ohcodec_drain(&mapper, OHCODEC_DRAIN_REASON_CLOSE, NULL);
+    dump_events();
+    int wait = first_ev(EV_WAIT), destroy = first_ev(EV_DESTROY);
+    if (result != OHCODEC_DRAIN_SAFE || wait < 0 ||
+        (destroy >= 0 && wait > destroy)) {
+        printf("FAIL empty-current-drain: result=%d wait=%d destroy=%d\n",
+               result, wait, destroy);
+        return 1;
+    }
+    printf("PASS empty-current-drain\n");
+    return 0;
+#else
+    (void)v; (void)e;
+    mapper_release(&mapper);
+    vk_mapper_uninit(&mapper);
+    dump_events();
+    int wait = first_ev(EV_WAIT), destroy = first_ev(EV_DESTROY);
+    if (wait >= 0 && (destroy < 0 || wait < destroy)) {
+        printf("FAIL empty-current-drain: baseline unexpectedly waited\n");
+        return 1;
+    }
+    printf("FAIL empty-current-drain: baseline destroyed imports without "
+           "waiting for historical external release (wait=%d destroy=%d)\n",
+           wait, destroy);
+    return 1;
+#endif
 }
 
 static int mode_vd_preflight(void) {
@@ -574,6 +641,49 @@ static int mode_hang(void) {
     return 0;
 }
 
+static int mode_surface_invalid_reinit(void) {
+#ifdef PHASE28
+    struct mp_filter vd = {0};
+    struct vd_ffmpeg_ctx ctx = {0};
+    struct vo vo = {0};
+    struct vo_internal in = {0};
+    struct vo_driver drv = { .control = fake_driver_control, .name = "gpu-next" };
+    mp_cond_init(&in.wakeup);
+    vo.in = &in;
+    vo.driver = &drv;
+    AVCodecContext *avctx = calloc(1, sizeof(*avctx));
+    vd.priv = &ctx;
+    ctx.avctx = avctx;
+    ctx.use_hwdec = true;
+    snprintf(ctx.hwdec.name, sizeof(ctx.hwdec.name), "hevc_ohcodec-ohcodec");
+    ctx.hwdec.lavc_device = AV_HWDEVICE_TYPE_OHCODEC;
+    ctx.vo = &vo;
+    surface_invalid = 0; surface_marks = 0; surface_queries = 0;
+    driver_result = VO_OHCODEC_DRAIN_SAFE_RELEASE_ERROR;
+    reset_avctx(&vd);
+    bool refused = ohcodec_lifecycle_refuse_init(&ctx);
+    /* A new decoder filter on the same VO must be refused too. */
+    struct vd_ffmpeg_ctx next = { .use_hwdec = true, .vo = &vo };
+    next.hwdec.lavc_device = AV_HWDEVICE_TYPE_OHCODEC;
+    bool next_refused = ohcodec_lifecycle_refuse_init(&next);
+    driver_result = VO_OHCODEC_DRAIN_SAFE;
+    dump_events();
+    if (!refused || !ctx.lifecycle_failed || !surface_invalid ||
+        surface_marks != 1 || !next_refused || !next.lifecycle_failed) {
+        printf("FAIL surface-invalid-reinit: refused=%d failed=%d invalid=%d "
+               "marks=%d next_refused=%d next_failed=%d\n",
+               refused, ctx.lifecycle_failed, surface_invalid, surface_marks,
+               next_refused, next.lifecycle_failed);
+        return 1;
+    }
+    printf("PASS surface-invalid-reinit\n");
+    return 0;
+#else
+    printf("FAIL surface-invalid-reinit: baseline has no terminal Surface state\n");
+    return 1;
+#endif
+}
+
 static int mode_eof_deferred(void) {
     struct mp_filter vd = {0};
     struct vd_ffmpeg_ctx ctx = {0};
@@ -620,9 +730,11 @@ int main(int argc, char **argv) {
     if (argc != 2) return 64;
     if (!strcmp(argv[1], "mapper-uninit-order")) return mode_mapper_uninit();
     if (!strcmp(argv[1], "vd-lavc-preflight")) return mode_vd_preflight();
+    if (!strcmp(argv[1], "empty-current-drain")) return mode_empty_current_drain();
     if (!strcmp(argv[1], "vd-lavc-preflight-uninit")) return mode_vd_uninit();
     if (!strcmp(argv[1], "vo-drain-control")) return mode_vo_control();
     if (!strcmp(argv[1], "eof-deferred")) return mode_eof_deferred();
+    if (!strcmp(argv[1], "surface-invalid-reinit")) return mode_surface_invalid_reinit();
 #ifdef PHASE28
     if (!strcmp(argv[1], "unsafe-preflight")) return mode_unsafe_preflight();
 #endif
