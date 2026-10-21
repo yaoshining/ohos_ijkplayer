@@ -1,0 +1,111 @@
+{
+  "at": "2026-10-22T01:20:00+08:00",
+  "baselineRED": {
+    "T005": {
+      "run": "red-t005-12",
+      "accepted": true,
+      "resultsSHA256": "a2f7bdece3c80e7709453df8fd85b1c98dc87d78e817cadbbfe9e801ae12f64c",
+      "cases": [
+        "mapper-uninit-order",
+        "vd-lavc-preflight",
+        "vd-lavc-preflight-uninit",
+        "vo-drain-control",
+        "eof-deferred",
+        "surface-invalid-reinit",
+        "empty-current-drain",
+        "mapper-teardown-release-error",
+        "surface-owner-invalid",
+        "unsafe-outer-free"
+      ]
+    },
+    "T008": {
+      "run": "red-t008-09",
+      "accepted": true,
+      "resultsSHA256": "4c8a6327f5c8012ddbcc87a877d31584f9931ee8c6b8a6132bccb7020107c2a3",
+      "cases": [
+        "close-held-frame",
+        "callback-after-close",
+        "token-close-race",
+        "callback-inflight-close",
+        "prepare-fail",
+        "duplicate-close",
+        "destroy-fail",
+        "stop-fail"
+      ]
+    },
+    "T012": {
+      "run": "red-t012-02",
+      "accepted": true,
+      "resultsSHA256": "e6a7cb2228d46b83f986d2642177c6575dc3f5f940e81bd1322054307ff9d3de",
+      "cases": [
+        "mapper-uninit-order",
+        "vd-lavc-preflight",
+        "vd-lavc-preflight-uninit",
+        "vo-drain-control",
+        "eof-deferred"
+      ]
+    }
+  },
+  "phase28GREEN": {
+    "T005-T007-T012": {
+      "run": "green-t005-26",
+      "accepted": true,
+      "resultsSHA256": "23a3e22b8603e7d21df641c032bf63284143d10a27d52af51d7f3a7cb65b4265",
+      "cases": [
+        "mapper-uninit-order",
+        "vd-lavc-preflight",
+        "vd-lavc-preflight-uninit",
+        "vo-drain-control",
+        "eof-deferred",
+        "surface-invalid-reinit",
+        "empty-current-drain",
+        "mapper-teardown-release-error",
+        "surface-owner-invalid",
+        "unsafe-outer-free"
+      ]
+    },
+    "T008-T010": {
+      "run": "green-t008-11",
+      "accepted": true,
+      "resultsSHA256": "fc21e34cd9da745eb2f21e251a9966860c21d154392eeee3e1f50d67cadd098e",
+      "cases": [
+        "close-held-frame",
+        "callback-after-close",
+        "token-close-race",
+        "callback-inflight-close",
+        "prepare-fail",
+        "duplicate-close",
+        "destroy-fail",
+        "stop-fail"
+      ]
+    }
+  },
+  "T011": {
+    "run": "t011-watchdog-06",
+    "accepted": true,
+    "resultsSHA256": "b0b74c6d2cb484c3e7b0673790870aadaa40b05343b6cfd30a1a6fe0a90e5fa7"
+  },
+  "sourceBinding": {
+    "mpv": "out/phase28/input-package/sources/mpv",
+    "ffmpeg": "out/phase28/ffmpeg-input/source",
+    "baselineLock": "out/phase28/baseline/manifest.json",
+    "mpvGREENBinding": "out/phase28/tests/lifecycle/green-t005-26/extracted/source-binding.json",
+    "ohdecGREENBinding": "out/phase28/tests/lifecycle/green-t008-11/extracted/source-binding.json"
+  },
+  "coverage": {
+    "F1": "surface-invalid-reinit: SAFE_RELEASE_ERROR marks owner Surface and refuses new decoder filter",
+    "F2": "destroy-fail/stop-fail: terminal platform failure refuses new OHCodec decoder; native handle retained",
+    "F3": "empty-current-drain: historical external release waited before import destroy",
+    "F4": "watchdog only SIGABRT accepted; missing-abort mutant rejected; timeout not success",
+    "F5": "handoff/seal generated in non-circular order and independently verified",
+    "R1": "mapper-teardown-release-error: generic mapper_uninit latches SAFE_RELEASE_ERROR; new mapper refused",
+    "R2": "surface-owner-invalid: owner lookup works with mapper absent; new mapper refused",
+    "U1": "unsafe-outer-free: actual ra_hwdec_mapper_free/uninit retain mapper/owner after UNSAFE, skip talloc/owner teardown"
+  },
+  "notCoveredYet": [
+    "target-device GPU wait/SAFE_RELEASE_ERROR/UNSAFE fault injection",
+    "strong concurrent producer interleaving",
+    "physical HDR and subjective A/V",
+    "same consumer Surface handoff identity (owner/NativeImage/stable Surface ID)"
+  ]
+}
