@@ -80,3 +80,6 @@ int ohcodec_mapper_drain(struct ra_hwdec_mapper *mapper, int reason,
 bool ohcodec_mapper_can_drain(struct ra_hwdec_mapper *mapper);
 bool ohcodec_mapper_surface_invalid(struct ra_hwdec_mapper *mapper);
 void ohcodec_mapper_mark_surface_invalid(struct ra_hwdec_mapper *mapper);
+bool ohcodec_hwdec_surface_invalid(struct ra_hwdec *hw);
+void ohcodec_hwdec_mark_surface_invalid(struct ra_hwdec *hw);
+struct ra_hwdec *ohcodec_hwdec_find(struct ra_hwdec **hwdecs, int num);

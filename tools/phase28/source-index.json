@@ -41,13 +41,13 @@
   },
   {
     "path": "source/input-package/sources/mpv/video/out/hwdec/hwdec_ohcodec.c",
-    "size": 10662,
-    "sha256": "206c4bdcdfb2620a31523a3490f90adefbfc0bdd5be6bd1ca2d41222f9c3f964"
+    "size": 12366,
+    "sha256": "f42a1f18ca6289fe3fc00cf717d9dd7f5490d6dbd32a57e99b74c37e8da7b4d0"
   },
   {
     "path": "source/input-package/sources/mpv/video/out/hwdec/hwdec_ohcodec.h",
-    "size": 2730,
-    "sha256": "4d32c6eb2a95792e0dccdbffd04ab728d504e6b8772b069d4ef19fb7e5eaa384"
+    "size": 2921,
+    "sha256": "47ca502110ca486564957f586561d1a560acb964c25769906a4466dce18f04af"
   },
   {
     "path": "source/input-package/sources/mpv/video/out/hwdec/hwdec_ohcodec_pl.c",
@@ -66,8 +66,8 @@
   },
   {
     "path": "source/input-package/sources/mpv/video/out/vo_gpu_next.c",
-    "size": 98746,
-    "sha256": "0188135a828122e215b8c5f38d70d1bdd7f16e4be0ca5f3f226cfb6da4b5e261"
+    "size": 98997,
+    "sha256": "78d182bf706d2a7feeb6ca932ada6284db111038c2c3eb825cb9ba969d714fa3"
   },
   {
     "path": "source/phase28.patch",
@@ -151,13 +151,13 @@
   },
   {
     "path": "source/tests/lifecycle/extract.py",
-    "size": 8593,
-    "sha256": "11e108b2a799066330e1da7b3dca49afc2d73e6d46f2dabaca37627581be085b"
+    "size": 9067,
+    "sha256": "8c6992ad0e288089005be743641994ec77abbd0dce402602a974dd41aff59c70"
   },
   {
     "path": "source/tests/lifecycle/mpv/harness.c",
-    "size": 28668,
-    "sha256": "6ff927b0928d9f0395b41190f3598bfcadc58429d7a22b8ba625fcc1506078c5"
+    "size": 31653,
+    "sha256": "9066436fae639435ef6aecb312bc5673cf129894935ab6bacfe1d13a4dcbbc51"
   },
   {
     "path": "source/tests/lifecycle/ohdec/harness.c",
@@ -166,8 +166,8 @@
   },
   {
     "path": "source/tests/lifecycle/run_mpv.py",
-    "size": 4185,
-    "sha256": "5cb49dc4cc79e0a63e3fd5225a44ad41c92b29fb3dfe6fe21622eabaf5c3cf7d"
+    "size": 4243,
+    "sha256": "8b7152c83a60cf06335b46a970905407fae8c1602c0c239917f5aca06fedef8f"
   },
   {
     "path": "source/tests/lifecycle/run_ohdec.py",
