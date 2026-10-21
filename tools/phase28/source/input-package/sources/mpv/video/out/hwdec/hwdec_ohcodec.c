@@ -1,6 +1,7 @@
 /* HarmonyOS decoder Surface -> GPU zero-copy bridge. */
 
 #include <errno.h>
+#include <stdlib.h>
 #include <libavutil/hwcontext.h>
 #include <libavutil/hwcontext_oh.h>
 #include <native_window/graphic_error_code.h>
@@ -176,12 +177,19 @@ static void mapper_uninit(struct ra_hwdec_mapper *mapper)
             ohcodec_mapper_mark_surface_invalid(mapper);
         }
         if (result == OHCODEC_DRAIN_UNSAFE) {
-            /* Completion is unknown. Keep the retained frame and platform
-             * resources alive rather than finalizing the decoder context. The
-             * explicit experiment fail-stop handles this before teardown. */
-            MP_ERR(mapper, "OHCodec mapper teardown aborted: GPU completion "
-                           "unknown (platform error %d)\n", platform_error);
+            /* Completion is unknown. The void unmapper callback cannot cancel
+             * the outer ra_hwdec_mapper_free(); mark the whole mapper/owner
+             * tree retained so that outer free and owner teardown skip it. */
+            mapper->resource_retained = true;
+            if (mapper->owner)
+                mapper->owner->resource_retained = true;
+            MP_ERR(mapper, "OHCodec mapper teardown UNSAFE (platform error %d); "
+                           "retaining mapper/owner tree\n", platform_error);
+#ifdef MP_OHCODEC_LIFECYCLE_EXPERIMENT
+            abort();
+#else
             return;
+#endif
         }
     } else if (p->last_token && owner->interop->release) {
         owner->interop->release(mapper);
