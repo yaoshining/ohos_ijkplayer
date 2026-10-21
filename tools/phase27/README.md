@@ -2,7 +2,7 @@
 
 OHCodec 首帧缺少静态亮度元数据，mpv 的同 PQ 更新还会读取旧 VO 参数并跳过窗口提交。本轮在固定 FFmpeg 和 mpv 源码上修复这两条链路。连续视频的设备失败又定位到 Annex B 过滤器插入旧 extradata 的顺序，以及 helper 绕过 FFmpeg side-data 优先规则；当前回归包含这两个真实失败的修复。
 
-执行 `python3 -B tools/phase27/runner.py --out out/phase27-ci`。要求干净 Git checkout；开发阶段可显式使用 `--allow-dirty`，其状态仍记录到证据中。runner 下载固定提交及 SHA 的 FFmpeg 归档，应用完整补丁，核验 9920 个源文件的集合、大小和摘要，构建真实上游 SEI/parser/转换静态对象，再执行：
+执行 `python3 -B tools/phase27/runner.py --out /tmp/phase27-ci`。要求干净 Git checkout；开发阶段可显式使用 `--allow-dirty`，其状态仍记录到证据中。runner 下载固定提交及 SHA 的 FFmpeg 归档，应用完整补丁，核验 9920 个源文件的集合、大小和摘要，构建真实上游 SEI/parser/转换静态对象，再执行：
 
 - 23 项 mpv 实际函数切片回归，含当前帧、target 限制、SDR、缓存与失败重试。
 - HDR helper 与真实 ohdec send/output 连接、重排/事务/未知和重复 PTS/IRAP/flush/OOM。
@@ -14,3 +14,6 @@ OHCodec 首帧缺少静态亮度元数据，mpv 的同 PQ 更新还会读取旧 
 ASan/UBSan 设置为遇错失败。FFmpeg 使用实际完整上游对象；mpv 平台接口与 ohdec 外部平台 API 使用明确桩，不能把它们声称为目标运行或 GPU 验收。动态库、HAP、SDK、签名、凭据及媒体夹具均不包含在此提交或上传中。只上传 `artifact/` 允许的文本证据，包含本轮执行源码、真实工作流、Git HEAD/dirty、前后输入摘要和全部文件索引；测试与收集结果分别标记。
 
 Vulkan 释放诊断代码仅作来源审查，不把日志插点作为释放告警修复。真机、窗口 metadata readback、物理 HDR、产品基线与正式发布验收分别记录；本 CI 不替代它们。未知 PTS 或多 AU 布局歧义时，本代次静态 HDR 关联禁用到 flush，解码继续；不宣称这种输入完整支持 HDR。队列上限仍以明确错误返回，不静默错配。
+
+首轮 Linux CI 保留为失败：仓库内输出使严格 dirty 检查失败，mpv 编译阶段失败但旧收集路径漏掉 compile.log。当前运行器拒绝 checkout 内输出（包含符号链接入口），CI 使用 runner.temp；失败时同样收集已知阶段目录内的有界 JSON/log 并完整索引，不放宽 Git 或 sanitizer 门禁。
+mpv 严格 C11 测试编译显式定义 `_POSIX_C_SOURCE=200809L`，以声明生产函数使用的 POSIX 时钟 API。首轮缺少编译诊断，故该项为待 Linux 重跑确认的原因；生产函数源码未因此改动。
