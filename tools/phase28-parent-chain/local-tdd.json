@@ -1,0 +1,43 @@
+{
+  "formalArtifactAllowed": false,
+  "date": "2026-10-23",
+  "sequence": [
+    {
+      "stage": "initial RED",
+      "observed": "runner missing; 4 tests cannot load"
+    },
+    {
+      "stage": "initial GREEN",
+      "observed": "4/4"
+    },
+    {
+      "stage": "identity RED",
+      "observed": "7 tests: 1 semantic failure, 2 missing-function errors"
+    },
+    {
+      "stage": "identity GREEN",
+      "observed": "7/7"
+    },
+    {
+      "stage": "collection RED",
+      "observed": "9 tests: 2 missing-function errors"
+    },
+    {
+      "stage": "collection GREEN",
+      "observed": "9/9"
+    }
+  ],
+  "developmentReplay": {
+    "run": "replay-02",
+    "accepted": true,
+    "exactCommitReplay": false,
+    "host": "macOS",
+    "cases": "parent 5+12, external mutant rejected, FFmpeg 8+8, cleanup 11"
+  },
+  "retainedFailure": {
+    "run": "replay-01",
+    "accepted": false,
+    "reason": "inputs changed while review-driven edits were made; final input hash gate rejected test_ci_gate.py; kept original evidence"
+  },
+  "remoteCI": "not run; approval pending"
+}

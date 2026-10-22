@@ -1,0 +1,167 @@
+{
+  "formalArtifactAllowed": false,
+  "scope": "仅宿主真实函数重放，不构建目标库，不运行或上传设备记录",
+  "upstreamIdentity": "沿用输入包锁定源码；完整源文件子集，非新上游版本",
+  "files": {
+    "parent-chain/extract.py": {
+      "source": "out/phase28-device-validation/tests/parent-chain/extract.py",
+      "sha256": "4a3d3966c32548506d46f45311120604b3102f06c2ede74d264e6a8b3f7434f5"
+    },
+    "parent-chain/run.py": {
+      "source": "out/phase28-device-validation/tests/parent-chain/run.py",
+      "sha256": "f496641b33124cbb72be6b5f66fe79f762f48373a8468f6361603164d58228b1"
+    },
+    "parent-chain/harness.c": {
+      "source": "out/phase28-device-validation/tests/parent-chain/harness.c",
+      "sha256": "271d9d370ea113295c80e9edb15aebaa1abd83fb87598ef993590d689842b114"
+    },
+    "sources/mpv-red/video/out/hwdec/hwdec_ohcodec.c": {
+      "source": "out/phase28-device-validation/input-package/sources/mpv/video/out/hwdec/hwdec_ohcodec.c",
+      "sha256": "a2f56a8ea277c5b271433c8aad7e1e65b6c80eac38e1cbca994ec81064fcfa04"
+    },
+    "sources/mpv-red/video/out/gpu/hwdec.c": {
+      "source": "out/phase28-device-validation/input-package/sources/mpv/video/out/gpu/hwdec.c",
+      "sha256": "c27baa56daeb036f2407beb3b1d96332ed1c8abe25902a96e23268f993705475"
+    },
+    "sources/mpv-red/video/hwdec.c": {
+      "source": "out/phase28-device-validation/input-package/sources/mpv/video/hwdec.c",
+      "sha256": "1e33af77233d13ba0741c7c06676c4872f72cd116cb75f1c1856b9f6020c96b1"
+    },
+    "sources/mpv-red/video/out/hwdec/hwdec_ohcodec_pl.c": {
+      "source": "out/phase28-device-validation/input-package/sources/mpv/video/out/hwdec/hwdec_ohcodec_pl.c",
+      "sha256": "b84193d259dbdc9778d32cb423061b9ee3dc14d00941365868c0a917a1a8767d"
+    },
+    "sources/mpv-red/misc/dispatch.c": {
+      "source": "out/phase28-device-validation/input-package/sources/mpv/misc/dispatch.c",
+      "sha256": "488d517a098ae50bc839b172f58aa59e75c3f0758de9745a4325c37eac9e8cee"
+    },
+    "sources/mpv-red/video/out/vo.c": {
+      "source": "out/phase28-device-validation/input-package/sources/mpv/video/out/vo.c",
+      "sha256": "2bb427e92e279323a5a0ebf690a98c0ed9be5e6d6eb3892f2da11741c0874bec"
+    },
+    "sources/mpv-red/player/video.c": {
+      "source": "out/phase28-device-validation/input-package/sources/mpv/player/video.c",
+      "sha256": "fcb5ea2449d9dce5a1bb518fc8905a22815411eb8ad20fc528b266f25d221512"
+    },
+    "sources/mpv-red/player/main.c": {
+      "source": "out/phase28-device-validation/input-package/sources/mpv/player/main.c",
+      "sha256": "c3bfca8c73543fc7beed2ce1f6856d0d2bfd5f0178af3149d592c7395788ff3e"
+    },
+    "sources/mpv-red/video/decode/vd_lavc.c": {
+      "source": "out/phase28-device-validation/input-package/sources/mpv/video/decode/vd_lavc.c",
+      "sha256": "f745a27d2071c7b7695897a053b8a4d6cadfb1bf6e620158338991dfc443a0b7"
+    },
+    "sources/mpv-red/video/out/vo_gpu_next.c": {
+      "source": "out/phase28-device-validation/input-package/sources/mpv/video/out/vo_gpu_next.c",
+      "sha256": "78d182bf706d2a7feeb6ca932ada6284db111038c2c3eb825cb9ba969d714fa3"
+    },
+    "sources/mpv-green/video/out/hwdec/hwdec_ohcodec.c": {
+      "source": "out/phase28-device-validation/input-package-parentfix/sources/mpv/video/out/hwdec/hwdec_ohcodec.c",
+      "sha256": "19e6dba42a291d628d059b7c17eef7df9c254da4be8d5ba77b5a222629b30a6e"
+    },
+    "sources/mpv-green/video/out/gpu/hwdec.c": {
+      "source": "out/phase28-device-validation/input-package-parentfix/sources/mpv/video/out/gpu/hwdec.c",
+      "sha256": "c27baa56daeb036f2407beb3b1d96332ed1c8abe25902a96e23268f993705475"
+    },
+    "sources/mpv-green/video/hwdec.c": {
+      "source": "out/phase28-device-validation/input-package-parentfix/sources/mpv/video/hwdec.c",
+      "sha256": "1e33af77233d13ba0741c7c06676c4872f72cd116cb75f1c1856b9f6020c96b1"
+    },
+    "sources/mpv-green/video/out/hwdec/hwdec_ohcodec_pl.c": {
+      "source": "out/phase28-device-validation/input-package-parentfix/sources/mpv/video/out/hwdec/hwdec_ohcodec_pl.c",
+      "sha256": "b84193d259dbdc9778d32cb423061b9ee3dc14d00941365868c0a917a1a8767d"
+    },
+    "sources/mpv-green/misc/dispatch.c": {
+      "source": "out/phase28-device-validation/input-package-parentfix/sources/mpv/misc/dispatch.c",
+      "sha256": "488d517a098ae50bc839b172f58aa59e75c3f0758de9745a4325c37eac9e8cee"
+    },
+    "sources/mpv-green/video/out/vo.c": {
+      "source": "out/phase28-device-validation/input-package-parentfix/sources/mpv/video/out/vo.c",
+      "sha256": "2bb427e92e279323a5a0ebf690a98c0ed9be5e6d6eb3892f2da11741c0874bec"
+    },
+    "sources/mpv-green/player/video.c": {
+      "source": "out/phase28-device-validation/input-package-parentfix/sources/mpv/player/video.c",
+      "sha256": "fcb5ea2449d9dce5a1bb518fc8905a22815411eb8ad20fc528b266f25d221512"
+    },
+    "sources/mpv-green/player/main.c": {
+      "source": "out/phase28-device-validation/input-package-parentfix/sources/mpv/player/main.c",
+      "sha256": "c3bfca8c73543fc7beed2ce1f6856d0d2bfd5f0178af3149d592c7395788ff3e"
+    },
+    "sources/mpv-green/video/decode/vd_lavc.c": {
+      "source": "out/phase28-device-validation/input-package-parentfix/sources/mpv/video/decode/vd_lavc.c",
+      "sha256": "f745a27d2071c7b7695897a053b8a4d6cadfb1bf6e620158338991dfc443a0b7"
+    },
+    "sources/mpv-green/video/out/vo_gpu_next.c": {
+      "source": "out/phase28-device-validation/input-package-parentfix/sources/mpv/video/out/vo_gpu_next.c",
+      "sha256": "dca4189b62934353d13ac0cfad69bb08a9b67dedf6b9b40cb667131207438f6c"
+    },
+    "licenses/mpv/LICENSE.GPL": {
+      "source": "out/phase28-device-validation/input-package-parentfix/sources/mpv/LICENSE.GPL",
+      "sha256": "edaef632cbb643e4e7a221717a6c441a4c1a7c918e6e4d56debc3d8739b233f6"
+    },
+    "licenses/mpv/LICENSE.LGPL": {
+      "source": "out/phase28-device-validation/input-package-parentfix/sources/mpv/LICENSE.LGPL",
+      "sha256": "72b672113d642cbb8ef5dcc76938db801983c56e50b1400ab930f1a64d6dc8d9"
+    },
+    "licenses/ffmpeg/COPYING.GPLv2": {
+      "source": "out/phase28-device-validation/ffmpeg-input/source/COPYING.GPLv2",
+      "sha256": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643"
+    },
+    "licenses/ffmpeg/COPYING.GPLv3": {
+      "source": "out/phase28-device-validation/ffmpeg-input/source/COPYING.GPLv3",
+      "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903"
+    },
+    "licenses/ffmpeg/COPYING.LGPLv2.1": {
+      "source": "out/phase28-device-validation/ffmpeg-input/source/COPYING.LGPLv2.1",
+      "sha256": "246041b6ecf9bc32d718a62c57877c78b5eb397b6467e74ed7ae2626ab189c30"
+    },
+    "licenses/ffmpeg/COPYING.LGPLv3": {
+      "source": "out/phase28-device-validation/ffmpeg-input/source/COPYING.LGPLv3",
+      "sha256": "da7eabb7bafdf7d3ae5e9f223aa5bdc1eece45ac569dc21b3b037520b4464768"
+    },
+    "licenses/ffmpeg/LICENSE.md": {
+      "source": "out/phase28-device-validation/ffmpeg-input/source/LICENSE.md",
+      "sha256": "2e1d16c72fd74e12063776371da757322f8b77589386532f4fd8634bde7de1af"
+    },
+    "sources/ffmpeg/libavcodec/ohdec.c": {
+      "source": "out/phase28-device-validation/ffmpeg-input/source/libavcodec/ohdec.c",
+      "sha256": "8d557632b5d75e247fc5222a74144bcff2a7e7429ad56790ededd8dff9352e9a"
+    },
+    "sources/ffmpeg/libavcodec/ohcodec_diagnostic.h": {
+      "source": "out/phase28-device-validation/ffmpeg-input/source/libavcodec/ohcodec_diagnostic.h",
+      "sha256": "fa756a28088bba6e1d8ed6308fa6c23dd7998d3309b9238e7ac7fb0b5901723a"
+    },
+    "lifecycle/extract.py": {
+      "source": "out/phase28-device-validation/tests/lifecycle/extract.py",
+      "sha256": "08a7f0239a577dace07e58361a34e820e4497bb06b8a95c9107037b771286132"
+    },
+    "lifecycle/run_ohdec.py": {
+      "source": "out/phase28-device-validation/tests/lifecycle/run_ohdec.py",
+      "sha256": "e520168a635aa5b51172404f201d7b19effbde77e6cc8c970a0d70f7d0ea0333"
+    },
+    "lifecycle/ohdec/harness.c": {
+      "source": "out/phase28-device-validation/tests/lifecycle/ohdec/harness.c",
+      "sha256": "02dec4281aa2021518be8299a0b979d5f86699adaf507eecf9d6d3074397734d"
+    },
+    "cleanup_gate.py": {
+      "source": "out/phase28-device-validation/resume-04/device/cleanup_gate.py",
+      "sha256": "3d8330596100b21a2a19c164592ad06314b4e89fdb5af4a9edff5fac44250656"
+    },
+    "callback-dependency-audit.md": {
+      "source": "out/phase28-device-validation/resume-04/parentfix/callback-dependency-audit.md",
+      "sha256": "7d98c1f6d920a9b1017ca1a54dc95918f918186b70736ab7526060245d0fa25f"
+    },
+    "sources/mpv-red/video/out/hwdec/hwdec_ohcodec.h": {
+      "source": "out/phase28-device-validation/input-package/sources/mpv/video/out/hwdec/hwdec_ohcodec.h",
+      "sha256": "8f2e9325a07b0ac4c7488b00b0b5e3352a8acd92322af0da59832b5635aa7372"
+    },
+    "sources/mpv-green/video/out/hwdec/hwdec_ohcodec.h": {
+      "source": "out/phase28-device-validation/input-package-parentfix/sources/mpv/video/out/hwdec/hwdec_ohcodec.h",
+      "sha256": "7461e84843e4485f9a9b4f2d5e6371b09810c881cf1a7fdc7bae6bedab3ac187"
+    }
+  },
+  "packageBindings": {
+    "input-package": "60dfd8f544b2e08962bb1953ed83d837de1aa7dbbefaf053969de2611fcfd64f",
+    "input-package-parentfix": "7c205bc188f0b3b33f50517fb088a4fa0ebfe2888351e2118c651c1f95d6fe86"
+  }
+}
