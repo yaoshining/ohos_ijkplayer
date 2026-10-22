@@ -1,0 +1,23 @@
+name: Phase29 normal terminal host validation
+on:
+  push:
+    branches: [codex/phase28-validation]
+    paths: ['tools/phase29-normal-terminal/**', '.github/workflows/phase29-normal-terminal.yml']
+permissions:
+  contents: read
+jobs:
+  host:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Replay exact committed host inputs
+        run: python3 -B tools/phase29-normal-terminal/runner.py --out "$RUNNER_TEMP/phase29-evidence"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: phase29-normal-terminal-${{ github.sha }}
+          path: ${{ runner.temp }}/phase29-evidence/artifact/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
