@@ -1,0 +1,440 @@
+/* HarmonyOS decoder Surface -> GPU zero-copy bridge. */
+
+#include <errno.h>
+#include <stdatomic.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <unistd.h>
+#include <libavutil/hwcontext.h>
+#include <libavutil/hwcontext_oh.h>
+#include <native_window/graphic_error_code.h>
+
+#include "config.h"
+#include "hwdec_ohcodec.h"
+#include "osdep/timer.h"
+#include "video/out/gpu/hwdec.h"
+
+#ifdef MP_OHCODEC_DIAGNOSTIC
+static atomic_bool terminal_barrier_entered;
+
+void ohcodec_terminal_barrier(struct mp_log *log, const char *site)
+{
+    if (!atomic_exchange(&terminal_barrier_entered, true)) {
+        if (log) {
+            mp_msg(log, MSGL_ERR, "P28_TERMINAL t=%lld op=barrier site=%s pid=%d "
+                                  "state=retained external-termination-required\n",
+                   (long long)(mp_time_ns() / 1000), site, (int)getpid());
+        } else {
+            fprintf(stderr, "P28_TERMINAL t=%lld op=barrier site=%s pid=%d "
+                            "state=retained external-termination-required\n",
+                    (long long)(mp_time_ns() / 1000), site, (int)getpid());
+        }
+        fflush(NULL);
+    }
+#ifdef MP_OHCODEC_LIFECYCLE_EXPERIMENT
+    /* Diagnostic experiment only; not a product recovery strategy. */
+    abort();
+#else
+    for (;;) {
+        struct timespec delay = { .tv_sec = 1 };
+        nanosleep(&delay, NULL);
+    }
+#endif
+}
+#endif
+
+static const ohcodec_interop_init interop_inits[] = {
+#if HAVE_VULKAN
+    ohcodec_interop_pl_init,
+#endif
+#if HAVE_GL
+    ohcodec_interop_gl_init,
+#endif
+    NULL,
+};
+
+static void on_frame_available(void *opaque)
+{
+    struct ohcodec_surface *surface = opaque;
+    // NativeImage APIs are deliberately not called from this callback.
+    mp_mutex_lock(&surface->lock);
+    surface->pending++;
+    mp_cond_signal(&surface->cond);
+    mp_mutex_unlock(&surface->lock);
+}
+
+bool ohcodec_surface_init(struct ohcodec_surface *surface,
+                          OH_NativeImage *image)
+{
+    *surface = (struct ohcodec_surface){ .image = image };
+    if (!image || mp_mutex_init(&surface->lock))
+        return false;
+    if (mp_cond_init(&surface->cond)) {
+        mp_mutex_destroy(&surface->lock);
+        return false;
+    }
+
+    surface->window = OH_NativeImage_AcquireNativeWindow(image);
+    if (!surface->window)
+        goto fail;
+
+    OH_OnFrameAvailableListener listener = {
+        .context = surface,
+        .onFrameAvailable = on_frame_available,
+    };
+    if (OH_NativeImage_SetOnFrameAvailableListener(image, listener) !=
+        NATIVE_ERROR_OK)
+        goto fail;
+
+    surface->initialized = true;
+    return true;
+
+fail:
+    mp_cond_destroy(&surface->cond);
+    mp_mutex_destroy(&surface->lock);
+    surface->image = NULL;
+    surface->window = NULL;
+    return false;
+}
+
+void ohcodec_surface_destroy(struct ohcodec_surface *surface)
+{
+    if (!surface || !surface->initialized)
+        return;
+    OH_NativeImage_UnsetOnFrameAvailableListener(surface->image);
+    mp_cond_destroy(&surface->cond);
+    mp_mutex_destroy(&surface->lock);
+    surface->initialized = false;
+    surface->window = NULL;
+}
+
+bool ohcodec_surface_wait(struct ohcodec_surface *surface,
+                          struct mp_log *log, int64_t *wait_ns)
+{
+    int64_t start = mp_time_ns();
+    bool ready;
+
+    mp_mutex_lock(&surface->lock);
+    while (!surface->pending) {
+        if (mp_cond_timedwait(&surface->cond, &surface->lock,
+                              MP_TIME_MS_TO_NS(250)))
+            break;
+    }
+    ready = surface->pending != 0;
+    if (ready)
+        surface->pending--;
+    mp_mutex_unlock(&surface->lock);
+
+    *wait_ns = mp_time_ns() - start;
+    if (!ready)
+        mp_msg(log, MSGL_TRACE, "OHCodec Surface frame callback timed out\n");
+    else
+        mp_msg(log, MSGL_TRACE, "OHCodec render->callback wait %.3f ms\n",
+               *wait_ns / 1e6);
+    return ready;
+}
+
+static AVBufferRef *create_device_ref(struct ra_hwdec *hw)
+{
+    struct ohcodec_priv *p = hw->priv;
+    AVBufferRef *ref = av_hwdevice_ctx_alloc(AV_HWDEVICE_TYPE_OHCODEC);
+    if (!ref)
+        return NULL;
+
+    AVHWDeviceContext *device = (AVHWDeviceContext *)ref->data;
+    AVOHCodecDeviceContext *oh = device->hwctx;
+    oh->native_window = p->surface->window;
+    if (!oh->native_window || av_hwdevice_ctx_init(ref) < 0)
+        av_buffer_unref(&ref);
+    return ref;
+}
+
+static int init(struct ra_hwdec *hw)
+{
+    struct ohcodec_priv *p = hw->priv;
+
+    for (int i = 0; interop_inits[i] && !p->surface; i++)
+        interop_inits[i](hw);
+
+    if (!p->surface || !p->interop) {
+        MP_VERBOSE(hw, "OHCodec Surface hwdec requires compatible GL or Vulkan.\n");
+        return -1;
+    }
+
+    p->hwctx = (struct mp_hwdec_ctx) {
+        .driver_name = hw->driver->name,
+        .av_device_ref = create_device_ref(hw),
+        .hw_imgfmt = IMGFMT_OHCODEC,
+    };
+    if (!p->hwctx.av_device_ref) {
+        p->interop->owner_uninit(hw);
+        return -1;
+    }
+    hwdec_devices_add(hw->devs, &p->hwctx);
+    return 0;
+}
+
+static void uninit(struct ra_hwdec *hw)
+{
+    struct ohcodec_priv *p = hw->priv;
+    hwdec_devices_remove(hw->devs, &p->hwctx);
+    // Decoder and device disappear before listener/NativeImage/GPU objects.
+    av_buffer_unref(&p->hwctx.av_device_ref);
+    p->interop->owner_uninit(hw);
+}
+
+static int mapper_init(struct ra_hwdec_mapper *mapper)
+{
+    struct ohcodec_priv *owner = mapper->owner->priv;
+    if (owner->surface_invalid) {
+        MP_ERR(mapper, "Refusing new OHCodec mapper on a terminal Surface\n");
+        return -1;
+    }
+    return owner->interop->mapper_init(mapper) ? 0 : -1;
+}
+
+static void mapper_uninit(struct ra_hwdec_mapper *mapper)
+{
+    struct ohcodec_mapper_priv *p = mapper->priv;
+    struct ohcodec_priv *owner = mapper->owner->priv;
+    if ((p->last_token || p->last_src) && owner->interop->drain) {
+        int platform_error = 0;
+        int result = ohcodec_mapper_drain(mapper, OHCODEC_DRAIN_REASON_CLOSE,
+                                           &platform_error);
+        if (result == OHCODEC_DRAIN_SAFE_RELEASE_ERROR ||
+            result == OHCODEC_DRAIN_UNSAFE) {
+            /* A generic mapper teardown is another drain entry point. Latch
+             * the owner/Surface terminal state here as well; cleanup may
+             * finish, but rebuilding a consumer on this Surface is refused. */
+            ohcodec_mapper_mark_surface_invalid(mapper);
+        }
+        if (result == OHCODEC_DRAIN_UNSAFE) {
+            /* Completion is unknown. The void unmapper callback cannot cancel
+             * the outer ra_hwdec_mapper_free(); mark the whole mapper/owner
+             * tree retained so that outer free and owner teardown skip it. */
+            mapper->resource_retained = true;
+            if (mapper->owner)
+                mapper->owner->resource_retained = true;
+            MP_ERR(mapper, "OHCodec mapper teardown UNSAFE (platform error %d); "
+                           "retaining mapper/owner tree\n", platform_error);
+#ifdef MP_OHCODEC_LIFECYCLE_EXPERIMENT
+            abort();
+#else
+            return;
+#endif
+        }
+    } else if (p->last_token && owner->interop->release) {
+        owner->interop->release(mapper);
+    }
+    mp_image_unrefp(&p->last_src);
+    p->last_token = NULL;
+    owner->interop->mapper_uninit(mapper);
+}
+
+bool ohcodec_mapper_surface_invalid(struct ra_hwdec_mapper *mapper)
+{
+    if (!mapper || !mapper->owner)
+        return false;
+    struct ohcodec_priv *owner = mapper->owner->priv;
+    return owner && owner->surface_invalid;
+}
+
+bool ohcodec_hwdec_surface_invalid(struct ra_hwdec *hw)
+{
+    if (!hw || !hw->driver ||
+        hw->driver->device_type != AV_HWDEVICE_TYPE_OHCODEC)
+        return false;
+    struct ohcodec_priv *owner = hw->priv;
+    return owner && owner->surface_invalid;
+}
+
+void ohcodec_hwdec_mark_surface_invalid(struct ra_hwdec *hw)
+{
+    if (!hw || !hw->driver ||
+        hw->driver->device_type != AV_HWDEVICE_TYPE_OHCODEC)
+        return;
+    struct ohcodec_priv *owner = hw->priv;
+    if (!owner)
+        return;
+    if (!owner->surface_invalid)
+        MP_ERR(hw, "OHCodec owner Surface marked terminal after release "
+                   "failure; no new producer is allowed\n");
+    owner->surface_invalid = true;
+}
+
+struct ra_hwdec *ohcodec_hwdec_find(struct ra_hwdec **hwdecs, int num)
+{
+    for (int i = 0; i < num; i++) {
+        struct ra_hwdec *hw = hwdecs ? hwdecs[i] : NULL;
+        if (hw && hw->driver &&
+            hw->driver->device_type == AV_HWDEVICE_TYPE_OHCODEC)
+            return hw;
+    }
+    return NULL;
+}
+
+void ohcodec_mapper_mark_surface_invalid(struct ra_hwdec_mapper *mapper)
+{
+    if (!mapper || !mapper->owner)
+        return;
+    struct ohcodec_priv *owner = mapper->owner->priv;
+    if (!owner)
+        return;
+    if (!owner->surface_invalid)
+        MP_ERR(mapper, "OHCodec owner Surface marked terminal after release "
+                       "failure; no new producer is allowed\n");
+    owner->surface_invalid = true;
+}
+
+bool ohcodec_mapper_can_drain(struct ra_hwdec_mapper *mapper)
+{
+    if (!mapper || !mapper->owner)
+        return false;
+    struct ohcodec_priv *owner = mapper->owner->priv;
+    return owner && owner->interop && owner->interop->drain;
+}
+
+int ohcodec_mapper_drain(struct ra_hwdec_mapper *mapper, int reason,
+                         int *platform_error)
+{
+    if (!mapper || !mapper->owner)
+        return OHCODEC_DRAIN_NOT_APPLICABLE;
+    struct ohcodec_priv *owner = mapper->owner->priv;
+    if (!owner || !owner->interop || !owner->interop->drain)
+        return OHCODEC_DRAIN_NOT_APPLICABLE;
+    struct ohcodec_mapper_priv *p = mapper->priv;
+    if (mapper->resource_retained) {
+        if (platform_error)
+            *platform_error = p->terminal_drain_error;
+        MP_ERR(mapper, "OHCodec drain remains UNSAFE; no platform retry\n");
+#ifdef MP_OHCODEC_DIAGNOSTIC
+        ohcodec_terminal_barrier(mapper->log, "drain-retained");
+#endif
+        return OHCODEC_DRAIN_UNSAFE;
+    }
+    int error = 0;
+    int result = owner->interop->drain(mapper, reason, &error);
+    if (result == OHCODEC_DRAIN_UNSAFE) {
+        p->terminal_drain_error = error;
+        mapper->resource_retained = true;
+        mapper->owner->resource_retained = true;
+        ohcodec_mapper_mark_surface_invalid(mapper);
+        MP_ERR(mapper, "OHCodec drain latched UNSAFE; mapper/owner retained "
+                       "(platform error %d)\n", error);
+    } else if (result == OHCODEC_DRAIN_SAFE_RELEASE_ERROR) {
+        ohcodec_mapper_mark_surface_invalid(mapper);
+    }
+    if (platform_error)
+        *platform_error = error;
+#ifdef MP_OHCODEC_DIAGNOSTIC
+    if (result == OHCODEC_DRAIN_UNSAFE)
+        ohcodec_terminal_barrier(mapper->log, "drain-unsafe");
+#endif
+    return result;
+}
+
+static int mapper_map(struct ra_hwdec_mapper *mapper)
+{
+    struct ohcodec_priv *owner = mapper->owner->priv;
+    if (owner->surface_invalid) {
+        MP_ERR(mapper, "Refusing to map OHCodec frame on a terminal Surface\n");
+        return -1;
+    }
+    AVOHCodecBuffer *token = mapper->src && mapper->src->imgfmt == IMGFMT_OHCODEC
+                           ? (AVOHCodecBuffer *)mapper->src->planes[3] : NULL;
+    struct ohcodec_mapper_priv *p = mapper->priv;
+    int64_t begin = mp_time_ns(), wait_ns = 0;
+
+    if (!token) {
+        MP_ERR(mapper, "Missing OHCodec output token\n");
+        return -1;
+    }
+
+    // libplacebo acquires the same pl_frame again on every presentation. A
+    // decoder output token is one-shot, so repeated acquisition must reuse the
+    // retained Surface image instead of rendering the token a second time.
+    if (token == p->last_token) {
+        int ret = owner->interop->reuse(mapper);
+        if (ret != NATIVE_ERROR_OK) {
+            MP_ERR(mapper, "Failed to reacquire retained OHCodec surface: %d\n",
+                   ret);
+            return -1;
+        }
+        mp_image_unrefp(&mapper->src);
+        return 0;
+    }
+
+    int render_ret = av_ohcodec_release_buffer(token, 1);
+    if (render_ret < 0) {
+        // Flush/EOF can invalidate a frame after it entered libplacebo's
+        // queue. It produced no Surface buffer, so keep presenting the last
+        // valid image instead of waiting for a callback that cannot arrive.
+        if ((render_ret == AVERROR(ESTALE) ||
+             render_ret == AVERROR(EALREADY)) && p->last_token &&
+            owner->interop->reuse(mapper) == NATIVE_ERROR_OK)
+        {
+            MP_VERBOSE(mapper, "Reusing last OHCodec Surface after stale "
+                               "output token at drain/flush\n");
+            mp_image_unrefp(&mapper->src);
+            return 0;
+        }
+        MP_ERR(mapper, "Failed to render OHCodec output token\n");
+        return -1;
+    }
+
+    int map_ret = NATIVE_ERROR_NO_BUFFER;
+    for (int attempts = 0; attempts < 32 && map_ret == NATIVE_ERROR_NO_BUFFER;
+         attempts++) {
+        int64_t current_wait = 0;
+        // NativeImage consumption is only valid after its frame-available
+        // callback. If a delayed callback no longer has a matching buffer,
+        // discard that notification and wait for the current rendered frame.
+        if (!ohcodec_surface_wait(owner->surface, mapper->log, &current_wait))
+            break;
+        wait_ns += current_wait;
+        map_ret = owner->interop->map(mapper);
+        if (map_ret == NATIVE_ERROR_NO_BUFFER)
+            MP_TRACE(mapper, "Ignoring stale OHCodec Surface callback\n");
+    }
+    if (map_ret != NATIVE_ERROR_OK) {
+        if (map_ret == NATIVE_ERROR_NO_BUFFER)
+            MP_ERR(mapper, "Timed out waiting for rendered OHCodec Surface buffer\n");
+        else
+            MP_ERR(mapper, "OHCodec Surface interop failed: %d\n", map_ret);
+        return -1;
+    }
+
+    // The backend replaced the retained image successfully. Keep the new
+    // token address alive so repeated presentations can reuse it.
+    mp_image_unrefp(&p->last_src);
+    p->last_token = token;
+    p->last_src = mapper->src;
+    mapper->src = NULL;
+    MP_TRACE(mapper, "OHCodec hwdec-map %.3f ms (wait %.3f ms)\n",
+             (mp_time_ns() - begin) / 1e6, wait_ns / 1e6);
+    return 0;
+}
+
+static void mapper_unmap(struct ra_hwdec_mapper *mapper)
+{
+    struct ohcodec_priv *owner = mapper->owner->priv;
+    if (owner->interop->unmap)
+        owner->interop->unmap(mapper);
+}
+
+const struct ra_hwdec_driver ra_hwdec_ohcodec = {
+    .name = "ohcodec",
+    .priv_size = sizeof(struct ohcodec_priv),
+    .imgfmts = { IMGFMT_OHCODEC, 0 },
+    .device_type = AV_HWDEVICE_TYPE_OHCODEC,
+    .init = init,
+    .uninit = uninit,
+    .mapper = &(const struct ra_hwdec_mapper_driver) {
+        .priv_size = sizeof(struct ohcodec_mapper_priv),
+        .init = mapper_init,
+        .uninit = mapper_uninit,
+        .map = mapper_map,
+        .unmap = mapper_unmap,
+    },
+};
