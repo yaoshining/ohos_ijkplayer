@@ -1,0 +1,85 @@
+{
+  "cases": [
+    {
+      "case": "valid",
+      "actualAccepted": true,
+      "expectedAccepted": true,
+      "passed": true,
+      "failedChecks": []
+    },
+    {
+      "case": "residual-window",
+      "actualAccepted": false,
+      "expectedAccepted": false,
+      "passed": true,
+      "failedChecks": [
+        "noRemainingWindow"
+      ]
+    },
+    {
+      "case": "query-timeout",
+      "actualAccepted": false,
+      "expectedAccepted": false,
+      "passed": true,
+      "failedChecks": [
+        "windowQueryValid"
+      ]
+    },
+    {
+      "case": "targets-timeout-with-stale-output",
+      "actualAccepted": false,
+      "expectedAccepted": false,
+      "passed": true,
+      "failedChecks": [
+        "connected"
+      ]
+    },
+    {
+      "case": "offline",
+      "actualAccepted": false,
+      "expectedAccepted": false,
+      "passed": true,
+      "failedChecks": [
+        "connected"
+      ]
+    },
+    {
+      "case": "wrong-system-pid",
+      "actualAccepted": false,
+      "expectedAccepted": false,
+      "passed": true,
+      "failedChecks": [
+        "systemPIDExitCode",
+        "beforeNativeDeadline"
+      ]
+    },
+    {
+      "case": "wrong-system-exit",
+      "actualAccepted": false,
+      "expectedAccepted": false,
+      "passed": true,
+      "failedChecks": [
+        "systemPIDExitCode"
+      ]
+    },
+    {
+      "case": "missing-ui2",
+      "actualAccepted": false,
+      "expectedAccepted": false,
+      "passed": true,
+      "failedChecks": [
+        "uiOrder"
+      ]
+    },
+    {
+      "case": "missing-library-identity",
+      "actualAccepted": false,
+      "expectedAccepted": false,
+      "passed": true,
+      "failedChecks": [
+        "sevenMappedLibraries"
+      ]
+    }
+  ],
+  "accepted": true
+}

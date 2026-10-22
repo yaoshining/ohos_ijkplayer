@@ -1,0 +1,15 @@
+{
+  "accepted": true,
+  "twoCleanEqual": true,
+  "runtimeExecuted": false,
+  "mpvSHA256": "ed64fa7819e5d5218caa45de4a8c59937ea0b5844bd6f1c6af12327401ca15ee",
+  "builds": [
+    "normal-e",
+    "normal-f"
+  ],
+  "coreExportsPreserved": 54,
+  "newPublicExports": 4,
+  "internalLeaks": 0,
+  "targetCAndCppLinks": 4,
+  "macros": "normal: no DIAGNOSTIC/EXPERIMENT/TEST_RETURN_REPLACEMENT"
+}
