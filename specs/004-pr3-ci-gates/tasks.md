@@ -46,3 +46,17 @@ R003 本机证据：`/private/tmp/pr3-repair-event-evidence/aggregate.json` 与 
 这项组合证据不得标成普通 PR merge。旧远端失败不改写，产品源码、TV、候选和历史封存不改。
 
 N003 本机证据 `/private/tmp/pr3-nested-event-evidence/aggregate.json`。Phase27 初始 `27/` 和第一次重试 `retry27/` 两次 TLS EOF 原样保留；第二次重试 `retry27b/` 使用同代码、同原始网络参数实际下载锁定来源并完成全阶段成功，没有替换执行器或伪造缓存下载。其余 10 项初次通过。后补的两条真实 DAG 负例分别证明同父但额外 tree 修改、声明 base 在中间祖先却不在依赖祖先均被拒绝；删除对应守卫的两个变异体也被相同回归拒绝。最后收尾只增加测试负例和本规格记录，运行 gate/锁/workflow 与已测实现逐 blob 等价；最终提交以 clean 20 回归、等价核验确认，不冒称最终测试文档 SHA 重新运行 11 阶段。新远端 CI 仍待新精确 SHA 获批。
+
+## 第三次远端执行：宿主依赖与隐藏证据文件返修
+
+已批准的 `aa5b1a94c7af680780306ac02f4910e68d20d46a` 已推送。run `40002611218` 在锁定嵌套输入 `fb3548d8e336101e01c57d59c5ac0c922be69d16` 上通过身份检查。10 个阶段 job 成功；Phase21 因 Ubuntu runner 缺少宿主 `libavutil-dev`，实际 C preflight 测试类被跳过，日志为 24 tests / skipped=1，严格门禁和 required 正确失败。这个结果不代表 11 项通过。
+
+下载后另发现 Phase26/27/28 各缺一份 `child/execution/.github/workflows/phaseNN-validation.yml`：原索引含这些文件，但 upload-artifact 默认排除隐藏目录。10 个 job success 不能表述为十份完整证据索引通过。其他已有文件字节未漂移；旧失败和不完整制品均保留。
+
+- [x] D001 Linux/amd64 Ubuntu22 容器、只读源码、独立输出，uid/gid 1000 真实重现缺依赖 RED（24 tests / skipped=1）；既有门禁拒绝 skipped，不改变旧测试或成功标准。
+- [x] D002 仅 case21 安装 pkg-config/libavutil-dev；同一非 root 用户真实运行 13 项 C preflight 及全套 37 项 Phase21 测试，均无 skip。记录 apt/dpkg/pc flags/库文件哈希和 uid；这是宿主测试 FFmpeg4.4.2/libavutil56，不能冒称目标 FFmpeg8 来源或重建。
+- [x] D003 仅已有受控 `pr3-${case}/artifact/` 上传开启 include-hidden-files，路径不扩大。真实创建带索引隐藏 workflow、删除该文件的负例被完整索引验证器拒绝。Phase21 依赖身份另存 `pr3-host-dependencies-21`，不混入 required 的 pr3-contract-* 集合。
+- [x] D004 22 项门禁回归通过；所有 workflow 通过 actionlint 1.7.12 语法/表达式检查（本机无 shellcheck/pyflakes，显式关闭这两项，不能声称它们通过）。新提交只包含 CI、新测试和本规格文档；gate.py、锁和全部旧阶段源码/测试未改，不重复无关 11 阶段。
+- [ ] D005 新精确 SHA 预览、独立审查、用户批准后推送并重跑远端 11 项与 required；本地 37 项不替代新远端 CI。
+
+本机证据 `/private/tmp/pr3-phase21-linux-evidence/` 与 `/private/tmp/pr3-phase21-hidden-tests.log`；Ubuntu amd64 子 manifest `sha256:a8fe6fd30333dc60fc5306982a7c51385c2091af1e0ee887166b40a905691fd0`。初次本地尝试 `/private/tmp/pr3-phase21-linux-attempt01/` 在 RED 后因审计脚本误查 libavutil57 而停止；实际为 libavutil56，修正记录脚本后全新输出运行通过，初次失败保留。三 PR 临时组合与本次远端锁定 master+#8+#9 为不同身份，不互相继承通过声明。未改产品、Player、TV、候选或旧封存；不运行设备与长播，未验证项继续待验收，`formalArtifactAllowed=false`。

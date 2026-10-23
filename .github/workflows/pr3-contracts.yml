@@ -27,6 +27,21 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
+      - name: 安装 Phase21 宿主 libavutil 测试依赖
+        if: matrix.case == '21'
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/pr3-host-21"
+          sudo apt-get update > "$RUNNER_TEMP/pr3-host-21/apt-update.log" 2>&1
+          sudo apt-get install -y --no-install-recommends pkg-config libavutil-dev > "$RUNNER_TEMP/pr3-host-21/apt-install.log" 2>&1
+          dpkg-query -W -f='${binary:Package}\t${Version}\t${Architecture}\n' pkg-config libavutil-dev 'libavutil[0-9]*' > "$RUNNER_TEMP/pr3-host-21/packages.txt"
+          pkg-config --modversion libavutil > "$RUNNER_TEMP/pr3-host-21/pkg-version.txt"
+          pkg-config --cflags --libs libavutil > "$RUNNER_TEMP/pr3-host-21/pkg-flags.txt"
+          libdir="$(pkg-config --variable=libdir libavutil)"
+          pcdir="$(pkg-config --variable=pcfiledir libavutil)"
+          sha256sum "$(readlink -f "$libdir/libavutil.so")" "$pcdir/libavutil.pc" > "$RUNNER_TEMP/pr3-host-21/files.sha256"
+          id > "$RUNNER_TEMP/pr3-host-21/test-user.txt"
+          printf '%s\n' '仅Ubuntu宿主测试依赖，不代表目标FFmpeg8来源。' > "$RUNNER_TEMP/pr3-host-21/scope.txt"
       - name: 核对宿主工具
         run: |
           clang --version
@@ -44,6 +59,15 @@ jobs:
         with:
           name: pr3-contract-${{ matrix.case }}
           path: ${{ runner.temp }}/pr3-${{ matrix.case }}/artifact/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
+      - name: 保存 Phase21 宿主依赖身份
+        if: always() && matrix.case == '21'
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr3-host-dependencies-21
+          path: ${{ runner.temp }}/pr3-host-21/
           if-no-files-found: error
           retention-days: 30
   required:

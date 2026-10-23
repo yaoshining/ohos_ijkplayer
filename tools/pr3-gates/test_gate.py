@@ -13,6 +13,8 @@ class GateTests(unittest.TestCase):
   self.assertFalse(g.execute(['/does-not-exist'],Path.cwd(),2)['passed'])
  def test_zero_tests(self):
   self.assertFalse(g.unittest_ok('Ran 0 tests in 0s\nOK\n'))
+ def test_skipped_suite_rejected(self):
+  self.assertFalse(g.unittest_ok('Ran 24 tests in 1.6s\nOK (skipped=1)\n'))
  def test_tests(self):
   self.assertTrue(g.unittest_ok('Ran 3 tests in 0s\nOK\n'))
  def test_index(self):
@@ -20,6 +22,11 @@ class GateTests(unittest.TestCase):
    p=Path(d).resolve();(p/'a.json').write_text('{}');rows=[{'path':'a.json','size':2,'sha256':g.sha(p/'a.json')}];(p/'artifact-index.json').write_text(json.dumps({'files':rows}));g.verify_artifact(p)
    (p/'a.json').write_text('bad')
    with self.assertRaises(ValueError):g.verify_artifact(p)
+ def test_hidden_workflow_loss_rejected(self):
+  with tempfile.TemporaryDirectory() as d:
+   root=Path(d).resolve();source=root/'child/execution/.github/workflows/phase27-validation.yml';source.parent.mkdir(parents=True);source.write_text('name: original\n');g.write(root/'artifact-index.json',{'files':[{'path':str(source.relative_to(root)),'size':source.stat().st_size,'sha256':g.sha(source)}]});g.verify_artifact(root)
+   source.unlink()
+   with self.assertRaises(ValueError):g.verify_artifact(root)
  def test_missing_evidence(self):
   with tempfile.TemporaryDirectory() as d:
    with self.assertRaises(ValueError):g.verify_artifact(Path(d).resolve())
