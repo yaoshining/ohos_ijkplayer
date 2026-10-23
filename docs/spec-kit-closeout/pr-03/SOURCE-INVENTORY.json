@@ -1,0 +1,209 @@
+{
+  "schemaVersion": 1,
+  "asOf": "2026-10-24",
+  "parentCommit": "427148d8b52f7dfa920e7ebd05fd8f2f8c6b135b",
+  "formalArtifactAllowed": false,
+  "files": [
+    {
+      "id": "S1",
+      "path": "specs/001-ffmpeg-ohcodec-producer/phase21/tasks.md",
+      "sha256": "3a328f35603ca08685266497e44d65c9b3e523a22e5e3fe3ec85abdbf8769a7e",
+      "bytes": 2879,
+      "availability": "仅原工作区本机材料，未在本PR基线入库",
+      "source": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/specs/001-ffmpeg-ohcodec-producer/phase21/tasks.md"
+    },
+    {
+      "id": "S2",
+      "path": "specs/001-ffmpeg-ohcodec-producer/phase22/tasks.md",
+      "sha256": "c3443c19f8cc4cba383d7d88be9fb67a6e83c705f202acc63d0c046d41a3483c",
+      "bytes": 2248,
+      "availability": "仅原工作区本机材料，未在本PR基线入库",
+      "source": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/specs/001-ffmpeg-ohcodec-producer/phase22/tasks.md"
+    },
+    {
+      "id": "S3",
+      "path": "specs/001-ffmpeg-ohcodec-producer/phase23/tasks.md",
+      "sha256": "40dda57bcc83dcca4561b7699d57746447c48335a5094706a1c57ffaa66ed70f",
+      "bytes": 4947,
+      "availability": "本PR基线已跟踪",
+      "source": "/private/tmp/producer-speckit-closeout-20261024/pr3/specs/001-ffmpeg-ohcodec-producer/phase23/tasks.md"
+    },
+    {
+      "id": "S4",
+      "path": "specs/001-ffmpeg-ohcodec-producer/phase24/tasks.md",
+      "sha256": "a5101c074bb0660ae0233fba912691751ec7fa0c387bda99472cae63be050525",
+      "bytes": 3501,
+      "availability": "本PR基线已跟踪",
+      "source": "/private/tmp/producer-speckit-closeout-20261024/pr3/specs/001-ffmpeg-ohcodec-producer/phase24/tasks.md"
+    },
+    {
+      "id": "S5",
+      "path": "specs/001-ffmpeg-ohcodec-producer/phase25/tasks.md",
+      "sha256": "367596631f26c866ea7e0a168842e571d919a4f2c373979f7c1ff014acb1f24c",
+      "bytes": 2417,
+      "availability": "仅原工作区本机材料，未在本PR基线入库",
+      "source": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/specs/001-ffmpeg-ohcodec-producer/phase25/tasks.md"
+    },
+    {
+      "id": "S6",
+      "path": "specs/001-ffmpeg-ohcodec-producer/phase26/tasks.md",
+      "sha256": "b4794158a7a66d8f6bbaf6f49913e7b1b1cbcb63c703335a02ea82fa517beda0",
+      "bytes": 2875,
+      "availability": "仅原工作区本机材料，未在本PR基线入库",
+      "source": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/specs/001-ffmpeg-ohcodec-producer/phase26/tasks.md"
+    },
+    {
+      "id": "S7",
+      "path": "specs/001-ffmpeg-ohcodec-producer/phase27/tasks.md",
+      "sha256": "c0ec421981f938440b191e1033ba24062b4c3557ffa33efd6e5abc8c105c04e9",
+      "bytes": 4719,
+      "availability": "仅原工作区本机材料，未在本PR基线入库",
+      "source": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/specs/001-ffmpeg-ohcodec-producer/phase27/tasks.md"
+    },
+    {
+      "id": "S8",
+      "path": "specs/001-ffmpeg-ohcodec-producer/phase28-device-validation/tasks.md",
+      "sha256": "6d5a7e9bd6ae5f758e8e7b6903b0cd104a5951b05e71e88ff93b1afd5f46aef8",
+      "bytes": 4359,
+      "availability": "仅原工作区本机材料，未在本PR基线入库",
+      "source": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/specs/001-ffmpeg-ohcodec-producer/phase28-device-validation/tasks.md"
+    },
+    {
+      "id": "S9",
+      "path": "specs/001-ffmpeg-ohcodec-producer/phase28-parent-chain-ci/tasks.md",
+      "sha256": "42c428bdb5ba7630cad8600f6f2880b17ff77361e574ab2d9189a51d02ad9c28",
+      "bytes": 1061,
+      "availability": "本PR基线已跟踪",
+      "source": "/private/tmp/producer-speckit-closeout-20261024/pr3/specs/001-ffmpeg-ohcodec-producer/phase28-parent-chain-ci/tasks.md"
+    },
+    {
+      "id": "S10",
+      "path": "specs/001-ffmpeg-ohcodec-producer/phase28/tasks.md",
+      "sha256": "3297a56fcc7ef3ecfc65b60793ee1a8c3042ac46a5c1e6c2cea740f38f895530",
+      "bytes": 7327,
+      "availability": "本PR基线已跟踪",
+      "source": "/private/tmp/producer-speckit-closeout-20261024/pr3/specs/001-ffmpeg-ohcodec-producer/phase28/tasks.md"
+    },
+    {
+      "id": "S11",
+      "path": "specs/001-ffmpeg-ohcodec-producer/phase31-normal-validation/tasks.md",
+      "sha256": "e86fa9b2f8004168e4c9be3ff9b839ae13b3a1c2ee6ba6e23337496281d2e9cf",
+      "bytes": 968,
+      "availability": "本PR基线已跟踪",
+      "source": "/private/tmp/producer-speckit-closeout-20261024/pr3/specs/001-ffmpeg-ohcodec-producer/phase31-normal-validation/tasks.md"
+    },
+    {
+      "id": "S12",
+      "path": "tools/phase29-normal-terminal/spec/tasks.md",
+      "sha256": "8536a5cbc662660a1de5cb6eed39d95995ed2197a45ae5038b79bb97032f1b3a",
+      "bytes": 809,
+      "availability": "本PR基线已跟踪",
+      "source": "/private/tmp/producer-speckit-closeout-20261024/pr3/tools/phase29-normal-terminal/spec/tasks.md"
+    },
+    {
+      "id": "S13",
+      "path": "tools/phase30-consumer-handoff/spec/tasks.md",
+      "sha256": "23b1c55b91fd2ca406ec88c10b85fed2cffd10cba4458270cdb3fa8b53ed599c",
+      "bytes": 1511,
+      "availability": "本PR基线已跟踪",
+      "source": "/private/tmp/producer-speckit-closeout-20261024/pr3/tools/phase30-consumer-handoff/spec/tasks.md"
+    },
+    {
+      "id": "E1",
+      "path": "out/phase23/ci-verification.json",
+      "sha256": "8dc71a7e08f74f5a6ba48dc528560274a248a0004e979cbd95a369a30fdf2720",
+      "bytes": 422,
+      "availability": "本机补充证据，未作为原件随本PR提交",
+      "source": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase23/ci-verification.json"
+    },
+    {
+      "id": "E2",
+      "path": "out/phase23/cleanup-final.json",
+      "sha256": "418e73547d0e496568063892456634ee7b5e9c7e1be3bc87fbea15b8efbb169a",
+      "bytes": 301,
+      "availability": "本机补充证据，未作为原件随本PR提交",
+      "source": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase23/cleanup-final.json"
+    },
+    {
+      "id": "E3",
+      "path": "out/phase24/ci/verification.json",
+      "sha256": "78c334c1a999919d38c0d572923624aedfe29b674d5e61f62ce848a709d330c2",
+      "bytes": 420,
+      "availability": "本机补充证据，未作为原件随本PR提交",
+      "source": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase24/ci/verification.json"
+    },
+    {
+      "id": "E4",
+      "path": "out/phase26/ci/verification.json",
+      "sha256": "712a803908bd1cc989d343c4bbc02a559f23ee0c0378a493129fd45590742c99",
+      "bytes": 3992,
+      "availability": "本机补充证据，未作为原件随本PR提交",
+      "source": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase26/ci/verification.json"
+    },
+    {
+      "id": "E5",
+      "path": "out/phase27/ci/run-02-status.json",
+      "sha256": "7aef5f254594ecf006205c15301c5c5dddf0863325a184eb041812ff891da846",
+      "bytes": 1487,
+      "availability": "本机补充证据，未作为原件随本PR提交",
+      "source": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase27/ci/run-02-status.json"
+    },
+    {
+      "id": "E6",
+      "path": "out/phase31-normal-validation-attempt01/SUMMARY.json",
+      "sha256": "1b3117b7aead0c818122068907914acf8bf2bc7d8c3e4735e62ee8d365b73de4",
+      "bytes": 2692,
+      "availability": "本机补充证据，未作为原件随本PR提交",
+      "source": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase31-normal-validation-attempt01/SUMMARY.json"
+    },
+    {
+      "id": "E7",
+      "path": "/private/tmp/phase28-parent-chain-ci-20261023/remote-ci/REPORT.md",
+      "sha256": "3d0e8874fb36ee53124115ba1d9a5ebdb0432ef12e474e53c871131f6739406e",
+      "bytes": 2961,
+      "availability": "本机补充证据，未作为原件随本PR提交",
+      "source": "/private/tmp/phase28-parent-chain-ci-20261023/remote-ci/REPORT.md"
+    },
+    {
+      "id": "E8",
+      "path": "/private/tmp/phase29-normal-terminal-remote-ci-20261023/REPORT.md",
+      "sha256": "587b639a768eb0dbf94238099c90664cfaf1db3d629240ed69082ea667e990c0",
+      "bytes": 2509,
+      "availability": "本机补充证据，未作为原件随本PR提交",
+      "source": "/private/tmp/phase29-normal-terminal-remote-ci-20261023/REPORT.md"
+    },
+    {
+      "id": "E9",
+      "path": "/private/tmp/phase30-remote-ci-20261023/REPORT.md",
+      "sha256": "808f64039aab3ad2a595fd55c3f1264383e7b295ff6e5a2f4f0ce5ecff8ce05c",
+      "bytes": 2430,
+      "availability": "本机补充证据，未作为原件随本PR提交",
+      "source": "/private/tmp/phase30-remote-ci-20261023/REPORT.md"
+    },
+    {
+      "id": "E10",
+      "path": "/private/tmp/phase31-ci-remote-01/REPORT.md",
+      "sha256": "ee1a20c30d9041dec2fbb98c0b3f56a41a4794c1f75794daadc3c5eb03339d83",
+      "bytes": 2818,
+      "availability": "本机补充证据，未作为原件随本PR提交",
+      "source": "/private/tmp/phase31-ci-remote-01/REPORT.md"
+    },
+    {
+      "id": "E11",
+      "path": "out/phase22/snapshots/03/ci-verification.json",
+      "sha256": "4ff8eb9072cb7c57943a7575d68836199067f851a486b903960c5baea8074cb8",
+      "bytes": 1710,
+      "availability": "本机补充证据，未作为原件随本PR提交",
+      "source": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase22/snapshots/03/ci-verification.json"
+    },
+    {
+      "id": "E12",
+      "path": "out/phase22/DEVICE-CHECKLIST.md",
+      "sha256": "c6e260182a003d7b663f7d49016b7bd3bc49b2f9424e19e69861be5a83b10864",
+      "bytes": 1778,
+      "availability": "本机补充证据，未作为原件随本PR提交",
+      "source": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase22/DEVICE-CHECKLIST.md"
+    }
+  ],
+  "tasksCovered": 172
+}
