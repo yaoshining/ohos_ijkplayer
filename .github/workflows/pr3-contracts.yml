@@ -1,6 +1,10 @@
 name: PR3 完整宿主契约
 on:
   pull_request:
+  push:
+    branches: [master]
+  merge_group:
+    types: [checks_requested]
   workflow_dispatch:
 permissions:
   contents: read
@@ -18,7 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
@@ -49,6 +53,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          fetch-depth: 0
           persist-credentials: false
       - uses: actions/download-artifact@v4
         with:
