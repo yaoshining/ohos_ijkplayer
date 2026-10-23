@@ -1,0 +1,44 @@
+name: Phase11 跨目录双 clean 验收
+on:
+  workflow_dispatch:
+  push:
+    branches: ['codex/hx509-history-diagnostics']
+    paths: ['tools/cross-root-profile/**', '.github/workflows/phase11-cross-root.yml']
+permissions:
+  contents: read
+jobs:
+  diagnostic:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - name: 显式历史配置与两次全新构建
+        run: bash tools/cross-root-profile/ci.sh hx509-history
+      - name: 保存诊断证据（不用于发布）
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase11-cross-root-not-release
+          path: |
+            out/phase11/container/
+            out/phase11/host-provenance/
+            out/phase11/inputs/input-verification.json
+            out/phase11/linux/*.json
+            out/phase11/linux/*.log
+            out/phase11/linux/recipe/
+            out/phase11/linux/*/*.log
+            out/phase11/linux/*/generators/*.json
+            out/phase11/linux/*/generators/*.log
+            out/phase11/linux/*/generators/apply/
+            out/phase11/linux/*/generators/tasks/
+            out/phase11/linux/*/generators/prefix/
+            out/phase11/linux/*/generators/*.patch
+            out/phase11/linux/*/generators/source/apple-data/**/data/
+            out/phase11/linux/*/generators/source/flex/**/src/main.c
+            out/phase11/linux/*/generators/source/flex/**/src/skel.c
+            out/phase11/linux/*/dependencies/*.json
+            out/phase11/linux/*/dependencies/*.log
+            out/phase11/linux/*/dependencies/sysroot/
+            out/phase11/linux/*/dependencies/work/samba/bin/default/third_party/heimdal/lib/hx509/
+            out/phase11/linux/*/ffmpeg/work/prefix/
+          retention-days: 14

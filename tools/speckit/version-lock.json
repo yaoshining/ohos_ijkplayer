@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "operation": "initialize-project-to-current-stable",
+  "previousProjectVersion": null,
+  "projectCliVersion": "1.2.1",
+  "tag": "v1.2.1",
+  "tagObject": "0d1be13ed486b6f5737806af24299d5242773b1f",
+  "revision": "9dca9bf42a031765ee5e5f2371137f2f26967e11",
+  "url": "https://codeload.github.com/github/spec-kit/tar.gz/refs/tags/v1.2.1",
+  "sha256": "afc45be2a61449732ff5d8c442f8c8cb05fdae342412b981ff03fe17e6c0e9d0",
+  "releaseUrl": "https://github.com/github/spec-kit/releases/tag/v1.2.1",
+  "cliPath": "out/spec-kit-cli/bin/specify",
+  "featureDirectory": "specs/001-ffmpeg-ohcodec-producer",
+  "configuration": ".specify/integration.json",
+  "globalConfigurationModified": false,
+  "frozenProjectsModified": false,
+  "initialObservedGlobalCliVersion": "0.12.11",
+  "initialObservedGlobalCliCommit": "e802a7dd52a6eceba9403cbbf40e60dced043238",
+  "finalObservedGlobalCliVersion": "1.2.1",
+  "globalUpgradeExecutedByThisSession": false,
+  "globalObservationNote": "全局工具在本轮期间发生外部可见变化；本会话只运行仓内隔离安装，不推断其他会话操作。"
+}

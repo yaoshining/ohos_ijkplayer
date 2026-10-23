@@ -1,0 +1,44 @@
+name: HX509 独立历史诊断
+on:
+  workflow_dispatch:
+  push:
+    branches: ['codex/hx509-history-diagnostics']
+    paths: ['tools/hx509-history/**', '.github/workflows/hx509-history.yml']
+permissions:
+  contents: read
+jobs:
+  diagnostic:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - name: 显式历史配置与两次全新构建
+        run: bash tools/hx509-history/ci.sh hx509-history
+      - name: 保存诊断证据（不用于发布）
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hx509-history-diagnostics-not-release
+          path: |
+            out/phase10/container/
+            out/phase10/host-provenance/
+            out/phase10/inputs/input-verification.json
+            out/phase10/linux/*.json
+            out/phase10/linux/*.log
+            out/phase10/linux/recipe/
+            out/phase10/linux/*/*.log
+            out/phase10/linux/*/generators/*.json
+            out/phase10/linux/*/generators/*.log
+            out/phase10/linux/*/generators/apply/
+            out/phase10/linux/*/generators/tasks/
+            out/phase10/linux/*/generators/prefix/
+            out/phase10/linux/*/generators/*.patch
+            out/phase10/linux/*/generators/source/apple-data/**/data/
+            out/phase10/linux/*/generators/source/flex/**/src/main.c
+            out/phase10/linux/*/generators/source/flex/**/src/skel.c
+            out/phase10/linux/*/dependencies/*.json
+            out/phase10/linux/*/dependencies/*.log
+            out/phase10/linux/*/dependencies/sysroot/
+            out/phase10/linux/*/dependencies/work/samba/bin/default/third_party/heimdal/lib/hx509/
+            out/phase10/linux/*/ffmpeg/work/prefix/
+          retention-days: 14

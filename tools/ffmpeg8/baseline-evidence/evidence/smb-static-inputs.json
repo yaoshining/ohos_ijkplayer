@@ -1,0 +1,10 @@
+{
+  "lib/libgmp.a": "b2d1c43246830e9fe63998e8f416c93bf2ddcb6d26248f8c74c0ba93adbdcae0",
+  "lib/libgnutls.a": "49030a218c6554b2ff4ecc71fa273ca7d8a463548b25651851d826a51fcbf23f",
+  "lib/libhogweed.a": "320341698f2c22241cad88b699b22db67a95d8f9df0a514bce166b6710954dc7",
+  "lib/libnettle.a": "cc1d4dba0c465698020f460a5922badebb6949efd707774d8231b33255fa2720",
+  "lib/libpopt.a": "be001054fc15eb65f9b62bc390470d4e3d7227d0e9a5b825996eb3c6c525f800",
+  "lib/libsmbclient.a": "68638c39b485dac559b3c92df6201a8ef2e6637af17490623dd64cb32a2a09a4",
+  "lib/libtasn1.a": "e8b38cb0b6e9410d973f88eaabc3ad89e1b0fa527acd9bc24a4f5f8cd402a251",
+  "lib/libz.a": "e7ca826ba83de22fd4516309f91196dd97a4b5877f58a63b66bb1d122844a68d"
+}

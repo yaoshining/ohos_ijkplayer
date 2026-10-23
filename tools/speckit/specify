@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
+root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
+[ -x "$root/out/spec-kit-cli/bin/specify" ] || { echo '请先按 tools/speckit/README.md 安装本仓固定 CLI' >&2; exit 2; }
+exec "$root/out/spec-kit-cli/bin/specify" "$@"
