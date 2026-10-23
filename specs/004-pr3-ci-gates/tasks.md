@@ -29,3 +29,18 @@ GitHub 记录的 event base 为旧 `a73e23173d684c31056b50f353ac4321fbcd812b`，
 原 run 失败保留；未推修复、未合并，目标产物与真机范围仍按上文待验收。
 
 R003 本机证据：`/private/tmp/pr3-repair-event-evidence/aggregate.json` 与 `event-environment.json`。以上为本地模拟真实 GitHub 事件环境，不是新的远端 CI；最终规格文档提交通过与实现 SHA 的代码/工作流等价核验，不能冒称其本身重跑了完整 11 项。拒绝身份时输出保留声明 base/head/ref、实际 SHA/父链和环境 ref，方便失败追溯。
+
+## 第二次远端失败与受限嵌套组合
+
+已批准的 `882a1c548175f793771877a090ae1169bf2453e6` 已推送。run `39998466471` failure，11 项仍在身份门禁处拒绝（commands=[]）。这次是环境 `GITHUB_BASE_REF=master` 与 event 声明 `codex/docs-pr2-speckit-closeout` 不同；没有证据显示 PR 被人为 retarget。实际 checkout `5644f3aa4c4a7087c1651f042729f580ec1cd2d8` 的第一父是 PR2 中间 merge `e712d27ef548f91ca408ae38dc7a7ecd91601a86`。
+
+实际 Git 对象核验：中间 merge 两父按顺序为 `1bb2a7c33ed88eafbeb3f42bcc4bf4299797497b`、`05dcf4acdc462d88fb94ce2d7f076e58cfc85bdb`，tree 为 `c74b46a5b1a9dc1c4a591d247e88f94eab6619b6`。工作流没有覆盖 GITHUB_BASE_REF。
+
+新增 tracked `combination-lock.json` 只允许以上确切 root/dependency/tree 及特定 ref 对应的 `locked-nested-combination` 模式；普通 PR 同 ref 模式不变，其他漂移继续拒绝。仍保留精确 GITHUB_SHA、PR merge ref、最终两父/head、声明 base 到固定依赖的祖先检查。锁只在审查后显式更新，不跟随远端分支。
+
+- [x] N001 冻结真实失败，核验实际 Git 父链/tree；真实临时 Git 嵌套模式 RED→GREEN。
+- [x] N002 20 项门禁回归，包含锁缺失/格式、ref、root/dependency/tree、父顺序以及普通模式原有负例。
+- [ ] N003 完整 workflow 事件环境重放，包括先行自测、11 项和 required 聚合。
+- [ ] N004 精确修复预览、批准后推送；未批准的新 SHA 不推送。
+
+这项组合证据不得标成普通 PR merge。旧远端失败不改写，产品源码、TV、候选和历史封存不改。

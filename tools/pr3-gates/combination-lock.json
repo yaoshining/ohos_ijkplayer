@@ -1,0 +1,8 @@
+{
+  "schema": 1,
+  "prBaseRef": "codex/docs-pr2-speckit-closeout",
+  "environmentBaseRef": "master",
+  "rootBase": "1bb2a7c33ed88eafbeb3f42bcc4bf4299797497b",
+  "dependencyHead": "05dcf4acdc462d88fb94ce2d7f076e58cfc85bdb",
+  "intermediateTree": "c74b46a5b1a9dc1c4a591d247e88f94eab6619b6"
+}
