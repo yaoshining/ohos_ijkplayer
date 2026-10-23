@@ -81,33 +81,38 @@ def git(*args):
 
 def identity():
     d = {'checkout': git('rev-parse', 'HEAD'), 'tree': git('rev-parse', 'HEAD^{tree}'), 'parents': git('show', '-s', '--format=%P', 'HEAD'), 'status': git('status', '--porcelain', '--untracked-files=all'), 'event': os.environ.get('GITHUB_EVENT_NAME', 'local')}
+    d['environmentRef'] = os.environ.get('GITHUB_REF')
+    d['environmentBaseRef'] = os.environ.get('GITHUB_BASE_REF')
+    d['environmentSHA'] = os.environ.get('GITHUB_SHA')
+    def reject(message):
+        raise ValueError(message + ': ' + json.dumps(d, sort_keys=True))
     if d['status']:
-        raise ValueError('dirty checkout')
+        reject('dirty checkout')
     if os.environ.get('GITHUB_ACTIONS') == 'true':
         if d['checkout'] != os.environ.get('GITHUB_SHA'):
-            raise ValueError('checkout/GITHUB_SHA mismatch')
+            reject('checkout/GITHUB_SHA mismatch')
         if d['event'] == 'merge_group':
             event = json.loads(Path(os.environ['GITHUB_EVENT_PATH']).read_text())
             group = event['merge_group']
             d.update(groupHead=group['head_sha'], groupBase=group['base_sha'])
             if d['checkout'] != d['groupHead']:
-                raise ValueError('merge group head mismatch')
+                reject('merge group head mismatch')
             if subprocess.run(['git', 'merge-base', '--is-ancestor', d['groupBase'], d['checkout']], cwd=ROOT, capture_output=True).returncode:
-                raise ValueError('merge group base unreachable')
+                reject('merge group base unreachable')
         if d['event'] == 'pull_request':
             event = json.loads(Path(os.environ['GITHUB_EVENT_PATH']).read_text())
             pr = event['pull_request']
             d.update(prHead=pr['head']['sha'], prBase=pr['base']['sha'], prBaseRef=pr['base']['ref'], prNumber=event['number'])
             if os.environ.get('GITHUB_REF') != f"refs/pull/{d['prNumber']}/merge":
-                raise ValueError('PR merge ref mismatch')
+                reject('PR merge ref mismatch')
             if os.environ.get('GITHUB_BASE_REF') != d['prBaseRef']:
-                raise ValueError('PR base ref mismatch')
+                reject('PR base ref mismatch')
             parents = d['parents'].split()
             if len(parents) != 2 or parents[1] != d['prHead']:
-                raise ValueError('PR merge parents mismatch')
+                reject('PR merge parents mismatch')
             d['actualMergeBase'] = parents[0]
             if subprocess.run(['git', 'merge-base', '--is-ancestor', d['prBase'], d['actualMergeBase']], cwd=ROOT, capture_output=True).returncode:
-                raise ValueError('declared PR base not ancestor of actual merge base')
+                reject('declared PR base not ancestor of actual merge base')
     return d
 
 def run(case, out):
