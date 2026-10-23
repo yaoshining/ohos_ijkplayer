@@ -115,6 +115,30 @@ class AdvancedBaseTests(unittest.TestCase):
     with self.assertRaises(ValueError):g.identity()
     ev('0'*40,head)
     with self.assertRaises(ValueError):g.identity()
+class LockedNestedTests(unittest.TestCase):
+ def test_exact_nested_mode_and_rejections(self):
+  with tempfile.TemporaryDirectory() as d:
+   repo=Path(d).resolve()/'repo';repo.mkdir()
+   def git(*args):return subprocess.check_output(['git','-C',str(repo),'-c','user.name=Test','-c','user.email=test@example.invalid',*args],stderr=subprocess.DEVNULL,text=True).strip()
+   git('init','-b','master');(repo/'root').write_text('root');git('add','.');git('commit','-m','root');root=git('rev-parse','HEAD')
+   git('checkout','-b','dependency');(repo/'dep').write_text('dep');git('add','.');git('commit','-m','dep');dependency=git('rev-parse','HEAD')
+   git('checkout','--detach',root);git('merge','--no-ff',dependency,'-m','dependency merge');middle=git('rev-parse','HEAD')
+   git('checkout','-b','topic',dependency);(repo/'feature').write_text('feature');git('add','.');git('commit','-m','feature');head=git('rev-parse','HEAD')
+   git('checkout','--detach',middle);git('merge','--no-ff',head,'-m','final merge');final=git('rev-parse','HEAD')
+   lock=Path(d).resolve()/'lock.json';original={'schema':1,'prBaseRef':'dependency','environmentBaseRef':'master','rootBase':root,'dependencyHead':dependency,'intermediateTree':git('rev-parse',middle+'^{tree}')};lock.write_text(json.dumps(original))
+   event=Path(d).resolve()/'event.json';event.write_text(json.dumps({'number':9,'pull_request':{'base':{'sha':dependency,'ref':'dependency'},'head':{'sha':head}}}))
+   env={'GITHUB_ACTIONS':'true','GITHUB_EVENT_NAME':'pull_request','GITHUB_EVENT_PATH':str(event),'GITHUB_SHA':final,'GITHUB_REF':'refs/pull/9/merge','GITHUB_BASE_REF':'master'}
+   with patch.object(g,'ROOT',repo),patch.object(g,'COMBINATION_LOCK',lock,create=True),patch.dict(os.environ,env):
+    identity=g.identity();self.assertEqual(identity['inputMode'],'locked-nested-combination');self.assertEqual(identity['combinationParents'],[root,dependency])
+    for field,value in [('rootBase',dependency),('dependencyHead',head),('rootBase','bad'),('prBaseRef','other'),('environmentBaseRef','other'),('intermediateTree',root)]:
+     bad=dict(original);bad[field]=value;lock.write_text(json.dumps(bad))
+     with self.assertRaises(ValueError):g.identity()
+    swapped=dict(original,rootBase=dependency,dependencyHead=root);lock.write_text(json.dumps(swapped))
+    with self.assertRaises(ValueError):g.identity()
+    lock.write_text(json.dumps(original));lock.unlink()
+    with self.assertRaises(ValueError):g.identity()
+    lock.write_text(json.dumps(original));(repo/'dirty').write_text('dirty')
+    with self.assertRaises(ValueError):g.identity()
 class CollectionTests(unittest.TestCase):
  def test_reject_binary_and_symlink(self):
   for raw in (b'\x7fELF\x00',b'\xff'):

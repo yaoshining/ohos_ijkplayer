@@ -2,6 +2,7 @@
 import argparse, hashlib, json, os, re, signal, subprocess, sys, traceback
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
+COMBINATION_LOCK = ROOT / 'tools/pr3-gates/combination-lock.json'
 CASES = ('21', '22', '23', '24', '26', '27', '28', 'parent', '29', '30', '31')
 DIRS = {'parent': 'phase28-parent-chain', '29': 'phase29-normal-terminal', '30': 'phase30-consumer-handoff', '31': 'phase31-normal-validation'}
 
@@ -105,12 +106,33 @@ def identity():
             d.update(prHead=pr['head']['sha'], prBase=pr['base']['sha'], prBaseRef=pr['base']['ref'], prNumber=event['number'])
             if os.environ.get('GITHUB_REF') != f"refs/pull/{d['prNumber']}/merge":
                 reject('PR merge ref mismatch')
-            if os.environ.get('GITHUB_BASE_REF') != d['prBaseRef']:
-                reject('PR base ref mismatch')
             parents = d['parents'].split()
             if len(parents) != 2 or parents[1] != d['prHead']:
                 reject('PR merge parents mismatch')
             d['actualMergeBase'] = parents[0]
+            d['inputMode'] = 'ordinary-pr-merge'
+            if d['environmentBaseRef'] != d['prBaseRef']:
+                try:
+                    lock = json.loads(COMBINATION_LOCK.read_text())
+                except (OSError, ValueError):
+                    reject('missing or invalid combination lock')
+                required = {'schema', 'prBaseRef', 'environmentBaseRef', 'rootBase', 'dependencyHead', 'intermediateTree'}
+                if set(lock) != required or lock['schema'] != 1:
+                    reject('combination lock schema mismatch')
+                if any(not isinstance(lock[k], str) or not re.fullmatch(r'[0-9a-f]{40}', lock[k]) for k in ('rootBase', 'dependencyHead', 'intermediateTree')):
+                    reject('combination lock requires full SHA')
+                if lock['prBaseRef'] != d['prBaseRef'] or lock['environmentBaseRef'] != d['environmentBaseRef']:
+                    reject('PR base ref outside locked combination')
+                actual = git('show', '-s', '--format=%P', d['actualMergeBase']).split()
+                d.update(combinationParents=actual, combinationLock=lock, combinationLockSHA256=sha(COMBINATION_LOCK))
+                d['combinationTree'] = git('rev-parse', d['actualMergeBase'] + '^{tree}')
+                if d['combinationTree'] != lock['intermediateTree']:
+                    reject('nested combination tree mismatch')
+                if actual != [lock['rootBase'], lock['dependencyHead']]:
+                    reject('nested combination parents mismatch')
+                if subprocess.run(['git', 'merge-base', '--is-ancestor', d['prBase'], lock['dependencyHead']], cwd=ROOT, capture_output=True).returncode:
+                    reject('declared PR base not ancestor of locked dependency')
+                d['inputMode'] = 'locked-nested-combination'
             if subprocess.run(['git', 'merge-base', '--is-ancestor', d['prBase'], d['actualMergeBase']], cwd=ROOT, capture_output=True).returncode:
                 reject('declared PR base not ancestor of actual merge base')
     return d
