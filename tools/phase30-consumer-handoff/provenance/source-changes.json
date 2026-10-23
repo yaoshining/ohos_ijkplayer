@@ -1,0 +1,55 @@
+{
+  "baseCommit": "6520a29a83dc59f0bec57bf35684ba6f79c2fb43",
+  "files": [
+    {
+      "path": "input-package/sources/mpv/video/out/hwdec/hwdec_ohcodec.h",
+      "baselineSHA256": "7461e84843e4485f9a9b4f2d5e6371b09810c881cf1a7fdc7bae6bedab3ac187",
+      "currentSHA256": "3ceb295687533790bcbc74b22e99eee38b611de56dec2720b087d10718d7a9b7",
+      "changed": true
+    },
+    {
+      "path": "input-package/sources/mpv/video/out/hwdec/hwdec_ohcodec_pl.c",
+      "baselineSHA256": "748dc4357ca1e050f5738c95f459d3ff74d0e5aff6d6a0a161d3a31faa6ac8f0",
+      "currentSHA256": "1cab93d8e0552d764e57a7e1cdfc71090a0a9c922981626cd6d5653b0104a0c6",
+      "changed": true
+    },
+    {
+      "path": "input-package/sources/mpv/misc/dispatch.c",
+      "baselineSHA256": "488d517a098ae50bc839b172f58aa59e75c3f0758de9745a4325c37eac9e8cee",
+      "currentSHA256": "488d517a098ae50bc839b172f58aa59e75c3f0758de9745a4325c37eac9e8cee",
+      "changed": false
+    },
+    {
+      "path": "input-package-concurrency/sources/mpv/video/out/hwdec/hwdec_ohcodec.h",
+      "baselineSHA256": "7461e84843e4485f9a9b4f2d5e6371b09810c881cf1a7fdc7bae6bedab3ac187",
+      "currentSHA256": "3ceb295687533790bcbc74b22e99eee38b611de56dec2720b087d10718d7a9b7",
+      "changed": true
+    },
+    {
+      "path": "input-package-concurrency/sources/mpv/video/out/hwdec/hwdec_ohcodec_pl.c",
+      "baselineSHA256": "748dc4357ca1e050f5738c95f459d3ff74d0e5aff6d6a0a161d3a31faa6ac8f0",
+      "currentSHA256": "1cab93d8e0552d764e57a7e1cdfc71090a0a9c922981626cd6d5653b0104a0c6",
+      "changed": true
+    },
+    {
+      "path": "input-package-concurrency/sources/mpv/misc/dispatch.c",
+      "baselineSHA256": "488d517a098ae50bc839b172f58aa59e75c3f0758de9745a4325c37eac9e8cee",
+      "currentSHA256": "655cc9af6c08587fe4e73bb5fafa63a57d7bec853462a859e99e1e8a1af71b5a",
+      "changed": true
+    },
+    {
+      "path": "ffmpeg-input/source/libavcodec/ohdec.c",
+      "baselineSHA256": "8d557632b5d75e247fc5222a74144bcff2a7e7429ad56790ededd8dff9352e9a",
+      "currentSHA256": "d7c4bcc960d54dcae930168a56fcd6cf2b064e8758294b9e6a98c80768f19499",
+      "changed": true,
+      "baselineBinding": "上轮本地封存的真实FFmpeg输入，非CI提交内完整源码"
+    },
+    {
+      "path": "ffmpeg-test-input/source/libavcodec/ohdec.c",
+      "baselineSHA256": "8d557632b5d75e247fc5222a74144bcff2a7e7429ad56790ededd8dff9352e9a",
+      "currentSHA256": "efef3bbd3b12ba34df127557a12e61dcabed0bc221d7652faf5cbe0c367fe2fa",
+      "changed": true,
+      "baselineBinding": "上轮本地封存的真实FFmpeg输入，非CI提交内完整源码"
+    }
+  ]
+}

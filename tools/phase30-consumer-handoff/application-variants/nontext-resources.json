@@ -1,0 +1,76 @@
+{
+  "included": false,
+  "reason": "媒体、字体与图像只记录摘要，不上传；签名、SDK、库、HAP也不在此包内。",
+  "files": [
+    {
+      "path": "AppScope/resources/base/media/background.png",
+      "size": 91942,
+      "sha256": "497edeafc51af043c73e72ee8c4fbac4663357ef1ba275c0289f31a366b26239"
+    },
+    {
+      "path": "AppScope/resources/base/media/foreground.png",
+      "size": 8805,
+      "sha256": "57e549283f255505a649042f36a1d6793c307a69a94c9fa7e27a38af38ddbe8c"
+    },
+    {
+      "path": "entry/src/main/resources/base/media/background.png",
+      "size": 91942,
+      "sha256": "497edeafc51af043c73e72ee8c4fbac4663357ef1ba275c0289f31a366b26239"
+    },
+    {
+      "path": "entry/src/main/resources/base/media/foreground.png",
+      "size": 8805,
+      "sha256": "57e549283f255505a649042f36a1d6793c307a69a94c9fa7e27a38af38ddbe8c"
+    },
+    {
+      "path": "entry/src/main/resources/base/media/startIcon.png",
+      "size": 20093,
+      "sha256": "567c7c0c7a321ca180e010ad880f0f7519f6d351ac2b9665e2ee710e7cfe7778"
+    },
+    {
+      "path": "entry/src/main/resources/rawfile/Mplus1p-Regular.ttf",
+      "size": 1757292,
+      "sha256": "ebbb56c23c64e512e2c1e8ccebca40347df7f93195438925e214b026c06b7117"
+    },
+    {
+      "path": "entry/src/main/resources/rawfile/font1.ttf",
+      "size": 16744,
+      "sha256": "7b8a5f6cfd5fdb06ddac7d976935babf05afa5ef7bf6b8c1b8cf919b481d33e1"
+    },
+    {
+      "path": "entry/src/main/resources/rawfile/h264.mp4",
+      "size": 1354624,
+      "sha256": "48a632b69364a25e9d766d7f2c4299eb0d5c7272a42353138e633f7f9aae23ba"
+    },
+    {
+      "path": "entry/src/main/resources/rawfile/hevc.mp4",
+      "size": 1099424,
+      "sha256": "ddbbf28333553ad60b5d662cf1c89fb9ab7c71aa5db7b0061b5d28c28b1e3879"
+    },
+    {
+      "path": "entry/src/main/resources/rawfile/hlg-bounded.mp4",
+      "size": 31544,
+      "sha256": "476e4dfd370ea2376e1edcca473628cb8e0f09f642655bca72226c4b5ff012d7"
+    },
+    {
+      "path": "entry/src/main/resources/rawfile/pq-bounded.mp4",
+      "size": 36652,
+      "sha256": "2e795cb3a1d1694ba7d0c0893d8a381bf9151647ec6c7a5b4296750684fd7147"
+    },
+    {
+      "path": "entry/src/main/resources/rawfile/pq2-bounded.mp4",
+      "size": 36655,
+      "sha256": "99e638344ae21ba3ff07730d6601a2051cc00613aa64614a9914bc59c8788f74"
+    },
+    {
+      "path": "entry/src/main/resources/rawfile/pqchange-bounded.mp4",
+      "size": 69768,
+      "sha256": "8c9ddce318d66d31dfaa55c917159b314b416fec6473ca68f5aa1124b5effd83"
+    },
+    {
+      "path": "entry/src/main/resources/rawfile/sdr-bounded.mp4",
+      "size": 31854,
+      "sha256": "f9cfa7d9dc30ee5a881c3d6fe2c3357c3678ac62fa0382b3fda3b1bf671676c9"
+    }
+  ]
+}
