@@ -1,0 +1,7 @@
+# 实施计划
+
+新增tools/pr2-gates，原阶段配方/测试逻辑不改。runner以真实命令清单执行并记录结果，独立snapshot支持现有长任务前后精确身份核验。只读事件身份解析检查实际git父链；输出只在新目录。新增PR宿主workflow并为适用原目标workflow加PR/merge_group事件与身份步骤，保留原手动/诊断push使用方式。原target-only/native-only提交消息在PR不得跳过必要job。
+
+先在旧workflow观察PR触发缺失/提交消息skip与自动正式上传的语义RED，再实现新runner及测试。新增功能测试覆盖真实非零子进程/timeout、真实临时git merge事件、实际文件漂移、collector缺失/二进制/symlink及全入口拒绝，避免仅文本grep假通过。随后运行全部适用宿主回归。已授权本地临时组合由另一agent负责；此分支仅独立增量。
+
+宿主门禁产物为文本；已有目标诊断collector仍保留真实构建产物用于下载核验，明确非发布。新run在推送批准后执行，未完成前保持待验。

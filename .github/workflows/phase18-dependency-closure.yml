@@ -1,8 +1,12 @@
 name: Phase18 从源码重建静态依赖及 mpv
 on:
-  push:
-    branches: [codex/phase18-dependency-closure]
   workflow_dispatch:
+  pull_request:
+    paths: ["tools/pr2-gates/**", "specs/003-pr2-ci-gates/**", ".github/workflows/phase18-dependency-closure.yml", "tools/phase18/**"]
+  merge_group:
+  push:
+    branches: ["master", "codex/docs-pr2-speckit-closeout", "codex/phase18-dependency-closure"]
+    paths: ["tools/pr2-gates/**", "specs/003-pr2-ci-gates/**", ".github/workflows/phase18-dependency-closure.yml", "tools/phase18/**"]
 permissions:
   contents: read
 jobs:
@@ -14,6 +18,11 @@ jobs:
       PYTHONNOUSERSITE: '1'
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: 绑定实际 checkout 与输入
+        run: python3 -B tools/pr2-gates/snapshot.py begin --out "${{ runner.temp }}/pr2-${{ github.job }}-identity"
       - name: 准备固定宿主工具
         run: python3 -B tools/phase18/host_setup.py
       - name: 校验原始输入并准备隔离 SDK 和 Rust 工具链
@@ -53,3 +62,13 @@ jobs:
           path: out/phase18-artifact
           if-no-files-found: error
           include-hidden-files: true
+      - name: 核对输入未漂移并保留实际执行身份
+        if: always()
+        run: python3 -B tools/pr2-gates/snapshot.py end --out "${{ runner.temp }}/pr2-${{ github.job }}-identity" --job-status "${{ job.status }}"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pr2-${{ github.workflow }}-${{ github.job }}-identity
+          path: ${{ runner.temp }}/pr2-${{ github.job }}-identity/artifact/
+          if-no-files-found: error
+          retention-days: 14
