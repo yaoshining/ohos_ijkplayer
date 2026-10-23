@@ -23,6 +23,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
+      - name: 核对宿主工具
+        run: |
+          clang --version
+          clang++ --version
+          make --version
+          git --version
+          node --version
+          npm --version
       - name: 门禁自身真实成功失败回归
         run: python3 -B tools/pr3-gates/test_gate.py
       - name: 执行精确合并源码契约
@@ -39,6 +47,15 @@ jobs:
     needs: contracts
     runs-on: ubuntu-22.04
     steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: pr3-contract-*
+          path: ${{ runner.temp }}/pr3-matrix
+      - name: 核验完整矩阵及制品索引
+        run: python3 -B tools/pr3-gates/gate.py --aggregate "$RUNNER_TEMP/pr3-matrix" --out "$RUNNER_TEMP/pr3-result.json"
       - name: 全矩阵必须成功
         env:
           RESULT: ${{ needs.contracts.result }}

@@ -17,6 +17,19 @@ def execute(argv,cwd,timeout):
  except OSError as e:text=str(e);rc=127
  return {'command':argv,'returncode':rc,'passed':rc==0,'output':text}
 def unittest_ok(text):return bool(re.search(r'^Ran [1-9][0-9]* tests? in ',text,re.M) and re.search(r'^OK$',text,re.M))
+def text_bytes(p):
+ if any(q.is_symlink() for q in (p,*p.parents)):raise ValueError('symlink evidence')
+ if p.stat().st_size>8*1024*1024:raise ValueError('oversize evidence')
+ raw=p.read_bytes()
+ if b'\x00' in raw or raw.startswith(b'\x7fELF'):raise ValueError('binary evidence')
+ raw.decode('utf-8');return raw
+def workflow_valid(path):
+ import ast
+ text=path.read_text()
+ match=re.search(r"case: (\[.*\])",text)
+ try:cases=ast.literal_eval(match[1]) if match else []
+ except (SyntaxError,ValueError):return False
+ return len(cases)==len(CASES) and set(cases)==set(CASES) and 'pull_request:' in text and '--aggregate ' in text and 'actions/download-artifact@v4' in text and '--case ' in text
 def verify_artifact(root):
  index=next((root/n for n in ('artifact-index.json','index.json') if (root/n).is_file()),None)
  if not index:raise ValueError('missing artifact index')
@@ -25,7 +38,7 @@ def verify_artifact(root):
  names=set()
  for row in rows:
   p=root/row['path']
-  if p.is_symlink() or not p.resolve().is_relative_to(root.resolve()) or row['path'] in names:raise ValueError('invalid artifact path')
+  if any(q.is_symlink() for q in (p,*p.parents)) or not p.resolve().is_relative_to(root.resolve()) or row['path'] in names:raise ValueError('invalid artifact path')
   names.add(row['path'])
   if not p.is_file() or p.stat().st_size!=row['size'] or sha(p)!=row['sha256']:raise ValueError('artifact mismatch')
  actual={str(p.relative_to(root)) for p in root.rglob('*') if p.is_file() and p!=index}
@@ -62,21 +75,32 @@ def run(case,out):
   result['accepted']=True
  except Exception as e:result['error']=str(e);(out/'failure.log').write_text(traceback.format_exc())
  result['commands']=commands;write(out/'result.json',result)
- # 上传仅受控文本，不包含编译目录、下载源码或目标产物。
+ # 仅受控 UTF-8 文本；任何收集错误把本项改为失败。
  artifact=out/'artifact';artifact.mkdir()
- for p in out.glob('*.json'): (artifact/p.name).write_bytes(p.read_bytes())
- for p in out.glob('*.log'): (artifact/p.name).write_bytes(p.read_bytes())
- child=out/'child/artifact'
- if child.exists():
-  for p in child.rglob('*'):
-   if p.is_file() and not p.is_symlink() and p.suffix in ('.json','.log','.txt'):
-    q=artifact/'child'/p.relative_to(child);q.parent.mkdir(parents=True,exist_ok=True);q.write_bytes(p.read_bytes())
- write(artifact/'artifact-index.json',{'files':[{'path':str(p.relative_to(artifact)),'size':p.stat().st_size,'sha256':sha(p)} for p in sorted(artifact.rglob('*')) if p.is_file()]})
+ try:
+  sources=[(p,Path(p.name)) for p in out.iterdir() if p.is_file() and p.name in ('result.json','failure.log','runner.log','command-0.log','command-1.log')]
+  child=out/'child/artifact'
+  if result['accepted'] and child.exists():
+   verify_artifact(child)
+   sources += [(p,Path('child')/p.relative_to(child)) for p in child.rglob('*') if p.is_file()]
+  total=0
+  for p,rel in sources:
+   if p.suffix not in ('.json','.log','.txt','.c','.h','.cpp','.py','.md','.yml','.yaml','.patch','.inc','.ets','.ts'):raise ValueError('forbidden evidence extension')
+   raw=text_bytes(p);total+=len(raw)
+   if total>64*1024*1024:raise ValueError('evidence total too large')
+   q=artifact/rel;q.parent.mkdir(parents=True,exist_ok=True);q.write_bytes(raw)
+  write(artifact/'artifact-index.json',{'files':[{'path':str(p.relative_to(artifact)),'size':p.stat().st_size,'sha256':sha(p)} for p in sorted(artifact.rglob('*')) if p.is_file()]})
+  verify_artifact(artifact)
+ except Exception as e:
+  import shutil
+  shutil.rmtree(artifact);artifact.mkdir();result.update(accepted=False,collectionError=str(e));write(out/'result.json',result);write(artifact/'result.json',result)
  return result['accepted']
 def main():
  ap=argparse.ArgumentParser();ap.add_argument('--case',choices=CASES);ap.add_argument('--out',type=Path,required=True);ap.add_argument('--aggregate',type=Path);a=ap.parse_args()
  if a.aggregate:
-  rows=[json.loads(p.read_text()) for p in a.aggregate.glob('*/result.json')];ok=aggregate(rows);write(a.out,{'accepted':ok,'cases':rows,'formalArtifactAllowed':False});return 0 if ok else 1
+  rows=[json.loads(p.read_text()) for p in a.aggregate.glob('*/result.json')];ok=aggregate(rows) and workflow_valid(ROOT/'.github/workflows/pr3-contracts.yml')
+  for directory in a.aggregate.iterdir():
+   if directory.is_dir():verify_artifact(directory);write(a.out,{'accepted':ok,'cases':rows,'formalArtifactAllowed':False});return 0 if ok else 1
  if not a.case:ap.error('--case required')
  if a.out.resolve().is_relative_to(ROOT):ap.error('output must be outside checkout')
  return 0 if run(a.case,a.out.resolve()) else 1
