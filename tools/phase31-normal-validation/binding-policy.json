@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "currentLibraries": "normal-library-binding.json",
+  "targetArtifact": "target-artifact-manifest.json",
+  "targetSource": "target-source-binding.json",
+  "expectedHeader": "app/entry/src/main/cpp/expected.h",
+  "historicalMetadata": {
+    "path": "app/lib-binding.json",
+    "sha256": "cfae695205c43206e21595e6997006be2952e32608895d5b0ff853cdffb0fb53",
+    "authority": "historical-inherited-non-authoritative"
+  },
+  "ciChecks": "text-consistency-only",
+  "localHAPCheck": "separate-real-bytes-verification",
+  "formalArtifactAllowed": false
+}

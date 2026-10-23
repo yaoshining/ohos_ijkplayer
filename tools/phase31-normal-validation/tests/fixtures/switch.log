@@ -1,0 +1,36 @@
+P24_LOAD sample=pq index=0
+P24_OBSERVATION {"t": 0.278471, "fileIndex": 0, "videoSampleRc": -10, "hwdec": "unavailable_or_other", "gpu": "ohosvk", "time-pos": {"rc": -10, "value": null}}
+P24_FILE_LOADED index=0
+P24_PLAYBACK_RESTART t=0.597012
+P24_OBSERVATION {"t": 0.798693, "fileIndex": 0, "videoSampleRc": 0, "hwdec": "ohcodec", "gpu": "ohosvk", "time-pos": {"rc": 0, "value": 0.233333}}
+P24_OBSERVATION {"t": 1.33189, "fileIndex": 0, "videoSampleRc": 0, "hwdec": "ohcodec", "gpu": "ohosvk", "time-pos": {"rc": 0, "value": 0.766667}}
+P24_OBSERVATION {"t": 1.833213, "fileIndex": 0, "videoSampleRc": 0, "hwdec": "ohcodec", "gpu": "ohosvk", "time-pos": {"rc": 0, "value": 1.266667}}
+P24_OBSERVATION {"t": 2.365431, "fileIndex": 0, "videoSampleRc": 0, "hwdec": "ohcodec", "gpu": "ohosvk", "time-pos": {"rc": 0, "value": 1.8}}
+P24_OBSERVATION {"t": 2.871887, "fileIndex": 0, "videoSampleRc": 0, "hwdec": "ohcodec", "gpu": "ohosvk", "time-pos": {"rc": 0, "value": 2.3}}
+P24_OBSERVATION {"t": 3.398789, "fileIndex": 0, "videoSampleRc": 0, "hwdec": "ohcodec", "gpu": "ohosvk", "time-pos": {"rc": 0, "value": 2.833333}}
+P24_OBSERVATION {"t": 3.898854, "fileIndex": 0, "videoSampleRc": 0, "hwdec": "ohcodec", "gpu": "ohosvk", "time-pos": {"rc": 0, "value": 3.333333}}
+P24_LOAD sample=hlg index=1
+P24_END reason=2 error=0
+P31_EXPECTED_REPLACEMENT index=1
+P24_FILE_LOADED index=1
+P24_PLAYBACK_RESTART t=4.171144
+P24_OBSERVATION {"t": 4.407187, "fileIndex": 1, "videoSampleRc": 0, "hwdec": "ohcodec", "gpu": "ohosvk", "time-pos": {"rc": 0, "value": 0.266667}}
+P24_OBSERVATION {"t": 4.940624, "fileIndex": 1, "videoSampleRc": 0, "hwdec": "ohcodec", "gpu": "ohosvk", "time-pos": {"rc": 0, "value": 0.8}}
+P24_OBSERVATION {"t": 5.473521, "fileIndex": 1, "videoSampleRc": 0, "hwdec": "ohcodec", "gpu": "ohosvk", "time-pos": {"rc": 0, "value": 1.333333}}
+P24_OBSERVATION {"t": 6.005933, "fileIndex": 1, "videoSampleRc": 0, "hwdec": "ohcodec", "gpu": "ohosvk", "time-pos": {"rc": 0, "value": 1.866667}}
+P24_OBSERVATION {"t": 6.506104, "fileIndex": 1, "videoSampleRc": 0, "hwdec": "ohcodec", "gpu": "ohosvk", "time-pos": {"rc": 0, "value": 2.366667}}
+P24_OBSERVATION {"t": 7.006111, "fileIndex": 1, "videoSampleRc": 0, "hwdec": "ohcodec", "gpu": "ohosvk", "time-pos": {"rc": 0, "value": 2.866667}}
+P24_OBSERVATION {"t": 7.507411, "fileIndex": 1, "videoSampleRc": 0, "hwdec": "ohcodec", "gpu": "ohosvk", "time-pos": {"rc": 0, "value": 3.366667}}
+P24_LOAD sample=sdr index=2
+P24_END reason=2 error=0
+P31_EXPECTED_REPLACEMENT index=2
+P24_FILE_LOADED index=2
+P24_PLAYBACK_RESTART t=7.756503
+P24_OBSERVATION {"t": 8.025192, "fileIndex": 2, "videoSampleRc": 0, "hwdec": "ohcodec", "gpu": "ohosvk", "time-pos": {"rc": 0, "value": 0.3}}
+P24_OBSERVATION {"t": 8.558652, "fileIndex": 2, "videoSampleRc": 0, "hwdec": "ohcodec", "gpu": "ohosvk", "time-pos": {"rc": 0, "value": 0.833333}}
+P24_OBSERVATION {"t": 9.091338, "fileIndex": 2, "videoSampleRc": 0, "hwdec": "ohcodec", "gpu": "ohosvk", "time-pos": {"rc": 0, "value": 1.366667}}
+P24_OBSERVATION {"t": 9.591998, "fileIndex": 2, "videoSampleRc": 0, "hwdec": "ohcodec", "gpu": "ohosvk", "time-pos": {"rc": 0, "value": 1.866667}}
+P24_OBSERVATION {"t": 10.124662, "fileIndex": 2, "videoSampleRc": 0, "hwdec": "ohcodec", "gpu": "ohosvk", "time-pos": {"rc": 0, "value": 2.4}}
+P24_OBSERVATION {"t": 10.625261, "fileIndex": 2, "videoSampleRc": 0, "hwdec": "ohcodec", "gpu": "ohosvk", "time-pos": {"rc": 0, "value": 2.9}}
+P24_OBSERVATION {"t": 11.157928, "fileIndex": 2, "videoSampleRc": 0, "hwdec": "ohcodec", "gpu": "ohosvk", "time-pos": {"rc": 0, "value": 3.433333}}
+P24_RESULT loaded=3 eof=0 errors=0 distinctPtsSamples=21 wallElapsed=11.158962 continuousSeconds=0.000000 continuousPassed=0 operationsPassed=0 reason=none stopped=0
