@@ -1,0 +1,22 @@
+{
+  "formalArtifactAllowed": false,
+  "attemptSealSHA256": "7fbaaa3f3f84b245b71e91535df3ec2b240cb15072310f494c7da9aae44da8cb",
+  "shortScenariosPassed": 7,
+  "continuousNAS60Minutes": "FAIL_INTERRUPTED",
+  "continuousSeconds": 788.048305,
+  "interruptLocalTime": "2026-10-23 20:10:54",
+  "reason": "ability_background",
+  "trigger": "unresolved",
+  "userRecall": "无法确认当时是否操作",
+  "subjectiveSDRObservation": "single observation of continuous picture and broadly normal audio/lip-sync; not full-duration or HDR confirmation",
+  "keepScreenReleased": true,
+  "strictCleanupPassed": true,
+  "privateDerivedConfigCleared": true,
+  "PlayerTVReadOnlyBoundaryPassed": true,
+  "targetHAPSHA256": "e2caf1ab58fb833968c789b885dfa1d7d1ced86b9bf270816872e65ded1773dc",
+  "remoteCI": "not_run_for_this_commit",
+  "targetRebuildThisPhase": "app wrapper only; reused Phase30 A libraries",
+  "historical52MinuteGapRootCauseResolved": false,
+  "noLeakClaim": false,
+  "nativeWarningFreeClaim": false
+}

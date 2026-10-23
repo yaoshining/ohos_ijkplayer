@@ -1,0 +1,40 @@
+{
+  "libraries": [
+    {
+      "path": "libavcodec.so.62",
+      "size": 12305096,
+      "sha256": "5e32a49ddc1d07d4e932008de6f7139320ca3427e6aca9e698539a1614ebdf6e"
+    },
+    {
+      "path": "libavfilter.so.11",
+      "size": 3942968,
+      "sha256": "82b431c76910f2a826c7679b3cfb9273dd131c1566d06cee1f80818f23c2622c"
+    },
+    {
+      "path": "libavformat.so.62",
+      "size": 19268552,
+      "sha256": "92e495c730a48604976bd5b1507113f7ae820ee51307542a36a61111c9da8c4c"
+    },
+    {
+      "path": "libavutil.so.60",
+      "size": 683352,
+      "sha256": "671d7394ccffcfb8578b278b8751646902cbe81da091eb45c0d6168dd5ef828b"
+    },
+    {
+      "path": "libmpv.so",
+      "size": 15711336,
+      "sha256": "ef346b0c7c4c3a834501b419effbdb1523f5cdba05fda5fa0e282f693db59b88"
+    },
+    {
+      "path": "libswresample.so.6",
+      "size": 91704,
+      "sha256": "4244a9e1e2697bd8ec35436148d55d5e8b2c09080c40754cc505a05c5fc52e3b"
+    },
+    {
+      "path": "libswscale.so.9",
+      "size": 738672,
+      "sha256": "f1982cde4d2b6d899f99e38ae4cfb50dcda4859e9912a6b4f18913ebaf9836a0"
+    }
+  ],
+  "note": "libavcodec and libmpv are Phase28 builds; other libraries are the Phase27 fixed bytes"
+}
