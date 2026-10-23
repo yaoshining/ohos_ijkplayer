@@ -14,3 +14,16 @@
 1639 条来源文件审计中仅两条与 PR3 原继承值不同：`.github/workflows/phase18-dependency-closure.yml`、`.github/workflows/phase20-runtime-directories.yml` 采用 PR2 新本地候选的工作流修改（待用户批准推送），其余完全相同。无源冲突。Python 目标目录回归和默认 SDK 合同包含在组合 PR1 runner 内。未改实际 SDK/default 指针、Player、TV 或候选产物。
 
 目标设备、物理 HDR/主观声画、真实 GPU 永不返回和任意强并发未在本轮验证，继续待验收。60 分钟长播不是接入前置条件，本轮不运行。`formalArtifactAllowed=false`。
+
+## 远端首次执行与身份兼容返修
+
+已批准 `e8e495ba4db52a1b076860951d1cdd301b7424ca` 已推送。远端 run `39995466079` 为 failure：11 项均在身份检查处拒绝（commands=[]），required 亦失败，未执行阶段测试；不能记作阶段功能失败或通过。11 个失败 artifact 索引已经本机逐字节核验。
+
+GitHub 记录的 event base 为旧 `a73e23173d684c31056b50f353ac4321fbcd812b`，实际 checkout 为把已批准 head 合入新 `615b3bdb0e7ee1195cfb37c2576d9066757da99d` 的 merge。修复保留声明 base 与实际第一父两份身份，强制可信 GITHUB_SHA、PR merge ref、base ref、两父与精确第二父，并验证声明 base 存在且为实际第一父祖先；不取可变远端分支替换输入。
+
+- [x] R001 真实 Git “事件 base 落后于实际 merge base”语义 RED；无关 base、缺失 base、错 head/ref/SHA 负例。
+- [x] R002 最小身份修复，19 项门禁回归 GREEN。
+- [ ] R003 本地完整 workflow 事件环境重放与独立审查。
+- [ ] R004 新修复精确提交预览、用户批准后推送；原批准不覆盖新 SHA。
+
+原 run 失败保留；未推修复、未合并，目标产物与真机范围仍按上文待验收。

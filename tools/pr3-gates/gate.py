@@ -97,9 +97,17 @@ def identity():
         if d['event'] == 'pull_request':
             event = json.loads(Path(os.environ['GITHUB_EVENT_PATH']).read_text())
             pr = event['pull_request']
-            d.update(prHead=pr['head']['sha'], prBase=pr['base']['sha'], prNumber=event['number'])
-            if d['parents'].split() != [d['prBase'], d['prHead']]:
+            d.update(prHead=pr['head']['sha'], prBase=pr['base']['sha'], prBaseRef=pr['base']['ref'], prNumber=event['number'])
+            if os.environ.get('GITHUB_REF') != f"refs/pull/{d['prNumber']}/merge":
+                raise ValueError('PR merge ref mismatch')
+            if os.environ.get('GITHUB_BASE_REF') != d['prBaseRef']:
+                raise ValueError('PR base ref mismatch')
+            parents = d['parents'].split()
+            if len(parents) != 2 or parents[1] != d['prHead']:
                 raise ValueError('PR merge parents mismatch')
+            d['actualMergeBase'] = parents[0]
+            if subprocess.run(['git', 'merge-base', '--is-ancestor', d['prBase'], d['actualMergeBase']], cwd=ROOT, capture_output=True).returncode:
+                raise ValueError('declared PR base not ancestor of actual merge base')
     return d
 
 def run(case, out):

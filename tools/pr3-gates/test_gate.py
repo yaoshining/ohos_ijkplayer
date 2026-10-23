@@ -61,8 +61,8 @@ class IdentityTests(unittest.TestCase):
    def git(*args):return subprocess.check_output(['git','-C',str(repo),'-c','user.name=Test','-c','user.email=test@example.invalid',*args],stderr=subprocess.DEVNULL,text=True).strip()
    git('init','-b','main');(repo/'a').write_text('a');git('add','.');git('commit','-m','base');base=git('rev-parse','HEAD');git('checkout','-b','topic');(repo/'b').write_text('b');git('add','.');git('commit','-m','head');head=git('rev-parse','HEAD');git('checkout','--detach',base);git('merge','--no-ff',head,'-m','merge');merge=git('rev-parse','HEAD')
    event=Path(d).resolve()/'event.json'
-   def ev(b,h):event.write_text(json.dumps({'number':9,'pull_request':{'base':{'sha':b},'head':{'sha':h}}}))
-   env={'GITHUB_ACTIONS':'true','GITHUB_EVENT_NAME':'pull_request','GITHUB_EVENT_PATH':str(event),'GITHUB_SHA':merge}
+   def ev(b,h):event.write_text(json.dumps({'number':9,'pull_request':{'base':{'sha':b,'ref':'main'},'head':{'sha':h}}}))
+   env={'GITHUB_ACTIONS':'true','GITHUB_EVENT_NAME':'pull_request','GITHUB_EVENT_PATH':str(event),'GITHUB_SHA':merge,'GITHUB_REF':'refs/pull/9/merge','GITHUB_BASE_REF':'main'}
    with patch.object(g,'ROOT',repo),patch.dict(os.environ,env):
     ev(base,head);self.assertEqual(g.identity()['checkout'],merge)
     shallow=Path(d).resolve()/'shallow'
@@ -92,6 +92,29 @@ class IdentityTests(unittest.TestCase):
     git('checkout','--detach',head)
     with patch.dict(os.environ,{'GITHUB_SHA':head}):
      with self.assertRaises(ValueError):g.identity()
+class AdvancedBaseTests(unittest.TestCase):
+ def test_event_base_can_lag_actual_merge_base(self):
+  with tempfile.TemporaryDirectory() as d:
+   repo=Path(d).resolve()/'repo';repo.mkdir()
+   def git(*args):return subprocess.check_output(['git','-C',str(repo),'-c','user.name=Test','-c','user.email=test@example.invalid',*args],stderr=subprocess.DEVNULL,text=True).strip()
+   git('init','-b','main');(repo/'a').write_text('a');git('add','.');git('commit','-m','base');declared=git('rev-parse','HEAD')
+   git('checkout','-b','topic');(repo/'feature').write_text('feature');git('add','.');git('commit','-m','feature');head=git('rev-parse','HEAD')
+   git('checkout','main');(repo/'advance').write_text('advance');git('add','.');git('commit','-m','advance');actual=git('rev-parse','HEAD');git('merge','--no-ff',head,'-m','merge');merge=git('rev-parse','HEAD')
+   event=Path(d).resolve()/'event.json'
+   def ev(base,topic):event.write_text(json.dumps({'number':9,'pull_request':{'base':{'sha':base,'ref':'main'},'head':{'sha':topic}}}))
+   ev(declared,head)
+   env={'GITHUB_ACTIONS':'true','GITHUB_EVENT_NAME':'pull_request','GITHUB_EVENT_PATH':str(event),'GITHUB_SHA':merge,'GITHUB_REF':'refs/pull/9/merge','GITHUB_BASE_REF':'main'}
+   with patch.object(g,'ROOT',repo),patch.dict(os.environ,env):
+    identity=g.identity();self.assertEqual(identity['prBase'],declared);self.assertEqual(identity['actualMergeBase'],actual)
+    for bad in ({'GITHUB_REF':'refs/pull/8/merge'},{'GITHUB_BASE_REF':'other'},{'GITHUB_SHA':head}):
+     with patch.dict(os.environ,bad):
+      with self.assertRaises(ValueError):g.identity()
+    ev(head,head)
+    with self.assertRaises(ValueError):g.identity()
+    ev(declared,declared)
+    with self.assertRaises(ValueError):g.identity()
+    ev('0'*40,head)
+    with self.assertRaises(ValueError):g.identity()
 class CollectionTests(unittest.TestCase):
  def test_reject_binary_and_symlink(self):
   for raw in (b'\x7fELF\x00',b'\xff'):

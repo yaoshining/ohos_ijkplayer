@@ -9,3 +9,5 @@ PR27/28 固定 FFmpeg 下载以及 npm ci 可能需要网络；失败不能转�
 组合提交只用于验证，不推送、发布或合并 PR。远端 CI 必须等用户批准精确 SHA 后再运行。
 
 实现与组合宿主结果已记录在 tasks.md；新文档收尾只改变本规格，不改变已经测试的门禁代码。目标构建和远端 CI 仍单独待验收。
+
+远端暴露 GitHub event base 可落后于实际生成的合并父节点。新增兼容路径仍以 GITHUB_SHA 和 refs/pull/N/merge 绑定实际输入，保留 eventDeclaredBase/actualMergeBase 与祖先证据，不从当前可变远端 ref 取新输入。真实 Git 回归先复现再实现；用完整 GitHub 事件变量做本地全矩阵重放，最终修复推送须新 SHA 批准。
