@@ -23,7 +23,9 @@ GitHub 记录的 event base 为旧 `a73e23173d684c31056b50f353ac4321fbcd812b`，
 
 - [x] R001 真实 Git “事件 base 落后于实际 merge base”语义 RED；无关 base、缺失 base、错 head/ref/SHA 负例。
 - [x] R002 最小身份修复，19 项门禁回归 GREEN。
-- [ ] R003 本地完整 workflow 事件环境重放与独立审查。
+- [x] R003 本地完整 workflow 事件环境重放：实现 head `fe0f558ef05fe2b68e744888786e8639fc190240`、实际 base `615b3bdb0e7ee1195cfb37c2576d9066757da99d`，临时 merge `51ab1fab6d8f5b3bca033f5f5486ca210533b2b0`；event 声明 base 仍为旧 a73。19 项门禁回归、11/11 实际阶段矩阵、required 全量聚合和索引校验通过。独立审查与最终推送仍另行处理。
 - [ ] R004 新修复精确提交预览、用户批准后推送；原批准不覆盖新 SHA。
 
 原 run 失败保留；未推修复、未合并，目标产物与真机范围仍按上文待验收。
+
+R003 本机证据：`/private/tmp/pr3-repair-event-evidence/aggregate.json` 与 `event-environment.json`。以上为本地模拟真实 GitHub 事件环境，不是新的远端 CI；最终规格文档提交通过与实现 SHA 的代码/工作流等价核验，不能冒称其本身重跑了完整 11 项。拒绝身份时输出保留声明 base/head/ref、实际 SHA/父链和环境 ref，方便失败追溯。
