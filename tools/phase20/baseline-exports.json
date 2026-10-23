@@ -1,0 +1,6437 @@
+{
+  "scope": "Read-only Phase11 pre-runtime FFmpeg export identity; not device acceptance",
+  "libraries": {
+    "libavcodec.so.62": {
+      "sourceFileSHA256": "22501a44c6afc77c2a542b5aef13c31e5ce9c5537e613e97ccf0ebce6cf34ea2",
+      "exports": {
+        "av_smpte_291m_anc_8bit_extract_cta_708": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_get_subtitle_rect_class": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_packet_list_put": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_pix_fmt_find": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_get_audio_frame_duration2": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_parameters_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_packet_side_data_remove": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_h264_has_num_reorder_frames": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_ohcodec_release_buffer": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_init_packet": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_packet_from_data": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_find_encoder_by_name": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_default_execute": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_send_packet": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_mediacodec_release_buffer": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_parser_parse2": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_codec_is_encoder": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_bsf_receive_packet": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_fits_header_init": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_jni_get_java_vm": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_packet_list_get": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_codec_get_cap_skip_frame_fill_param": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_find_decoder": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_bsf_iterate": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_bsf_get_class": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_bsf_flush": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_grow_packet": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_version": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_bsf_list_parse_str": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_dv_codec_profile2": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_encode_subtitle": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_mpeg4audio_get_config2": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_string": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_bsf_list_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_descriptor_next": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_packet_unpack_dictionary": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_bsf_list_finalize": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_smpte_291m_anc_8bit_encode": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_packet_side_data_free": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_packet_side_data_name": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_smpte_291m_anc_8bit_get_sample_count": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_get_pcm_codec": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_bsf_get_by_name": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_bsf_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_bsf_get_null_filter": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_dca_convert_bitstream": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_smpte_436m_coded_anc_payload_size": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_configuration": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_elbg_do": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_find_decoder_by_name": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_default_get_format": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_dirac_parse_sequence_header": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_dv_codec_profile": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_default_get_encode_buffer": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_mediacodec_alloc_context": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_dct_get_class": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_profile_name": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_bsf_list_append": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_smpte_291m_anc_8bit_decode": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_codec_is_decoder": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_packet_side_data_get": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_packet_side_data_new": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_mpegaudio_decode_header": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_codec_ffversion": {
+          "bind": 1,
+          "type": 1,
+          "visibility": 0
+        },
+        "av_vorbis_parse_frame": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_parameters_free": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_bsf_list_free": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_exif_decode_ifd": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_fits_header_parse_line": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_mediacodec_default_init": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_packet_pack_dictionary": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_packet_copy_props": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_packet_unref": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_alloc_context3": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_packet_make_writable": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_descriptor_get": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_vorbis_parse_frame_flags": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_free_context": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_fast_padded_mallocz": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_parameters_copy": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_mediacodec_default_free": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_parser_init": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_license": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_is_open": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_dct_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_packet_new_side_data": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_smpte_436m_anc_append": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_receive_frame": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_parameters_to_context": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_xiphlacing": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_vorbis_parse_reset": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_fast_padded_malloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_dct_init": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_bsf_init": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_align_dimensions2": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_vorbis_parse_init": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_ac3_parse_header": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_smpte_436m_anc_iter_next": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_find_best_pix_fmt_of_list": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_get_class": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_open2": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_default_get_buffer2": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_split_xiph_headers": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_descriptor_get_by_name": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_packet_free_side_data": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_get_audio_frame_duration": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_get_bits_per_sample": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avsubtitle_free": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_bsf_list_append2": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_packet_ref": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_new_packet": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_d3d11va_alloc_context": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_send_frame": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_parser_close": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_bsf_free": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_packet_clone": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_pix_fmt_to_codec_tag": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_vorbis_parse_free": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_ac3_parse_header": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_qsv_alloc_context": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_align_dimensions": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_parameters_from_context": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_elbg_free": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_smpte_291m_anc_8bit_fill_checksum": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_smpte_436m_anc_encode": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_find_start_code": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_decode_subtitle2": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_packet_side_data_add": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_packet_free": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_get_hw_config": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_cpb_properties_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_mediacodec_render_buffer_at_time": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_fill_audio_frame": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_packet_move_ref": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_packet_add_side_data": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_get_exact_bits_per_sample": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_parser_iterate": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_smpte_436m_coded_anc_validate": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_adts_header_parse": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_dca_parse_core_frame_header": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_get_profile_name": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_dv_frame_profile": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_get_supported_config": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_packet_get_side_data": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_adts_header_parse": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_packet_rescale_ts": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_packet_list_free": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_codec_iterate": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_flush_buffers": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_get_type": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_packet_shrink_side_data": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_tak_parse_streaminfo": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_default_execute2": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_packet_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_packet_make_refcounted": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_get_hw_frames_parameters": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_receive_packet": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_container_fifo_alloc_avpacket": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_get_name": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_jni_set_java_vm": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_shrink_packet": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avcodec_find_encoder": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_bsf_send_packet": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_smpte_436m_anc_iter_init": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        }
+      },
+      "exportVersions": {
+        "av_smpte_291m_anc_8bit_extract_cta_708": "LIBAVCODEC_62",
+        "avcodec_get_subtitle_rect_class": "LIBAVCODEC_62",
+        "avpriv_packet_list_put": "LIBAVCODEC_62",
+        "avpriv_pix_fmt_find": "LIBAVCODEC_62",
+        "av_get_audio_frame_duration2": "LIBAVCODEC_62",
+        "avcodec_parameters_alloc": "LIBAVCODEC_62",
+        "av_packet_side_data_remove": "LIBAVCODEC_62",
+        "avpriv_h264_has_num_reorder_frames": "LIBAVCODEC_62",
+        "av_ohcodec_release_buffer": "LIBAVCODEC_62",
+        "av_init_packet": "LIBAVCODEC_62",
+        "av_packet_from_data": "LIBAVCODEC_62",
+        "avcodec_find_encoder_by_name": "LIBAVCODEC_62",
+        "avcodec_default_execute": "LIBAVCODEC_62",
+        "avcodec_send_packet": "LIBAVCODEC_62",
+        "av_mediacodec_release_buffer": "LIBAVCODEC_62",
+        "av_parser_parse2": "LIBAVCODEC_62",
+        "av_codec_is_encoder": "LIBAVCODEC_62",
+        "av_bsf_receive_packet": "LIBAVCODEC_62",
+        "avpriv_fits_header_init": "LIBAVCODEC_62",
+        "av_jni_get_java_vm": "LIBAVCODEC_62",
+        "avpriv_packet_list_get": "LIBAVCODEC_62",
+        "avpriv_codec_get_cap_skip_frame_fill_param": "LIBAVCODEC_62",
+        "avcodec_find_decoder": "LIBAVCODEC_62",
+        "av_bsf_iterate": "LIBAVCODEC_62",
+        "av_bsf_get_class": "LIBAVCODEC_62",
+        "av_bsf_flush": "LIBAVCODEC_62",
+        "av_grow_packet": "LIBAVCODEC_62",
+        "avcodec_version": "LIBAVCODEC_62",
+        "av_bsf_list_parse_str": "LIBAVCODEC_62",
+        "av_dv_codec_profile2": "LIBAVCODEC_62",
+        "avcodec_encode_subtitle": "LIBAVCODEC_62",
+        "avpriv_mpeg4audio_get_config2": "LIBAVCODEC_62",
+        "avcodec_string": "LIBAVCODEC_62",
+        "av_bsf_list_alloc": "LIBAVCODEC_62",
+        "avcodec_descriptor_next": "LIBAVCODEC_62",
+        "av_packet_unpack_dictionary": "LIBAVCODEC_62",
+        "av_bsf_list_finalize": "LIBAVCODEC_62",
+        "av_smpte_291m_anc_8bit_encode": "LIBAVCODEC_62",
+        "av_packet_side_data_free": "LIBAVCODEC_62",
+        "av_packet_side_data_name": "LIBAVCODEC_62",
+        "av_smpte_291m_anc_8bit_get_sample_count": "LIBAVCODEC_62",
+        "av_get_pcm_codec": "LIBAVCODEC_62",
+        "av_bsf_get_by_name": "LIBAVCODEC_62",
+        "av_bsf_alloc": "LIBAVCODEC_62",
+        "av_bsf_get_null_filter": "LIBAVCODEC_62",
+        "avpriv_dca_convert_bitstream": "LIBAVCODEC_62",
+        "av_smpte_436m_coded_anc_payload_size": "LIBAVCODEC_62",
+        "avcodec_configuration": "LIBAVCODEC_62",
+        "avpriv_elbg_do": "LIBAVCODEC_62",
+        "avcodec_find_decoder_by_name": "LIBAVCODEC_62",
+        "avcodec_default_get_format": "LIBAVCODEC_62",
+        "av_dirac_parse_sequence_header": "LIBAVCODEC_62",
+        "av_dv_codec_profile": "LIBAVCODEC_62",
+        "avcodec_default_get_encode_buffer": "LIBAVCODEC_62",
+        "av_mediacodec_alloc_context": "LIBAVCODEC_62",
+        "avcodec_dct_get_class": "LIBAVCODEC_62",
+        "avcodec_profile_name": "LIBAVCODEC_62",
+        "av_bsf_list_append": "LIBAVCODEC_62",
+        "av_smpte_291m_anc_8bit_decode": "LIBAVCODEC_62",
+        "av_codec_is_decoder": "LIBAVCODEC_62",
+        "av_packet_side_data_get": "LIBAVCODEC_62",
+        "av_packet_side_data_new": "LIBAVCODEC_62",
+        "avpriv_mpegaudio_decode_header": "LIBAVCODEC_62",
+        "av_codec_ffversion": "LIBAVCODEC_62",
+        "av_vorbis_parse_frame": "LIBAVCODEC_62",
+        "avcodec_parameters_free": "LIBAVCODEC_62",
+        "av_bsf_list_free": "LIBAVCODEC_62",
+        "avpriv_exif_decode_ifd": "LIBAVCODEC_62",
+        "avpriv_fits_header_parse_line": "LIBAVCODEC_62",
+        "av_mediacodec_default_init": "LIBAVCODEC_62",
+        "av_packet_pack_dictionary": "LIBAVCODEC_62",
+        "av_packet_copy_props": "LIBAVCODEC_62",
+        "av_packet_unref": "LIBAVCODEC_62",
+        "avcodec_alloc_context3": "LIBAVCODEC_62",
+        "av_packet_make_writable": "LIBAVCODEC_62",
+        "avcodec_descriptor_get": "LIBAVCODEC_62",
+        "av_vorbis_parse_frame_flags": "LIBAVCODEC_62",
+        "avcodec_free_context": "LIBAVCODEC_62",
+        "av_fast_padded_mallocz": "LIBAVCODEC_62",
+        "avcodec_parameters_copy": "LIBAVCODEC_62",
+        "av_mediacodec_default_free": "LIBAVCODEC_62",
+        "av_parser_init": "LIBAVCODEC_62",
+        "avcodec_license": "LIBAVCODEC_62",
+        "avcodec_is_open": "LIBAVCODEC_62",
+        "avcodec_dct_alloc": "LIBAVCODEC_62",
+        "av_packet_new_side_data": "LIBAVCODEC_62",
+        "av_smpte_436m_anc_append": "LIBAVCODEC_62",
+        "avcodec_receive_frame": "LIBAVCODEC_62",
+        "avcodec_parameters_to_context": "LIBAVCODEC_62",
+        "av_xiphlacing": "LIBAVCODEC_62",
+        "av_vorbis_parse_reset": "LIBAVCODEC_62",
+        "av_fast_padded_malloc": "LIBAVCODEC_62",
+        "avcodec_dct_init": "LIBAVCODEC_62",
+        "av_bsf_init": "LIBAVCODEC_62",
+        "avcodec_align_dimensions2": "LIBAVCODEC_62",
+        "av_vorbis_parse_init": "LIBAVCODEC_62",
+        "avpriv_ac3_parse_header": "LIBAVCODEC_62",
+        "av_smpte_436m_anc_iter_next": "LIBAVCODEC_62",
+        "avcodec_find_best_pix_fmt_of_list": "LIBAVCODEC_62",
+        "avcodec_get_class": "LIBAVCODEC_62",
+        "avcodec_open2": "LIBAVCODEC_62",
+        "avcodec_default_get_buffer2": "LIBAVCODEC_62",
+        "avpriv_split_xiph_headers": "LIBAVCODEC_62",
+        "avcodec_descriptor_get_by_name": "LIBAVCODEC_62",
+        "av_packet_free_side_data": "LIBAVCODEC_62",
+        "av_get_audio_frame_duration": "LIBAVCODEC_62",
+        "av_get_bits_per_sample": "LIBAVCODEC_62",
+        "avsubtitle_free": "LIBAVCODEC_62",
+        "av_bsf_list_append2": "LIBAVCODEC_62",
+        "av_packet_ref": "LIBAVCODEC_62",
+        "av_new_packet": "LIBAVCODEC_62",
+        "av_d3d11va_alloc_context": "LIBAVCODEC_62",
+        "avcodec_send_frame": "LIBAVCODEC_62",
+        "av_parser_close": "LIBAVCODEC_62",
+        "av_bsf_free": "LIBAVCODEC_62",
+        "av_packet_clone": "LIBAVCODEC_62",
+        "avcodec_pix_fmt_to_codec_tag": "LIBAVCODEC_62",
+        "av_vorbis_parse_free": "LIBAVCODEC_62",
+        "av_ac3_parse_header": "LIBAVCODEC_62",
+        "av_qsv_alloc_context": "LIBAVCODEC_62",
+        "avcodec_align_dimensions": "LIBAVCODEC_62",
+        "avcodec_parameters_from_context": "LIBAVCODEC_62",
+        "avpriv_elbg_free": "LIBAVCODEC_62",
+        "av_smpte_291m_anc_8bit_fill_checksum": "LIBAVCODEC_62",
+        "av_smpte_436m_anc_encode": "LIBAVCODEC_62",
+        "avpriv_find_start_code": "LIBAVCODEC_62",
+        "avcodec_decode_subtitle2": "LIBAVCODEC_62",
+        "av_packet_side_data_add": "LIBAVCODEC_62",
+        "av_packet_free": "LIBAVCODEC_62",
+        "avcodec_get_hw_config": "LIBAVCODEC_62",
+        "av_cpb_properties_alloc": "LIBAVCODEC_62",
+        "av_mediacodec_render_buffer_at_time": "LIBAVCODEC_62",
+        "avcodec_fill_audio_frame": "LIBAVCODEC_62",
+        "av_packet_move_ref": "LIBAVCODEC_62",
+        "av_packet_add_side_data": "LIBAVCODEC_62",
+        "av_get_exact_bits_per_sample": "LIBAVCODEC_62",
+        "av_parser_iterate": "LIBAVCODEC_62",
+        "av_smpte_436m_coded_anc_validate": "LIBAVCODEC_62",
+        "avpriv_adts_header_parse": "LIBAVCODEC_62",
+        "avpriv_dca_parse_core_frame_header": "LIBAVCODEC_62",
+        "av_get_profile_name": "LIBAVCODEC_62",
+        "av_dv_frame_profile": "LIBAVCODEC_62",
+        "avcodec_get_supported_config": "LIBAVCODEC_62",
+        "av_packet_get_side_data": "LIBAVCODEC_62",
+        "av_adts_header_parse": "LIBAVCODEC_62",
+        "av_packet_rescale_ts": "LIBAVCODEC_62",
+        "avpriv_packet_list_free": "LIBAVCODEC_62",
+        "av_codec_iterate": "LIBAVCODEC_62",
+        "avcodec_flush_buffers": "LIBAVCODEC_62",
+        "avcodec_get_type": "LIBAVCODEC_62",
+        "av_packet_shrink_side_data": "LIBAVCODEC_62",
+        "avpriv_tak_parse_streaminfo": "LIBAVCODEC_62",
+        "avcodec_default_execute2": "LIBAVCODEC_62",
+        "av_packet_alloc": "LIBAVCODEC_62",
+        "av_packet_make_refcounted": "LIBAVCODEC_62",
+        "avcodec_get_hw_frames_parameters": "LIBAVCODEC_62",
+        "avcodec_receive_packet": "LIBAVCODEC_62",
+        "av_container_fifo_alloc_avpacket": "LIBAVCODEC_62",
+        "avcodec_get_name": "LIBAVCODEC_62",
+        "av_jni_set_java_vm": "LIBAVCODEC_62",
+        "av_shrink_packet": "LIBAVCODEC_62",
+        "avcodec_find_encoder": "LIBAVCODEC_62",
+        "av_bsf_send_packet": "LIBAVCODEC_62",
+        "av_smpte_436m_anc_iter_init": "LIBAVCODEC_62"
+      }
+    },
+    "libavfilter.so.11": {
+      "sourceFileSHA256": "82b431c76910f2a826c7679b3cfb9273dd131c1566d06cee1f80818f23c2622c",
+      "exports": {
+        "av_buffersink_get_h": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_buffersink_get_ch_layout": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avfilter_graph_segment_create_filters": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_buffersink_get_time_base": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_buffersink_get_format": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_buffersrc_write_frame": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avfilter_inout_free": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avfilter_graph_alloc_filter": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_buffersink_get_hw_frames_ctx": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_buffersrc_close": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avfilter_graph_segment_link": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avfilter_graph_parse_ptr": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_filter_ffversion": {
+          "bind": 1,
+          "type": 1,
+          "visibility": 0
+        },
+        "avfilter_filter_pad_count": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avfilter_free": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_buffersink_get_frame": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_buffersink_get_colorspace": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_buffersink_get_color_range": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avfilter_graph_free": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_buffersink_get_channels": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avfilter_license": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avfilter_pad_get_name": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avfilter_graph_queue_command": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avfilter_graph_request_oldest": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_buffersink_get_sample_rate": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avfilter_graph_set_auto_convert": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avfilter_pad_get_type": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avfilter_get_class": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_buffersink_get_side_data": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avfilter_graph_segment_free": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avfilter_link_get_hw_frames_ctx": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avfilter_graph_get_filter": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_buffersink_get_sample_aspect_ratio": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avfilter_version": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avfilter_init_dict": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avfilter_graph_config": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avfilter_graph_dump": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avfilter_graph_segment_init": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_buffersink_set_frame_size": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avfilter_configuration": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avfilter_graph_send_command": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_buffersink_get_type": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_buffersrc_parameters_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_buffersrc_get_nb_failed_requests": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avfilter_inout_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avfilter_graph_segment_apply": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avfilter_get_by_name": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avfilter_insert_filter": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avfilter_graph_create_filter": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_buffersrc_parameters_set": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_buffersrc_add_frame_flags": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avfilter_init_str": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avfilter_graph_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_buffersink_get_samples": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avfilter_graph_parse": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_filter_iterate": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avfilter_process_command": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_buffersink_get_frame_rate": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avfilter_link": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_buffersink_get_frame_flags": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_buffersink_get_w": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_buffersrc_add_frame": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avfilter_graph_parse2": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avfilter_graph_segment_parse": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avfilter_graph_segment_apply_opts": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        }
+      },
+      "exportVersions": {
+        "av_buffersink_get_h": "LIBAVFILTER_11",
+        "av_buffersink_get_ch_layout": "LIBAVFILTER_11",
+        "avfilter_graph_segment_create_filters": "LIBAVFILTER_11",
+        "av_buffersink_get_time_base": "LIBAVFILTER_11",
+        "av_buffersink_get_format": "LIBAVFILTER_11",
+        "av_buffersrc_write_frame": "LIBAVFILTER_11",
+        "avfilter_inout_free": "LIBAVFILTER_11",
+        "avfilter_graph_alloc_filter": "LIBAVFILTER_11",
+        "av_buffersink_get_hw_frames_ctx": "LIBAVFILTER_11",
+        "av_buffersrc_close": "LIBAVFILTER_11",
+        "avfilter_graph_segment_link": "LIBAVFILTER_11",
+        "avfilter_graph_parse_ptr": "LIBAVFILTER_11",
+        "av_filter_ffversion": "LIBAVFILTER_11",
+        "avfilter_filter_pad_count": "LIBAVFILTER_11",
+        "avfilter_free": "LIBAVFILTER_11",
+        "av_buffersink_get_frame": "LIBAVFILTER_11",
+        "av_buffersink_get_colorspace": "LIBAVFILTER_11",
+        "av_buffersink_get_color_range": "LIBAVFILTER_11",
+        "avfilter_graph_free": "LIBAVFILTER_11",
+        "av_buffersink_get_channels": "LIBAVFILTER_11",
+        "avfilter_license": "LIBAVFILTER_11",
+        "avfilter_pad_get_name": "LIBAVFILTER_11",
+        "avfilter_graph_queue_command": "LIBAVFILTER_11",
+        "avfilter_graph_request_oldest": "LIBAVFILTER_11",
+        "av_buffersink_get_sample_rate": "LIBAVFILTER_11",
+        "avfilter_graph_set_auto_convert": "LIBAVFILTER_11",
+        "avfilter_pad_get_type": "LIBAVFILTER_11",
+        "avfilter_get_class": "LIBAVFILTER_11",
+        "av_buffersink_get_side_data": "LIBAVFILTER_11",
+        "avfilter_graph_segment_free": "LIBAVFILTER_11",
+        "avfilter_link_get_hw_frames_ctx": "LIBAVFILTER_11",
+        "avfilter_graph_get_filter": "LIBAVFILTER_11",
+        "av_buffersink_get_sample_aspect_ratio": "LIBAVFILTER_11",
+        "avfilter_version": "LIBAVFILTER_11",
+        "avfilter_init_dict": "LIBAVFILTER_11",
+        "avfilter_graph_config": "LIBAVFILTER_11",
+        "avfilter_graph_dump": "LIBAVFILTER_11",
+        "avfilter_graph_segment_init": "LIBAVFILTER_11",
+        "av_buffersink_set_frame_size": "LIBAVFILTER_11",
+        "avfilter_configuration": "LIBAVFILTER_11",
+        "avfilter_graph_send_command": "LIBAVFILTER_11",
+        "av_buffersink_get_type": "LIBAVFILTER_11",
+        "av_buffersrc_parameters_alloc": "LIBAVFILTER_11",
+        "av_buffersrc_get_nb_failed_requests": "LIBAVFILTER_11",
+        "avfilter_inout_alloc": "LIBAVFILTER_11",
+        "avfilter_graph_segment_apply": "LIBAVFILTER_11",
+        "avfilter_get_by_name": "LIBAVFILTER_11",
+        "avfilter_insert_filter": "LIBAVFILTER_11",
+        "avfilter_graph_create_filter": "LIBAVFILTER_11",
+        "av_buffersrc_parameters_set": "LIBAVFILTER_11",
+        "av_buffersrc_add_frame_flags": "LIBAVFILTER_11",
+        "avfilter_init_str": "LIBAVFILTER_11",
+        "avfilter_graph_alloc": "LIBAVFILTER_11",
+        "av_buffersink_get_samples": "LIBAVFILTER_11",
+        "avfilter_graph_parse": "LIBAVFILTER_11",
+        "av_filter_iterate": "LIBAVFILTER_11",
+        "avfilter_process_command": "LIBAVFILTER_11",
+        "av_buffersink_get_frame_rate": "LIBAVFILTER_11",
+        "avfilter_link": "LIBAVFILTER_11",
+        "av_buffersink_get_frame_flags": "LIBAVFILTER_11",
+        "av_buffersink_get_w": "LIBAVFILTER_11",
+        "av_buffersrc_add_frame": "LIBAVFILTER_11",
+        "avfilter_graph_parse2": "LIBAVFILTER_11",
+        "avfilter_graph_segment_parse": "LIBAVFILTER_11",
+        "avfilter_graph_segment_apply_opts": "LIBAVFILTER_11"
+      }
+    },
+    "libavformat.so.62": {
+      "sourceFileSHA256": "fb5a48e4a0962931a4392ecfd85f92047994d84a6a1bd9946d68fba3f8f9df11",
+      "exports": {
+        "avio_rb16": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avformat_transfer_internal_stream_timing_info": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avformat_get_mov_audio_tags": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avformat_index_get_entries_count": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_r8": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_read_dir": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_codec_get_tag": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_format_ffversion": {
+          "bind": 1,
+          "type": 1,
+          "visibility": 0
+        },
+        "avpriv_update_cur_dts": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_new_program": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_codec_get_id": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avformat_version": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_register_devices": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_accept": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_probe_input_buffer2": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_protocol_get_class": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_sdp_create": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_write_uncoded_frame_query": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_wl16": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_program_add_stream_index": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_context_free": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_dump_format": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_disposition_from_string": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_match_ext": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_write_trailer": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avformat_new_stream": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_wb32": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_seek_time": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_flush": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_close_dir": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avformat_stream_group_create": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_mpegts_parse_packet": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_rl32": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avformat_stream_group_name": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_disposition_to_string": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avformat_index_get_entry": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avformat_index_get_entry_from_timestamp": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_seek": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_get_str": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avformat_stream_group_add_stream": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avformat_network_init": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_new_chapter": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_print_string_array": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_rb64": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_index_search_timestamp": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_get_str16le": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_write_marker": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avformat_match_stream_specifier": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_find_protocol_name": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_pkt_dump2": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avformat_alloc_output_context2": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_wb24": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_w8": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_put_str16le": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avformat_free_context": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_guess_sample_aspect_ratio": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_stream_get_codec_timebase": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_vprintf": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_muxer_iterate": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_rl24": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avformat_find_stream_info": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_append_packet": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_wl64": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_alloc_context": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_interleaved_write_frame": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_enum_protocols": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avformat_open_input": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avformat_configuration": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_guess_frame_rate": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_probe_input_buffer": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_url_split": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_stream_group_get_class": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_printf": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_probe_input_format2": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_handshake": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avformat_network_deinit": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_feof": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_wb16": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_open_dyn_buf": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avformat_seek_file": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_probe_input_format3": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_hex_dump": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avformat_get_mov_video_tags": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_rl16": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_hex_dump_log": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_find_best_stream": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_read_play": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_probe_input_format": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avformat_get_riff_video_tags": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avformat_flush": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avformat_close_input": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_open_dir": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_get_str16be": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_close_dyn_buf": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_mpegts_parse_open": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avformat_license": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_rb32": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_find_default_stream_index": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_pkt_dump_log2": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_get_dyn_buf": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_check": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avformat_write_header": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_filename_number_test": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_write_uncoded_frame": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_put_str16be": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_guess_format": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_get_output_timestamp": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_find_program_from_stream": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_closep": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_open": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_guess_codec": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_stream_get_class": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_seek_frame": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_get_frame_filename2": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_get_packet": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_write_frame": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_read_pause": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_wl32": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_open2": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_pause": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_codec_get_tag2": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_skip": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_put_str": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avformat_init_output": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avformat_queue_attached_pictures": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_stream_get_parser": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_rb24": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_close": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_get_frame_filename": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_wb64": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_free_directory_entry": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_read": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_rl64": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_read_partial": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_read_to_bprint": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_mpegts_parse_close": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_interleaved_write_uncoded_frame": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avformat_query_codec": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avformat_get_class": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avformat_get_riff_audio_tags": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_add_index_entry": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_dv_get_packet": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_set_pts_info": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_dv_init_demux": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avformat_alloc_context": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_stream_set_need_parsing": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_find_input_format": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_write": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_size": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_demuxer_iterate": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_dv_produce_packet": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avio_wl24": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_read_frame": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        }
+      },
+      "exportVersions": {
+        "avio_rb16": "LIBAVFORMAT_62",
+        "avformat_transfer_internal_stream_timing_info": "LIBAVFORMAT_62",
+        "avformat_get_mov_audio_tags": "LIBAVFORMAT_62",
+        "avformat_index_get_entries_count": "LIBAVFORMAT_62",
+        "avio_r8": "LIBAVFORMAT_62",
+        "avio_read_dir": "LIBAVFORMAT_62",
+        "av_codec_get_tag": "LIBAVFORMAT_62",
+        "av_format_ffversion": "LIBAVFORMAT_62",
+        "avpriv_update_cur_dts": "LIBAVFORMAT_62",
+        "av_new_program": "LIBAVFORMAT_62",
+        "av_codec_get_id": "LIBAVFORMAT_62",
+        "avformat_version": "LIBAVFORMAT_62",
+        "avpriv_register_devices": "LIBAVFORMAT_62",
+        "avio_accept": "LIBAVFORMAT_62",
+        "av_probe_input_buffer2": "LIBAVFORMAT_62",
+        "avio_protocol_get_class": "LIBAVFORMAT_62",
+        "av_sdp_create": "LIBAVFORMAT_62",
+        "av_write_uncoded_frame_query": "LIBAVFORMAT_62",
+        "avio_wl16": "LIBAVFORMAT_62",
+        "av_program_add_stream_index": "LIBAVFORMAT_62",
+        "avio_context_free": "LIBAVFORMAT_62",
+        "av_dump_format": "LIBAVFORMAT_62",
+        "av_disposition_from_string": "LIBAVFORMAT_62",
+        "av_match_ext": "LIBAVFORMAT_62",
+        "av_write_trailer": "LIBAVFORMAT_62",
+        "avformat_new_stream": "LIBAVFORMAT_62",
+        "avio_wb32": "LIBAVFORMAT_62",
+        "avio_seek_time": "LIBAVFORMAT_62",
+        "avio_flush": "LIBAVFORMAT_62",
+        "avio_close_dir": "LIBAVFORMAT_62",
+        "avformat_stream_group_create": "LIBAVFORMAT_62",
+        "avpriv_mpegts_parse_packet": "LIBAVFORMAT_62",
+        "avio_rl32": "LIBAVFORMAT_62",
+        "avformat_stream_group_name": "LIBAVFORMAT_62",
+        "av_disposition_to_string": "LIBAVFORMAT_62",
+        "avformat_index_get_entry": "LIBAVFORMAT_62",
+        "avformat_index_get_entry_from_timestamp": "LIBAVFORMAT_62",
+        "avio_seek": "LIBAVFORMAT_62",
+        "avio_get_str": "LIBAVFORMAT_62",
+        "avformat_stream_group_add_stream": "LIBAVFORMAT_62",
+        "avformat_network_init": "LIBAVFORMAT_62",
+        "avpriv_new_chapter": "LIBAVFORMAT_62",
+        "avio_print_string_array": "LIBAVFORMAT_62",
+        "avio_rb64": "LIBAVFORMAT_62",
+        "av_index_search_timestamp": "LIBAVFORMAT_62",
+        "avio_get_str16le": "LIBAVFORMAT_62",
+        "avio_write_marker": "LIBAVFORMAT_62",
+        "avformat_match_stream_specifier": "LIBAVFORMAT_62",
+        "avio_find_protocol_name": "LIBAVFORMAT_62",
+        "av_pkt_dump2": "LIBAVFORMAT_62",
+        "avformat_alloc_output_context2": "LIBAVFORMAT_62",
+        "avio_wb24": "LIBAVFORMAT_62",
+        "avio_w8": "LIBAVFORMAT_62",
+        "avio_put_str16le": "LIBAVFORMAT_62",
+        "avformat_free_context": "LIBAVFORMAT_62",
+        "av_guess_sample_aspect_ratio": "LIBAVFORMAT_62",
+        "av_stream_get_codec_timebase": "LIBAVFORMAT_62",
+        "avio_vprintf": "LIBAVFORMAT_62",
+        "av_muxer_iterate": "LIBAVFORMAT_62",
+        "avio_rl24": "LIBAVFORMAT_62",
+        "avformat_find_stream_info": "LIBAVFORMAT_62",
+        "av_append_packet": "LIBAVFORMAT_62",
+        "avio_wl64": "LIBAVFORMAT_62",
+        "avio_alloc_context": "LIBAVFORMAT_62",
+        "av_interleaved_write_frame": "LIBAVFORMAT_62",
+        "avio_enum_protocols": "LIBAVFORMAT_62",
+        "avformat_open_input": "LIBAVFORMAT_62",
+        "avformat_configuration": "LIBAVFORMAT_62",
+        "av_guess_frame_rate": "LIBAVFORMAT_62",
+        "av_probe_input_buffer": "LIBAVFORMAT_62",
+        "av_url_split": "LIBAVFORMAT_62",
+        "av_stream_group_get_class": "LIBAVFORMAT_62",
+        "avio_printf": "LIBAVFORMAT_62",
+        "av_probe_input_format2": "LIBAVFORMAT_62",
+        "avio_handshake": "LIBAVFORMAT_62",
+        "avformat_network_deinit": "LIBAVFORMAT_62",
+        "avio_feof": "LIBAVFORMAT_62",
+        "avio_wb16": "LIBAVFORMAT_62",
+        "avio_open_dyn_buf": "LIBAVFORMAT_62",
+        "avformat_seek_file": "LIBAVFORMAT_62",
+        "av_probe_input_format3": "LIBAVFORMAT_62",
+        "av_hex_dump": "LIBAVFORMAT_62",
+        "avformat_get_mov_video_tags": "LIBAVFORMAT_62",
+        "avio_rl16": "LIBAVFORMAT_62",
+        "av_hex_dump_log": "LIBAVFORMAT_62",
+        "av_find_best_stream": "LIBAVFORMAT_62",
+        "av_read_play": "LIBAVFORMAT_62",
+        "av_probe_input_format": "LIBAVFORMAT_62",
+        "avformat_get_riff_video_tags": "LIBAVFORMAT_62",
+        "avformat_flush": "LIBAVFORMAT_62",
+        "avformat_close_input": "LIBAVFORMAT_62",
+        "avio_open_dir": "LIBAVFORMAT_62",
+        "avio_get_str16be": "LIBAVFORMAT_62",
+        "avio_close_dyn_buf": "LIBAVFORMAT_62",
+        "avpriv_mpegts_parse_open": "LIBAVFORMAT_62",
+        "avformat_license": "LIBAVFORMAT_62",
+        "avio_rb32": "LIBAVFORMAT_62",
+        "av_find_default_stream_index": "LIBAVFORMAT_62",
+        "av_pkt_dump_log2": "LIBAVFORMAT_62",
+        "avio_get_dyn_buf": "LIBAVFORMAT_62",
+        "avio_check": "LIBAVFORMAT_62",
+        "avformat_write_header": "LIBAVFORMAT_62",
+        "av_filename_number_test": "LIBAVFORMAT_62",
+        "av_write_uncoded_frame": "LIBAVFORMAT_62",
+        "avio_put_str16be": "LIBAVFORMAT_62",
+        "av_guess_format": "LIBAVFORMAT_62",
+        "av_get_output_timestamp": "LIBAVFORMAT_62",
+        "av_find_program_from_stream": "LIBAVFORMAT_62",
+        "avio_closep": "LIBAVFORMAT_62",
+        "avio_open": "LIBAVFORMAT_62",
+        "av_guess_codec": "LIBAVFORMAT_62",
+        "av_stream_get_class": "LIBAVFORMAT_62",
+        "av_seek_frame": "LIBAVFORMAT_62",
+        "av_get_frame_filename2": "LIBAVFORMAT_62",
+        "av_get_packet": "LIBAVFORMAT_62",
+        "av_write_frame": "LIBAVFORMAT_62",
+        "av_read_pause": "LIBAVFORMAT_62",
+        "avio_wl32": "LIBAVFORMAT_62",
+        "avio_open2": "LIBAVFORMAT_62",
+        "avio_pause": "LIBAVFORMAT_62",
+        "av_codec_get_tag2": "LIBAVFORMAT_62",
+        "avio_skip": "LIBAVFORMAT_62",
+        "avio_put_str": "LIBAVFORMAT_62",
+        "avformat_init_output": "LIBAVFORMAT_62",
+        "avformat_queue_attached_pictures": "LIBAVFORMAT_62",
+        "av_stream_get_parser": "LIBAVFORMAT_62",
+        "avio_rb24": "LIBAVFORMAT_62",
+        "avio_close": "LIBAVFORMAT_62",
+        "av_get_frame_filename": "LIBAVFORMAT_62",
+        "avio_wb64": "LIBAVFORMAT_62",
+        "avio_free_directory_entry": "LIBAVFORMAT_62",
+        "avio_read": "LIBAVFORMAT_62",
+        "avio_rl64": "LIBAVFORMAT_62",
+        "avio_read_partial": "LIBAVFORMAT_62",
+        "avio_read_to_bprint": "LIBAVFORMAT_62",
+        "avpriv_mpegts_parse_close": "LIBAVFORMAT_62",
+        "av_interleaved_write_uncoded_frame": "LIBAVFORMAT_62",
+        "avformat_query_codec": "LIBAVFORMAT_62",
+        "avformat_get_class": "LIBAVFORMAT_62",
+        "avformat_get_riff_audio_tags": "LIBAVFORMAT_62",
+        "av_add_index_entry": "LIBAVFORMAT_62",
+        "avpriv_dv_get_packet": "LIBAVFORMAT_62",
+        "avpriv_set_pts_info": "LIBAVFORMAT_62",
+        "avpriv_dv_init_demux": "LIBAVFORMAT_62",
+        "avformat_alloc_context": "LIBAVFORMAT_62",
+        "avpriv_stream_set_need_parsing": "LIBAVFORMAT_62",
+        "av_find_input_format": "LIBAVFORMAT_62",
+        "avio_write": "LIBAVFORMAT_62",
+        "avio_size": "LIBAVFORMAT_62",
+        "av_demuxer_iterate": "LIBAVFORMAT_62",
+        "avpriv_dv_produce_packet": "LIBAVFORMAT_62",
+        "avio_wl24": "LIBAVFORMAT_62",
+        "av_read_frame": "LIBAVFORMAT_62"
+      }
+    },
+    "libavutil.so.60": {
+      "sourceFileSHA256": "ba410532a07b16e018d6d57bc744576b3cfa2e246d4fa028c2adae95205777e2",
+      "exports": {
+        "av_channel_layout_channel_from_index": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_float_dsp_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_image_fill_color": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_thread_message_queue_set_free_func": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_calloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_md5_size": {
+          "bind": 1,
+          "type": 1,
+          "visibility": 0
+        },
+        "av_audio_fifo_read": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_dict_parse_string": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_executor_free": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_file_map": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_buffer_realloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_get_media_type_string": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_rescale_delta": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_buffer_pool_buffer_get_opaque": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_sha_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_dynamic_hdr_vivid_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_memcpy_backptr": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_set_video_rate": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_frame_side_data_free": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_frame_remove_side_data": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_log_default_callback": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_get_planar_sample_fmt": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_encryption_info_free": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_expr_free": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_sub_i": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_set_options_string": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_chroma_location_name": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_refstruct_pool_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_content_light_metadata_create_side_data": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_malloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_parse_time": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_twofish_size": {
+          "bind": 1,
+          "type": 1,
+          "visibility": 0
+        },
+        "av_base64_decode": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_film_grain_params_create_side_data": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_sha512_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_iamf_param_definition_get_class": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_fast_mallocz": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_timecode_make_mpeg_tc_string": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_container_fifo_drain": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_get_known_color_name": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_iamf_mix_presentation_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_init_lls": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_set_from_string": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_frame_unref": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_image_fill_linesizes": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_md5_init": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_aes_ctr_set_iv": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_channel_layout_describe": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_sub_q": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_hash_names": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_uuid_urn_parse": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_sha512_size": {
+          "bind": 1,
+          "type": 1,
+          "visibility": 0
+        },
+        "av_rc4_init": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_frame_side_data_name": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_stereo3d_create_side_data": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_fifo_reset2": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_encryption_info_get_side_data": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_sha_final": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_version_info": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_detection_bbox_create_side_data": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_tempfile": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_samples_copy": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_hash_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_hash_final_hex": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_vk_frame_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_reallocp_array": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_set_chlayout": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_set_dict2": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_copy": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_timecode_get_smpte_from_framenum": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_frame_new_side_data": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_rc4_crypt": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_spherical_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_channel_layout_describe_bprint": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_film_grain_params_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_vlog": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_eval_int64": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_color_primaries_name": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_refstruct_alloc_ext_c": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_uuid_parse_range": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_container_fifo_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_murmur3_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_rescale_q_rnd": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_parse_video_rate": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_thread_message_queue_recv": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_twofish_init": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_sample_fmt_is_planar": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_encryption_info_add_side_data": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_film_grain_params_select": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_hmac_update": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_rc4_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_timecode_make_smpte_tc_string2": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_sha512_final": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_image_copy_plane_uc_from": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_stereo3d_primary_eye_name": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_expr_parse": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_pixelutils_get_sad_fn": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_aes_crypt": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_iamf_audio_element_add_layer": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_set_systematic_pal2": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_stereo3d_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_stereo3d_primary_eye_from_name": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_thread_message_flush": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_hwdevice_get_hwframe_constraints": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_image_copy_to_buffer": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_tree_find": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_vbprintf": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_channel_layout_standard": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_dict_set": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_sha512_init": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_hwdevice_get_type_name": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_set": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_get_dict_val": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_aes_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_audio_fifo_peek": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_vkfmt_from_pixfmt": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_mastering_display_metadata_alloc_size": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_ambient_viewing_environment_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_sscanf": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_csp_itu_eotf": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_alloc_fixed_dsp": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_hash_final": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_timecode_init_from_string": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_aes_ctr_get_iv": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_strerror": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_dynamic_hdr_vivid_create_side_data": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_hmac_free": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_hwframe_ctx_init": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_hwframe_constraints_free": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_thread_message_queue_send": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_cast5_crypt2": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_frame_get_side_data": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_bprint_clear": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_buffer_get_opaque": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_des_mac": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_murmur3_final": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_image_copy_plane": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_image_get_buffer_size": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_find2": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_set_sample_fmt": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_int_list_length_for_size": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_xtea_init": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_get_token": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_camellia_crypt": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_bprint_append_data": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_buffer_ref": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_refstruct_replace": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_frame_apply_cropping": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_read_image_line": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_default_get_category": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_color_space_from_name": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_util_ffversion": {
+          "bind": 1,
+          "type": 1,
+          "visibility": 0
+        },
+        "av_fifo_drain2": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_hmac_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_log_set_level": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_fifo_grow2": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_camellia_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_frame_replace": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_pix_fmt_desc_get_id": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_refstruct_ref": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_xtea_le_init": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_frame_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_fopen_utf8": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_image_copy_uc_from": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_set_array": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_bprint_init_for_buffer": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_murmur3_update": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_free": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_audio_fifo_size": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_ripemd_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_get_bits_per_pixel": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_refstruct_exclusive": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_blowfish_crypt_ecb": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_frame_move_ref": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_display_rotation_get": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_frame_side_data_get_c": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_add_stable": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_ptr": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_color_primaries_from_name": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_color_transfer_from_name": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_video_hint_create_side_data": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_expr_count_func": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_image_copy": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_pix_fmt_desc_next": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_find_nearest_q_idx": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_buffer_pool_init2": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_fast_malloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_stereo3d_type_name": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_tea_crypt": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_assert0_fpu": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_dynarray2_add": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_samples_alloc_array_and_samples": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_sha_size": {
+          "bind": 1,
+          "type": 1,
+          "visibility": 0
+        },
+        "av_xtea_crypt": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_display_matrix_flip": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_log_format_line2": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_tree_insert": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_vga16_font": {
+          "bind": 1,
+          "type": 1,
+          "visibility": 0
+        },
+        "av_blowfish_init": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_d2q": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_crc_init": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_fifo_auto_grow_limit": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_tea_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_frame_new_side_data_from_buf": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_hwframe_ctx_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_xtea_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_aes_size": {
+          "bind": 1,
+          "type": 1,
+          "visibility": 0
+        },
+        "av_audio_fifo_write": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_realloc_array": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_timecode_init_from_components": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_aes_ctr_increment_iv": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_bprint_chars": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_hmac_final": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_hwdevice_ctx_create": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_freep_ranges": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_timecode_init": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_channel_layout_compare": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_force_cpu_flags": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_cpu_count": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_frame_clone": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_get_sample_fmt_string": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avutil_version": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_channel_layout_from_string": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_expr_count_vars": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_mod_i": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_serialize": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_color_transfer_name": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_image_fill_arrays": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_set_bin": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_set_dict": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_frame_side_data_new": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avutil_configuration": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_bprint_init": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_match_list": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_frame_get_plane_buffer": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_ripemd_final": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_dynamic_hdr_plus_from_t35": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_get_chlayout": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_reduce": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_blowfish_crypt": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_shr_i": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_frame_ref": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_eval_int": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_slicethread_free": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_base64_encode": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_buffer_pool_init": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_channel_description_bprint": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_write_image_line2": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_i2int": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_audio_fifo_space": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_fifo_write_from_cb": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_hwframe_transfer_data": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_sha_init": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_flag_is_set": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_twofish_crypt": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_blowfish_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_iamf_submix_add_layout": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_compare_ts": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_dynarray_add": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_color_range_name": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_rescale_rnd": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_reallocp": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_gettime_relative": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_refstruct_unref": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_frame_copy": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_eval_double": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_get_picture_type_char": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_utf8_decode": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_crc_get_table": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_get_q": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_get_image_size": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_twofish_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_aes_init": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_image_check_sar": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_log_get_level": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_color_range_from_name": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_samples_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_open": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_image_fill_black": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_lfg_init": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_mallocz": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_hwdevice_ctx_init": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_iamf_audio_element_get_class": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_image_fill_max_pixsteps": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_get_array": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_stereo3d_view_name": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_fifo_write": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_log": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_channel_from_string": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_channel_layout_custom_init": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_get_sample_fmt": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_random_bytes": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_ripemd_size": {
+          "bind": 1,
+          "type": 1,
+          "visibility": 0
+        },
+        "av_fifo_read": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_eval_flags": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_csp_primaries_id_from_desc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_image_check_size": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_iamf_audio_element_free": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_murmur3_init_seeded": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_is_set_to_default_by_name": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_memdup": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_hwframe_get_buffer": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_mastering_display_metadata_create_side_data": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_write_image_line": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_timecode_check_frame_rate": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_realloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_channel_layout_check": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_dovi_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_image_fill_pointers": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_parse_video_size": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_samples_set_silence": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_aes_ctr_set_full_iv": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_expr_eval": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_executor_execute": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_pix_fmt_desc_get": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_hwdevice_find_type_by_name": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_get_array_size": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_slicethread_create": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_xtea_le_crypt": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_aes_ctr_free": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_bprint_finalize": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_cpu_force_count": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_cpu_max_align": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_hwdevice_iterate_types": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_timecode_adjust_ntsc_framenum2": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_match_name": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_gettime": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_parse_ratio": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_asprintf": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_pix_fmt_get_chroma_sub_sample": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_chroma_location_enum_to_pos": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_cga_font_get": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_free": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_hash_final_b64": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_hash_freep": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_size_mult": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_frame_side_data_remove_by_props": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_uuid_parse": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_buffer_get_ref_count": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_container_fifo_write": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_fast_realloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_get_pix_fmt_string": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_stristr": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_buffer_make_writable": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_expr_parse_and_eval": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_set_defaults": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_log_set_flags": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_get_alt_sample_fmt": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_tx_uninit": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_des_init": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_encryption_init_info_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_dynamic_hdr_plus_create_side_data": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_mastering_display_metadata_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_freep": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_fifo_can_write": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_channel_layout_default": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_dovi_metadata_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_hash_get_name": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_solve_lls": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_get_pixel_fmt": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_tree_node_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_ripemd_init": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_hwdevice_ctx_create_derived_opts": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_samples_get_buffer_size": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_append_path_component": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_channel_layout_retype": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_des_crypt": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_eval_float": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_video_enc_params_create_side_data": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_aes_ctr_set_random_iv": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_cast5_size": {
+          "bind": 1,
+          "type": 1,
+          "visibility": 0
+        },
+        "av_dict_iterate": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_strireplace": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_buffer_create": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_image_get_linesize": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_eval_uint": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_set_double": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_ts_make_time_string2": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_strstart": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_buffer_default_free": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_cast5_crypt": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_frame_get_buffer": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_hash_update": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_compare_mod": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_gcd_q": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_thread_message_queue_free": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_frame_free": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_des_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_report_missing_feature": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_q2intfloat": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avutil_license": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_csp_luma_coeffs_from_avcsp": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_fourcc_make_string": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_dict_count": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_encryption_init_info_get_side_data": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_chroma_location_pos_to_enum": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_spherical_from_name": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_video_enc_params_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_fifo_alloc2": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_cast5_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_display_rotation_set": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_strndup": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_frame_is_writable": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_log2_16bit": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_log_format_line": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_log_once": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_buffer_is_writable": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_fifo_read_to_cb": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_frame_side_data_remove": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_hmac_init": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_iamf_param_definition_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_chroma_location_from_name": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_buffer_unref": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_ripemd_update": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_read_image_line2": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_stereo3d_view_from_name": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_encryption_init_info_add_side_data": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_pix_fmt_count_planes": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_strlcat": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_malloc_array": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_log2": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_get_pix_fmt": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_cast5_init": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_fifo_peek_to_cb": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_image_fill_plane_sizes": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_image_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_bmg_get": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_set_int": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_fifo_peek": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_channel_layout_uninit": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_container_fifo_free": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_dict_get_string": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_dynamic_hdr_plus_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_stereo3d_alloc_size": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_channel_name": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_iamf_mix_presentation_free": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_set_q": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_ambient_viewing_environment_create_side_data": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_dict_copy": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_mul_i": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_container_fifo_read": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_camellia_size": {
+          "bind": 1,
+          "type": 1,
+          "visibility": 0
+        },
+        "av_hash_init": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_tree_destroy": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_frame_side_data_add": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_spherical_projection_name": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_get_random_seed": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_buffer_pool_get": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_channel_name_bprint": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_encryption_info_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_hmac_calc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_log_get_flags": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_get_double": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_query_ranges": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_tree_node_size": {
+          "bind": 1,
+          "type": 1,
+          "visibility": 0
+        },
+        "av_strlcatf": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_dict_set_int": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_set_image_size": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_get_padded_bits_per_pixel": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_thread_message_queue_set_err_recv": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_strdup": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_md5_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_lfg_init_from_data": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_bprint_strftime": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_channel_layout_index_from_string": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_csp_approximate_trc_gamma": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_tx_init": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_buffer_replace": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_mul_q": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_downmix_info_update_side_data": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_get_video_rate": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_hwdevice_hwconfig_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_gettime_relative_is_monotonic": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_fifo_can_read": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_gcd": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_file_unmap": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_hash_final_bin": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_thread_message_queue_nb_elems": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_tree_enumerate": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_hwdevice_ctx_create_derived": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_add_i": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_log_set_callback": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_set_defaults2": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_timegm": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_get_packed_sample_fmt": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_rescale": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_max_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_tdrdi_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_md5_sum": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_set_pixel_fmt": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_stereo3d_from_name": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_channel_layout_ambisonic_order": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_refstruct_pool_get": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_strtod": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_hash_get_size": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_iamf_mix_presentation_get_class": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_request_sample": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_camellia_init": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_parse_cpu_caps": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_hwframe_map": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_bessel_i0": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_strnstr": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_dirname": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_bprint_escape": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_bprint_get_buffer": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_csp_itu_eotf_inv": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_encryption_info_clone": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_hwdevice_ctx_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_div_i": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_samples_fill_arrays": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_thread_message_queue_set_err_send": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_lzo1x_decode": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_dynarray_add_nofree": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_show2": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_get_bytes_per_sample": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_fifo_freep2": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_md5_update": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_hwframe_ctx_create_derived": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_bprintf": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_buffer_pool_uninit": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_channel_layout_copy": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_add_q": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_md5_final": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_get_pix_fmt_name": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_iamf_mix_presentation_add_submix": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_buffer_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_channel_layout_index_from_channel": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_detection_bbox_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_hwframe_transfer_get_formats": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_vga16_font_get": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_strtok": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_timecode_make_smpte_tc_string": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_default_item_name": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_content_light_metadata_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_timecode_get_smpte": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_crc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_dict_free": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_sha512_update": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_child_class_iterate": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_small_strptime": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_get_pix_fmt_loss": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_nearer_q": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_div_q": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_refstruct_ref_c": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_dynamic_hdr_plus_to_t35": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_image_check_size2": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_timecode_make_string": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_eval_q": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_color_space_name": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_channel_layout_channel_from_string": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_container_fifo_alloc_avframe": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_realloc_f": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_strlcpy": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_murmur3_init": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_tea_size": {
+          "bind": 1,
+          "type": 1,
+          "visibility": 0
+        },
+        "av_adler32_update": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_audio_fifo_peek_at": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_basename": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_executor_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_child_next": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_slicethread_execute": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_aes_ctr_crypt": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_container_fifo_peek": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_dict_get": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_frame_make_writable": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_get": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_query_ranges_default": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_strcasecmp": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_channel_layout_subset": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "avpriv_cga_font": {
+          "bind": 1,
+          "type": 1,
+          "visibility": 0
+        },
+        "av_aes_ctr_init": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_audio_fifo_drain": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_strncasecmp": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_fifo_elem_size": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_dovi_find_level": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_next": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_aes_ctr_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_get_key_value": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_csp_trc_func_from_id": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_iamf_audio_element_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_spherical_tile_bounds": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_refstruct_pool_alloc_ext_c": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_audio_fifo_realloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_audio_fifo_reset": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_channel_description": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_sha_update": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_frame_side_data_clone": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_csp_trc_func_inv_from_id": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_encryption_init_info_free": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_iamf_submix_add_element": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_video_hint_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_int2i": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_set_dict_val": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_is_set_to_default": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_pix_fmt_swap_endianness": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_find_best_pix_fmt_of_2": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_escape": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_channel_layout_from_mask": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_cmp_i": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_rescale_q": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_find_info_tag": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_usleep": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_uuid_unparse": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_get_cpu_flags": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_csp_primaries_desc_from_id": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_get_sample_fmt_name": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_stristart": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_container_fifo_can_read": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_get_sample_fmt": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_thread_message_queue_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_find": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_frame_side_data_desc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_tea_init": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_audio_fifo_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_parse_color": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_get_time_base_q": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_frame_copy_props": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_log2_i": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_audio_fifo_free": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_buffer_allocz": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "av_opt_get_int": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        }
+      },
+      "exportVersions": {
+        "av_channel_layout_channel_from_index": "LIBAVUTIL_60",
+        "avpriv_float_dsp_alloc": "LIBAVUTIL_60",
+        "av_image_fill_color": "LIBAVUTIL_60",
+        "av_thread_message_queue_set_free_func": "LIBAVUTIL_60",
+        "av_calloc": "LIBAVUTIL_60",
+        "av_md5_size": "LIBAVUTIL_60",
+        "av_audio_fifo_read": "LIBAVUTIL_60",
+        "av_dict_parse_string": "LIBAVUTIL_60",
+        "av_executor_free": "LIBAVUTIL_60",
+        "av_file_map": "LIBAVUTIL_60",
+        "av_buffer_realloc": "LIBAVUTIL_60",
+        "av_get_media_type_string": "LIBAVUTIL_60",
+        "av_rescale_delta": "LIBAVUTIL_60",
+        "av_buffer_pool_buffer_get_opaque": "LIBAVUTIL_60",
+        "av_sha_alloc": "LIBAVUTIL_60",
+        "av_dynamic_hdr_vivid_alloc": "LIBAVUTIL_60",
+        "av_memcpy_backptr": "LIBAVUTIL_60",
+        "av_opt_set_video_rate": "LIBAVUTIL_60",
+        "av_frame_side_data_free": "LIBAVUTIL_60",
+        "av_frame_remove_side_data": "LIBAVUTIL_60",
+        "av_log_default_callback": "LIBAVUTIL_60",
+        "av_get_planar_sample_fmt": "LIBAVUTIL_60",
+        "av_encryption_info_free": "LIBAVUTIL_60",
+        "av_expr_free": "LIBAVUTIL_60",
+        "av_sub_i": "LIBAVUTIL_60",
+        "av_set_options_string": "LIBAVUTIL_60",
+        "av_chroma_location_name": "LIBAVUTIL_60",
+        "av_refstruct_pool_alloc": "LIBAVUTIL_60",
+        "av_content_light_metadata_create_side_data": "LIBAVUTIL_60",
+        "av_malloc": "LIBAVUTIL_60",
+        "av_parse_time": "LIBAVUTIL_60",
+        "av_twofish_size": "LIBAVUTIL_60",
+        "av_base64_decode": "LIBAVUTIL_60",
+        "av_film_grain_params_create_side_data": "LIBAVUTIL_60",
+        "av_sha512_alloc": "LIBAVUTIL_60",
+        "av_iamf_param_definition_get_class": "LIBAVUTIL_60",
+        "av_fast_mallocz": "LIBAVUTIL_60",
+        "av_timecode_make_mpeg_tc_string": "LIBAVUTIL_60",
+        "av_container_fifo_drain": "LIBAVUTIL_60",
+        "av_get_known_color_name": "LIBAVUTIL_60",
+        "av_iamf_mix_presentation_alloc": "LIBAVUTIL_60",
+        "avpriv_init_lls": "LIBAVUTIL_60",
+        "av_opt_set_from_string": "LIBAVUTIL_60",
+        "av_frame_unref": "LIBAVUTIL_60",
+        "av_image_fill_linesizes": "LIBAVUTIL_60",
+        "av_md5_init": "LIBAVUTIL_60",
+        "av_aes_ctr_set_iv": "LIBAVUTIL_60",
+        "av_channel_layout_describe": "LIBAVUTIL_60",
+        "av_sub_q": "LIBAVUTIL_60",
+        "av_hash_names": "LIBAVUTIL_60",
+        "av_uuid_urn_parse": "LIBAVUTIL_60",
+        "av_sha512_size": "LIBAVUTIL_60",
+        "av_rc4_init": "LIBAVUTIL_60",
+        "av_frame_side_data_name": "LIBAVUTIL_60",
+        "av_stereo3d_create_side_data": "LIBAVUTIL_60",
+        "av_fifo_reset2": "LIBAVUTIL_60",
+        "av_encryption_info_get_side_data": "LIBAVUTIL_60",
+        "av_sha_final": "LIBAVUTIL_60",
+        "av_version_info": "LIBAVUTIL_60",
+        "av_detection_bbox_create_side_data": "LIBAVUTIL_60",
+        "avpriv_tempfile": "LIBAVUTIL_60",
+        "av_samples_copy": "LIBAVUTIL_60",
+        "av_hash_alloc": "LIBAVUTIL_60",
+        "av_hash_final_hex": "LIBAVUTIL_60",
+        "av_vk_frame_alloc": "LIBAVUTIL_60",
+        "av_reallocp_array": "LIBAVUTIL_60",
+        "av_opt_set_chlayout": "LIBAVUTIL_60",
+        "av_opt_set_dict2": "LIBAVUTIL_60",
+        "av_opt_copy": "LIBAVUTIL_60",
+        "av_timecode_get_smpte_from_framenum": "LIBAVUTIL_60",
+        "av_frame_new_side_data": "LIBAVUTIL_60",
+        "av_rc4_crypt": "LIBAVUTIL_60",
+        "av_spherical_alloc": "LIBAVUTIL_60",
+        "av_channel_layout_describe_bprint": "LIBAVUTIL_60",
+        "av_film_grain_params_alloc": "LIBAVUTIL_60",
+        "av_vlog": "LIBAVUTIL_60",
+        "av_opt_eval_int64": "LIBAVUTIL_60",
+        "av_color_primaries_name": "LIBAVUTIL_60",
+        "av_refstruct_alloc_ext_c": "LIBAVUTIL_60",
+        "av_uuid_parse_range": "LIBAVUTIL_60",
+        "av_container_fifo_alloc": "LIBAVUTIL_60",
+        "av_murmur3_alloc": "LIBAVUTIL_60",
+        "av_rescale_q_rnd": "LIBAVUTIL_60",
+        "av_parse_video_rate": "LIBAVUTIL_60",
+        "av_thread_message_queue_recv": "LIBAVUTIL_60",
+        "av_twofish_init": "LIBAVUTIL_60",
+        "av_sample_fmt_is_planar": "LIBAVUTIL_60",
+        "av_encryption_info_add_side_data": "LIBAVUTIL_60",
+        "av_film_grain_params_select": "LIBAVUTIL_60",
+        "av_hmac_update": "LIBAVUTIL_60",
+        "av_rc4_alloc": "LIBAVUTIL_60",
+        "av_timecode_make_smpte_tc_string2": "LIBAVUTIL_60",
+        "av_sha512_final": "LIBAVUTIL_60",
+        "av_image_copy_plane_uc_from": "LIBAVUTIL_60",
+        "av_stereo3d_primary_eye_name": "LIBAVUTIL_60",
+        "av_expr_parse": "LIBAVUTIL_60",
+        "av_pixelutils_get_sad_fn": "LIBAVUTIL_60",
+        "av_aes_crypt": "LIBAVUTIL_60",
+        "av_iamf_audio_element_add_layer": "LIBAVUTIL_60",
+        "avpriv_set_systematic_pal2": "LIBAVUTIL_60",
+        "av_stereo3d_alloc": "LIBAVUTIL_60",
+        "av_stereo3d_primary_eye_from_name": "LIBAVUTIL_60",
+        "av_thread_message_flush": "LIBAVUTIL_60",
+        "av_hwdevice_get_hwframe_constraints": "LIBAVUTIL_60",
+        "av_image_copy_to_buffer": "LIBAVUTIL_60",
+        "av_tree_find": "LIBAVUTIL_60",
+        "av_vbprintf": "LIBAVUTIL_60",
+        "av_channel_layout_standard": "LIBAVUTIL_60",
+        "av_dict_set": "LIBAVUTIL_60",
+        "av_sha512_init": "LIBAVUTIL_60",
+        "av_hwdevice_get_type_name": "LIBAVUTIL_60",
+        "av_opt_set": "LIBAVUTIL_60",
+        "av_opt_get_dict_val": "LIBAVUTIL_60",
+        "av_aes_alloc": "LIBAVUTIL_60",
+        "av_audio_fifo_peek": "LIBAVUTIL_60",
+        "av_vkfmt_from_pixfmt": "LIBAVUTIL_60",
+        "av_mastering_display_metadata_alloc_size": "LIBAVUTIL_60",
+        "av_ambient_viewing_environment_alloc": "LIBAVUTIL_60",
+        "av_sscanf": "LIBAVUTIL_60",
+        "av_csp_itu_eotf": "LIBAVUTIL_60",
+        "avpriv_alloc_fixed_dsp": "LIBAVUTIL_60",
+        "av_hash_final": "LIBAVUTIL_60",
+        "av_timecode_init_from_string": "LIBAVUTIL_60",
+        "av_aes_ctr_get_iv": "LIBAVUTIL_60",
+        "av_strerror": "LIBAVUTIL_60",
+        "av_dynamic_hdr_vivid_create_side_data": "LIBAVUTIL_60",
+        "av_hmac_free": "LIBAVUTIL_60",
+        "av_hwframe_ctx_init": "LIBAVUTIL_60",
+        "av_hwframe_constraints_free": "LIBAVUTIL_60",
+        "av_thread_message_queue_send": "LIBAVUTIL_60",
+        "av_cast5_crypt2": "LIBAVUTIL_60",
+        "av_frame_get_side_data": "LIBAVUTIL_60",
+        "av_bprint_clear": "LIBAVUTIL_60",
+        "av_buffer_get_opaque": "LIBAVUTIL_60",
+        "av_des_mac": "LIBAVUTIL_60",
+        "av_murmur3_final": "LIBAVUTIL_60",
+        "av_image_copy_plane": "LIBAVUTIL_60",
+        "av_image_get_buffer_size": "LIBAVUTIL_60",
+        "av_opt_find2": "LIBAVUTIL_60",
+        "av_opt_set_sample_fmt": "LIBAVUTIL_60",
+        "av_int_list_length_for_size": "LIBAVUTIL_60",
+        "av_xtea_init": "LIBAVUTIL_60",
+        "av_get_token": "LIBAVUTIL_60",
+        "av_camellia_crypt": "LIBAVUTIL_60",
+        "av_bprint_append_data": "LIBAVUTIL_60",
+        "av_buffer_ref": "LIBAVUTIL_60",
+        "av_refstruct_replace": "LIBAVUTIL_60",
+        "av_frame_apply_cropping": "LIBAVUTIL_60",
+        "av_read_image_line": "LIBAVUTIL_60",
+        "av_default_get_category": "LIBAVUTIL_60",
+        "av_color_space_from_name": "LIBAVUTIL_60",
+        "av_util_ffversion": "LIBAVUTIL_60",
+        "av_fifo_drain2": "LIBAVUTIL_60",
+        "av_hmac_alloc": "LIBAVUTIL_60",
+        "av_log_set_level": "LIBAVUTIL_60",
+        "av_fifo_grow2": "LIBAVUTIL_60",
+        "av_camellia_alloc": "LIBAVUTIL_60",
+        "av_frame_replace": "LIBAVUTIL_60",
+        "av_pix_fmt_desc_get_id": "LIBAVUTIL_60",
+        "av_refstruct_ref": "LIBAVUTIL_60",
+        "av_xtea_le_init": "LIBAVUTIL_60",
+        "av_frame_alloc": "LIBAVUTIL_60",
+        "avpriv_fopen_utf8": "LIBAVUTIL_60",
+        "av_image_copy_uc_from": "LIBAVUTIL_60",
+        "av_opt_set_array": "LIBAVUTIL_60",
+        "av_bprint_init_for_buffer": "LIBAVUTIL_60",
+        "av_murmur3_update": "LIBAVUTIL_60",
+        "av_opt_free": "LIBAVUTIL_60",
+        "av_audio_fifo_size": "LIBAVUTIL_60",
+        "av_ripemd_alloc": "LIBAVUTIL_60",
+        "av_get_bits_per_pixel": "LIBAVUTIL_60",
+        "av_refstruct_exclusive": "LIBAVUTIL_60",
+        "av_blowfish_crypt_ecb": "LIBAVUTIL_60",
+        "av_frame_move_ref": "LIBAVUTIL_60",
+        "av_display_rotation_get": "LIBAVUTIL_60",
+        "av_frame_side_data_get_c": "LIBAVUTIL_60",
+        "av_add_stable": "LIBAVUTIL_60",
+        "av_opt_ptr": "LIBAVUTIL_60",
+        "av_color_primaries_from_name": "LIBAVUTIL_60",
+        "av_color_transfer_from_name": "LIBAVUTIL_60",
+        "av_video_hint_create_side_data": "LIBAVUTIL_60",
+        "av_expr_count_func": "LIBAVUTIL_60",
+        "av_image_copy": "LIBAVUTIL_60",
+        "av_pix_fmt_desc_next": "LIBAVUTIL_60",
+        "av_find_nearest_q_idx": "LIBAVUTIL_60",
+        "av_buffer_pool_init2": "LIBAVUTIL_60",
+        "av_fast_malloc": "LIBAVUTIL_60",
+        "av_stereo3d_type_name": "LIBAVUTIL_60",
+        "av_tea_crypt": "LIBAVUTIL_60",
+        "av_assert0_fpu": "LIBAVUTIL_60",
+        "av_dynarray2_add": "LIBAVUTIL_60",
+        "av_samples_alloc_array_and_samples": "LIBAVUTIL_60",
+        "av_sha_size": "LIBAVUTIL_60",
+        "av_xtea_crypt": "LIBAVUTIL_60",
+        "av_display_matrix_flip": "LIBAVUTIL_60",
+        "av_log_format_line2": "LIBAVUTIL_60",
+        "av_tree_insert": "LIBAVUTIL_60",
+        "avpriv_vga16_font": "LIBAVUTIL_60",
+        "av_blowfish_init": "LIBAVUTIL_60",
+        "av_d2q": "LIBAVUTIL_60",
+        "av_crc_init": "LIBAVUTIL_60",
+        "av_fifo_auto_grow_limit": "LIBAVUTIL_60",
+        "av_tea_alloc": "LIBAVUTIL_60",
+        "av_frame_new_side_data_from_buf": "LIBAVUTIL_60",
+        "av_hwframe_ctx_alloc": "LIBAVUTIL_60",
+        "av_xtea_alloc": "LIBAVUTIL_60",
+        "av_aes_size": "LIBAVUTIL_60",
+        "av_audio_fifo_write": "LIBAVUTIL_60",
+        "av_realloc_array": "LIBAVUTIL_60",
+        "av_timecode_init_from_components": "LIBAVUTIL_60",
+        "av_aes_ctr_increment_iv": "LIBAVUTIL_60",
+        "av_bprint_chars": "LIBAVUTIL_60",
+        "av_hmac_final": "LIBAVUTIL_60",
+        "av_hwdevice_ctx_create": "LIBAVUTIL_60",
+        "av_opt_freep_ranges": "LIBAVUTIL_60",
+        "av_timecode_init": "LIBAVUTIL_60",
+        "av_channel_layout_compare": "LIBAVUTIL_60",
+        "av_force_cpu_flags": "LIBAVUTIL_60",
+        "av_cpu_count": "LIBAVUTIL_60",
+        "av_frame_clone": "LIBAVUTIL_60",
+        "av_get_sample_fmt_string": "LIBAVUTIL_60",
+        "avutil_version": "LIBAVUTIL_60",
+        "av_channel_layout_from_string": "LIBAVUTIL_60",
+        "av_expr_count_vars": "LIBAVUTIL_60",
+        "av_mod_i": "LIBAVUTIL_60",
+        "av_opt_serialize": "LIBAVUTIL_60",
+        "av_color_transfer_name": "LIBAVUTIL_60",
+        "av_image_fill_arrays": "LIBAVUTIL_60",
+        "av_opt_set_bin": "LIBAVUTIL_60",
+        "av_opt_set_dict": "LIBAVUTIL_60",
+        "av_frame_side_data_new": "LIBAVUTIL_60",
+        "avutil_configuration": "LIBAVUTIL_60",
+        "av_bprint_init": "LIBAVUTIL_60",
+        "av_match_list": "LIBAVUTIL_60",
+        "av_frame_get_plane_buffer": "LIBAVUTIL_60",
+        "av_ripemd_final": "LIBAVUTIL_60",
+        "av_dynamic_hdr_plus_from_t35": "LIBAVUTIL_60",
+        "av_opt_get_chlayout": "LIBAVUTIL_60",
+        "av_reduce": "LIBAVUTIL_60",
+        "av_blowfish_crypt": "LIBAVUTIL_60",
+        "av_shr_i": "LIBAVUTIL_60",
+        "av_frame_ref": "LIBAVUTIL_60",
+        "av_opt_eval_int": "LIBAVUTIL_60",
+        "avpriv_slicethread_free": "LIBAVUTIL_60",
+        "av_base64_encode": "LIBAVUTIL_60",
+        "av_buffer_pool_init": "LIBAVUTIL_60",
+        "av_channel_description_bprint": "LIBAVUTIL_60",
+        "av_write_image_line2": "LIBAVUTIL_60",
+        "av_i2int": "LIBAVUTIL_60",
+        "av_audio_fifo_space": "LIBAVUTIL_60",
+        "av_fifo_write_from_cb": "LIBAVUTIL_60",
+        "av_hwframe_transfer_data": "LIBAVUTIL_60",
+        "av_sha_init": "LIBAVUTIL_60",
+        "av_opt_flag_is_set": "LIBAVUTIL_60",
+        "av_twofish_crypt": "LIBAVUTIL_60",
+        "av_blowfish_alloc": "LIBAVUTIL_60",
+        "av_iamf_submix_add_layout": "LIBAVUTIL_60",
+        "av_compare_ts": "LIBAVUTIL_60",
+        "av_dynarray_add": "LIBAVUTIL_60",
+        "av_color_range_name": "LIBAVUTIL_60",
+        "av_rescale_rnd": "LIBAVUTIL_60",
+        "av_reallocp": "LIBAVUTIL_60",
+        "av_gettime_relative": "LIBAVUTIL_60",
+        "av_refstruct_unref": "LIBAVUTIL_60",
+        "av_frame_copy": "LIBAVUTIL_60",
+        "av_opt_eval_double": "LIBAVUTIL_60",
+        "av_get_picture_type_char": "LIBAVUTIL_60",
+        "av_utf8_decode": "LIBAVUTIL_60",
+        "av_crc_get_table": "LIBAVUTIL_60",
+        "av_opt_get_q": "LIBAVUTIL_60",
+        "av_opt_get_image_size": "LIBAVUTIL_60",
+        "av_twofish_alloc": "LIBAVUTIL_60",
+        "av_aes_init": "LIBAVUTIL_60",
+        "av_image_check_sar": "LIBAVUTIL_60",
+        "av_log_get_level": "LIBAVUTIL_60",
+        "av_color_range_from_name": "LIBAVUTIL_60",
+        "av_samples_alloc": "LIBAVUTIL_60",
+        "avpriv_open": "LIBAVUTIL_60",
+        "av_image_fill_black": "LIBAVUTIL_60",
+        "av_lfg_init": "LIBAVUTIL_60",
+        "av_mallocz": "LIBAVUTIL_60",
+        "av_hwdevice_ctx_init": "LIBAVUTIL_60",
+        "av_iamf_audio_element_get_class": "LIBAVUTIL_60",
+        "av_image_fill_max_pixsteps": "LIBAVUTIL_60",
+        "av_opt_get_array": "LIBAVUTIL_60",
+        "av_stereo3d_view_name": "LIBAVUTIL_60",
+        "av_fifo_write": "LIBAVUTIL_60",
+        "av_log": "LIBAVUTIL_60",
+        "av_channel_from_string": "LIBAVUTIL_60",
+        "av_channel_layout_custom_init": "LIBAVUTIL_60",
+        "av_get_sample_fmt": "LIBAVUTIL_60",
+        "av_random_bytes": "LIBAVUTIL_60",
+        "av_ripemd_size": "LIBAVUTIL_60",
+        "av_fifo_read": "LIBAVUTIL_60",
+        "av_opt_eval_flags": "LIBAVUTIL_60",
+        "av_csp_primaries_id_from_desc": "LIBAVUTIL_60",
+        "av_image_check_size": "LIBAVUTIL_60",
+        "av_iamf_audio_element_free": "LIBAVUTIL_60",
+        "av_murmur3_init_seeded": "LIBAVUTIL_60",
+        "av_opt_is_set_to_default_by_name": "LIBAVUTIL_60",
+        "av_memdup": "LIBAVUTIL_60",
+        "av_hwframe_get_buffer": "LIBAVUTIL_60",
+        "av_mastering_display_metadata_create_side_data": "LIBAVUTIL_60",
+        "av_write_image_line": "LIBAVUTIL_60",
+        "av_timecode_check_frame_rate": "LIBAVUTIL_60",
+        "av_realloc": "LIBAVUTIL_60",
+        "av_channel_layout_check": "LIBAVUTIL_60",
+        "av_dovi_alloc": "LIBAVUTIL_60",
+        "av_image_fill_pointers": "LIBAVUTIL_60",
+        "av_parse_video_size": "LIBAVUTIL_60",
+        "av_samples_set_silence": "LIBAVUTIL_60",
+        "av_aes_ctr_set_full_iv": "LIBAVUTIL_60",
+        "av_expr_eval": "LIBAVUTIL_60",
+        "av_executor_execute": "LIBAVUTIL_60",
+        "av_pix_fmt_desc_get": "LIBAVUTIL_60",
+        "av_hwdevice_find_type_by_name": "LIBAVUTIL_60",
+        "av_opt_get_array_size": "LIBAVUTIL_60",
+        "avpriv_slicethread_create": "LIBAVUTIL_60",
+        "av_xtea_le_crypt": "LIBAVUTIL_60",
+        "av_aes_ctr_free": "LIBAVUTIL_60",
+        "av_bprint_finalize": "LIBAVUTIL_60",
+        "av_cpu_force_count": "LIBAVUTIL_60",
+        "av_cpu_max_align": "LIBAVUTIL_60",
+        "av_hwdevice_iterate_types": "LIBAVUTIL_60",
+        "av_timecode_adjust_ntsc_framenum2": "LIBAVUTIL_60",
+        "av_match_name": "LIBAVUTIL_60",
+        "av_gettime": "LIBAVUTIL_60",
+        "av_parse_ratio": "LIBAVUTIL_60",
+        "av_asprintf": "LIBAVUTIL_60",
+        "av_pix_fmt_get_chroma_sub_sample": "LIBAVUTIL_60",
+        "av_chroma_location_enum_to_pos": "LIBAVUTIL_60",
+        "avpriv_cga_font_get": "LIBAVUTIL_60",
+        "av_free": "LIBAVUTIL_60",
+        "av_hash_final_b64": "LIBAVUTIL_60",
+        "av_hash_freep": "LIBAVUTIL_60",
+        "av_size_mult": "LIBAVUTIL_60",
+        "av_frame_side_data_remove_by_props": "LIBAVUTIL_60",
+        "av_uuid_parse": "LIBAVUTIL_60",
+        "av_buffer_get_ref_count": "LIBAVUTIL_60",
+        "av_container_fifo_write": "LIBAVUTIL_60",
+        "av_fast_realloc": "LIBAVUTIL_60",
+        "av_get_pix_fmt_string": "LIBAVUTIL_60",
+        "av_stristr": "LIBAVUTIL_60",
+        "av_buffer_make_writable": "LIBAVUTIL_60",
+        "av_expr_parse_and_eval": "LIBAVUTIL_60",
+        "av_opt_set_defaults": "LIBAVUTIL_60",
+        "av_log_set_flags": "LIBAVUTIL_60",
+        "av_get_alt_sample_fmt": "LIBAVUTIL_60",
+        "av_tx_uninit": "LIBAVUTIL_60",
+        "av_des_init": "LIBAVUTIL_60",
+        "av_encryption_init_info_alloc": "LIBAVUTIL_60",
+        "av_dynamic_hdr_plus_create_side_data": "LIBAVUTIL_60",
+        "av_mastering_display_metadata_alloc": "LIBAVUTIL_60",
+        "av_freep": "LIBAVUTIL_60",
+        "av_fifo_can_write": "LIBAVUTIL_60",
+        "av_channel_layout_default": "LIBAVUTIL_60",
+        "av_dovi_metadata_alloc": "LIBAVUTIL_60",
+        "av_hash_get_name": "LIBAVUTIL_60",
+        "avpriv_solve_lls": "LIBAVUTIL_60",
+        "av_opt_get_pixel_fmt": "LIBAVUTIL_60",
+        "av_tree_node_alloc": "LIBAVUTIL_60",
+        "av_ripemd_init": "LIBAVUTIL_60",
+        "av_hwdevice_ctx_create_derived_opts": "LIBAVUTIL_60",
+        "av_samples_get_buffer_size": "LIBAVUTIL_60",
+        "av_append_path_component": "LIBAVUTIL_60",
+        "av_channel_layout_retype": "LIBAVUTIL_60",
+        "av_des_crypt": "LIBAVUTIL_60",
+        "av_opt_eval_float": "LIBAVUTIL_60",
+        "av_video_enc_params_create_side_data": "LIBAVUTIL_60",
+        "av_aes_ctr_set_random_iv": "LIBAVUTIL_60",
+        "av_cast5_size": "LIBAVUTIL_60",
+        "av_dict_iterate": "LIBAVUTIL_60",
+        "av_strireplace": "LIBAVUTIL_60",
+        "av_buffer_create": "LIBAVUTIL_60",
+        "av_image_get_linesize": "LIBAVUTIL_60",
+        "av_opt_eval_uint": "LIBAVUTIL_60",
+        "av_opt_set_double": "LIBAVUTIL_60",
+        "av_ts_make_time_string2": "LIBAVUTIL_60",
+        "av_strstart": "LIBAVUTIL_60",
+        "av_buffer_default_free": "LIBAVUTIL_60",
+        "av_cast5_crypt": "LIBAVUTIL_60",
+        "av_frame_get_buffer": "LIBAVUTIL_60",
+        "av_hash_update": "LIBAVUTIL_60",
+        "av_compare_mod": "LIBAVUTIL_60",
+        "av_gcd_q": "LIBAVUTIL_60",
+        "av_thread_message_queue_free": "LIBAVUTIL_60",
+        "av_frame_free": "LIBAVUTIL_60",
+        "av_des_alloc": "LIBAVUTIL_60",
+        "avpriv_report_missing_feature": "LIBAVUTIL_60",
+        "av_q2intfloat": "LIBAVUTIL_60",
+        "avutil_license": "LIBAVUTIL_60",
+        "av_csp_luma_coeffs_from_avcsp": "LIBAVUTIL_60",
+        "av_fourcc_make_string": "LIBAVUTIL_60",
+        "av_dict_count": "LIBAVUTIL_60",
+        "av_encryption_init_info_get_side_data": "LIBAVUTIL_60",
+        "av_chroma_location_pos_to_enum": "LIBAVUTIL_60",
+        "av_spherical_from_name": "LIBAVUTIL_60",
+        "av_video_enc_params_alloc": "LIBAVUTIL_60",
+        "av_fifo_alloc2": "LIBAVUTIL_60",
+        "av_cast5_alloc": "LIBAVUTIL_60",
+        "av_display_rotation_set": "LIBAVUTIL_60",
+        "av_strndup": "LIBAVUTIL_60",
+        "av_frame_is_writable": "LIBAVUTIL_60",
+        "av_log2_16bit": "LIBAVUTIL_60",
+        "av_log_format_line": "LIBAVUTIL_60",
+        "av_log_once": "LIBAVUTIL_60",
+        "av_buffer_is_writable": "LIBAVUTIL_60",
+        "av_fifo_read_to_cb": "LIBAVUTIL_60",
+        "av_frame_side_data_remove": "LIBAVUTIL_60",
+        "av_hmac_init": "LIBAVUTIL_60",
+        "av_iamf_param_definition_alloc": "LIBAVUTIL_60",
+        "av_chroma_location_from_name": "LIBAVUTIL_60",
+        "av_buffer_unref": "LIBAVUTIL_60",
+        "av_ripemd_update": "LIBAVUTIL_60",
+        "av_read_image_line2": "LIBAVUTIL_60",
+        "av_stereo3d_view_from_name": "LIBAVUTIL_60",
+        "av_encryption_init_info_add_side_data": "LIBAVUTIL_60",
+        "av_pix_fmt_count_planes": "LIBAVUTIL_60",
+        "av_strlcat": "LIBAVUTIL_60",
+        "av_malloc_array": "LIBAVUTIL_60",
+        "av_log2": "LIBAVUTIL_60",
+        "av_get_pix_fmt": "LIBAVUTIL_60",
+        "av_cast5_init": "LIBAVUTIL_60",
+        "av_fifo_peek_to_cb": "LIBAVUTIL_60",
+        "av_image_fill_plane_sizes": "LIBAVUTIL_60",
+        "av_image_alloc": "LIBAVUTIL_60",
+        "av_bmg_get": "LIBAVUTIL_60",
+        "av_opt_set_int": "LIBAVUTIL_60",
+        "av_fifo_peek": "LIBAVUTIL_60",
+        "av_channel_layout_uninit": "LIBAVUTIL_60",
+        "av_container_fifo_free": "LIBAVUTIL_60",
+        "av_dict_get_string": "LIBAVUTIL_60",
+        "av_dynamic_hdr_plus_alloc": "LIBAVUTIL_60",
+        "av_stereo3d_alloc_size": "LIBAVUTIL_60",
+        "av_channel_name": "LIBAVUTIL_60",
+        "av_iamf_mix_presentation_free": "LIBAVUTIL_60",
+        "av_opt_set_q": "LIBAVUTIL_60",
+        "av_ambient_viewing_environment_create_side_data": "LIBAVUTIL_60",
+        "av_dict_copy": "LIBAVUTIL_60",
+        "av_mul_i": "LIBAVUTIL_60",
+        "av_container_fifo_read": "LIBAVUTIL_60",
+        "av_camellia_size": "LIBAVUTIL_60",
+        "av_hash_init": "LIBAVUTIL_60",
+        "av_tree_destroy": "LIBAVUTIL_60",
+        "av_frame_side_data_add": "LIBAVUTIL_60",
+        "av_spherical_projection_name": "LIBAVUTIL_60",
+        "av_get_random_seed": "LIBAVUTIL_60",
+        "av_buffer_pool_get": "LIBAVUTIL_60",
+        "av_channel_name_bprint": "LIBAVUTIL_60",
+        "av_encryption_info_alloc": "LIBAVUTIL_60",
+        "av_hmac_calc": "LIBAVUTIL_60",
+        "av_log_get_flags": "LIBAVUTIL_60",
+        "av_opt_get_double": "LIBAVUTIL_60",
+        "av_opt_query_ranges": "LIBAVUTIL_60",
+        "av_tree_node_size": "LIBAVUTIL_60",
+        "av_strlcatf": "LIBAVUTIL_60",
+        "av_dict_set_int": "LIBAVUTIL_60",
+        "av_opt_set_image_size": "LIBAVUTIL_60",
+        "av_get_padded_bits_per_pixel": "LIBAVUTIL_60",
+        "av_thread_message_queue_set_err_recv": "LIBAVUTIL_60",
+        "av_strdup": "LIBAVUTIL_60",
+        "av_md5_alloc": "LIBAVUTIL_60",
+        "av_lfg_init_from_data": "LIBAVUTIL_60",
+        "av_bprint_strftime": "LIBAVUTIL_60",
+        "av_channel_layout_index_from_string": "LIBAVUTIL_60",
+        "av_csp_approximate_trc_gamma": "LIBAVUTIL_60",
+        "av_tx_init": "LIBAVUTIL_60",
+        "av_buffer_replace": "LIBAVUTIL_60",
+        "av_mul_q": "LIBAVUTIL_60",
+        "av_downmix_info_update_side_data": "LIBAVUTIL_60",
+        "av_opt_get_video_rate": "LIBAVUTIL_60",
+        "av_hwdevice_hwconfig_alloc": "LIBAVUTIL_60",
+        "av_gettime_relative_is_monotonic": "LIBAVUTIL_60",
+        "av_fifo_can_read": "LIBAVUTIL_60",
+        "av_gcd": "LIBAVUTIL_60",
+        "av_file_unmap": "LIBAVUTIL_60",
+        "av_hash_final_bin": "LIBAVUTIL_60",
+        "av_thread_message_queue_nb_elems": "LIBAVUTIL_60",
+        "av_tree_enumerate": "LIBAVUTIL_60",
+        "av_hwdevice_ctx_create_derived": "LIBAVUTIL_60",
+        "av_add_i": "LIBAVUTIL_60",
+        "av_log_set_callback": "LIBAVUTIL_60",
+        "av_opt_set_defaults2": "LIBAVUTIL_60",
+        "av_timegm": "LIBAVUTIL_60",
+        "av_get_packed_sample_fmt": "LIBAVUTIL_60",
+        "av_rescale": "LIBAVUTIL_60",
+        "av_max_alloc": "LIBAVUTIL_60",
+        "av_tdrdi_alloc": "LIBAVUTIL_60",
+        "av_md5_sum": "LIBAVUTIL_60",
+        "av_opt_set_pixel_fmt": "LIBAVUTIL_60",
+        "av_stereo3d_from_name": "LIBAVUTIL_60",
+        "av_channel_layout_ambisonic_order": "LIBAVUTIL_60",
+        "av_refstruct_pool_get": "LIBAVUTIL_60",
+        "av_strtod": "LIBAVUTIL_60",
+        "av_hash_get_size": "LIBAVUTIL_60",
+        "av_iamf_mix_presentation_get_class": "LIBAVUTIL_60",
+        "avpriv_request_sample": "LIBAVUTIL_60",
+        "av_camellia_init": "LIBAVUTIL_60",
+        "av_parse_cpu_caps": "LIBAVUTIL_60",
+        "av_hwframe_map": "LIBAVUTIL_60",
+        "av_bessel_i0": "LIBAVUTIL_60",
+        "av_strnstr": "LIBAVUTIL_60",
+        "av_dirname": "LIBAVUTIL_60",
+        "av_bprint_escape": "LIBAVUTIL_60",
+        "av_bprint_get_buffer": "LIBAVUTIL_60",
+        "av_csp_itu_eotf_inv": "LIBAVUTIL_60",
+        "av_encryption_info_clone": "LIBAVUTIL_60",
+        "av_hwdevice_ctx_alloc": "LIBAVUTIL_60",
+        "av_div_i": "LIBAVUTIL_60",
+        "av_samples_fill_arrays": "LIBAVUTIL_60",
+        "av_thread_message_queue_set_err_send": "LIBAVUTIL_60",
+        "av_lzo1x_decode": "LIBAVUTIL_60",
+        "av_dynarray_add_nofree": "LIBAVUTIL_60",
+        "av_opt_show2": "LIBAVUTIL_60",
+        "av_get_bytes_per_sample": "LIBAVUTIL_60",
+        "av_fifo_freep2": "LIBAVUTIL_60",
+        "av_md5_update": "LIBAVUTIL_60",
+        "av_hwframe_ctx_create_derived": "LIBAVUTIL_60",
+        "av_bprintf": "LIBAVUTIL_60",
+        "av_buffer_pool_uninit": "LIBAVUTIL_60",
+        "av_channel_layout_copy": "LIBAVUTIL_60",
+        "av_add_q": "LIBAVUTIL_60",
+        "av_md5_final": "LIBAVUTIL_60",
+        "av_get_pix_fmt_name": "LIBAVUTIL_60",
+        "av_iamf_mix_presentation_add_submix": "LIBAVUTIL_60",
+        "av_buffer_alloc": "LIBAVUTIL_60",
+        "av_channel_layout_index_from_channel": "LIBAVUTIL_60",
+        "av_detection_bbox_alloc": "LIBAVUTIL_60",
+        "av_hwframe_transfer_get_formats": "LIBAVUTIL_60",
+        "avpriv_vga16_font_get": "LIBAVUTIL_60",
+        "av_strtok": "LIBAVUTIL_60",
+        "av_timecode_make_smpte_tc_string": "LIBAVUTIL_60",
+        "av_default_item_name": "LIBAVUTIL_60",
+        "av_content_light_metadata_alloc": "LIBAVUTIL_60",
+        "av_timecode_get_smpte": "LIBAVUTIL_60",
+        "av_crc": "LIBAVUTIL_60",
+        "av_dict_free": "LIBAVUTIL_60",
+        "av_sha512_update": "LIBAVUTIL_60",
+        "av_opt_child_class_iterate": "LIBAVUTIL_60",
+        "av_small_strptime": "LIBAVUTIL_60",
+        "av_get_pix_fmt_loss": "LIBAVUTIL_60",
+        "av_nearer_q": "LIBAVUTIL_60",
+        "av_div_q": "LIBAVUTIL_60",
+        "av_refstruct_ref_c": "LIBAVUTIL_60",
+        "av_dynamic_hdr_plus_to_t35": "LIBAVUTIL_60",
+        "av_image_check_size2": "LIBAVUTIL_60",
+        "av_timecode_make_string": "LIBAVUTIL_60",
+        "av_opt_eval_q": "LIBAVUTIL_60",
+        "av_color_space_name": "LIBAVUTIL_60",
+        "av_channel_layout_channel_from_string": "LIBAVUTIL_60",
+        "av_container_fifo_alloc_avframe": "LIBAVUTIL_60",
+        "av_realloc_f": "LIBAVUTIL_60",
+        "av_strlcpy": "LIBAVUTIL_60",
+        "av_murmur3_init": "LIBAVUTIL_60",
+        "av_tea_size": "LIBAVUTIL_60",
+        "av_adler32_update": "LIBAVUTIL_60",
+        "av_audio_fifo_peek_at": "LIBAVUTIL_60",
+        "av_basename": "LIBAVUTIL_60",
+        "av_executor_alloc": "LIBAVUTIL_60",
+        "av_opt_child_next": "LIBAVUTIL_60",
+        "avpriv_slicethread_execute": "LIBAVUTIL_60",
+        "av_aes_ctr_crypt": "LIBAVUTIL_60",
+        "av_container_fifo_peek": "LIBAVUTIL_60",
+        "av_dict_get": "LIBAVUTIL_60",
+        "av_frame_make_writable": "LIBAVUTIL_60",
+        "av_opt_get": "LIBAVUTIL_60",
+        "av_opt_query_ranges_default": "LIBAVUTIL_60",
+        "av_strcasecmp": "LIBAVUTIL_60",
+        "av_channel_layout_subset": "LIBAVUTIL_60",
+        "avpriv_cga_font": "LIBAVUTIL_60",
+        "av_aes_ctr_init": "LIBAVUTIL_60",
+        "av_audio_fifo_drain": "LIBAVUTIL_60",
+        "av_strncasecmp": "LIBAVUTIL_60",
+        "av_fifo_elem_size": "LIBAVUTIL_60",
+        "av_dovi_find_level": "LIBAVUTIL_60",
+        "av_opt_next": "LIBAVUTIL_60",
+        "av_aes_ctr_alloc": "LIBAVUTIL_60",
+        "av_opt_get_key_value": "LIBAVUTIL_60",
+        "av_csp_trc_func_from_id": "LIBAVUTIL_60",
+        "av_iamf_audio_element_alloc": "LIBAVUTIL_60",
+        "av_spherical_tile_bounds": "LIBAVUTIL_60",
+        "av_refstruct_pool_alloc_ext_c": "LIBAVUTIL_60",
+        "av_audio_fifo_realloc": "LIBAVUTIL_60",
+        "av_audio_fifo_reset": "LIBAVUTIL_60",
+        "av_channel_description": "LIBAVUTIL_60",
+        "av_sha_update": "LIBAVUTIL_60",
+        "av_frame_side_data_clone": "LIBAVUTIL_60",
+        "av_csp_trc_func_inv_from_id": "LIBAVUTIL_60",
+        "av_encryption_init_info_free": "LIBAVUTIL_60",
+        "av_iamf_submix_add_element": "LIBAVUTIL_60",
+        "av_video_hint_alloc": "LIBAVUTIL_60",
+        "av_int2i": "LIBAVUTIL_60",
+        "av_opt_set_dict_val": "LIBAVUTIL_60",
+        "av_opt_is_set_to_default": "LIBAVUTIL_60",
+        "av_pix_fmt_swap_endianness": "LIBAVUTIL_60",
+        "av_find_best_pix_fmt_of_2": "LIBAVUTIL_60",
+        "av_escape": "LIBAVUTIL_60",
+        "av_channel_layout_from_mask": "LIBAVUTIL_60",
+        "av_cmp_i": "LIBAVUTIL_60",
+        "av_rescale_q": "LIBAVUTIL_60",
+        "av_find_info_tag": "LIBAVUTIL_60",
+        "av_usleep": "LIBAVUTIL_60",
+        "av_uuid_unparse": "LIBAVUTIL_60",
+        "av_get_cpu_flags": "LIBAVUTIL_60",
+        "av_csp_primaries_desc_from_id": "LIBAVUTIL_60",
+        "av_get_sample_fmt_name": "LIBAVUTIL_60",
+        "av_stristart": "LIBAVUTIL_60",
+        "av_container_fifo_can_read": "LIBAVUTIL_60",
+        "av_opt_get_sample_fmt": "LIBAVUTIL_60",
+        "av_thread_message_queue_alloc": "LIBAVUTIL_60",
+        "av_opt_find": "LIBAVUTIL_60",
+        "av_frame_side_data_desc": "LIBAVUTIL_60",
+        "av_tea_init": "LIBAVUTIL_60",
+        "av_audio_fifo_alloc": "LIBAVUTIL_60",
+        "av_parse_color": "LIBAVUTIL_60",
+        "av_get_time_base_q": "LIBAVUTIL_60",
+        "av_frame_copy_props": "LIBAVUTIL_60",
+        "av_log2_i": "LIBAVUTIL_60",
+        "av_audio_fifo_free": "LIBAVUTIL_60",
+        "av_buffer_allocz": "LIBAVUTIL_60",
+        "av_opt_get_int": "LIBAVUTIL_60"
+      }
+    },
+    "libswresample.so.6": {
+      "sourceFileSHA256": "4244a9e1e2697bd8ec35436148d55d5e8b2c09080c40754cc505a05c5fc52e3b",
+      "exports": {
+        "swr_alloc": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "swr_free": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "swr_next_pts": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "swr_get_class": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "swr_set_matrix": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "swr_convert": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "swr_drop_output": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "swr_set_compensation": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "swresample_configuration": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "swr_set_channel_mapping": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "swr_init": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "swr_is_initialized": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "swr_config_frame": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "swr_convert_frame": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "swresample_version": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "swresample_license": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "swr_build_matrix2": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "swr_close": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "swr_get_out_samples": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "swr_alloc_set_opts2": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "swr_inject_silence": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "swr_get_delay": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "swr_ffversion": {
+          "bind": 1,
+          "type": 1,
+          "visibility": 0
+        }
+      },
+      "exportVersions": {
+        "swr_alloc": "LIBSWRESAMPLE_6",
+        "swr_free": "LIBSWRESAMPLE_6",
+        "swr_next_pts": "LIBSWRESAMPLE_6",
+        "swr_get_class": "LIBSWRESAMPLE_6",
+        "swr_set_matrix": "LIBSWRESAMPLE_6",
+        "swr_convert": "LIBSWRESAMPLE_6",
+        "swr_drop_output": "LIBSWRESAMPLE_6",
+        "swr_set_compensation": "LIBSWRESAMPLE_6",
+        "swresample_configuration": "LIBSWRESAMPLE_6",
+        "swr_set_channel_mapping": "LIBSWRESAMPLE_6",
+        "swr_init": "LIBSWRESAMPLE_6",
+        "swr_is_initialized": "LIBSWRESAMPLE_6",
+        "swr_config_frame": "LIBSWRESAMPLE_6",
+        "swr_convert_frame": "LIBSWRESAMPLE_6",
+        "swresample_version": "LIBSWRESAMPLE_6",
+        "swresample_license": "LIBSWRESAMPLE_6",
+        "swr_build_matrix2": "LIBSWRESAMPLE_6",
+        "swr_close": "LIBSWRESAMPLE_6",
+        "swr_get_out_samples": "LIBSWRESAMPLE_6",
+        "swr_alloc_set_opts2": "LIBSWRESAMPLE_6",
+        "swr_inject_silence": "LIBSWRESAMPLE_6",
+        "swr_get_delay": "LIBSWRESAMPLE_6",
+        "swr_ffversion": "LIBSWRESAMPLE_6"
+      }
+    },
+    "libswscale.so.9": {
+      "sourceFileSHA256": "f1982cde4d2b6d899f99e38ae4cfb50dcda4859e9912a6b4f18913ebaf9836a0",
+      "exports": {
+        "sws_is_noop": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "sws_getCoefficients": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "sws_getGaussianVec": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "swscale_configuration": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "sws_isSupportedOutput": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "sws_frame_start": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "sws_isSupportedEndiannessConversion": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "sws_test_colorspace": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "sws_free_context": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "sws_get_class": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "sws_scale": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "sws_convertPalette8ToPacked32": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "sws_getContext": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "sws_getCachedContext": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "sws_isSupportedInput": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "sws_test_transfer": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "sws_test_frame": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "sws_send_slice": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "sws_receive_slice_alignment": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "sws_normalizeVec": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "sws_freeVec": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "swscale_version": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "swscale_license": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "sws_test_format": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "sws_getColorspaceDetails": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "sws_scaleVec": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "sws_test_primaries": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "sws_alloc_context": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "sws_init_context": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "sws_frame_setup": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "sws_getDefaultFilter": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "sws_setColorspaceDetails": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "sws_convertPalette8ToPacked24": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "sws_allocVec": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "sws_freeFilter": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "sws_frame_end": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "sws_receive_slice": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "sws_scale_frame": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        },
+        "sws_freeContext": {
+          "bind": 1,
+          "type": 2,
+          "visibility": 0
+        }
+      },
+      "exportVersions": {
+        "sws_is_noop": "LIBSWSCALE_9",
+        "sws_getCoefficients": "LIBSWSCALE_9",
+        "sws_getGaussianVec": "LIBSWSCALE_9",
+        "swscale_configuration": "LIBSWSCALE_9",
+        "sws_isSupportedOutput": "LIBSWSCALE_9",
+        "sws_frame_start": "LIBSWSCALE_9",
+        "sws_isSupportedEndiannessConversion": "LIBSWSCALE_9",
+        "sws_test_colorspace": "LIBSWSCALE_9",
+        "sws_free_context": "LIBSWSCALE_9",
+        "sws_get_class": "LIBSWSCALE_9",
+        "sws_scale": "LIBSWSCALE_9",
+        "sws_convertPalette8ToPacked32": "LIBSWSCALE_9",
+        "sws_getContext": "LIBSWSCALE_9",
+        "sws_getCachedContext": "LIBSWSCALE_9",
+        "sws_isSupportedInput": "LIBSWSCALE_9",
+        "sws_test_transfer": "LIBSWSCALE_9",
+        "sws_test_frame": "LIBSWSCALE_9",
+        "sws_send_slice": "LIBSWSCALE_9",
+        "sws_receive_slice_alignment": "LIBSWSCALE_9",
+        "sws_normalizeVec": "LIBSWSCALE_9",
+        "sws_freeVec": "LIBSWSCALE_9",
+        "swscale_version": "LIBSWSCALE_9",
+        "swscale_license": "LIBSWSCALE_9",
+        "sws_test_format": "LIBSWSCALE_9",
+        "sws_getColorspaceDetails": "LIBSWSCALE_9",
+        "sws_scaleVec": "LIBSWSCALE_9",
+        "sws_test_primaries": "LIBSWSCALE_9",
+        "sws_alloc_context": "LIBSWSCALE_9",
+        "sws_init_context": "LIBSWSCALE_9",
+        "sws_frame_setup": "LIBSWSCALE_9",
+        "sws_getDefaultFilter": "LIBSWSCALE_9",
+        "sws_setColorspaceDetails": "LIBSWSCALE_9",
+        "sws_convertPalette8ToPacked24": "LIBSWSCALE_9",
+        "sws_allocVec": "LIBSWSCALE_9",
+        "sws_freeFilter": "LIBSWSCALE_9",
+        "sws_frame_end": "LIBSWSCALE_9",
+        "sws_receive_slice": "LIBSWSCALE_9",
+        "sws_scale_frame": "LIBSWSCALE_9",
+        "sws_freeContext": "LIBSWSCALE_9"
+      }
+    }
+  }
+}

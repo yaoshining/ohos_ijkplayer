@@ -1,0 +1,6 @@
+{
+  "profile": "openharmony-5.0-linux-diagnostic-not-historical-API24",
+  "url": "https://repo.huaweicloud.com/harmonyos/os/5.0.0-Release/ohos-sdk-windows_linux-public.tar.gz",
+  "sha256": "f06a2a8ae38a3cf01c583557f5a4bb1e6e3626df975599aa71f4a59e9af70ecc",
+  "historicalToolchainIdentityProven": false
+}

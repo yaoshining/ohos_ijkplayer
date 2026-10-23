@@ -1,0 +1,34 @@
+name: PR2 producer真实宿主门禁
+on:
+  workflow_dispatch:
+  pull_request:
+    paths: ["tools/pr2-gates/**", "specs/003-pr2-ci-gates/**", ".github/workflows/pr2-contracts.yml", "tools/phase18/**", "tools/phase20/**", ".github/workflows/phase18-dependency-closure.yml", ".github/workflows/phase20-runtime-directories.yml"]
+  merge_group:
+  push:
+    branches: [master, codex/docs-pr2-speckit-closeout]
+    paths: ["tools/pr2-gates/**", "specs/003-pr2-ci-gates/**", ".github/workflows/pr2-contracts.yml", "tools/phase18/**", "tools/phase20/**", ".github/workflows/phase18-dependency-closure.yml", ".github/workflows/phase20-runtime-directories.yml"]
+permissions:
+  contents: read
+jobs:
+  host:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 固定工作流解析工具
+        run: python3 -m pip install PyYAML==6.0.1
+      - name: 执行实际宿主回归和失败门禁
+        run: python3 -B tools/pr2-gates/run.py --out "${{ runner.temp }}/pr2-host-evidence"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pr2-host-not-release
+          path: ${{ runner.temp }}/pr2-host-evidence/artifact/
+          if-no-files-found: error
+          retention-days: 14

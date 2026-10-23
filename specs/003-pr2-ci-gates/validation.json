@@ -1,0 +1,300 @@
+{
+  "schemaVersion": 1,
+  "scope": "本机未提交草稿预演；不是精确提交或远端CI",
+  "interpreter": "/Users/yaoshining/anaconda3/bin/python3 3.10.9",
+  "PyYAML": "6.0.1",
+  "formalArtifactAllowed": false,
+  "deviceExecuted": false,
+  "targetLibrariesBuilt": false,
+  "accepted": true,
+  "exactCommitReplay": false,
+  "inputsUnchanged": true,
+  "identityUnchanged": true,
+  "commands": [
+    {
+      "argv": [
+        "/Users/yaoshining/anaconda3/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/pr2-gates/tests",
+        "-p",
+        "test_*.py",
+        "-v"
+      ],
+      "returncode": 0,
+      "timedOut": false,
+      "durationSeconds": 6.517,
+      "unittestCommand": true,
+      "testsRun": 25,
+      "passed": true,
+      "name": "gate-tests"
+    },
+    {
+      "argv": [
+        "/Users/yaoshining/anaconda3/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/phase18/tests",
+        "-p",
+        "test_collect_paths.py",
+        "-v"
+      ],
+      "returncode": 0,
+      "timedOut": false,
+      "durationSeconds": 0.236,
+      "unittestCommand": true,
+      "testsRun": 3,
+      "passed": true,
+      "name": "phase18-collect-paths"
+    },
+    {
+      "argv": [
+        "/Users/yaoshining/anaconda3/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/phase18/tests",
+        "-p",
+        "test_evidence_contract.py",
+        "-v"
+      ],
+      "returncode": 0,
+      "timedOut": false,
+      "durationSeconds": 0.077,
+      "unittestCommand": true,
+      "testsRun": 18,
+      "passed": true,
+      "name": "phase18-evidence-contract"
+    },
+    {
+      "argv": [
+        "/Users/yaoshining/anaconda3/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/phase18/tests",
+        "-p",
+        "test_host_isolation.py",
+        "-v"
+      ],
+      "returncode": 0,
+      "timedOut": false,
+      "durationSeconds": 0.078,
+      "unittestCommand": true,
+      "testsRun": 3,
+      "passed": true,
+      "name": "phase18-host-isolation"
+    },
+    {
+      "argv": [
+        "/Users/yaoshining/anaconda3/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/phase18/tests",
+        "-p",
+        "test_inputs.py",
+        "-v"
+      ],
+      "returncode": 0,
+      "timedOut": false,
+      "durationSeconds": 0.126,
+      "unittestCommand": true,
+      "testsRun": 18,
+      "passed": true,
+      "name": "phase18-inputs"
+    },
+    {
+      "argv": [
+        "/Users/yaoshining/anaconda3/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/phase18/tests",
+        "-p",
+        "test_tool_inputs.py",
+        "-v"
+      ],
+      "returncode": 0,
+      "timedOut": false,
+      "durationSeconds": 0.077,
+      "unittestCommand": true,
+      "testsRun": 2,
+      "passed": true,
+      "name": "phase18-tool-inputs"
+    },
+    {
+      "argv": [
+        "/Users/yaoshining/anaconda3/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/phase20/tests",
+        "-p",
+        "test_build_gate.py",
+        "-v"
+      ],
+      "returncode": 0,
+      "timedOut": false,
+      "durationSeconds": 0.074,
+      "unittestCommand": true,
+      "testsRun": 3,
+      "passed": true,
+      "name": "phase20-build-gate"
+    },
+    {
+      "argv": [
+        "/Users/yaoshining/anaconda3/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/phase20/tests",
+        "-p",
+        "test_collect.py",
+        "-v"
+      ],
+      "returncode": 0,
+      "timedOut": false,
+      "durationSeconds": 0.077,
+      "unittestCommand": true,
+      "testsRun": 2,
+      "passed": true,
+      "name": "phase20-collect"
+    },
+    {
+      "argv": [
+        "/Users/yaoshining/anaconda3/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/phase20/tests",
+        "-p",
+        "test_extract.py",
+        "-v"
+      ],
+      "returncode": 0,
+      "timedOut": false,
+      "durationSeconds": 0.076,
+      "unittestCommand": true,
+      "testsRun": 2,
+      "passed": true,
+      "name": "phase20-extract"
+    },
+    {
+      "argv": [
+        "/Users/yaoshining/anaconda3/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/phase20/tests",
+        "-p",
+        "test_host_python_environment.py",
+        "-v"
+      ],
+      "returncode": 0,
+      "timedOut": false,
+      "durationSeconds": 1.728,
+      "unittestCommand": true,
+      "testsRun": 1,
+      "passed": true,
+      "name": "phase20-host-python-environment"
+    },
+    {
+      "argv": [
+        "/Users/yaoshining/anaconda3/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/phase20/tests",
+        "-p",
+        "test_lifecycle.py",
+        "-v"
+      ],
+      "returncode": 0,
+      "timedOut": false,
+      "durationSeconds": 1.255,
+      "unittestCommand": true,
+      "testsRun": 1,
+      "passed": true,
+      "name": "phase20-lifecycle"
+    },
+    {
+      "argv": [
+        "/Users/yaoshining/anaconda3/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/phase20/tests",
+        "-p",
+        "test_runtime.py",
+        "-v"
+      ],
+      "returncode": 0,
+      "timedOut": false,
+      "durationSeconds": 18.617,
+      "unittestCommand": true,
+      "testsRun": 18,
+      "passed": true,
+      "name": "phase20-runtime"
+    }
+  ],
+  "localEvidenceRoot": "/private/tmp/producer-pr-gates-20261024/evidence-pr2",
+  "evidenceFiles": [
+    {
+      "path": "red-01.log",
+      "bytes": 14523,
+      "sha256": "d1c3569f082675ef01d59dca4a066bc9d8dda897569482c0a384f281cee4745b"
+    },
+    {
+      "path": "review-red-02.log",
+      "bytes": 5769,
+      "sha256": "15a826a5bd7aa163c2ce0001a79080a725c34a4e43a3edd92f63709cde950f50"
+    },
+    {
+      "path": "green-02.log",
+      "bytes": 1439,
+      "sha256": "fe3f5a6127a7040aff7d283588d96e91fcfad9d6c8373d43c5093b1c2b408c2b"
+    },
+    {
+      "path": "host-preview-01/result.json",
+      "bytes": 1298,
+      "sha256": "7cc092479c18c8a64e67007138825b0d3c7b5e658a434027bd749acc21faa1fc"
+    },
+    {
+      "path": "host-preview-02/result.json",
+      "bytes": 5617,
+      "sha256": "275274149806060bba28ab9a3186224736c25bfa16160aac90aea810c7ee7322"
+    },
+    {
+      "path": "pipeline-baseline-red.log",
+      "bytes": 733,
+      "sha256": "4f8bd3c67b395fb0e03a10804e301e82fc5ec04e4caa85a0422a558d1e9153f3"
+    }
+  ]
+}

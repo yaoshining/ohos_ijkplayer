@@ -1,3 +1,11 @@
+# PR2 的隔离构建与诊断输出；不忽略其他阶段或已 tracked 输入。
+/out/phase18-host/
+/out/phase18-ci/
+/out/phase18-artifact/
+/out/phase20-ci/
+/out/phase20-artifact-native/
+/out/phase20-artifact-target/
+
 /node_modules
 /local.properties
 /.idea
