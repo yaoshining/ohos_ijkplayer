@@ -137,6 +137,23 @@ class LockedNestedTests(unittest.TestCase):
     with self.assertRaises(ValueError):g.identity()
     lock.write_text(json.dumps(original));lock.unlink()
     with self.assertRaises(ValueError):g.identity()
+    lock.write_text(json.dumps(original))
+    # 实际 DAG 同父但篡改中间 tree，锁内容不变。
+    git('checkout','--detach',middle);(repo/'extra').write_text('injected');git('add','extra');bad_tree=git('write-tree');git('restore','--staged','extra');(repo/'extra').unlink()
+    bad_middle=git('commit-tree',bad_tree,'-p',root,'-p',dependency,'-m','unexpected tree')
+    bad_final=git('commit-tree',git('rev-parse',final+'^{tree}'),'-p',bad_middle,'-p',head,'-m','nested final')
+    git('checkout','--detach',bad_final)
+    with patch.dict(os.environ,{'GITHUB_SHA':bad_final}):
+     with self.assertRaisesRegex(ValueError,'nested combination tree mismatch'):g.identity()
+    # root 独立前进：声明 base 是中间 merge 祖先，却不是依赖祖先。
+    git('checkout','--detach',root);(repo/'root-only').write_text('root-only');git('add','.');git('commit','-m','root advance');new_root=git('rev-parse','HEAD');git('merge','--no-ff',dependency,'-m','dependency into advanced root');new_middle=git('rev-parse','HEAD');git('merge','--no-ff',head,'-m','final advanced root');new_final=git('rev-parse','HEAD')
+    second=dict(original,rootBase=new_root,intermediateTree=git('rev-parse',new_middle+'^{tree}'));lock.write_text(json.dumps(second));event.write_text(json.dumps({'number':9,'pull_request':{'base':{'sha':new_root,'ref':'dependency'},'head':{'sha':head}}}))
+    with patch.dict(os.environ,{'GITHUB_SHA':new_final}):
+     with self.assertRaisesRegex(ValueError,'declared PR base not ancestor of locked dependency'):g.identity()
+    git('checkout','--detach',final);event.write_text(json.dumps({'number':9,'pull_request':{'base':{'sha':dependency,'ref':'dependency'},'head':{'sha':head}}}))
+    for bad in ({**original,'schema':2},{k:v for k,v in original.items() if k!='rootBase'},{**original,'dependencyHead':'abc'}):
+     lock.write_text(json.dumps(bad))
+     with self.assertRaises(ValueError):g.identity()
     lock.write_text(json.dumps(original));(repo/'dirty').write_text('dirty')
     with self.assertRaises(ValueError):g.identity()
 class CollectionTests(unittest.TestCase):
