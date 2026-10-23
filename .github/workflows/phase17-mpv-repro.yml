@@ -1,9 +1,12 @@
 name: Phase17 mpv 双目录交叉构建诊断
 on:
   workflow_dispatch:
+  pull_request:
+    paths: ["tools/pr1-gates/**", "specs/002-pr1-ci-gates/**", ".github/workflows/phase17-mpv-repro.yml", "tools/phase17/**"]
+  merge_group:
   push:
-    branches: ['codex/phase17-mpv-repro']
-    paths: ['tools/phase17/**', '.github/workflows/phase17-mpv-repro.yml']
+    branches: ["master", "codex/docs-pr1-speckit-closeout", "codex/phase17-mpv-repro"]
+    paths: ["tools/pr1-gates/**", "specs/002-pr1-ci-gates/**", ".github/workflows/phase17-mpv-repro.yml", "tools/phase17/**"]
 permissions:
   contents: read
 jobs:
@@ -16,6 +19,11 @@ jobs:
       TZ: UTC
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: 绑定实际 checkout 与输入
+        run: python3 -B tools/pr1-gates/snapshot.py begin --out "${{ runner.temp }}/pr1-${{ github.job }}-identity"
       - name: 固定宿主 Python 工具
         run: |
           python3 -m venv out/phase17-ci-venv
@@ -47,4 +55,14 @@ jobs:
         with:
           name: phase17-mpv-cross-build-not-release
           path: out/phase17-ci-artifacts/
+          retention-days: 14
+      - name: 核对输入未漂移并保留实际执行身份
+        if: always()
+        run: python3 -B tools/pr1-gates/snapshot.py end --out "${{ runner.temp }}/pr1-${{ github.job }}-identity" --job-status "${{ job.status }}"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pr1-${{ github.workflow }}-${{ github.job }}-identity
+          path: ${{ runner.temp }}/pr1-${{ github.job }}-identity/artifact/
+          if-no-files-found: error
           retention-days: 14

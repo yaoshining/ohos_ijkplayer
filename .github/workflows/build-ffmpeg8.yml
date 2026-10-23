@@ -1,15 +1,15 @@
 name: FFmpeg OHCodec producer 门禁
-
 on:
   workflow_dispatch:
-  push:
-    paths: ['tools/ffmpeg8/**', 'tools/speckit/**', '.specify/**', 'specs/001-ffmpeg-ohcodec-producer/**', '.github/workflows/build-ffmpeg8.yml']
   pull_request:
-    paths: ['tools/ffmpeg8/**', 'tools/speckit/**', '.specify/**', 'specs/001-ffmpeg-ohcodec-producer/**', '.github/workflows/build-ffmpeg8.yml']
-
+    paths: ["tools/pr1-gates/**", "specs/002-pr1-ci-gates/**", ".github/workflows/build-ffmpeg8.yml", "tools/ffmpeg8/**", "tools/speckit/**", ".specify/**", "specs/001-ffmpeg-ohcodec-producer/**"]
+  merge_group:
+  push:
+    branches: ["master", "codex/docs-pr1-speckit-closeout"]
+    paths: ["tools/pr1-gates/**", "specs/002-pr1-ci-gates/**", ".github/workflows/build-ffmpeg8.yml", "tools/ffmpeg8/**", "tools/speckit/**", ".specify/**", "specs/001-ffmpeg-ohcodec-producer/**"]
 env:
   SPECIFY_FEATURE_DIRECTORY: specs/001-ffmpeg-ohcodec-producer
-
+  SPECIFY_FEATURE_NO_PERSIST: "1"
 permissions:
   contents: read
 
@@ -18,6 +18,11 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: 绑定实际 checkout 与输入
+        run: python3 -B tools/pr1-gates/snapshot.py begin --out "${{ runner.temp }}/pr1-${{ github.job }}-identity"
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -29,12 +34,27 @@ jobs:
           bash tools/ffmpeg8/tests/test-sdk-contract.sh
           bash -n tools/ffmpeg8/ci-build-ohcodec.sh tools/ffmpeg8/build-ohcodec.sh tools/ffmpeg8/build-libsmbclient.sh
 
+      - name: 核对输入未漂移并保留实际执行身份
+        if: always()
+        run: python3 -B tools/pr1-gates/snapshot.py end --out "${{ runner.temp }}/pr1-${{ github.job }}-identity" --job-status "${{ job.status }}"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pr1-${{ github.workflow }}-${{ github.job }}-identity
+          path: ${{ runner.temp }}/pr1-${{ github.job }}-identity/artifact/
+          if-no-files-found: error
+          retention-days: 14
   ohcodec-source-producer:
     needs: contracts
     runs-on: ubuntu-22.04
     timeout-minutes: 180
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: 绑定实际 checkout 与输入
+        run: python3 -B tools/pr1-gates/snapshot.py begin --out "${{ runner.temp }}/pr1-${{ github.job }}-identity"
       - name: 固定宿主镜像并执行源码闭包验证
         id: validate
         run: bash tools/ffmpeg8/ci-container.sh
@@ -67,11 +87,13 @@ jobs:
             out/ci-ohcodec/dependencies/*/sysroot/licenses/
           if-no-files-found: warn
           retention-days: 14
-      - name: 正式 SDK（只有所有门禁通过才允许）
-        if: success() && steps.validate.outputs.formal_artifact_allowed == 'true'
-        uses: actions/upload-artifact@v4
+      - name: 核对输入未漂移并保留实际执行身份
+        if: always()
+        run: python3 -B tools/pr1-gates/snapshot.py end --out "${{ runner.temp }}/pr1-${{ github.job }}-identity" --job-status "${{ job.status }}"
+      - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: ohcodec-source-sdk-verified
-          path: out/ci-ohcodec/clean-a/work/prefix/
+          name: pr1-${{ github.workflow }}-${{ github.job }}-identity
+          path: ${{ runner.temp }}/pr1-${{ github.job }}-identity/artifact/
           if-no-files-found: error
           retention-days: 14
