@@ -45,7 +45,7 @@ class FullAggregateCLITests(unittest.TestCase):
    shutil.copy(g.ROOT/'tools/pr3-gates/gate.py',repo/'tools/pr3-gates/gate.py');shutil.copy(g.ROOT/'.github/workflows/pr3-contracts.yml',repo/'.github/workflows/pr3-contracts.yml')
    def git(*a):return subprocess.check_output(['git','-C',str(repo),'-c','user.name=Test','-c','user.email=test@example.invalid',*a],stderr=subprocess.DEVNULL,text=True).strip()
    git('init','-b','main');git('add','.');git('commit','-m','test')
-   ident={'checkout':git('rev-parse','HEAD'),'tree':git('rev-parse','HEAD^{tree}'),'parents':'','status':'','event':'local'}
+   ident={'checkout':git('rev-parse','HEAD'),'tree':git('rev-parse','HEAD^{tree}'),'parents':'','status':'','event':'local','environmentRef':None,'environmentBaseRef':None,'environmentSHA':None}
    matrix=root/'matrix';matrix.mkdir()
    for c in g.CASES:
     case=matrix/c;case.mkdir();g.write(case/'result.json',{'case':c,'accepted':True,'identity':ident});(case/'log.txt').write_text('ok');g.write(case/'artifact-index.json',{'files':[{'path':p.name,'size':p.stat().st_size,'sha256':g.sha(p)} for p in case.iterdir()]})
