@@ -40,7 +40,9 @@ R003 本机证据：`/private/tmp/pr3-repair-event-evidence/aggregate.json` 与 
 
 - [x] N001 冻结真实失败，核验实际 Git 父链/tree；真实临时 Git 嵌套模式 RED→GREEN。
 - [x] N002 20 项门禁回归，包含锁缺失/格式、ref、root/dependency/tree、父顺序以及普通模式原有负例。
-- [ ] N003 完整 workflow 事件环境重放，包括先行自测、11 项和 required 聚合。
+- [x] N003 完整事件环境重放：实现 head `0596742ff1f4c4d630f2f077633b61039a6ea2de`、临时嵌套 merge `bab4c7b5946b9c15ab43fb1f6ee14af883f14884`；先行 20 项门禁自测、11/11 原阶段门禁和 required 全索引/同身份聚合通过。环境 baseRef=master、event 声明 ref=docs-pr2、声明 base=a73，输出明确标为 locked-nested-combination。
 - [ ] N004 精确修复预览、批准后推送；未批准的新 SHA 不推送。
 
 这项组合证据不得标成普通 PR merge。旧远端失败不改写，产品源码、TV、候选和历史封存不改。
+
+N003 本机证据 `/private/tmp/pr3-nested-event-evidence/aggregate.json`。Phase27 初始 `27/` 和第一次重试 `retry27/` 两次 TLS EOF 原样保留；第二次重试 `retry27b/` 使用同代码、同原始网络参数实际下载锁定来源并完成全阶段成功，没有替换执行器或伪造缓存下载。其余 10 项初次通过。后补的两条真实 DAG 负例分别证明同父但额外 tree 修改、声明 base 在中间祖先却不在依赖祖先均被拒绝；删除对应守卫的两个变异体也被相同回归拒绝。最后收尾只增加测试负例和本规格记录，运行 gate/锁/workflow 与已测实现逐 blob 等价；最终提交以 clean 20 回归、等价核验确认，不冒称最终测试文档 SHA 重新运行 11 阶段。新远端 CI 仍待新精确 SHA 获批。
