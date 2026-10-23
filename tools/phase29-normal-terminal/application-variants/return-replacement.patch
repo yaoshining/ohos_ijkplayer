@@ -1,0 +1,11 @@
+--- normal/hwdec_ohcodec_pl.c
++++ fault/hwdec_ohcodec_pl.c
+@@ -93,7 +93,7 @@
+ static int diagnostic_result(struct ra_hwdec_mapper *mapper, const char *stage,
+                              int reason, int real_rc)
+ {
+-#ifdef MP_OHCODEC_DIAGNOSTIC
++#if defined(MP_OHCODEC_DIAGNOSTIC) || defined(MP_OHCODEC_TEST_RETURN_REPLACEMENT)
+     static atomic_bool fired;
+     const char *mode = getenv("MP_OHCODEC_DIAGNOSTIC_MODE");
+     if (!mode || reason != OHCODEC_DRAIN_REASON_CLOSE)

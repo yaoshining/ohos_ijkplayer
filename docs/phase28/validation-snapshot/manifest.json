@@ -1,0 +1,91 @@
+{
+  "codeCommit": "52572fe33511f306aef22dd489077446009ddad3",
+  "ciRun": 39657429022,
+  "formalArtifactAllowed": false,
+  "files": [
+    {
+      "path": "specs/001-ffmpeg-ohcodec-producer/phase28/contracts/lifecycle.md",
+      "originalPath": "specs/001-ffmpeg-ohcodec-producer/phase28/contracts/lifecycle.md",
+      "size": 2440,
+      "sha256": "3e8db821e8254db726aa09b9078a3a91844af57d7f199c88631f42927aedd9f8"
+    },
+    {
+      "path": "specs/001-ffmpeg-ohcodec-producer/phase28/contracts/validation.md",
+      "originalPath": "specs/001-ffmpeg-ohcodec-producer/phase28/contracts/validation.md",
+      "size": 2034,
+      "sha256": "d68713d587eb220fa81011e53a12bc0ad03656333ece57821221177fce24b229"
+    },
+    {
+      "path": "specs/001-ffmpeg-ohcodec-producer/phase28/data-model.md",
+      "originalPath": "specs/001-ffmpeg-ohcodec-producer/phase28/data-model.md",
+      "size": 2154,
+      "sha256": "8a51ec7a4ad12891c8956862dc609fe75e03126760f2d1a37c240499ffed1838"
+    },
+    {
+      "path": "specs/001-ffmpeg-ohcodec-producer/phase28/plan.md",
+      "originalPath": "specs/001-ffmpeg-ohcodec-producer/phase28/plan.md",
+      "size": 4816,
+      "sha256": "0ea84c5b8355497a0cfc7a31833714d863e613d967a16d202f7066fcad13aa8b"
+    },
+    {
+      "path": "specs/001-ffmpeg-ohcodec-producer/phase28/quickstart.md",
+      "originalPath": "specs/001-ffmpeg-ohcodec-producer/phase28/quickstart.md",
+      "size": 1414,
+      "sha256": "e841821ff033092f9dc8fc61cbfc7f4a4e72abd4e0f5e1ddb079ca5730c7f547"
+    },
+    {
+      "path": "specs/001-ffmpeg-ohcodec-producer/phase28/research.md",
+      "originalPath": "specs/001-ffmpeg-ohcodec-producer/phase28/research.md",
+      "size": 2460,
+      "sha256": "4299a1524c202ea84679f4f6f5cfc78ca38d73d49d3108bac2fe046c38e6e225"
+    },
+    {
+      "path": "specs/001-ffmpeg-ohcodec-producer/phase28/spec.md",
+      "originalPath": "specs/001-ffmpeg-ohcodec-producer/phase28/spec.md",
+      "size": 5003,
+      "sha256": "818db59be4e4bed8b9ce6ebc85c91e66db53a735ecd7d60ca4b4851c6661a6ba"
+    },
+    {
+      "path": "specs/001-ffmpeg-ohcodec-producer/phase28/tasks.md",
+      "originalPath": "specs/001-ffmpeg-ohcodec-producer/phase28/tasks.md",
+      "size": 7327,
+      "sha256": "3297a56fcc7ef3ecfc65b60793ee1a8c3042ac46a5c1e6c2cea740f38f895530"
+    },
+    {
+      "path": "docs/phase28/validation-snapshot/REPORT.md",
+      "originalPath": "out/phase28/REPORT.md",
+      "size": 15189,
+      "sha256": "7d4d82ef031d16dd11c0347f6d06fbae507f98dc295eabecb361932fa5c3ec27"
+    },
+    {
+      "path": "docs/phase28/validation-snapshot/REVIEW-RESPONSE.md",
+      "originalPath": "out/phase28/REVIEW-RESPONSE.md",
+      "size": 6344,
+      "sha256": "a3b9f22f5db2b81b06c826f2a4d2a13216ed0e101838a3429d83d87443bebcc7"
+    },
+    {
+      "path": "docs/phase28/validation-snapshot/CURRENT.md",
+      "originalPath": "out/phase28/CURRENT.md",
+      "size": 3199,
+      "sha256": "8d0145aed7a85838d6008601b4cec0a8ce5089f3b203a9cc8cea4a91eacd4eae"
+    },
+    {
+      "path": "docs/phase28/validation-snapshot/seal.json",
+      "originalPath": "out/phase28/seal.json",
+      "size": 9703,
+      "sha256": "65b6b88a5e201bce0edfef9ae795504408d4e34e72f99541a56915cfdd2d8e07"
+    },
+    {
+      "path": "docs/phase28/validation-snapshot/tests/lifecycle/VERIFICATION.json",
+      "originalPath": "out/phase28/tests/lifecycle/VERIFICATION.json",
+      "size": 3920,
+      "sha256": "8fcf9425e07e8947de9e104e0684c8889acc6ace49cd03cd711e3bd7c2a7c8d3"
+    },
+    {
+      "path": "docs/phase28/validation-snapshot/INDEPENDENT-REVIEW.md",
+      "originalPath": "/private/tmp/phase28-review-5257/REVIEW.md",
+      "size": 4595,
+      "sha256": "9675569b91427ef54bd16814e0b605543fc3f8d7e1dac26d4eee1781f6ca44b6"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "events": [
+    {
+      "kind": "mark",
+      "c": 1,
+      "tick": 0
+    },
+    {
+      "kind": "mark",
+      "c": 2,
+      "tick": 0
+    },
+    {
+      "kind": "mark",
+      "c": 3,
+      "tick": 1
+    },
+    {
+      "kind": "kill",
+      "tick": 1
+    }
+  ],
+  "passed": false
+}

@@ -1,0 +1,50 @@
+--- baseline/libavcodec/ohdec.c
++++ ffmpeg-input/libavcodec/ohdec.c
+@@ -26,0 +27,5 @@
++#ifdef MP_OHCODEC_HANDOFF_TRACE
++#include <unistd.h>
++#include <pthread.h>
++#include <native_window/external_window.h>
++#endif
+@@ -74,0 +80,3 @@
++#ifdef MP_OHCODEC_HANDOFF_TRACE
++    uint64_t trace_instance, trace_surface;
++#endif
+@@ -333,0 +342,12 @@
++#endif
++#ifdef MP_OHCODEC_HANDOFF_TRACE
++static atomic_uint_fast64_t p30_decoder_serial, p30_codec_event_serial;
++static void p30_codec_trace(AVCodecContext *avctx, OHCodecDecRef *ref, const char *op, int rc)
++{
++    av_log(avctx, AV_LOG_INFO, "P30_CODEC seq=%"PRIu64" t=%"PRId64" pid=%ld tid=%ld op=%s decoder=%"PRIu64" consumer=%"PRIu64" epoch=%"PRIu64" rc=%d\n",
++        (uint64_t)atomic_fetch_add(&p30_codec_event_serial, 1)+1, p27_monotonic_us(),
++        (long)getpid(), (long)pthread_gettid_np(pthread_self()), op, ref ? ref->trace_instance : 0,
++        ref ? ref->trace_surface : 0, ref ? (uint64_t)atomic_load(&ref->generation) : 0, rc);
++}
++#else
++#define p30_codec_trace(avctx, ref, op, rc) ((void)0)
+@@ -383,0 +404,3 @@
++#ifdef MP_OHCODEC_HANDOFF_TRACE
++    ref->trace_instance = atomic_fetch_add(&p30_decoder_serial, 1) + 1;
++#endif
+@@ -507,0 +531,5 @@
++#ifdef MP_OHCODEC_HANDOFF_TRACE
++        OHCodecDecRef *trace_ref = oh_decode_ref(s);
++        int trace_query_rc = OH_NativeWindow_GetSurfaceId(window, &trace_ref->trace_surface);
++        p30_codec_trace(avctx, trace_ref, "surface-begin", trace_query_rc);
++#endif
+@@ -508,0 +537 @@
++        p30_codec_trace(avctx, oh_decode_ref(s), "surface-end", err);
+@@ -759,0 +789 @@
++    p30_codec_trace(avctx, ref, "start-end", err);
+@@ -838 +868,2 @@
+-            while (ref->active > 0)
++            while (ref->active > 0) {
++                p30_codec_trace(avctx, ref, "close-active-wait", ref->active);
+@@ -839,0 +871,2 @@
++            }
++            p30_codec_trace(avctx, ref, "close-active-drained", 0);
+@@ -848,0 +882 @@
++            p30_codec_trace(avctx, ref, "stop-end", stop_err);
+@@ -865,0 +900 @@
++        p30_codec_trace(avctx, ref, "destroy-end", destroy_err);

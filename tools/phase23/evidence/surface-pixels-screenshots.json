@@ -1,0 +1,20 @@
+[
+  {
+    "file": "gl.jpeg",
+    "modeVisuallyConfirmed": "gl-hevc",
+    "sha256": "bf651a2646079d54ec7c46a318b762a7fed9be43a6ade1de59fb35378eac79da",
+    "bytes": 240057,
+    "receivedAtUTC": "2026-10-20T04:59:42.640496+00:00",
+    "visualInspection": "fills same XComponent area with test pattern and Chinese OSD/subtitle",
+    "pixelAccuracyClaimed": false
+  },
+  {
+    "file": "vk.jpeg",
+    "modeVisuallyConfirmed": "vk-h264",
+    "sha256": "5f5ef3832a1a1afff8ee3c5e6cce0042ede6b54b85374c62bfe8bc3cbec462dc",
+    "bytes": 233748,
+    "receivedAtUTC": "2026-10-20T04:59:06.136604+00:00",
+    "visualInspection": "fills same XComponent area with test pattern and Chinese OSD/subtitle",
+    "pixelAccuracyClaimed": false
+  }
+]

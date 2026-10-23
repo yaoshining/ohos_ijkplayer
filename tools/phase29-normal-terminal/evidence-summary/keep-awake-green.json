@@ -1,0 +1,9 @@
+{
+  "case": "inflight-enable-after-terminal",
+  "calls": [
+    true,
+    false
+  ],
+  "actualKeepScreen": false,
+  "passed": true
+}

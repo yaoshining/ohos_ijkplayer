@@ -1,0 +1,34 @@
+name: Phase22 device contract
+on:
+  push:
+    branches: [codex/phase22-device-validation]
+    paths: ['tools/phase22/**', '.github/workflows/phase22-device-contract.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  contract:
+    runs-on: ubuntu-22.04
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONNOUSERSITE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Run actual C and C++ contract regressions
+        run: |
+          set -euo pipefail
+          mkdir -p out/phase22-contract
+          python3 -B -m unittest discover -s tools/phase22/tests -v 2>&1 | tee out/phase22-contract/tests.log
+      - name: Bind source and result
+        if: always()
+        env:
+          JOB_STATUS: ${{ job.status }}
+        run: python3 -B tools/phase22/collect_contract.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: phase22-contract
+          path: out/phase22-contract

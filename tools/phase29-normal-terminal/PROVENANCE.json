@@ -1,0 +1,116 @@
+{
+  "formalArtifactAllowed": false,
+  "previousSealSHA256": "1ecae342b469438a860cd561ef96f94ab5fdae81cd08728206fbf142ca4a477f",
+  "sources": [
+    {
+      "path": "input-package/sources/mpv/Copyright",
+      "sha256": "bfe9ee4cceabcb8ecbfadf208d04156f73d801e6a57369a5606bb8341e204a23",
+      "origin": "本轮独立input-package，继承phase28-normal-unsafe封存及本轮公共ABI最小修改"
+    },
+    {
+      "path": "input-package/sources/mpv/LICENSE.GPL",
+      "sha256": "edaef632cbb643e4e7a221717a6c441a4c1a7c918e6e4d56debc3d8739b233f6",
+      "origin": "本轮独立input-package，继承phase28-normal-unsafe封存及本轮公共ABI最小修改"
+    },
+    {
+      "path": "input-package/sources/mpv/LICENSE.LGPL",
+      "sha256": "72b672113d642cbb8ef5dcc76938db801983c56e50b1400ab930f1a64d6dc8d9",
+      "origin": "本轮独立input-package，继承phase28-normal-unsafe封存及本轮公共ABI最小修改"
+    },
+    {
+      "path": "input-package/sources/mpv/include/mpv/client.h",
+      "sha256": "3c073236a09cb456c6e80587d5523c8771c32fb22ca014e0f99cc3d43905b75c",
+      "origin": "本轮独立input-package，继承phase28-normal-unsafe封存及本轮公共ABI最小修改"
+    },
+    {
+      "path": "input-package/sources/mpv/include/mpv/ohcodec_terminal.h",
+      "sha256": "e8556c6519258247809acc1657b5142a2a5533ea6357fd766d5c615fcc3c7b21",
+      "origin": "本轮独立input-package，继承phase28-normal-unsafe封存及本轮公共ABI最小修改"
+    },
+    {
+      "path": "input-package/sources/mpv/meson.build",
+      "sha256": "35bf8dec78da5d1832e5dd4cac59e466fe95b6f5bf980e4ca18cebab50553d19",
+      "origin": "本轮独立input-package，继承phase28-normal-unsafe封存及本轮公共ABI最小修改"
+    },
+    {
+      "path": "input-package/sources/mpv/misc/dispatch.c",
+      "sha256": "488d517a098ae50bc839b172f58aa59e75c3f0758de9745a4325c37eac9e8cee",
+      "origin": "本轮独立input-package，继承phase28-normal-unsafe封存及本轮公共ABI最小修改"
+    },
+    {
+      "path": "input-package/sources/mpv/player/main.c",
+      "sha256": "c3bfca8c73543fc7beed2ce1f6856d0d2bfd5f0178af3149d592c7395788ff3e",
+      "origin": "本轮独立input-package，继承phase28-normal-unsafe封存及本轮公共ABI最小修改"
+    },
+    {
+      "path": "input-package/sources/mpv/player/video.c",
+      "sha256": "fcb5ea2449d9dce5a1bb518fc8905a22815411eb8ad20fc528b266f25d221512",
+      "origin": "本轮独立input-package，继承phase28-normal-unsafe封存及本轮公共ABI最小修改"
+    },
+    {
+      "path": "input-package/sources/mpv/video/decode/vd_lavc.c",
+      "sha256": "f745a27d2071c7b7695897a053b8a4d6cadfb1bf6e620158338991dfc443a0b7",
+      "origin": "本轮独立input-package，继承phase28-normal-unsafe封存及本轮公共ABI最小修改"
+    },
+    {
+      "path": "input-package/sources/mpv/video/hwdec.c",
+      "sha256": "1e33af77233d13ba0741c7c06676c4872f72cd116cb75f1c1856b9f6020c96b1",
+      "origin": "本轮独立input-package，继承phase28-normal-unsafe封存及本轮公共ABI最小修改"
+    },
+    {
+      "path": "input-package/sources/mpv/video/out/gpu/hwdec.c",
+      "sha256": "c27baa56daeb036f2407beb3b1d96332ed1c8abe25902a96e23268f993705475",
+      "origin": "本轮独立input-package，继承phase28-normal-unsafe封存及本轮公共ABI最小修改"
+    },
+    {
+      "path": "input-package/sources/mpv/video/out/hwdec/hwdec_ohcodec.c",
+      "sha256": "6d03e627484b1ad9c5c5c4fcdb1d022ff7dacd423f2c626acfe1f7679887c0c7",
+      "origin": "本轮独立input-package，继承phase28-normal-unsafe封存及本轮公共ABI最小修改"
+    },
+    {
+      "path": "input-package/sources/mpv/video/out/hwdec/hwdec_ohcodec_pl.c",
+      "sha256": "748dc4357ca1e050f5738c95f459d3ff74d0e5aff6d6a0a161d3a31faa6ac8f0",
+      "origin": "本轮独立input-package，继承phase28-normal-unsafe封存及本轮公共ABI最小修改"
+    },
+    {
+      "path": "input-package/sources/mpv/video/out/hwdec/ohcodec_terminal.c",
+      "sha256": "f6bede79b265baa63d1e7c335a9cc6286b1d6da19268fb3eabd6c38be2482ee2",
+      "origin": "本轮独立input-package，继承phase28-normal-unsafe封存及本轮公共ABI最小修改"
+    },
+    {
+      "path": "input-package/sources/mpv/video/out/hwdec/ohcodec_terminal.h",
+      "sha256": "66e04b6c41a6934217d0ffac2a22c4e0ed9346ae669ee51cd691b1449b5d3c4d",
+      "origin": "本轮独立input-package，继承phase28-normal-unsafe封存及本轮公共ABI最小修改"
+    },
+    {
+      "path": "input-package/sources/mpv/video/out/hwdec/ohcodec_terminal_api.c",
+      "sha256": "6349dd796e7a123f05af034c5aa42ff0a6a9c9e57ba94b9c828061c074a18ccc",
+      "origin": "本轮独立input-package，继承phase28-normal-unsafe封存及本轮公共ABI最小修改"
+    },
+    {
+      "path": "input-package/sources/mpv/video/out/vo.c",
+      "sha256": "2bb427e92e279323a5a0ebf690a98c0ed9be5e6d6eb3892f2da11741c0874bec",
+      "origin": "本轮独立input-package，继承phase28-normal-unsafe封存及本轮公共ABI最小修改"
+    },
+    {
+      "path": "input-package/sources/mpv/video/out/vo_gpu_next.c",
+      "sha256": "01fe9e8825b9014e58aa75f04947e3a3403e7e4293937c04a4ef01be6326bd2a",
+      "origin": "本轮独立input-package，继承phase28-normal-unsafe封存及本轮公共ABI最小修改"
+    }
+  ],
+  "licenses": [
+    "input-package/sources/mpv/Copyright",
+    "input-package/sources/mpv/LICENSE.GPL",
+    "input-package/sources/mpv/LICENSE.LGPL"
+  ],
+  "typescript": "4.9.5 npm lock integrity, Apache-2.0",
+  "targetDependencies": "沿用前阶段完整输入包，Python目标路径修复保留；未提交任何SDK/库/媒体",
+  "appSource": "当前application正文对应UI2修订；normal.hap验证了该修订之前相同native接管/正常播放源码，旧UI文本差异另存application-variants/Index.pre-ui2.ets",
+  "pending": [
+    "远端Linux CI",
+    "Player/TV实际接入",
+    "真实GPU调用永不返回",
+    "真实强并发",
+    "物理HDR及主观声画"
+  ]
+}

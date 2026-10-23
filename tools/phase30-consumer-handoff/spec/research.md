@@ -1,0 +1,9 @@
+# 只读发现与选择
+
+现有vk-consumer-switch在一个worker按END_FILE后依次loadfile，force-window=yes已可选；这不是并发。FFmpeg consumer-challenge通过同线程构造第二registry身份，platform_called=0，仅DIAGNOSTIC编译，不能证明normal生产锁。
+
+normal FFmpeg已有ref gate/active/detached：admit在gate内增加active；Close先detached并清attached，再等待active为0，之后Stop/Destroy；callback/token共用该真实gate。mpv同实例核心dispatch串行执行命令。测试将验证这条真实链的可达先后，不引入新的registry。
+
+owner身份仪表当前仅DIAGNOSTIC可编译；新独立观测宏复用查询但不会切回旧诊断terminal行为。NativeImage/NativeWindow稳定ID API在所属串行owner/decoder线程查询并缓存；callback内不查询非线程安全平台对象。
+
+播放器同进程应用不可在UNSAFE后同步release/query。此前用户选择故障提示后应用主动终止；本轮原normal接管ABI与应用deadline继续启用，不修改产品策略。

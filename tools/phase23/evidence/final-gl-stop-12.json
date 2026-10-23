@@ -1,0 +1,69 @@
+{
+  "pid": 36127,
+  "hapSHA256": "ba33bf96dc7d7d587209d38978eb7bd96b4287984fdf567f1bb774a43d2d3643",
+  "libraries": {
+    "libavcodec.so.62": "6f541583c4dd1ff3e4e5472404809340b4594a790e66917bfec4bbd40844e4dd",
+    "libavfilter.so.11": "82b431c76910f2a826c7679b3cfb9273dd131c1566d06cee1f80818f23c2622c",
+    "libavformat.so.62": "92e495c730a48604976bd5b1507113f7ae820ee51307542a36a61111c9da8c4c",
+    "libavutil.so.60": "671d7394ccffcfb8578b278b8751646902cbe81da091eb45c0d6168dd5ef828b",
+    "libmpv.so": "da6fcbc59b743d1afdaead29cbdf4d3994646f371d6b9202aa7295d958c5aaf9",
+    "libswresample.so.6": "4244a9e1e2697bd8ec35436148d55d5e8b2c09080c40754cc505a05c5fc52e3b",
+    "libswscale.so.9": "f1982cde4d2b6d899f99e38ae4cfb50dcda4859e9912a6b4f18913ebaf9836a0"
+  },
+  "nativeLogSHA256": "f5ec52f7f139cb0a3ac3969304a829711fe66f7ec0be58685574989415891bda",
+  "cases": [
+    {
+      "mode": "gl-h264",
+      "cycle": 0,
+      "surface": "5171140624721",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=203 hwdec=ohcodec ao=ohaudio gpu=ohos maxLogicalDrift=0.0333333 driftSamples=1202 seekConfirmed=1 stopped=0",
+      "reportedFd": 57,
+      "tasks": 36,
+      "rssKiB": 210660,
+      "mapsMatch": true
+    },
+    {
+      "mode": "gl-h264",
+      "cycle": 1,
+      "surface": "5171140624721",
+      "result": "loaded=1 eof=0 observedDistinctPlaybackPTSWithFrame=34 hwdec=ohcodec ao=ohaudio gpu=ohos maxLogicalDrift=0.0333274 driftSamples=1003 seekConfirmed=0 stopped=1",
+      "reportedFd": 57,
+      "tasks": 32,
+      "rssKiB": 206972,
+      "mapsMatch": true
+    },
+    {
+      "mode": "gl-sw",
+      "cycle": 2,
+      "surface": "5171140624722",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=206 hwdec=no ao=ohaudio gpu=ohos maxLogicalDrift=0.0333333 driftSamples=1416 seekConfirmed=1 stopped=0",
+      "reportedFd": 57,
+      "tasks": 31,
+      "rssKiB": 196440,
+      "mapsMatch": true
+    },
+    {
+      "mode": "gl-sw",
+      "cycle": 3,
+      "surface": "5171140624722",
+      "result": "loaded=1 eof=0 observedDistinctPlaybackPTSWithFrame=33 hwdec=no ao=ohaudio gpu=ohos maxLogicalDrift=0.0333176 driftSamples=1214 seekConfirmed=0 stopped=1",
+      "reportedFd": 57,
+      "tasks": 32,
+      "rssKiB": 231732,
+      "mapsMatch": true
+    },
+    {
+      "mode": "gl-sw",
+      "cycle": 4,
+      "surface": "5171140624723",
+      "result": "loaded=1 eof=1 observedDistinctPlaybackPTSWithFrame=205 hwdec=no ao=ohaudio gpu=ohos maxLogicalDrift=0.0333333 driftSamples=1415 seekConfirmed=1 stopped=0",
+      "reportedFd": 57,
+      "tasks": 32,
+      "rssKiB": 213448,
+      "mapsMatch": true
+    }
+  ],
+  "targetExecuted": true,
+  "humanAudiovisualAcceptance": false,
+  "formalArtifactAllowed": false
+}

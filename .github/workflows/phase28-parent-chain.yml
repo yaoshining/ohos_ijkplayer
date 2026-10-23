@@ -1,0 +1,30 @@
+name: Phase28 完整父级链独立验证
+on:
+  push:
+    branches: [codex/phase28-validation]
+    paths:
+      - 'tools/phase28-parent-chain/**'
+      - '.github/workflows/phase28-parent-chain.yml'
+      - 'specs/001-ffmpeg-ohcodec-producer/phase28-parent-chain-ci/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  parent-chain:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONNOUSERSITE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - name: 固定文本输入真实函数和门禁重放
+        run: python3 -B tools/phase28-parent-chain/runner.py --out "${{ runner.temp }}/phase28-parent-chain"
+      - name: 上传允许列表文本证据（包含失败）
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase28-parent-chain-evidence
+          path: ${{ runner.temp }}/phase28-parent-chain/artifact/
+          if-no-files-found: error
+          retention-days: 30

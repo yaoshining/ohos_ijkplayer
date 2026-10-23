@@ -1,0 +1,55 @@
+--- a/hwdec_ohcodec_pl.c
++++ b/hwdec_ohcodec_pl.c
+@@ -3,6 +3,7 @@
+ #include <inttypes.h>
+ #include <string.h>
+ #include <unistd.h>
++
+ 
+ #include <vulkan/vulkan.h>
+ #include <vulkan/vulkan_ohos.h>
+@@ -112,7 +113,10 @@
+ 
+     if (mapper->tex[0] == entry->ratex)
+         mapper->tex[0] = NULL;
+-    ra_tex_free(mapper->ra, &entry->ratex);
++    if (entry->ratex)
++        ra_tex_free(mapper->ra, &entry->ratex);
++    else
++        pl_tex_destroy(v->gpu, &entry->pltex);
+     entry->pltex = NULL;
+     vkDestroySemaphore(dev, entry->release_sem, NULL);
+     vkDestroySemaphore(dev, entry->acquire_sem, NULL);
+@@ -403,14 +407,18 @@
+     if (!buffer)
+         return;
+ 
+-    OH_NativeWindow_NativeObjectUnreference(buffer);
+     int ret = OH_NativeImage_ReleaseNativeWindowBuffer(owner->surface->image,
+                                                         buffer, fence_fd);
+     if (ret != NATIVE_ERROR_OK) {
+-        if (fence_fd >= 0)
+-            close(fence_fd);
++        // A failed queue return retains the wrapper reference created by
++        // AcquireNativeWindowBuffer (e.g. decoder stop removed the buffer from
++        // the queue cache). Release that reference ourselves. The platform
++        // consumes fence_fd on queue return, including this failure path.
++        OH_NativeWindow_NativeObjectUnreference(buffer);
+         MP_ERR(mapper, "ReleaseNativeWindowBuffer failed: %d\n", ret);
+     }
++    // Drop our additional reference only after returning the acquired one.
++    OH_NativeWindow_NativeObjectUnreference(buffer);
+ }
+ 
+ static void release_window_buffer(struct ra_hwdec_mapper *mapper, int fence_fd)
+@@ -509,8 +517,8 @@
+     if (OH_NativeWindow_NativeObjectReference(wb) != NATIVE_ERROR_OK) {
+         int release = OH_NativeImage_ReleaseNativeWindowBuffer(
+             owner->surface->image, wb, fence_fd);
+-        if (release != NATIVE_ERROR_OK && fence_fd >= 0)
+-            close(fence_fd);
++        if (release != NATIVE_ERROR_OK)
++            OH_NativeWindow_NativeObjectUnreference(wb);
+         return NATIVE_ERROR_UNKNOWN;
+     }
+     if (OH_NativeBuffer_FromNativeWindowBuffer(wb, &buffer) != NATIVE_ERROR_OK ||

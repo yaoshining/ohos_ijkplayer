@@ -1,0 +1,7 @@
+{
+  "name": "entry",
+  "version": "1.0.0",
+  "dependencies": {
+    "libphase22.so": "file:./src/main/cpp/types/libphase22"
+  }
+}

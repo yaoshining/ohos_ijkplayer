@@ -1,0 +1,34 @@
+{
+  "sourceFiles": [
+    {
+      "path": "input-package/sources/mpv/video/out/opengl/context_ohos.c",
+      "sha256": "f5297300c6b7c7cb41264530b03188d2a1406a27e5b7ca2f890a8a9a2f1b79d7",
+      "preimage": "preimages/context_ohos.c",
+      "preimageSHA256": "2757ffdaec1a8ee4126717f0f714ee584b0320d6fc757dba92f3ef2aef87b335",
+      "patch": "patches/context_ohos.c.patch",
+      "patchSHA256": "6f9f4488366318ccff9fcf811c7deeade479aa56a1099a95553fbfbf6dd252ef"
+    },
+    {
+      "path": "input-package/sources/mpv/video/out/hwdec/hwdec_ohcodec_pl.c",
+      "sha256": "494ab023dd3983c1e5ae2f50d51184ebfc14725e017b60c23baa52d6c5d4d9d2",
+      "preimage": "preimages/hwdec_ohcodec_pl.c",
+      "preimageSHA256": "1120e2a961af94258a0f54e9aba6b3a0abd6cf4d8f93e28d8318263019116ca8",
+      "patch": "patches/hwdec_ohcodec_pl.c.patch",
+      "patchSHA256": "e5c08ce85645941f9895fcab5f954f9cc51833a13ce65cc2b55196e07b211f1c"
+    },
+    {
+      "path": "ffmpeg-input/source/libavcodec/ohdec.c",
+      "sha256": "c2d722e29e57715e773d2cac097788555541ba70d668830219e03763d10d6d0e",
+      "preimage": "preimages/ohdec.c",
+      "preimageSHA256": "e4a213d8d98112896532043e5b0322ea3e997ad1041b05415bc6ce9d6422d9e6",
+      "patch": "patches/ohdec.c.patch",
+      "patchSHA256": "c58ad9eb45b7f195a9021337905da71823235ba94b3c52d3d8c9bc528133a05c"
+    }
+  ],
+  "systemBinaryIncluded": false,
+  "hapIncluded": false,
+  "mpvBaseCommit": "6edeee00a07b9b76f197aa71eee3d029fb090de4",
+  "libplaceboCommit": "cee9b076f2c63104ccfd497fa79c39a867293ec4",
+  "originalInputPackageSHA256": "b8d9ce242411ddf5e2cf347b7418698d23701e31274b4a32f564ab34e4ad403a",
+  "ffmpegBase": "Phase20 local-v3 origin-a exact source files, before and patched file SHA bound"
+}
