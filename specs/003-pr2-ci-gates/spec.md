@@ -11,3 +11,9 @@
 - FR07 各阶段历史CI不冒充新SHA/组合CI；当前远端run仅观察，不取消或重启。
 
 PR2宿主覆盖Phase18来源/工具/证据契约与Phase20实际C运行目录生命周期；Phase18新十库+LP/mpv、Phase20真实Linux Samba及目标两fresh分别保留真实执行，宿主不能替代。
+
+## 真实 CI 发现的输出目录边界
+
+Phase20 native run `39995316236` 的实际 Samba 测试通过，但快照将未忽略的生成文件当作源输入，收尾失败。FR03 的最小落地补充：仅允许 `/out/phase18-host/`、`/out/phase18-ci/`、`/out/phase18-artifact/`、`/out/phase20-ci/`、`/out/phase20-artifact-native/`、`/out/phase20-artifact-target/` 六个精确输出根。由 Git ignore 处理新生成文件，不改变 engine 比较逻辑；任何已 tracked 文件（即使位于这些根）、其他未忽略文件、原输入删改仍拒绝。旧失败不能改判为成功，新修复 SHA 仍需独立远端验证。
+
+组合范围说明：PR1既有 `/out/` 忽略规则保持原样。PR2精确六根块置顶以避免同尾冲突；组合仍继承PR1旧策略，不能宣称组合拒绝所有未知out文件。仓库根未忽略文件与全部tracked字节仍在门禁范围。

@@ -43,6 +43,10 @@ class Workflow(unittest.TestCase):
    result=subprocess.run(['bash','-e','-c','\n'.join(lines)],cwd=d,capture_output=True,text=True)
    self.assertNotEqual(result.returncode,0,'tee swallowed actual child exit 7')
    self.assertTrue((Path(d)/'out/phase20-ci/unit-tests.log').exists())
+ def test_pr2_precise_output_rules(self):
+  lines=(REPO/'.gitignore').read_text().splitlines()
+  self.assertEqual(lines[1:7],['/out/phase18-host/','/out/phase18-ci/','/out/phase18-artifact/','/out/phase20-ci/','/out/phase20-artifact-native/','/out/phase20-artifact-target/'])
+  self.assertTrue(lines[0].startswith('# PR2'))
  def test_module_ownership_complete(self):
   contract=json.loads((HERE/'commands.json').read_text())
   for phase,prepared in [('phase18',{'test_recipes.py'}),('phase20',{'test_apply.py'})]:
@@ -126,6 +130,32 @@ class Engine(unittest.TestCase):
   out=self.root/'stale';self.assertTrue(self.e.execute(self.repo,out,[('ok',[sys.executable,'-c','print("pass")'])],{}));(out/'bad.log').write_bytes(b'\x00')
   with self.assertRaises(ValueError):self.e.collect(out)
   self.assertFalse((out/'artifact-index.json').exists());self.assertFalse((out/'artifact').exists())
+ def snapshot_fixture(self):
+  folder=self.repo/'tools'/HERE.name;folder.mkdir(parents=True)
+  for name in ['engine.py','snapshot.py']:shutil.copyfile(HERE/name,folder/name)
+  shutil.copyfile(REPO/'.gitignore',self.repo/'.gitignore')
+  self.commit('real snapshot and ignore contract')
+  return folder,{k:v for k,v in os.environ.items() if not k.startswith('GITHUB_')}
+ def snapshot_cli(self,folder,env,out,mode):
+  return subprocess.run([sys.executable,'-B',str(folder/'snapshot.py'),mode,'--out',str(out)],cwd=self.repo,env=env,capture_output=True,text=True)
+ def test_actual_generated_outputs_snapshot(self):
+  folder,env=self.snapshot_fixture();out=self.root/'snapshot-outputs'
+  self.assertEqual(self.snapshot_cli(folder,env,out,'begin').returncode,0)
+  for name in ['phase18-host','phase18-ci','phase18-artifact','phase20-ci','phase20-artifact-native','phase20-artifact-target']:
+   target=self.repo/'out'/name/'nested/source-or-result';target.parent.mkdir(parents=True);target.write_text('actual generated output')
+  end=self.snapshot_cli(folder,env,out,'end');self.assertEqual(end.returncode,0,end.stdout+end.stderr)
+  result=json.loads((out/'result.json').read_text());self.assertTrue(result['accepted']);self.assertTrue(result['inputsUnchanged']);self.assertTrue(result['identityUnchanged'])
+ def test_tracked_under_output_root_still_locked(self):
+  folder,env=self.snapshot_fixture();tracked=self.repo/'out/phase20-ci/tracked-source';tracked.parent.mkdir(parents=True);tracked.write_text('tracked original');self.git('add','-f',str(tracked));self.git('commit','-qm','tracked source in ignored root')
+  out=self.root/'snapshot-tracked';self.assertEqual(self.snapshot_cli(folder,env,out,'begin').returncode,0);tracked.write_text('changed')
+  self.assertEqual(self.snapshot_cli(folder,env,out,'end').returncode,1);self.assertFalse(json.loads((out/'result.json').read_text())['accepted'])
+ def test_unknown_untracked_output_rejected(self):
+  folder,env=self.snapshot_fixture();out=self.root/'snapshot-unknown';self.assertEqual(self.snapshot_cli(folder,env,out,'begin').returncode,0)
+  unexpected=self.repo/'unexpected-source/generated';unexpected.parent.mkdir(parents=True);unexpected.write_text('not allowed')
+  self.assertEqual(self.snapshot_cli(folder,env,out,'end').returncode,1);self.assertFalse(json.loads((out/'result.json').read_text())['accepted'])
+ def test_tracked_input_deleted_rejected(self):
+  folder,env=self.snapshot_fixture();out=self.root/'snapshot-deleted';self.assertEqual(self.snapshot_cli(folder,env,out,'begin').returncode,0);(self.repo/'input').unlink()
+  self.assertEqual(self.snapshot_cli(folder,env,out,'end').returncode,1);self.assertFalse(json.loads((out/'result.json').read_text())['accepted'])
  def test_merge_group_identity(self):
   env,_=self.merge_env();env['GITHUB_EVENT_NAME']='merge_group';Path(env['GITHUB_EVENT_PATH']).write_text(json.dumps({'merge_group':{'head_sha':env['GITHUB_SHA'],'base_sha':self.git('rev-parse','HEAD^')}}));self.assertEqual(self.e.identity(self.repo,env)['event'],'merge_group')
 if __name__=='__main__':unittest.main()

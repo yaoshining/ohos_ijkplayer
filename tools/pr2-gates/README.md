@@ -44,6 +44,14 @@ PR 默认测试 GitHub 合并 checkout，身份校验实际 HEAD 的两个父提
 |20|test_runtime.py|18|同上|
 |20|test_apply.py|不运行|prepare设置真实Samba/FFmpeg源码，2例|
 
-PR2本门禁另25例。Phase18目标还运行展开的 integration/runtime测试、八个C/C++依赖、shaderc传递依赖、dovi/Rust宿主测试以及新十库的LP/mpv双目录构建；Phase20 native job运行真实Linux Samba/strace，target job完成两次全新目标构建和产物核验。它们未被宿主预演代替。
+PR2首版门禁另25例；输出隔离返修及精确规则检查增加5例后为30例。Phase18目标还运行展开的 integration/runtime测试、八个C/C++依赖、shaderc传递依赖、dovi/Rust宿主测试以及新十库的LP/mpv双目录构建；Phase20 native job运行真实Linux Samba/strace，target job完成两次全新目标构建和产物核验。它们未被宿主预演代替。
 
 Phase20 的 `tee` 失败传播回归实际用退出7的子进程替换旧step左侧命令，执行 bash -e：冻结 a73e 父提交得到exit0，语义RED；当前step显式bash和 `set -euo pipefail` 后非零。此补充回归在第一次workflow最小修改后添加，通过冻结baseline证明旧问题，不冒称早于首次编辑。审查所涉四workflow只有该处shell管道，其他多行run不含未保护的tee管道。
+
+## 输出隔离返修（保留真实 CI 失败）
+
+`615b3bdb...` 的 Phase20 native job（run `39995316236`）完成真实 Samba 测试，但 `.gitignore` 未覆盖本阶段输出，新增 snapshot 收尾失败。artifact `12519049535` ZIP SHA256 `8933f73fd857d1e91d2e249b10297b2547015a2cae706fb8119694b1db15c97c` 的原408项输入无删改，新增12179项全部位于允许输出根。未改旧失败记录。
+
+新规则只加入六个精确输出根，详见新规格；engine/snapshot逻辑完全不变。实际 Git fixture 的 RED为29例中1例（合法输出被拒），GREEN30例覆盖合法输出、同根tracked改动拒绝、仓库根unexpected-source拒绝、输入删除拒绝及六根精确规则。本机证据根 `/private/tmp/producer-pr-gates-20261024/evidence-pr2/` 的 `output-isolation-red.log`、`output-isolation-green.log` 和 `output-path-evidence-replay.json` 为审查补充；新精确 SHA 的远端 CI 未运行，目标重建仍待审批后执行。
+
+PR2独立分支仅新增六个精确根，置于文件顶部避免与PR1已有尾部规则合并冲突。最终组合继承PR1先前已有的 `/out/` 忽略策略；本轮不修改或扩大该既有策略。因此其他未忽略文件的负例使用仓库根 `unexpected-source`，不将组合中原本已忽略的out路径冒称受此负例保护。所有tracked输入始终受保护。
