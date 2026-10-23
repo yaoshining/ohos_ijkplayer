@@ -2,7 +2,7 @@
 
 补齐 PR #9 在真实合并版本的宿主契约，旧阶段记录及工作流保持原样。正式产物允许仍为 false。
 
-- FR01：pull_request 和手动运行执行 11 项矩阵，任一失败、取消、缺输入不得绿色聚合。
+- FR01：pull_request、master push、merge_group 和手动运行执行 11 项矩阵，任一失败、取消、缺输入不得绿色聚合。
 - FR02：绑定实际 checkout/tree/parents；PR 必须为 event base/head 的合并版本，不能把原分支或旧 CI 作为此次证据。
 - FR03：真实运行阶段契约及 RED/GREEN、失败注入，完整父链、normal 公共 ABI、consumer 互操作、正常操作离线门禁均覆盖。
 - FR04：只上传文本证据，依赖工具、上游下载、固定哈希、制品索引错误均失败。

@@ -29,6 +29,31 @@ class GateTests(unittest.TestCase):
   self.assertTrue(g.aggregate([{'case':c,'accepted':True} for c in g.CASES]))
  def test_duplicate_matrix(self):
   self.assertFalse(g.aggregate([{'case':c,'accepted':True} for c in g.CASES]+[{'case':'21','accepted':True}]))
+class AggregateCLITests(unittest.TestCase):
+ def test_missing_and_foreign_identity_fail_closed(self):
+  with tempfile.TemporaryDirectory() as d:
+   root=Path(d).resolve();matrix=root/'matrix';matrix.mkdir()
+   for c in g.CASES:
+    case=matrix/c;case.mkdir();g.write(case/'result.json',{'case':c,'accepted':True,'identity':{'checkout':'wrong'}});g.write(case/'artifact-index.json',{'files':[{'path':'result.json','size':(case/'result.json').stat().st_size,'sha256':g.sha(case/'result.json')}]})
+   p=subprocess.run([sys.executable,'-B',str(g.ROOT/'tools/pr3-gates/gate.py'),'--aggregate',str(matrix),'--out',str(root/'result.json')],capture_output=True)
+   self.assertNotEqual(p.returncode,0)
+class FullAggregateCLITests(unittest.TestCase):
+ def test_all_indexes_checked(self):
+  import shutil
+  with tempfile.TemporaryDirectory() as d:
+   root=Path(d).resolve();repo=root/'repo';(repo/'tools/pr3-gates').mkdir(parents=True);(repo/'.github/workflows').mkdir(parents=True)
+   shutil.copy(g.ROOT/'tools/pr3-gates/gate.py',repo/'tools/pr3-gates/gate.py');shutil.copy(g.ROOT/'.github/workflows/pr3-contracts.yml',repo/'.github/workflows/pr3-contracts.yml')
+   def git(*a):return subprocess.check_output(['git','-C',str(repo),'-c','user.name=Test','-c','user.email=test@example.invalid',*a],stderr=subprocess.DEVNULL,text=True).strip()
+   git('init','-b','main');git('add','.');git('commit','-m','test')
+   ident={'checkout':git('rev-parse','HEAD'),'tree':git('rev-parse','HEAD^{tree}'),'parents':'','status':'','event':'local'}
+   matrix=root/'matrix';matrix.mkdir()
+   for c in g.CASES:
+    case=matrix/c;case.mkdir();g.write(case/'result.json',{'case':c,'accepted':True,'identity':ident});(case/'log.txt').write_text('ok');g.write(case/'artifact-index.json',{'files':[{'path':p.name,'size':p.stat().st_size,'sha256':g.sha(p)} for p in case.iterdir()]})
+   env={k:v for k,v in os.environ.items() if not k.startswith('GITHUB_')}
+   def run():return subprocess.run([sys.executable,'-B',str(repo/'tools/pr3-gates/gate.py'),'--aggregate',str(matrix),'--out',str(root/'result.json')],env=env,capture_output=True).returncode
+   self.assertEqual(run(),0)
+   for c in ('22','31'):
+    (matrix/c/'log.txt').write_text('bad');self.assertNotEqual(run(),0);(matrix/c/'log.txt').write_text('ok')
 class IdentityTests(unittest.TestCase):
  def test_real_merge_identity(self):
   with tempfile.TemporaryDirectory() as d:
@@ -40,6 +65,21 @@ class IdentityTests(unittest.TestCase):
    env={'GITHUB_ACTIONS':'true','GITHUB_EVENT_NAME':'pull_request','GITHUB_EVENT_PATH':str(event),'GITHUB_SHA':merge}
    with patch.object(g,'ROOT',repo),patch.dict(os.environ,env):
     ev(base,head);self.assertEqual(g.identity()['checkout'],merge)
+    shallow=Path(d).resolve()/'shallow'
+    subprocess.run(['git','clone','--depth=1',repo.as_uri(),str(shallow)],check=True,capture_output=True)
+    with patch.object(g,'ROOT',shallow):
+     with self.assertRaises(ValueError):g.identity()
+     subprocess.run(['git','-C',str(shallow),'fetch','--unshallow'],check=True,capture_output=True)
+     self.assertEqual(g.identity()['checkout'],merge)
+
+    with patch.dict(os.environ,{'GITHUB_EVENT_NAME':'merge_group'}):
+     event.write_text(json.dumps({'merge_group':{'base_sha':base,'head_sha':merge}}));self.assertEqual(g.identity()['checkout'],merge)
+     event.write_text(json.dumps({'merge_group':{'base_sha':base,'head_sha':head}}))
+     with self.assertRaises(ValueError):g.identity()
+     event.write_text(json.dumps({'merge_group':{'base_sha':'0'*40,'head_sha':merge}}))
+     with self.assertRaises(ValueError):g.identity()
+    ev(base,head)
+
     ev(head,base)
     with self.assertRaises(ValueError):g.identity()
     ev(base,head)
