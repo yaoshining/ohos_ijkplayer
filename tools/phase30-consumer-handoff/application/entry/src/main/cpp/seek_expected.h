@@ -1,0 +1,4 @@
+#pragma once
+struct SeekRange {long long offset;int length;const char* sha;};
+static const char *seek_file_sha="b2a34c1e3fd7ff76bfe713068a75045aae5fca297356bde90ce5e2de86ec1e8b";
+static SeekRange seek_ranges[]={{0,4096,"ad628194406c4a2a58c70e94c662d65ed435291a9361e860bf2b62e9dd1e6eb2"},{1,1024,"c325b306cca024025344e4023ffdfbca62a3034b745b5c8f437d0271f0c5cb00"},{4095,8192,"60e2670e283745eadfc613e4de9edbfb9abbcd1d230ac033e986f8edd9caceeb"},{4096,4096,"a6955bb2bb68d82e54a0275f1f1f20c80bae2abfc3de34406f8ac6099066d137"},{1048579,3000,"78aa5c0e6dc0311dcb0e42b69d8d49d72f7b1a1642d251d84f4e0760ba9489c9"},{8380415,8193,"0723fa490ee1d49fcb6104e1a440224529916d04dfaf79c1b4b423fcae132b0b"}};

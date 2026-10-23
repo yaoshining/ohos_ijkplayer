@@ -1,0 +1,10 @@
+{
+  "files": [
+    {
+      "path": "application/BUILD-NOTES.md",
+      "originalSHA256": "bc34afc771fa64a4b61aefa4485cb656d52cd7f1a1ae9599405c0710057d7b00",
+      "packagedSHA256": "7c2c1c23a69f85d3f9f9ef42bf6fad9819b4180d9e2a7140009de1ceb70cb6c4",
+      "reason": "独立CI打包说明替代过时产物描述；原始冻结源码不改"
+    }
+  ]
+}

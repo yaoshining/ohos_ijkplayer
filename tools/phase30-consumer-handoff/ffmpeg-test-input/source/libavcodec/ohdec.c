@@ -1,0 +1,1471 @@
+/*
+ * This file is part of FFmpeg.
+ *
+ * Copyright (c) 2025 Zhao Zhili <quinkblack@foxmail.com>
+ *
+ * FFmpeg is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * FFmpeg is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with FFmpeg; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+ */
+
+#include "config_components.h"
+
+#include <errno.h>
+#include <stdbool.h>
+#include <stdatomic.h>
+#include <time.h>
+#ifdef MP_OHCODEC_HANDOFF_TRACE
+#include <unistd.h>
+#include <pthread.h>
+#include <native_window/external_window.h>
+#endif
+#include <multimedia/player_framework/native_avcapability.h>
+#include <multimedia/player_framework/native_avcodec_videodecoder.h>
+#include <native_buffer/native_buffer.h>
+
+#include "libavutil/fifo.h"
+#include "libavutil/dovi_meta.h"
+#include "libavutil/hwcontext.h"
+#include "libavutil/hwcontext_oh.h"
+#include "libavutil/imgutils.h"
+#include "libavutil/mem.h"
+#include "libavutil/opt.h"
+#include "libavutil/thread.h"
+
+#include "avcodec.h"
+#include "codec_internal.h"
+#include "decode.h"
+#include "dovi_rpu.h"
+#include "h2645_parse.h"
+#include "hevc/hevc.h"
+#include "hwconfig.h"
+#include "ohcodec_hdr.h"
+#include <inttypes.h>
+#include "ohcodec.h"
+#include "ohcodec_buffer.h"
+
+#define OH_DOVI_QUEUE_SIZE 64
+
+/* A platform Stop/Destroy failure leaves a Surface producer in an unknown
+ * state. Do not create another OHCodec decoder in this process: the failure is
+ * terminal for this diagnostic run, while the close itself remains safe to
+ * complete. */
+static atomic_bool ohcodec_terminal_failure = ATOMIC_VAR_INIT(false);
+static atomic_int ohcodec_failed_destroy_count;
+
+typedef struct OHCodecDecQueueItem {
+    uint32_t index;
+    OH_AVBuffer *buffer;
+    uint64_t generation;
+} OHCodecDecQueueItem;
+
+typedef struct OHDoviFrame {
+    int64_t pts;
+    AVBufferRef *rpu;
+    AVBufferRef *metadata;
+} OHDoviFrame;
+
+typedef struct OHCodecDecRef {
+    OH_AVCodec *dec;
+#ifdef MP_OHCODEC_HANDOFF_TRACE
+    uint64_t trace_instance, trace_surface;
+#endif
+#ifdef MP_OHCODEC_DIAGNOSTIC
+    uint64_t diagnostic_instance;
+    uint64_t diagnostic_surface;
+    bool diagnostic_claimed;
+#endif
+    atomic_uint_fast64_t generation;
+
+    /* Phase28 callback/token lifetime gate. This object outlives the
+     * AVCodecContext while any hardware frame/token still holds it. */
+    AVMutex gate;
+    AVCond gate_cond;
+    bool gate_initialized;
+    int active;
+    bool detached;
+    bool paused;
+    bool start_attempted;
+    bool stopped;
+    bool destroyed;
+    AVCodecContext *attached;
+} OHCodecDecRef;
+
+typedef struct OHCodecDecContext {
+    AVClass *avclass;
+    OH_AVCodec *dec;
+    /* A reference count to dec. Each hardware frame has a reference count to
+     * dec. dec will be destroyed only after oh_decode_close and all hardware
+     * frames have been released.
+     */
+    AVBufferRef *dec_ref;
+
+    AVMutex input_mutex;
+    AVCond input_cond;
+    AVFifo *input_queue;
+
+    AVMutex output_mutex;
+    AVCond output_cond;
+    AVFifo *output_queue;
+
+    AVPacket pkt;
+    OHHdrState hdr;
+
+    DOVIContext dovi_ctx;
+    H2645Packet dovi_pkt;
+    OHDoviFrame dovi_frames[OH_DOVI_QUEUE_SIZE];
+    int nb_dovi_frames;
+
+    int decode_status;
+    bool eof_sent;
+    atomic_bool accepting_callbacks;
+    bool locks_initialized;
+    bool queues_initialized;
+
+    bool output_to_window;
+    bool got_stream_info;
+    bool platform_started;
+    int width;
+    int height;
+    int stride;
+    int slice_height;
+    OH_AVPixelFormat pix_fmt;
+    int bit_depth;
+
+    char *name;
+    int allow_sw;
+} OHCodecDecContext;
+
+struct AVOHCodecBuffer {
+    uint32_t index;
+    AVBufferRef *dec_ref;
+    uint64_t generation;
+    atomic_bool released;
+};
+
+static OHCodecDecRef *oh_decode_ref(const OHCodecDecContext *s)
+{
+    return (OHCodecDecRef *)s->dec_ref->data;
+}
+
+static uint64_t oh_decode_generation(const OHCodecDecContext *s)
+{
+    return atomic_load_explicit(&oh_decode_ref(s)->generation,
+                                memory_order_acquire);
+}
+
+static void oh_decode_invalidate_outputs(OHCodecDecContext *s)
+{
+    atomic_fetch_add_explicit(&oh_decode_ref(s)->generation, 1,
+                              memory_order_acq_rel);
+}
+
+/* Phase28 admission: callbacks and token native operations share one active
+ * count. Close detaches under the gate, then waits for active==0 without
+ * holding any queue lock or the platform callback mutex. */
+static bool oh_decode_admit(OHCodecDecRef *ref, AVCodecContext **out)
+{
+    *out = NULL;
+    if (!ref || !ref->gate_initialized)
+        return false;
+    ff_mutex_lock(&ref->gate);
+    if (!ref->detached && !ref->paused && ref->attached) {
+        ref->active++;
+        *out = ref->attached;
+    }
+    ff_mutex_unlock(&ref->gate);
+    return *out != NULL;
+}
+
+static void oh_decode_end(OHCodecDecRef *ref)
+{
+    if (!ref || !ref->gate_initialized)
+        return;
+    ff_mutex_lock(&ref->gate);
+    if (ref->active > 0)
+        ref->active--;
+    ff_cond_broadcast(&ref->gate_cond);
+    ff_mutex_unlock(&ref->gate);
+}
+
+static void oh_decode_report_error(OHCodecDecContext *s, int32_t err)
+{
+    // Careful on the lock order. Always lock input first.
+    ff_mutex_lock(&s->input_mutex);
+    ff_mutex_lock(&s->output_mutex);
+    s->decode_status = ff_oh_err_to_ff_err(err);
+    ff_mutex_unlock(&s->output_mutex);
+    ff_mutex_unlock(&s->input_mutex);
+
+    ff_cond_signal(&s->output_cond);
+    ff_cond_signal(&s->input_cond);
+}
+
+static void oh_decode_clear_dovi(OHCodecDecContext *s)
+{
+    for (int i = 0; i < s->nb_dovi_frames; i++) {
+        av_buffer_unref(&s->dovi_frames[i].rpu);
+        av_buffer_unref(&s->dovi_frames[i].metadata);
+    }
+    s->nb_dovi_frames = 0;
+}
+
+static int oh_decode_parse_dovi(AVCodecContext *avctx, const AVPacket *pkt)
+{
+    OHCodecDecContext *s = avctx->priv_data;
+    size_t sd_size;
+    const uint8_t *sd;
+    H2645NAL *rpu_nal = NULL;
+    AVBufferRef *rpu = NULL, *metadata = NULL;
+    AVDOVIMetadata *dovi = NULL;
+    int ret;
+
+    if (avctx->codec_id != AV_CODEC_ID_HEVC || !pkt->size)
+        return 0;
+    sd = av_packet_get_side_data(pkt, AV_PKT_DATA_DOVI_CONF, &sd_size);
+    if (sd && sd_size >= sizeof(s->dovi_ctx.cfg))
+        s->dovi_ctx.cfg = *(const AVDOVIDecoderConfigurationRecord *)sd;
+    ret = ff_h2645_packet_split(&s->dovi_pkt, pkt->data, pkt->size, avctx, 0,
+                                AV_CODEC_ID_HEVC, H2645_FLAG_SMALL_PADDING);
+    if (ret < 0)
+        return 0;
+    for (int i = s->dovi_pkt.nb_nals - 1; i >= 0; i--) {
+        H2645NAL *nal = &s->dovi_pkt.nals[i];
+        if (nal->type == HEVC_NAL_UNSPEC62 && nal->size > 2 &&
+            nal->raw_size > 2 && !nal->nuh_layer_id && !nal->temporal_id) {
+            rpu_nal = nal;
+            break;
+        }
+    }
+    if (!rpu_nal)
+        return 0;
+    rpu = av_buffer_alloc(rpu_nal->raw_size - 2);
+    if (!rpu)
+        return AVERROR(ENOMEM);
+    memcpy(rpu->data, rpu_nal->raw_data + 2, rpu_nal->raw_size - 2);
+    ret = ff_dovi_rpu_parse(&s->dovi_ctx, rpu_nal->data + 2,
+                            rpu_nal->size - 2, avctx->err_recognition);
+    if (ret < 0) {
+        av_buffer_unref(&rpu);
+        return 0;
+    }
+    ret = ff_dovi_get_metadata(&s->dovi_ctx, &dovi);
+    if (ret < 0) {
+        av_buffer_unref(&rpu);
+        return ret;
+    }
+    if (ret > 0) {
+        metadata = av_buffer_create((uint8_t *)dovi, ret, NULL, NULL, 0);
+        if (!metadata) {
+            av_free(dovi);
+            av_buffer_unref(&rpu);
+            return AVERROR(ENOMEM);
+        }
+    }
+    if (s->nb_dovi_frames == OH_DOVI_QUEUE_SIZE) {
+        av_buffer_unref(&s->dovi_frames[0].rpu);
+        av_buffer_unref(&s->dovi_frames[0].metadata);
+        memmove(&s->dovi_frames[0], &s->dovi_frames[1],
+                sizeof(s->dovi_frames[0]) * (OH_DOVI_QUEUE_SIZE - 1));
+        s->nb_dovi_frames--;
+    }
+    s->dovi_frames[s->nb_dovi_frames++] = (OHDoviFrame) {
+        .pts = pkt->pts == AV_NOPTS_VALUE ? AV_NOPTS_VALUE :
+               av_rescale_q(pkt->pts, avctx->pkt_timebase, AV_TIME_BASE_Q),
+        .rpu = rpu, .metadata = metadata,
+    };
+    return 0;
+}
+
+static int oh_decode_attach_dovi(OHCodecDecContext *s, AVFrame *frame,
+                                 int64_t pts)
+{
+    int found = -1;
+    for (int i = 0; i < s->nb_dovi_frames; i++)
+        if (s->dovi_frames[i].pts == pts) { found = i; break; }
+    if (found < 0)
+        return 0;
+    OHDoviFrame dovi = s->dovi_frames[found];
+    memmove(&s->dovi_frames[found], &s->dovi_frames[found + 1],
+            sizeof(s->dovi_frames[0]) * (s->nb_dovi_frames - found - 1));
+    s->nb_dovi_frames--;
+    if (dovi.rpu && !av_frame_new_side_data_from_buf(
+            frame, AV_FRAME_DATA_DOVI_RPU_BUFFER, dovi.rpu)) {
+        av_buffer_unref(&dovi.rpu);
+        av_buffer_unref(&dovi.metadata);
+        return AVERROR(ENOMEM);
+    }
+    if (dovi.metadata && !av_frame_new_side_data_from_buf(
+            frame, AV_FRAME_DATA_DOVI_METADATA, dovi.metadata)) {
+        av_buffer_unref(&dovi.metadata);
+        return AVERROR(ENOMEM);
+    }
+    return 0;
+}
+
+static int64_t p27_monotonic_us(void)
+{
+    struct timespec ts;
+    if (clock_gettime(CLOCK_MONOTONIC, &ts)) return -1;
+    return (int64_t)ts.tv_sec * 1000000 + ts.tv_nsec / 1000;
+}
+
+static void oh_decode_release(void *opaque, uint8_t *data)
+{
+    OHCodecDecRef *ref = (OHCodecDecRef *)data;
+    if (!ref)
+        return;
+    /* Phase28: the platform decoder is destroyed synchronously in
+     * oh_decode_close. Any token/AVFrame that still holds this reference only
+     * keeps an inert shell alive; it must never issue a second Destroy. */
+    if (ref->gate_initialized) {
+        ff_mutex_destroy(&ref->gate);
+        ff_cond_destroy(&ref->gate_cond);
+        ref->gate_initialized = false;
+    }
+    av_log(NULL, AV_LOG_DEBUG, "Release OHCodec decoder reference shell\n");
+    av_free(ref);
+}
+
+#ifdef MP_OHCODEC_DIAGNOSTIC
+#include "ohcodec_diagnostic.h"
+#endif
+#ifdef MP_OHCODEC_HANDOFF_TRACE
+static atomic_uint_fast64_t p30_decoder_serial, p30_codec_event_serial;
+static void p30_codec_trace(AVCodecContext *avctx, OHCodecDecRef *ref, const char *op, int rc)
+{
+    av_log(avctx, AV_LOG_INFO, "P30_CODEC seq=%"PRIu64" t=%"PRId64" pid=%ld tid=%ld op=%s decoder=%"PRIu64" consumer=%"PRIu64" epoch=%"PRIu64" rc=%d\n",
+        (uint64_t)atomic_fetch_add(&p30_codec_event_serial, 1)+1, p27_monotonic_us(),
+        (long)getpid(), (long)pthread_gettid_np(pthread_self()), op, ref ? ref->trace_instance : 0,
+        ref ? ref->trace_surface : 0, ref ? (uint64_t)atomic_load(&ref->generation) : 0, rc);
+}
+#else
+#define p30_codec_trace(avctx, ref, op, rc) ((void)0)
+#endif
+
+#ifdef MP_OHCODEC_HANDOFF_TEST
+#ifndef MP_OHCODEC_HANDOFF_TRACE
+#error HANDOFF_TEST requires independent TRACE identity
+#endif
+#include "ohcodec_handoff_test.h"
+#endif
+
+static int oh_decode_create(OHCodecDecContext *s, AVCodecContext *avctx)
+{
+    const char *name = s->name;
+
+    if (atomic_load_explicit(&ohcodec_terminal_failure, memory_order_acquire)) {
+        av_log(avctx, AV_LOG_ERROR,
+               "Refusing to create a new OHCodec decoder after a terminal "
+               "platform Stop/Destroy failure\n");
+        return AVERROR_EXTERNAL;
+    }
+
+    if (!name) {
+        const char *mime = ff_oh_mime(avctx->codec_id, avctx);
+        if (!mime)
+            return AVERROR_BUG;
+        OH_AVCapability *cap = OH_AVCodec_GetCapabilityByCategory(mime, false, HARDWARE);
+        if (!cap) {
+            if (!s->allow_sw) {
+                av_log(avctx, AV_LOG_ERROR, "Failed to get hardware codec %s\n", mime);
+                return AVERROR_EXTERNAL;
+            }
+            av_log(avctx, AV_LOG_WARNING,
+                   "Failed to get hardware codec %s, try software backend\n", mime);
+            cap = OH_AVCodec_GetCapabilityByCategory(mime, false, SOFTWARE);
+            if (!cap) {
+                av_log(avctx, AV_LOG_ERROR, "Failed to get software codec %s\n", mime);
+                return AVERROR_EXTERNAL;
+            }
+        }
+        name = OH_AVCapability_GetName(cap);
+        if (!name)
+            return AVERROR_EXTERNAL;
+    }
+
+    s->dec = OH_VideoDecoder_CreateByName(name);
+    if (!s->dec) {
+        av_log(avctx, AV_LOG_ERROR, "Create decoder with name %s failed\n", name);
+        return AVERROR_EXTERNAL;
+    }
+    av_log(avctx, AV_LOG_DEBUG, "Create decoder %s success\n", name);
+
+    OHCodecDecRef *ref = av_mallocz(sizeof(*ref));
+    if (!ref) {
+        OH_VideoDecoder_Destroy(s->dec);
+        s->dec = NULL;
+        return AVERROR(ENOMEM);
+    }
+    ref->dec = s->dec;
+#ifdef MP_OHCODEC_HANDOFF_TRACE
+    ref->trace_instance = atomic_fetch_add(&p30_decoder_serial, 1) + 1;
+#endif
+#ifdef MP_OHCODEC_DIAGNOSTIC
+    ref->diagnostic_instance = atomic_fetch_add(&ohcodec_diagnostic_serial, 1) + 1;
+#endif
+    atomic_init(&ref->generation, 0);
+#ifdef MP_OHCODEC_DIAGNOSTIC
+    ohcodec_diagnostic_log(avctx, ref, "create", 0);
+#endif
+    if (ff_mutex_init(&ref->gate, NULL)) {
+        OH_VideoDecoder_Destroy(s->dec);
+        s->dec = NULL;
+        av_free(ref);
+        return AVERROR(ENOMEM);
+    }
+    if (ff_cond_init(&ref->gate_cond, NULL)) {
+        ff_mutex_destroy(&ref->gate);
+        OH_VideoDecoder_Destroy(s->dec);
+        s->dec = NULL;
+        av_free(ref);
+        return AVERROR(ENOMEM);
+    }
+    ref->gate_initialized = true;
+    s->dec_ref = av_buffer_create((uint8_t *)ref, sizeof(*ref),
+                                  oh_decode_release, NULL, 0);
+    if (!s->dec_ref) {
+        /* No platform callback has been registered yet. Destroy directly; the
+         * finalizer no longer owns decoder destruction. */
+        OH_VideoDecoder_Destroy(s->dec);
+        s->dec = NULL;
+        oh_decode_release(NULL, (uint8_t *)ref);
+        return AVERROR(ENOMEM);
+    }
+
+    return 0;
+}
+
+static int oh_decode_init_hwframes(OHCodecDecContext *s, AVCodecContext *avctx,
+                                   enum AVPixelFormat sw_format)
+{
+    AVHWFramesContext *frames;
+    int ret;
+
+    if (avctx->hw_frames_ctx) {
+        frames = (AVHWFramesContext *)avctx->hw_frames_ctx->data;
+        if (frames->format == AV_PIX_FMT_OHCODEC &&
+            frames->sw_format == sw_format && frames->width == s->width &&
+            frames->height == s->height)
+            return 0;
+        av_buffer_unref(&avctx->hw_frames_ctx);
+    }
+    avctx->hw_frames_ctx = av_hwframe_ctx_alloc(avctx->hw_device_ctx);
+    if (!avctx->hw_frames_ctx)
+        return AVERROR(ENOMEM);
+    frames = (AVHWFramesContext *)avctx->hw_frames_ctx->data;
+    frames->format = AV_PIX_FMT_OHCODEC;
+    frames->sw_format = sw_format;
+    frames->width = s->width;
+    frames->height = s->height;
+    ret = av_hwframe_ctx_init(avctx->hw_frames_ctx);
+    if (ret < 0)
+        av_buffer_unref(&avctx->hw_frames_ctx);
+    return ret;
+}
+
+static int oh_decode_set_format(OHCodecDecContext *s, AVCodecContext *avctx)
+{
+    int ret;
+    OHNativeWindow *window = NULL;
+
+    if (avctx->hw_device_ctx) {
+        AVHWDeviceContext *device_ctx = (AVHWDeviceContext*)(avctx->hw_device_ctx->data);
+        if (device_ctx->type == AV_HWDEVICE_TYPE_OHCODEC) {
+            AVOHCodecDeviceContext *dev = device_ctx->hwctx;
+            window = dev->native_window;
+            s->output_to_window = window != NULL;
+            if (!s->output_to_window) {
+                av_log(avctx, AV_LOG_ERROR,
+                       "OHCodec hardware decoding requires a NativeWindow\n");
+                return AVERROR(EINVAL);
+            }
+        } else {
+            av_log(avctx, AV_LOG_WARNING, "Ignore invalid hw device type %s\n",
+                   av_hwdevice_get_type_name(device_ctx->type));
+        }
+    }
+
+    if (avctx->width <= 0 || avctx->height <= 0) {
+        av_log(avctx, AV_LOG_ERROR,
+               "Invalid width/height (%dx%d), width and height are mandatory for ohcodec\n",
+               avctx->width, avctx->height);
+        return AVERROR(EINVAL);
+    }
+
+    OH_AVFormat *format = OH_AVFormat_Create();
+    if (!format)
+        return AVERROR(ENOMEM);
+
+    OH_AVFormat_SetIntValue(format, OH_MD_KEY_WIDTH, avctx->width);
+    OH_AVFormat_SetIntValue(format, OH_MD_KEY_HEIGHT, avctx->height);
+    if (!s->output_to_window)
+        OH_AVFormat_SetIntValue(format, OH_MD_KEY_PIXEL_FORMAT,
+                                AV_PIXEL_FORMAT_NV12);
+    else
+        OH_AVFormat_SetIntValue(format, OH_MD_KEY_PIXEL_FORMAT,
+                                AV_PIXEL_FORMAT_SURFACE_FORMAT);
+    OH_AVErrCode err = OH_VideoDecoder_Configure(s->dec, format);
+    OH_AVFormat_Destroy(format);
+    if (err != AV_ERR_OK) {
+        ret = ff_oh_err_to_ff_err(err);
+        av_log(avctx, AV_LOG_ERROR, "Decoder configure failed, %d, %s\n",
+               err, av_err2str(ret));
+        return ret;
+    }
+
+    if (s->output_to_window) {
+#ifdef MP_OHCODEC_DIAGNOSTIC
+        OHCodecDecRef *ref = oh_decode_ref(s);
+        uint64_t surface = 0;
+        int query = OH_NativeWindow_GetSurfaceId(window, &surface);
+        if (query || !surface || !ohcodec_diagnostic_claim(ref, surface)) {
+            ohcodec_diagnostic_log(avctx, ref, "surface-admission-rejected", query ? query : -1);
+            return AVERROR_EXTERNAL;
+        }
+        ohcodec_diagnostic_log(avctx, ref, "surface-admission", 0);
+#endif
+#ifdef MP_OHCODEC_HANDOFF_TRACE
+        OHCodecDecRef *trace_ref = oh_decode_ref(s);
+        int trace_query_rc = OH_NativeWindow_GetSurfaceId(window, &trace_ref->trace_surface);
+        p30_codec_trace(avctx, trace_ref, "surface-begin", trace_query_rc);
+#endif
+        err = OH_VideoDecoder_SetSurface(s->dec, window);
+        p30_codec_trace(avctx, oh_decode_ref(s), "surface-end", err);
+#ifdef MP_OHCODEC_DIAGNOSTIC
+        ohcodec_diagnostic_log(avctx, ref, "surface-platform-return", err);
+#endif
+        av_log(avctx, AV_LOG_INFO, "P27_CODEC t=%"PRId64" op=surface dec=%p gen=%"PRIu64" window=%p rc=%d\n", p27_monotonic_us(), s->dec, oh_decode_generation(s), window, err);
+        if (err != AV_ERR_OK) {
+            ret = ff_oh_err_to_ff_err(err);
+            av_log(avctx, AV_LOG_ERROR, "Set surface failed, %d, %s\n",
+                   err, av_err2str(ret));
+            return ret;
+        }
+#ifdef MP_OHCODEC_DIAGNOSTIC
+        const char *mode = getenv("MP_OHCODEC_DIAGNOSTIC_MODE");
+        if (mode && !strcmp(mode, "consumer-challenge") &&
+            !ohcodec_diagnostic_challenge(avctx, ref))
+            return AVERROR_EXTERNAL;
+#endif
+    }
+
+    return 0;
+}
+
+static void oh_decode_on_err(OH_AVCodec *codec, int32_t err, void *userdata)
+{
+    (void)codec;
+    OHCodecDecRef *ref = userdata;
+    AVCodecContext *avctx = NULL;
+    if (!oh_decode_admit(ref, &avctx))
+        return;
+    oh_decode_report_error(avctx->priv_data, err);
+    oh_decode_end(ref);
+}
+
+/* Format-application body shared by the platform callback and the synchronous
+ * output_frame fallback. The caller owns admission when entering via a
+ * platform callback; the synchronous path runs on the decoding thread. */
+static int oh_decode_apply_stream_changed(OHCodecDecContext *s,
+                                          AVCodecContext *avctx,
+                                          OH_AVFormat *format)
+{
+    int32_t n, graphic_format;
+    double d;
+
+    if (!OH_AVFormat_GetIntValue(format, OH_MD_KEY_VIDEO_PIC_WIDTH, &s->width) ||
+        !OH_AVFormat_GetIntValue(format, OH_MD_KEY_VIDEO_PIC_HEIGHT, &s->height)) {
+        av_log(avctx, AV_LOG_ERROR, "Get dimension info from format failed\n");
+        goto out;
+    }
+
+    if (ff_set_dimensions(avctx, s->width, s->height) < 0)
+        goto out;
+
+    OH_AVFormat_GetIntValue(format, OH_MD_KEY_VIDEO_STRIDE, &s->stride);
+    OH_AVFormat_GetIntValue(format, OH_MD_KEY_VIDEO_SLICE_HEIGHT, &s->slice_height);
+    if (!s->output_to_window && (s->stride <= 0 || s->slice_height <= 0)) {
+        av_log(avctx, AV_LOG_ERROR,
+               "Buffer stride (%d) or slice height (%d) is invalid\n",
+               s->stride, s->slice_height);
+        goto out;
+    }
+
+    s->bit_depth = avctx->bits_per_raw_sample > 8 ? avctx->bits_per_raw_sample : 8;
+    if (avctx->profile == AV_PROFILE_HEVC_MAIN_10 ||
+        avctx->profile == AV_PROFILE_H264_HIGH_10)
+        s->bit_depth = 10;
+    if (OH_AVFormat_GetIntValue(format, OH_MD_KEY_BITS_PER_CODED_SAMPLE, &n) && n > 0)
+        s->bit_depth = n;
+    // Surface output reports its actual allocation format separately from
+    // OH_MD_KEY_PIXEL_FORMAT (which remains NV12 for P010 on current codecs).
+    // This key is present in the decoder's output description on API 20.
+    if (OH_AVFormat_GetIntValue(format, "video_graphic_pixel_format",
+                                &graphic_format) &&
+        (graphic_format == NATIVEBUFFER_PIXEL_FMT_YCBCR_P010 ||
+         graphic_format == NATIVEBUFFER_PIXEL_FMT_YCRCB_P010))
+        s->bit_depth = 10;
+
+    if (OH_AVFormat_GetIntValue(format, OH_MD_KEY_PIXEL_FORMAT, &n)) {
+        enum AVPixelFormat sw_format;
+
+        s->pix_fmt = n;
+        /* When use output_to_window, the returned format is the memory
+         * layout of hardware frame, not AV_PIXEL_FORMAT_SURFACE_FORMAT as
+         * expected.
+         */
+        if (s->output_to_window) {
+            avctx->pix_fmt = AV_PIX_FMT_OHCODEC;
+            sw_format = s->bit_depth > 8 ? AV_PIX_FMT_P010 : AV_PIX_FMT_NV12;
+            avctx->sw_pix_fmt = sw_format;
+            if (oh_decode_init_hwframes(s, avctx, sw_format) < 0) {
+                av_log(avctx, AV_LOG_ERROR,
+                       "Failed to initialize OHCodec hardware frames\n");
+                goto out;
+            }
+        } else {
+            avctx->pix_fmt = ff_oh_pix_to_ff_pix(s->pix_fmt);
+        }
+        // Check whether this pixel format is supported
+        if (avctx->pix_fmt == AV_PIX_FMT_NONE) {
+            av_log(avctx, AV_LOG_ERROR, "Unsupported OH_AVPixelFormat %d\n",
+                   n);
+            goto out;
+        }
+    } else if (s->output_to_window) {
+        enum AVPixelFormat sw_format = s->bit_depth > 8
+                                     ? AV_PIX_FMT_P010 : AV_PIX_FMT_NV12;
+        avctx->pix_fmt = AV_PIX_FMT_OHCODEC;
+        avctx->sw_pix_fmt = sw_format;
+        if (oh_decode_init_hwframes(s, avctx, sw_format) < 0)
+            goto out;
+    } else {
+        av_log(avctx, AV_LOG_ERROR, "Failed to get pixel format\n");
+        goto out;
+    }
+
+    if (OH_AVFormat_GetIntValue(format,
+                                OH_MD_KEY_MATRIX_COEFFICIENTS,
+                                &n))
+        avctx->colorspace = n;
+    if (OH_AVFormat_GetIntValue(format,
+                                OH_MD_KEY_COLOR_PRIMARIES,
+                                &n))
+        avctx->color_primaries = n;
+    if (OH_AVFormat_GetIntValue(format,
+                                OH_MD_KEY_TRANSFER_CHARACTERISTICS,
+                                &n))
+        avctx->color_trc = n;
+    if (OH_AVFormat_GetIntValue(format,
+                                OH_MD_KEY_RANGE_FLAG,
+                                &n))
+        avctx->color_range = n ? AVCOL_RANGE_JPEG : AVCOL_RANGE_MPEG;
+
+    if (OH_AVFormat_GetDoubleValue(format, OH_MD_KEY_VIDEO_SAR, &d)) {
+        AVRational sar = av_d2q(d, 4096 * 4);
+        ff_set_sar(avctx, sar);
+    }
+
+    s->got_stream_info = true;
+    return 0;
+out:
+    av_log(avctx, AV_LOG_ERROR, "Invalid format from decoder: %s\n",
+           OH_AVFormat_DumpInfo(format));
+    return AVERROR_EXTERNAL;
+}
+
+static void oh_decode_on_stream_changed(OH_AVCodec *codec, OH_AVFormat *format,
+                                        void *userdata)
+{
+    (void)codec;
+    OHCodecDecRef *ref = userdata;
+    AVCodecContext *avctx = NULL;
+    if (!oh_decode_admit(ref, &avctx))
+        return;
+    if (oh_decode_apply_stream_changed(avctx->priv_data, avctx, format) < 0)
+        oh_decode_report_error(avctx->priv_data, AV_ERR_UNKNOWN);
+    oh_decode_end(ref);
+}
+
+static void oh_decode_on_need_input(OH_AVCodec *codec, uint32_t index,
+                                    OH_AVBuffer *buffer, void *userdata)
+{
+    (void)codec;
+    OHCodecDecRef *ref = userdata;
+    AVCodecContext *avctx = NULL;
+    if (!oh_decode_admit(ref, &avctx))
+        return;
+#ifdef MP_OHCODEC_HANDOFF_TEST
+    p30_handoff_hold(ref->trace_instance, atomic_load(&ref->generation));
+#endif
+    OHCodecDecContext *s = avctx->priv_data;
+    OHCodecDecQueueItem item = {
+        index, buffer, oh_decode_generation(s),
+    };
+
+    ff_mutex_lock(&s->input_mutex);
+    int ret = av_fifo_write(s->input_queue, &item, 1);
+    if (ret >= 0)
+        ff_cond_signal(&s->input_cond);
+    ff_mutex_unlock(&s->input_mutex);
+
+    if (ret < 0)
+        oh_decode_report_error(s, AV_ERR_NO_MEMORY);
+    oh_decode_end(ref);
+}
+
+static void oh_decode_on_output(OH_AVCodec *codec, uint32_t index,
+                                OH_AVBuffer *buffer, void *userdata)
+{
+    (void)codec;
+    OHCodecDecRef *ref = userdata;
+    AVCodecContext *avctx = NULL;
+    if (!oh_decode_admit(ref, &avctx))
+        return;
+    OHCodecDecContext *s = avctx->priv_data;
+    OHCodecDecQueueItem item = {
+        index, buffer, oh_decode_generation(s),
+    };
+
+    ff_mutex_lock(&s->output_mutex);
+    int ret = av_fifo_write(s->output_queue, &item, 1);
+    if (ret >= 0)
+        ff_cond_signal(&s->output_cond);
+    ff_mutex_unlock(&s->output_mutex);
+
+    if (ret < 0)
+        oh_decode_report_error(s, AV_ERR_NO_MEMORY);
+    oh_decode_end(ref);
+}
+
+static int oh_decode_start(OHCodecDecContext *s, AVCodecContext *avctx)
+{
+    int ret;
+    OH_AVErrCode err;
+    OHCodecDecRef *ref = s->dec_ref ? oh_decode_ref(s) : NULL;
+    OH_AVCodecCallback cb = {
+        .onError = oh_decode_on_err,
+        .onStreamChanged = oh_decode_on_stream_changed,
+        .onNeedInputBuffer = oh_decode_on_need_input,
+        .onNewOutputBuffer = oh_decode_on_output,
+    };
+
+    if (!ref)
+        return AVERROR_EXTERNAL;
+
+    ff_mutex_lock(&ref->gate);
+    if (ref->detached) {
+        ff_mutex_unlock(&ref->gate);
+        return AVERROR_EXTERNAL;
+    }
+    ref->attached = avctx;
+    ff_mutex_unlock(&ref->gate);
+
+    err = OH_VideoDecoder_RegisterCallback(s->dec, cb, ref);
+    if (err != AV_ERR_OK) {
+        ret = ff_oh_err_to_ff_err(err);
+        av_log(avctx, AV_LOG_ERROR, "Register callback failed, %d, %s\n",
+               err, av_err2str(ret));
+        return ret;
+    }
+    err = OH_VideoDecoder_Prepare(s->dec);
+    if (err != AV_ERR_OK) {
+        ret = ff_oh_err_to_ff_err(err);
+        av_log(avctx, AV_LOG_ERROR, "Prepare failed, %d, %s\n",
+               err, av_err2str(ret));
+        return ret;
+    }
+
+    ff_mutex_lock(&ref->gate);
+    if (ref->detached) {
+        ff_mutex_unlock(&ref->gate);
+        return AVERROR_EXTERNAL;
+    }
+    ref->start_attempted = true;
+    ff_mutex_unlock(&ref->gate);
+
+    err = OH_VideoDecoder_Start(s->dec);
+    p30_codec_trace(avctx, ref, "start-end", err);
+#ifdef MP_OHCODEC_DIAGNOSTIC
+    ohcodec_diagnostic_log(avctx, ref, "start-platform-return", err);
+#endif
+    if (err != AV_ERR_OK) {
+        ret = ff_oh_err_to_ff_err(err);
+        av_log(avctx, AV_LOG_ERROR, "Start failed, %d, %s\n",
+               err, av_err2str(ret));
+        return ret;
+    }
+    s->platform_started = true;
+
+    return 0;
+}
+static av_cold int oh_decode_init(AVCodecContext *avctx)
+{
+    OHCodecDecContext *s = avctx->priv_data;
+
+    atomic_init(&s->accepting_callbacks, false);
+    s->dovi_ctx.logctx = avctx;
+    if (avctx->codec_id == AV_CODEC_ID_HEVC) {
+        const AVPacketSideData *sd =
+            av_packet_side_data_get(avctx->coded_side_data,
+                                    avctx->nb_coded_side_data,
+                                    AV_PKT_DATA_DOVI_CONF);
+        if (sd && sd->size >= sizeof(s->dovi_ctx.cfg))
+            s->dovi_ctx.cfg =
+                *(const AVDOVIDecoderConfigurationRecord *)sd->data;
+    }
+
+    // Initialize these fields first, so oh_decode_close can destroy them safely
+    if (ff_mutex_init(&s->input_mutex, NULL) ||
+        ff_cond_init(&s->input_cond, NULL) ||
+        ff_mutex_init(&s->output_mutex, NULL) ||
+        ff_cond_init(&s->output_cond, NULL))
+        return AVERROR(ENOMEM);
+    s->locks_initialized = true;
+
+    int ret = oh_decode_create(s, avctx);
+    if (ret < 0)
+        return ret;
+    ret = oh_decode_set_format(s, avctx);
+    if (ret < 0)
+        return ret;
+
+    size_t fifo_size = 16;
+    s->input_queue = av_fifo_alloc2(fifo_size, sizeof(OHCodecDecQueueItem),
+                                    AV_FIFO_FLAG_AUTO_GROW);
+    s->output_queue = av_fifo_alloc2(fifo_size, sizeof(OHCodecDecQueueItem),
+                                     AV_FIFO_FLAG_AUTO_GROW);
+    if (!s->input_queue || !s->output_queue) {
+        av_fifo_freep2(&s->input_queue);
+        av_fifo_freep2(&s->output_queue);
+        return AVERROR(ENOMEM);
+    }
+    s->queues_initialized = true;
+
+    ret = oh_decode_start(s, avctx);
+    if (ret < 0)
+        return ret;
+
+    return 0;
+}
+
+static av_cold int oh_decode_close(AVCodecContext *avctx)
+{
+    OHCodecDecContext *s = avctx->priv_data;
+    OHCodecDecRef *ref = s->dec_ref ? oh_decode_ref(s) : NULL;
+
+    if (s->dec) {
+        bool start_attempted = false;
+        if (ref) {
+            oh_decode_invalidate_outputs(s);
+            /* Detach first: no new callback/token admission. Wait for already
+             * admitted callbacks and native token operations without holding
+             * queue, gate or platform callback locks. */
+            ff_mutex_lock(&ref->gate);
+            ref->detached = true;
+            ref->attached = NULL;
+            while (ref->active > 0) {
+                p30_codec_trace(avctx, ref, "close-active-wait", ref->active);
+#ifdef MP_OHCODEC_HANDOFF_TEST
+                p30_handoff_close_wait(ref->trace_instance);
+#endif
+                ff_cond_wait(&ref->gate_cond, &ref->gate);
+            }
+            p30_codec_trace(avctx, ref, "close-active-drained", 0);
+            start_attempted = ref->start_attempted;
+            ff_mutex_unlock(&ref->gate);
+        }
+
+        OH_AVErrCode stop_err = AV_ERR_OK;
+        if (start_attempted && !ref->stopped) {
+            av_log(avctx, AV_LOG_INFO, "P28_CODEC t=%"PRId64" op=stop-begin dec=%p gen=%"PRIu64"\n",
+                   p27_monotonic_us(), s->dec, oh_decode_generation(s));
+            stop_err = OH_VideoDecoder_Stop(s->dec);
+            p30_codec_trace(avctx, ref, "stop-end", stop_err);
+#ifdef MP_OHCODEC_DIAGNOSTIC
+            ohcodec_diagnostic_log(avctx, ref, "stop-platform-return", stop_err);
+#endif
+            ref->stopped = true;
+            av_log(avctx, AV_LOG_INFO, "P28_CODEC t=%"PRId64" op=stop-end dec=%p rc=%d\n",
+                   p27_monotonic_us(), s->dec, stop_err);
+            if (stop_err != AV_ERR_OK) {
+                atomic_store_explicit(&ohcodec_terminal_failure, true,
+                                      memory_order_release);
+                av_log(avctx, AV_LOG_ERROR,
+                       "Stop decoder failed, %d, %s; OHCodec lifecycle is now "
+                       "terminal and no new decoder will be created\n",
+                       stop_err, av_err2str(ff_oh_err_to_ff_err(stop_err)));
+            }
+        }
+
+        OH_AVErrCode destroy_err = OH_VideoDecoder_Destroy(s->dec);
+        p30_codec_trace(avctx, ref, "destroy-end", destroy_err);
+#ifdef MP_OHCODEC_DIAGNOSTIC
+        if (ref) {
+            ohcodec_diagnostic_log(avctx, ref, "destroy-platform-return", destroy_err);
+            if (stop_err == AV_ERR_OK && destroy_err == AV_ERR_OK) {
+                ohcodec_diagnostic_release(ref);
+                ohcodec_diagnostic_log(avctx, ref, "surface-admission-released", 0);
+            }
+        }
+#endif
+        av_log(avctx, AV_LOG_INFO, "P28_CODEC t=%"PRId64" op=destroy-close dec=%p rc=%d\n",
+               p27_monotonic_us(), s->dec, destroy_err);
+        s->dec = NULL;
+        if (destroy_err == AV_ERR_OK) {
+            if (ref)
+                ref->destroyed = true;
+            av_buffer_unref(&s->dec_ref);
+        } else {
+            /* Successful Destroy is the callback-sealing boundary we rely on.
+             * If it fails, keep the stable gate/shell alive rather than free
+             * userdata that a late platform callback could still enter. This
+             * is an explicit, visible process-lifetime quarantine; it is not
+             * reported as a safe close. */
+            atomic_store_explicit(&ohcodec_terminal_failure, true,
+                                  memory_order_release);
+            atomic_fetch_add_explicit(&ohcodec_failed_destroy_count, 1,
+                                      memory_order_acq_rel);
+            av_log(avctx, AV_LOG_ERROR,
+                   "Destroy decoder failed, %d; callback lifetime unsafe, "
+                   "quarantining stable reference shell and native handle "
+                   "(failedDestroyCount=%d). New OHCodec decoders are refused.\n",
+                   destroy_err,
+                   atomic_load_explicit(&ohcodec_failed_destroy_count,
+                                        memory_order_acquire));
+            s->dec_ref = NULL;
+        }
+    } else if (s->dec_ref) {
+        av_buffer_unref(&s->dec_ref);
+    }
+
+    av_packet_unref(&s->pkt);
+    ff_oh_hdr_reset(&s->hdr);
+    oh_decode_clear_dovi(s);
+    ff_h2645_packet_uninit(&s->dovi_pkt);
+    ff_dovi_ctx_unref(&s->dovi_ctx);
+
+    if (s->locks_initialized) {
+        ff_mutex_destroy(&s->input_mutex);
+        ff_cond_destroy(&s->input_cond);
+        ff_mutex_destroy(&s->output_mutex);
+        ff_cond_destroy(&s->output_cond);
+        s->locks_initialized = false;
+    }
+    if (s->queues_initialized) {
+        av_fifo_freep2(&s->input_queue);
+        av_fifo_freep2(&s->output_queue);
+        s->queues_initialized = false;
+    }
+
+    return 0;
+}
+int av_ohcodec_release_buffer(AVOHCodecBuffer *buffer, int render)
+{
+    OHCodecDecRef *ref;
+    OH_AVCodec *dec;
+    OH_AVErrCode err;
+    if (!buffer)
+        return AVERROR(EINVAL);
+    if (atomic_exchange_explicit(&buffer->released, true, memory_order_acq_rel))
+        return render ? AVERROR(EALREADY) : 0;
+    ref = (OHCodecDecRef *)buffer->dec_ref->data;
+
+    if (!ref || !ref->gate_initialized)
+        return render ? AVERROR(ESTALE) : 0;
+
+    ff_mutex_lock(&ref->gate);
+    if (ref->detached || ref->paused || !ref->attached || !ref->dec ||
+        buffer->generation != atomic_load_explicit(&ref->generation,
+                                                    memory_order_acquire)) {
+        ff_mutex_unlock(&ref->gate);
+        return render ? AVERROR(ESTALE) : 0;
+    }
+    ref->active++;
+    dec = ref->dec;
+    ff_mutex_unlock(&ref->gate);
+
+    err = render ? OH_VideoDecoder_RenderOutputBuffer(dec, buffer->index)
+                 : OH_VideoDecoder_FreeOutputBuffer(dec, buffer->index);
+
+    ff_mutex_lock(&ref->gate);
+    if (ref->active > 0)
+        ref->active--;
+    ff_cond_broadcast(&ref->gate_cond);
+    ff_mutex_unlock(&ref->gate);
+    return ff_oh_err_to_ff_err(err);
+}
+
+static void oh_buffer_release(void *opaque, uint8_t *data)
+{
+    AVOHCodecBuffer *buffer = opaque;
+    if (!buffer)
+        return;
+    av_ohcodec_release_buffer(buffer, 0);
+
+    av_buffer_unref(&buffer->dec_ref);
+    av_free(buffer);
+}
+
+static void oh_decode_discard_output(OHCodecDecContext *s,
+                                     OHCodecDecQueueItem *output)
+{
+    AVOHCodecBuffer buffer = {
+        .dec_ref = s->dec_ref,
+        .index = output->index,
+        .generation = output->generation,
+    };
+    atomic_init(&buffer.released, false);
+    av_ohcodec_release_buffer(&buffer, 0);
+}
+
+static int oh_decode_wrap_hw_buffer(AVCodecContext *avctx, AVFrame *frame,
+                                    OHCodecDecQueueItem *output,
+                                    const OH_AVCodecBufferAttr *attr)
+{
+    OHCodecDecContext *s = avctx->priv_data;
+
+    frame->width = s->width;
+    frame->height = s->height;
+    int ret = ff_decode_frame_props(avctx, frame);
+    if (ret < 0) {
+        oh_decode_discard_output(s, output);
+        return ret;
+    }
+
+    frame->format = AV_PIX_FMT_OHCODEC;
+    AVOHCodecBuffer *buffer = av_mallocz(sizeof(*buffer));
+    if (!buffer) {
+        oh_decode_discard_output(s, output);
+        return AVERROR(ENOMEM);
+    }
+
+    buffer->dec_ref = av_buffer_ref(s->dec_ref);
+    if (!buffer->dec_ref) {
+        oh_decode_discard_output(s, output);
+        av_free(buffer);
+        return AVERROR(ENOMEM);
+    }
+
+    buffer->index = output->index;
+    buffer->generation = output->generation;
+    atomic_init(&buffer->released, false);
+    frame->buf[0] = av_buffer_create((uint8_t *)buffer, 1,
+                                     oh_buffer_release,
+                                     buffer, AV_BUFFER_FLAG_READONLY);
+    if (!frame->buf[0]) {
+        oh_buffer_release(buffer, NULL);
+        return AVERROR(ENOMEM);
+    }
+    frame->hw_frames_ctx = av_buffer_ref(avctx->hw_frames_ctx);
+    if (!frame->hw_frames_ctx)
+        return AVERROR(ENOMEM);
+    // Opaque AVOHCodecBuffer token, never an addressable image plane.
+    frame->data[3] = frame->buf[0]->data;
+    frame->pts = attr->pts == AV_NOPTS_VALUE ? AV_NOPTS_VALUE :
+        av_rescale_q(attr->pts, AV_TIME_BASE_Q, avctx->pkt_timebase);
+    frame->pkt_dts = AV_NOPTS_VALUE;
+
+    return oh_decode_attach_dovi(s, frame, attr->pts);
+}
+
+static int oh_decode_wrap_sw_buffer(AVCodecContext *avctx, AVFrame *frame,
+                                    OHCodecDecQueueItem *output,
+                                    const OH_AVCodecBufferAttr *attr)
+{
+    OHCodecDecContext *s = avctx->priv_data;
+
+    frame->format = avctx->pix_fmt;
+    frame->width = s->width;
+    frame->height = s->height;
+    int ret = ff_get_buffer(avctx, frame, 0);
+    if (ret < 0)
+        return ret;
+
+    frame->pts = attr->pts == AV_NOPTS_VALUE ? AV_NOPTS_VALUE :
+        av_rescale_q(attr->pts, AV_TIME_BASE_Q, avctx->pkt_timebase);
+    frame->pkt_dts = AV_NOPTS_VALUE;
+
+    uint8_t *p = OH_AVBuffer_GetAddr(output->buffer);
+    if (!p) {
+        av_log(avctx, AV_LOG_ERROR, "Failed to get output buffer addr\n");
+        return AVERROR_EXTERNAL;
+    }
+
+    uint8_t *src[4] = {0};
+    int src_linesizes[4] = {0};
+
+    ret = av_image_fill_linesizes(src_linesizes, frame->format, s->stride);
+    if (ret < 0)
+        return ret;
+    ret = av_image_fill_pointers(src, frame->format, s->slice_height, p,
+                                 src_linesizes);
+    if (ret < 0)
+        return ret;
+    av_image_copy2(frame->data, frame->linesize, src, src_linesizes,
+                   frame->format, frame->width, frame->height);
+
+    OH_AVErrCode err = OH_VideoDecoder_FreeOutputBuffer(s->dec, output->index);
+    if (err != AV_ERR_OK) {
+        ret = ff_oh_err_to_ff_err(err);
+        av_log(avctx, AV_LOG_ERROR, "FreeOutputBuffer failed, %d, %s\n", err,
+               av_err2str(ret));
+        return ret;
+    }
+
+    return 0;
+}
+
+static int oh_decode_output_frame(AVCodecContext *avctx, AVFrame *frame,
+                                  OHCodecDecQueueItem *output)
+{
+    OHCodecDecContext *s = avctx->priv_data;
+    OH_AVCodecBufferAttr attr;
+
+    OH_AVErrCode err = OH_AVBuffer_GetBufferAttr(output->buffer, &attr);
+    if (err != AV_ERR_OK)
+        return ff_oh_err_to_ff_err(err);
+
+    if (attr.flags & AVCODEC_BUFFER_FLAGS_EOS) {
+        av_log(avctx, AV_LOG_DEBUG, "Buffer flag eos\n");
+        OH_VideoDecoder_FreeOutputBuffer(s->dec, output->index);
+        return AVERROR_EOF;
+    }
+
+    if (!s->got_stream_info) {
+        // This shouldn't happen, add a warning message.
+        av_log(avctx, AV_LOG_WARNING,
+               "decoder didn't notify stream info, try get format explicitly\n");
+
+        OH_AVFormat *format = OH_VideoDecoder_GetOutputDescription(s->dec);
+        if (!format) {
+            av_log(avctx, AV_LOG_ERROR, "GetOutputDescription failed\n");
+            return AVERROR_EXTERNAL;
+        }
+
+        if (oh_decode_apply_stream_changed(s, avctx, format) < 0) {
+            OH_AVFormat_Destroy(format);
+            return AVERROR_EXTERNAL;
+        }
+        OH_AVFormat_Destroy(format);
+        if (!s->got_stream_info)
+            return AVERROR_EXTERNAL;
+    }
+
+    int ret = s->output_to_window
+        ? oh_decode_wrap_hw_buffer(avctx, frame, output, &attr)
+        : oh_decode_wrap_sw_buffer(avctx, frame, output, &attr);
+    if (ret >= 0)
+        ret = ff_oh_hdr_attach(&s->hdr, avctx, frame, output->generation, attr.pts);
+    if (ret < 0)
+        av_frame_unref(frame);
+    return ret;
+}
+
+static int oh_decode_send_pkt(AVCodecContext *avctx,
+                              OHCodecDecQueueItem *input)
+{
+    OHCodecDecContext *s = avctx->priv_data;
+    OH_AVErrCode err;
+    int ret;
+
+    if (!s->pkt.size && !s->eof_sent) {
+        OH_AVCodecBufferAttr attr = {
+            .flags = AVCODEC_BUFFER_FLAGS_EOS,
+        };
+        err = OH_AVBuffer_SetBufferAttr(input->buffer, &attr);
+        if (err != AV_ERR_OK)
+            return ff_oh_err_to_ff_err(err);
+        err = OH_VideoDecoder_PushInputBuffer(s->dec, input->index);
+        if (err != AV_ERR_OK)
+            return ff_oh_err_to_ff_err(err);
+        s->eof_sent = true;
+        return 0;
+    }
+
+    uint8_t *p = OH_AVBuffer_GetAddr(input->buffer);
+    int32_t n = OH_AVBuffer_GetCapacity(input->buffer);
+    if (!p || n <= 0) {
+        av_log(avctx, AV_LOG_ERROR,
+               "Failed to get buffer addr (%p) or capacity (%d)\n",
+               p, n);
+        return AVERROR_EXTERNAL;
+    }
+    n = FFMIN(s->pkt.size, n);
+    memcpy(p, s->pkt.data, n);
+
+    OH_AVCodecBufferAttr attr = {
+            .size = n,
+            .offset = 0,
+            .pts = s->pkt.pts == AV_NOPTS_VALUE ? AV_NOPTS_VALUE :
+                av_rescale_q(s->pkt.pts, avctx->pkt_timebase, AV_TIME_BASE_Q),
+            .flags = (s->pkt.flags & AV_PKT_FLAG_KEY)
+                     ? AVCODEC_BUFFER_FLAGS_SYNC_FRAME : 0,
+    };
+
+    err = OH_AVBuffer_SetBufferAttr(input->buffer, &attr);
+    if (err != AV_ERR_OK) {
+        ret = ff_oh_err_to_ff_err(err);
+        return ret;
+    }
+    err = OH_VideoDecoder_PushInputBuffer(s->dec, input->index);
+    if (err != AV_ERR_OK) {
+        ret = ff_oh_err_to_ff_err(err);
+        av_log(avctx, AV_LOG_ERROR, "Push input buffer failed, %d, %s\n",
+               err, av_err2str(ret));
+        return ret;
+    }
+
+    // 首次成功提交才发布本AU快照；后续分片/重试不得重复入队。
+    ff_oh_hdr_commit(&s->hdr);
+    if (n < s->pkt.size) {
+        s->pkt.size -= n;
+        s->pkt.data += n;
+    } else {
+        av_packet_unref(&s->pkt);
+        ff_oh_hdr_finish(&s->hdr);
+    }
+
+    return 0;
+}
+
+static int oh_decode_cond_wait(AVCond *cond, AVMutex *mutex)
+{
+    struct timespec deadline;
+    if (clock_gettime(CLOCK_REALTIME, &deadline) < 0)
+        return errno;
+    deadline.tv_nsec += 100 * 1000 * 1000;
+    if (deadline.tv_nsec >= 1000 * 1000 * 1000) {
+        deadline.tv_sec++;
+        deadline.tv_nsec -= 1000 * 1000 * 1000;
+    }
+    return ff_cond_timedwait(cond, mutex, &deadline);
+}
+
+static int oh_decode_receive_frame(AVCodecContext *avctx, AVFrame *frame)
+{
+    OHCodecDecContext *s = avctx->priv_data;
+
+    while (1) {
+        OHCodecDecQueueItem buffer = {0};
+        int ret;
+
+        // Try get output
+        ff_mutex_lock(&s->output_mutex);
+        while (!s->decode_status) {
+            if (av_fifo_read(s->output_queue, &buffer, 1) >= 0)
+                break;
+            // Only wait after send EOF
+            if (s->eof_sent && !s->decode_status) {
+                if (oh_decode_cond_wait(&s->output_cond, &s->output_mutex) ==
+                    ETIMEDOUT)
+                    break;
+            }
+            else
+                break;
+        }
+
+        ret = s->decode_status;
+        ff_mutex_unlock(&s->output_mutex);
+
+        // Got a frame
+        if (buffer.buffer) {
+            if (buffer.generation != oh_decode_generation(s))
+                continue;
+            return oh_decode_output_frame(avctx, frame, &buffer);
+        }
+        if (ret < 0)
+            return ret;
+
+        if (!s->pkt.size) {
+            /* fetch new packet or eof */
+            ret = ff_decode_get_packet(avctx, &s->pkt);
+            if (ret < 0 && ret != AVERROR_EOF)
+                return ret;
+            if (s->pkt.size) {
+                int64_t pts = s->pkt.pts == AV_NOPTS_VALUE ? AV_NOPTS_VALUE :
+                    av_rescale_q(s->pkt.pts, avctx->pkt_timebase, AV_TIME_BASE_Q);
+                ret = ff_oh_hdr_prepare(&s->hdr, avctx, s->pkt.data, s->pkt.size,
+                                         pts, oh_decode_generation(s));
+                if (ret >= 0)
+                    ret = oh_decode_parse_dovi(avctx, &s->pkt);
+                if (ret < 0) {
+                    ff_oh_hdr_finish(&s->hdr);
+                    av_packet_unref(&s->pkt);
+                    return ret;
+                }
+            }
+        }
+
+        // Wait input buffer
+        ff_mutex_lock(&s->input_mutex);
+        while (!s->decode_status) {
+            if (av_fifo_read(s->input_queue, &buffer, 1) >= 0)
+                break;
+            if (oh_decode_cond_wait(&s->input_cond, &s->input_mutex) ==
+                ETIMEDOUT)
+                break;
+        }
+
+        ret = s->decode_status;
+        ff_mutex_unlock(&s->input_mutex);
+
+        if (ret < 0)
+            return ret;
+
+        if (!buffer.buffer)
+            return AVERROR(EAGAIN);
+
+        if (buffer.generation != oh_decode_generation(s))
+            continue;
+
+        ret = oh_decode_send_pkt(avctx, &buffer);
+        if (ret < 0)
+            return ret;
+    }
+
+    return AVERROR(EAGAIN);
+}
+
+static void oh_decode_flush(AVCodecContext *avctx)
+{
+    OHCodecDecContext *s = avctx->priv_data;
+    OHCodecDecRef *ref = s->dec_ref ? oh_decode_ref(s) : NULL;
+
+    if (ref) {
+        oh_decode_invalidate_outputs(s);
+        ff_mutex_lock(&ref->gate);
+        if (ref->detached) {
+            ff_mutex_unlock(&ref->gate);
+            return;
+        }
+        ref->paused = true;
+        while (ref->active > 0)
+            ff_cond_wait(&ref->gate_cond, &ref->gate);
+        if (ref->detached) {
+            ref->paused = false;
+            ff_mutex_unlock(&ref->gate);
+            return;
+        }
+        ff_mutex_unlock(&ref->gate);
+    }
+
+    av_log(avctx, AV_LOG_INFO, "P28_CODEC t=%"PRId64" op=flush-begin dec=%p gen=%"PRIu64"\n",
+           p27_monotonic_us(), s->dec, ref ? oh_decode_generation(s) : 0);
+    OH_AVErrCode flush_err = s->dec ? OH_VideoDecoder_Flush(s->dec) : AV_ERR_INVALID_VAL;
+    av_log(avctx, AV_LOG_INFO, "P28_CODEC t=%"PRId64" op=flush-end dec=%p rc=%d\n",
+           p27_monotonic_us(), s->dec, flush_err);
+
+    if (s->locks_initialized) {
+        ff_mutex_lock(&s->input_mutex);
+        ff_mutex_lock(&s->output_mutex);
+        if (s->queues_initialized) {
+            av_fifo_reset2(s->input_queue);
+            av_fifo_reset2(s->output_queue);
+        }
+        s->decode_status = 0;
+        s->eof_sent = false;
+        av_packet_unref(&s->pkt);
+        ff_oh_hdr_reset(&s->hdr);
+        oh_decode_clear_dovi(s);
+        ff_dovi_ctx_flush(&s->dovi_ctx);
+        ff_mutex_unlock(&s->output_mutex);
+        ff_mutex_unlock(&s->input_mutex);
+    }
+
+    if (ref) {
+        ff_mutex_lock(&ref->gate);
+        ref->paused = false;
+        ff_cond_broadcast(&ref->gate_cond);
+        ff_mutex_unlock(&ref->gate);
+    }
+
+    if (flush_err != AV_ERR_OK) {
+        av_log(avctx, AV_LOG_ERROR, "Flush decoder failed, %d, %s\n",
+               flush_err, av_err2str(ff_oh_err_to_ff_err(flush_err)));
+        oh_decode_report_error(s, flush_err);
+        return;
+    }
+
+#ifdef MP_OHCODEC_HANDOFF_TEST
+    if (ref) p30_handoff_before_restart(ref->trace_instance, atomic_load(&ref->generation));
+#endif
+    if (s->dec && OH_VideoDecoder_Start(s->dec) != AV_ERR_OK) {
+        av_log(avctx, AV_LOG_ERROR, "Restart after flush failed\n");
+        oh_decode_report_error(s, AV_ERR_UNKNOWN);
+    }
+#ifdef MP_OHCODEC_HANDOFF_TEST
+    if (ref) p30_handoff_after_restart(ref->trace_instance);
+#endif
+}
+
+static const AVCodecHWConfigInternal *const oh_hw_configs[] = {
+    &(const AVCodecHWConfigInternal) {
+        .public = {
+            .pix_fmt = AV_PIX_FMT_OHCODEC,
+            .methods = AV_CODEC_HW_CONFIG_METHOD_AD_HOC |
+                       AV_CODEC_HW_CONFIG_METHOD_HW_DEVICE_CTX,
+            .device_type = AV_HWDEVICE_TYPE_OHCODEC,
+        },
+        .hwaccel = NULL,
+    },
+    NULL
+};
+
+#define OFFSET(x) offsetof(OHCodecDecContext, x)
+#define VD (AV_OPT_FLAG_VIDEO_PARAM | AV_OPT_FLAG_DECODING_PARAM)
+static const AVOption ohcodec_vdec_options[] = {
+    {"codec_name", "Select codec by name",
+         OFFSET(name), AV_OPT_TYPE_STRING, .flags = VD},
+    {"allow_sw", "Allow software decoding",
+         OFFSET(allow_sw), AV_OPT_TYPE_BOOL, {.i64 = 0}, 0, 1, VD},
+    {NULL}
+};
+
+#define DECLARE_OHCODEC_VCLASS(short_name)                                     \
+  static const AVClass short_name##_oh_dec_class = {                           \
+      .class_name = #short_name "_ohcodec",                                    \
+      .item_name = av_default_item_name,                                       \
+      .option = ohcodec_vdec_options,                                          \
+      .version = LIBAVUTIL_VERSION_INT,                                        \
+  };
+
+#define DECLARE_OHCODEC_VDEC(short_name, full_name, codec_id, bsf)             \
+  DECLARE_OHCODEC_VCLASS(short_name)                                           \
+  const FFCodec ff_##short_name##_oh_decoder = {                               \
+      .p.name = #short_name "_ohcodec",                                        \
+      CODEC_LONG_NAME(full_name " OpenHarmony Codec"),                         \
+      .p.type = AVMEDIA_TYPE_VIDEO,                                            \
+      .p.id = codec_id,                                                        \
+      .p.priv_class = &short_name##_oh_dec_class,                              \
+      .priv_data_size = sizeof(OHCodecDecContext),                             \
+      .init = oh_decode_init,                                                  \
+      FF_CODEC_RECEIVE_FRAME_CB(oh_decode_receive_frame),                      \
+      .flush = oh_decode_flush,                                                \
+      .close = oh_decode_close,                                                \
+      .p.capabilities = AV_CODEC_CAP_DELAY | AV_CODEC_CAP_AVOID_PROBING |      \
+                        AV_CODEC_CAP_HARDWARE,                                 \
+      .caps_internal = FF_CODEC_CAP_INIT_CLEANUP,                              \
+      .bsfs = bsf,                                                             \
+      .hw_configs = oh_hw_configs,                                             \
+      .p.wrapper_name = "ohcodec",                                             \
+  };
+
+#if CONFIG_H264_OH_DECODER
+DECLARE_OHCODEC_VDEC(h264, "H.264", AV_CODEC_ID_H264, "h264_mp4toannexb")
+#endif
+
+#if CONFIG_HEVC_OH_DECODER
+DECLARE_OHCODEC_VDEC(hevc, "H.265", AV_CODEC_ID_HEVC, "hevc_mp4toannexb")
+#endif
