@@ -1,0 +1,46 @@
+{
+  "formalArtifactAllowed": false,
+  "newRemoteCI": false,
+  "deviceVerified": false,
+  "pushed": false,
+  "candidateReplaced": false,
+  "scope": "PR7 静态依赖输入集合精确闭包",
+  "baseline": "a1ea31140306e95f3c98b4bfe81f81a16d51ef92",
+  "red": {
+    "tests": 10,
+    "semanticFailures": 7
+  },
+  "green": {
+    "newTests": 10,
+    "fullRegression": 148
+  },
+  "mutationRejected": "省略两次集合检查",
+  "existingInputSet": {
+    "headers": 95,
+    "pkgconfig": 8,
+    "symlinks": 0,
+    "passed": true,
+    "manifestSHA256": "e4def52572ee686ca16dd8b61a5c2ebff3d1f417f9d58108a4d2712e91f91bf4"
+  },
+  "ci": "既有 pr1-gates unittest discover 自动覆盖 test_static_input_set.py；本轮未运行远端CI",
+  "logs": [
+    {
+      "path": "logs/producer-red.log",
+      "bytes": 3523,
+      "sha256": "bc0918ee1ba9db69de8099e64846d43eaae8e9992c407f3fcb88a0d73c17ddfb",
+      "originalSHA256": "fe34fe5b9bd2edd243e70110aef14580d5ce5d70b0987b52b3a28481f7e3d4fe"
+    },
+    {
+      "path": "logs/producer-green.log",
+      "bytes": 109,
+      "sha256": "7113510254859a25fd51a67566b4a2edd527f7bf5883b8868a9383bb875d9cf9",
+      "originalSHA256": "7113510254859a25fd51a67566b4a2edd527f7bf5883b8868a9383bb875d9cf9"
+    },
+    {
+      "path": "logs/producer-mutant.log",
+      "bytes": 3077,
+      "sha256": "491d629b7fdf5679c2beb1d286e2fc20ff7312ef4527949e445279a6a23d6a7d",
+      "originalSHA256": "491d629b7fdf5679c2beb1d286e2fc20ff7312ef4527949e445279a6a23d6a7d"
+    }
+  ]
+}

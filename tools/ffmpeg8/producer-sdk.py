@@ -275,6 +275,32 @@ def verify_closure_claim(m,proof):
     return result
 
 
+def check_input_set(root, records, subdir):
+    """准确绑定编译器可消费目录；不能把清单外输入补采后当作已验证。"""
+    root = Path(root)
+    names = []
+    for row in records:
+        name = row['path']
+        if not isinstance(name, str) or Path(name).as_posix() != name or not name.startswith(subdir + '/'):
+            raise ValueError(f'输入清单目录或路径不规范: {name}')
+        checked_path(root, name)
+        names.append(name)
+    if len(names) != len(set(names)):
+        raise ValueError(f'输入清单重复: {subdir}')
+    folder = root / subdir
+    for part in (root, root / Path(subdir).parts[0], folder):
+        if part.is_symlink():
+            raise ValueError(f'输入目录符号链接拒绝: {subdir}')
+    actual = set()
+    for path in ([folder] + sorted(folder.rglob('*')) if folder.exists() else []):
+        if path.is_symlink() or not (path.is_dir() or path.is_file()):
+            raise ValueError(f'输入含符号链接或特殊文件: {subdir}')
+        if path.is_file():
+            actual.add(path.relative_to(root).as_posix())
+    if actual != set(names):
+        raise ValueError(f'输入文件集合不一致: {subdir}; missing={sorted(set(names)-actual)}; extra={sorted(actual-set(names))}')
+
+
 def static_input(args):
     source_manifest = getattr(args, 'static_manifest', None)
     if source_manifest:
@@ -288,6 +314,8 @@ def static_input(args):
             raise ValueError('新源码依赖必须包含准确八库集合')
         if 'headers' not in m or 'pkgconfig' not in m:
             raise ValueError('新源码依赖清单未绑定 headers/pkgconfig')
+        check_input_set(args.smb, m['headers'], 'include')
+        check_input_set(args.smb, m['pkgconfig'], 'lib/pkgconfig')
         check_files(args.smb, m['archives'] + m['headers'] + m['pkgconfig'])
         if m.get('closureProof') or m.get('fullyVerified') or m.get('newSourceClosureVerified'):
             proof=m.get('closureProof',{});file=checked_path(args.smb,proof.get('path','missing-closure-proof'))
