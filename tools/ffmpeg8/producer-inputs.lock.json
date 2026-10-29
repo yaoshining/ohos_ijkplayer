@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "ffmpeg": {
+    "repository": "https://github.com/FFmpeg/FFmpeg.git",
+    "revision": "140fd653aed8cad774f991ba083e2d01e86420c7",
+    "gitArchiveSha256": "3c7a424271b300ba626ca1d75f3bf203a39ed3b9003f0faaf80067e1278fc758"
+  },
+  "builder": {
+    "repository": "https://github.com/mpv-ohos/libmpv-ohos-build.git",
+    "revision": "1bab837e662ffa47ce51efd0720d3ed7c4988944"
+  },
+  "toolchain": {
+    "profile": "openharmony-5.0-linux-diagnostic-not-historical-API24",
+    "url": "https://repo.huaweicloud.com/harmonyos/os/5.0.0-Release/ohos-sdk-windows_linux-public.tar.gz",
+    "sha256": "f06a2a8ae38a3cf01c583557f5a4bb1e6e3626df975599aa71f4a59e9af70ecc",
+    "historicalToolchainIdentityProven": false
+  },
+  "dependenciesLockSha256": "a3b7d05de1ced37c19a53a632dbba420ab878912631bf05b42802f1e5b6d3e7f",
+  "formalReleaseAllowed": false
+}

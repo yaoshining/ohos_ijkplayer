@@ -1,0 +1,61 @@
+FFF..FFFF.
+======================================================================
+FAIL: test_added_input (__main__.Tests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<MUTANT>/tools/ffmpeg8/tests/test_static_input_set.py", line 17, in test_added_input
+    with self.assertRaises(ValueError,msg=path):self.run_input()
+AssertionError: ValueError not raised : include/extra.h
+
+======================================================================
+FAIL: test_cross_group (__main__.Tests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<MUTANT>/tools/ffmpeg8/tests/test_static_input_set.py", line 32, in test_cross_group
+    with self.assertRaises(ValueError):self.run_input()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_duplicate_rows (__main__.Tests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<MUTANT>/tools/ffmpeg8/tests/test_static_input_set.py", line 22, in test_duplicate_rows
+    with self.assertRaises(ValueError,msg=group):self.run_input()
+AssertionError: ValueError not raised : headers
+
+======================================================================
+FAIL: test_missing_row (__main__.Tests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<MUTANT>/tools/ffmpeg8/tests/test_static_input_set.py", line 26, in test_missing_row
+    with self.assertRaises(ValueError):self.run_input()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_noncanonical_path (__main__.Tests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<MUTANT>/tools/ffmpeg8/tests/test_static_input_set.py", line 36, in test_noncanonical_path
+    with self.assertRaises(ValueError,msg=value):self.run_input()
+AssertionError: ValueError not raised : include/./nested/a.h
+
+======================================================================
+FAIL: test_symlink_directory (__main__.Tests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<MUTANT>/tools/ffmpeg8/tests/test_static_input_set.py", line 42, in test_symlink_directory
+    with self.assertRaises(ValueError):self.run_input()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_symlink_inputs (__main__.Tests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<MUTANT>/tools/ffmpeg8/tests/test_static_input_set.py", line 39, in test_symlink_inputs
+    with self.assertRaises(ValueError):self.run_input()
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 10 tests in 3.259s
+
+FAILED (failures=7)
