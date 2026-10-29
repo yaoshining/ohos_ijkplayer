@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 1,
+  "commands": [
+    {
+      "name": "gate-tests",
+      "argv": [
+        "{python}",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/pr1-gates/tests",
+        "-p",
+        "test_*.py",
+        "-v"
+      ]
+    },
+    {
+      "name": "producer-contracts",
+      "argv": [
+        "{python}",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/ffmpeg8/tests",
+        "-p",
+        "test_*.py",
+        "-v"
+      ]
+    },
+    {
+      "name": "hx509-contracts",
+      "argv": [
+        "{python}",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/hx509-history/tests",
+        "-p",
+        "test_*.py",
+        "-v"
+      ]
+    },
+    {
+      "name": "cross-root-contracts",
+      "argv": [
+        "{python}",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/cross-root-profile/tests",
+        "-p",
+        "test_*.py",
+        "-v"
+      ]
+    },
+    {
+      "name": "lexer-contracts",
+      "argv": [
+        "{python}",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/lexer-source-profile/tests",
+        "-p",
+        "test_*.py",
+        "-v"
+      ]
+    },
+    {
+      "name": "phase17-contracts",
+      "argv": [
+        "{python}",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/phase17/tests",
+        "-p",
+        "test_*.py",
+        "-v"
+      ]
+    },
+    {
+      "name": "phase17-repeat",
+      "argv": [
+        "{python}",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/phase17/repeat",
+        "-p",
+        "test_*.py",
+        "-v"
+      ]
+    },
+    {
+      "name": "sdk-contract",
+      "argv": [
+        "bash",
+        "tools/ffmpeg8/tests/test-sdk-contract.sh"
+      ]
+    }
+  ],
+  "scope": "real host regressions only; target build jobs remain separate",
+  "formalArtifactAllowed": false
+}

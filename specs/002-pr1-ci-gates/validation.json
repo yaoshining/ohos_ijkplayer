@@ -1,0 +1,203 @@
+{
+  "schemaVersion": 1,
+  "scope": "本机未提交草稿预演；不是精确提交或远端CI",
+  "interpreter": "/Users/yaoshining/anaconda3/bin/python3 3.10.9",
+  "PyYAML": "6.0.1",
+  "formalArtifactAllowed": false,
+  "deviceExecuted": false,
+  "targetLibrariesBuilt": false,
+  "accepted": true,
+  "exactCommitReplay": false,
+  "inputsUnchanged": true,
+  "identityUnchanged": true,
+  "commands": [
+    {
+      "argv": [
+        "/Users/yaoshining/anaconda3/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/pr1-gates/tests",
+        "-p",
+        "test_*.py",
+        "-v"
+      ],
+      "returncode": 0,
+      "timedOut": false,
+      "durationSeconds": 6.429,
+      "unittestCommand": true,
+      "testsRun": 23,
+      "passed": true,
+      "name": "gate-tests"
+    },
+    {
+      "argv": [
+        "/Users/yaoshining/anaconda3/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/ffmpeg8/tests",
+        "-p",
+        "test_*.py",
+        "-v"
+      ],
+      "returncode": 0,
+      "timedOut": false,
+      "durationSeconds": 23.837,
+      "unittestCommand": true,
+      "testsRun": 138,
+      "passed": true,
+      "name": "producer-contracts"
+    },
+    {
+      "argv": [
+        "/Users/yaoshining/anaconda3/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/hx509-history/tests",
+        "-p",
+        "test_*.py",
+        "-v"
+      ],
+      "returncode": 0,
+      "timedOut": false,
+      "durationSeconds": 0.667,
+      "unittestCommand": true,
+      "testsRun": 21,
+      "passed": true,
+      "name": "hx509-contracts"
+    },
+    {
+      "argv": [
+        "/Users/yaoshining/anaconda3/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/cross-root-profile/tests",
+        "-p",
+        "test_*.py",
+        "-v"
+      ],
+      "returncode": 0,
+      "timedOut": false,
+      "durationSeconds": 0.142,
+      "unittestCommand": true,
+      "testsRun": 2,
+      "passed": true,
+      "name": "cross-root-contracts"
+    },
+    {
+      "argv": [
+        "/Users/yaoshining/anaconda3/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/lexer-source-profile/tests",
+        "-p",
+        "test_*.py",
+        "-v"
+      ],
+      "returncode": 0,
+      "timedOut": false,
+      "durationSeconds": 0.148,
+      "unittestCommand": true,
+      "testsRun": 21,
+      "passed": true,
+      "name": "lexer-contracts"
+    },
+    {
+      "argv": [
+        "/Users/yaoshining/anaconda3/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/phase17/tests",
+        "-p",
+        "test_*.py",
+        "-v"
+      ],
+      "returncode": 0,
+      "timedOut": false,
+      "durationSeconds": 0.142,
+      "unittestCommand": true,
+      "testsRun": 25,
+      "passed": true,
+      "name": "phase17-contracts"
+    },
+    {
+      "argv": [
+        "/Users/yaoshining/anaconda3/bin/python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/phase17/repeat",
+        "-p",
+        "test_*.py",
+        "-v"
+      ],
+      "returncode": 0,
+      "timedOut": false,
+      "durationSeconds": 0.086,
+      "unittestCommand": true,
+      "testsRun": 23,
+      "passed": true,
+      "name": "phase17-repeat"
+    },
+    {
+      "argv": [
+        "bash",
+        "tools/ffmpeg8/tests/test-sdk-contract.sh"
+      ],
+      "returncode": 0,
+      "timedOut": false,
+      "durationSeconds": 0.144,
+      "unittestCommand": false,
+      "testsRun": null,
+      "passed": true,
+      "name": "sdk-contract"
+    }
+  ],
+  "localEvidenceRoot": "/private/tmp/producer-pr-gates-20261024/evidence-pr1",
+  "evidenceFiles": [
+    {
+      "path": "red-01.log",
+      "bytes": 18702,
+      "sha256": "c0f072fa4c4bcc5570ff00cb92cf46f30a5ede202c0e4a392ebaf8bc3a9c59a2"
+    },
+    {
+      "path": "review-red-02.log",
+      "bytes": 5770,
+      "sha256": "afbe76bad8fb46f74566b982b49767793ede3e317c477565e0fd11f96cc04209"
+    },
+    {
+      "path": "green-02.log",
+      "bytes": 1439,
+      "sha256": "c4d4fb000ccc3c9e020359f29fcbe99bad61d2cd5cba6aad1867f6cf46d46f19"
+    },
+    {
+      "path": "host-preview-01/result.json",
+      "bytes": 3014,
+      "sha256": "99383456188fe55eb8491c5abfa63bf36cba129cca07d63206f2ad2801ca94fe"
+    },
+    {
+      "path": "host-preview-02/result.json",
+      "bytes": 3612,
+      "sha256": "cadbe439c3d2c1cd0b26a1529f5f7d7548fa27909d343990d12c56ab7541b8cf"
+    }
+  ]
+}

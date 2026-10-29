@@ -1,0 +1,36 @@
+[
+  {
+    "archive": "inputs.tar.gz",
+    "sha256": "5b6f9fc029613c6f03f2dd8e4b9120a3c67b5bab82b7ae677d0fba19256a2fe5",
+    "size": 114848837,
+    "parts": [
+      {
+        "file": "inputs.tar.gz.part0",
+        "sha256": "38f683ba5f7c08961577499abfc0d1d7936e15447a96bd6ef173236e2c51c317",
+        "size": 41943040
+      },
+      {
+        "file": "inputs.tar.gz.part1",
+        "sha256": "b359edd3a6f93f2c91773d741e6f31a5129861263bce6740bb06556e559eaff9",
+        "size": 41943040
+      },
+      {
+        "file": "inputs.tar.gz.part2",
+        "sha256": "716c5a38e2e5423eea8cb15920f2983d46646b0e1afe481d82914e57b22e4033",
+        "size": 30962757
+      }
+    ]
+  },
+  {
+    "archive": "target-sdk.tar.gz",
+    "sha256": "f0671f0d342ddae251140e66cd439fec46f8ca0f67265c3f31e2be72d6656831",
+    "size": 6809910,
+    "parts": [
+      {
+        "file": "target-sdk.tar.gz.part0",
+        "sha256": "f0671f0d342ddae251140e66cd439fec46f8ca0f67265c3f31e2be72d6656831",
+        "size": 6809910
+      }
+    ]
+  }
+]

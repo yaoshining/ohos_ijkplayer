@@ -1,0 +1,153 @@
+{
+  "schemaVersion": 1,
+  "asOf": "2026-10-24",
+  "parentCommit": "67d35542db274c0dd5f45fb3c2be4ea02dc734c2",
+  "formalArtifactAllowed": false,
+  "files": [
+    {
+      "id": "S1",
+      "path": "specs/001-ffmpeg-ohcodec-producer/phase10-hx509-profile/tasks.md",
+      "sha256": "b33f0ea5920d24379da1db26ce5d02810d7b4b693821744b783fc4bccefb8578",
+      "bytes": 6154,
+      "availability": "本PR基线已跟踪",
+      "source": "/private/tmp/producer-speckit-closeout-20261024/pr1/specs/001-ffmpeg-ohcodec-producer/phase10-hx509-profile/tasks.md"
+    },
+    {
+      "id": "S2",
+      "path": "specs/001-ffmpeg-ohcodec-producer/phase11-cross-root/tasks.md",
+      "sha256": "d815ec1cbb8af4294b48c648036e62eab0154ce8de3d832e8a93db2f42c38f77",
+      "bytes": 2879,
+      "availability": "本PR基线已跟踪",
+      "source": "/private/tmp/producer-speckit-closeout-20261024/pr1/specs/001-ffmpeg-ohcodec-producer/phase11-cross-root/tasks.md"
+    },
+    {
+      "id": "S3",
+      "path": "specs/001-ffmpeg-ohcodec-producer/phase12-lexer-source/tasks.md",
+      "sha256": "33500be6c831ad38c3595bf6b0a5790be20b873dd10d363bee1e2bda6aae359d",
+      "bytes": 4579,
+      "availability": "本PR基线已跟踪",
+      "source": "/private/tmp/producer-speckit-closeout-20261024/pr1/specs/001-ffmpeg-ohcodec-producer/phase12-lexer-source/tasks.md"
+    },
+    {
+      "id": "S4",
+      "path": "specs/001-ffmpeg-ohcodec-producer/phase13/tasks.md",
+      "sha256": "1c4b4200da575cc27e08136e94d9a1aa81ee85e6f6310392f638995ef7397c87",
+      "bytes": 437,
+      "availability": "仅原工作区本机材料，未在本PR基线入库",
+      "source": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/specs/001-ffmpeg-ohcodec-producer/phase13/tasks.md"
+    },
+    {
+      "id": "S5",
+      "path": "specs/001-ffmpeg-ohcodec-producer/phase14/tasks.md",
+      "sha256": "6c6fe0cba35a5247a9c3573774129c9755f16ea422b2a03fb01fe102d3f7c900",
+      "bytes": 637,
+      "availability": "仅原工作区本机材料，未在本PR基线入库",
+      "source": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/specs/001-ffmpeg-ohcodec-producer/phase14/tasks.md"
+    },
+    {
+      "id": "S6",
+      "path": "specs/001-ffmpeg-ohcodec-producer/phase15/tasks.md",
+      "sha256": "2b9b756696142a3aa62d11245d12c8a6d56d9029aed12e9ba4f538e2733d8858",
+      "bytes": 1347,
+      "availability": "仅原工作区本机材料，未在本PR基线入库",
+      "source": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/specs/001-ffmpeg-ohcodec-producer/phase15/tasks.md"
+    },
+    {
+      "id": "S7",
+      "path": "specs/001-ffmpeg-ohcodec-producer/phase16/tasks.md",
+      "sha256": "ca204ab8eca473b513ddc1ebd3c380fe17b01ffc4cd9f4f1d385c3f0c7fcb166",
+      "bytes": 1367,
+      "availability": "仅原工作区本机材料，未在本PR基线入库",
+      "source": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/specs/001-ffmpeg-ohcodec-producer/phase16/tasks.md"
+    },
+    {
+      "id": "S8",
+      "path": "specs/001-ffmpeg-ohcodec-producer/phase17/tasks.md",
+      "sha256": "b3b8089daa28ead65eee72e52a00fc13d5844f83ab9db8f5080683e2f47366de",
+      "bytes": 1930,
+      "availability": "仅原工作区本机材料，未在本PR基线入库",
+      "source": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/specs/001-ffmpeg-ohcodec-producer/phase17/tasks.md"
+    },
+    {
+      "id": "S9",
+      "path": "specs/001-ffmpeg-ohcodec-producer/phase9-proposal/tasks.md",
+      "sha256": "4aeddc787f6ae6cde721a2549cccb925eedf0d06164f9192c86f5bf8a2569f41",
+      "bytes": 1248,
+      "availability": "仅原工作区本机材料，未在本PR基线入库",
+      "source": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/specs/001-ffmpeg-ohcodec-producer/phase9-proposal/tasks.md"
+    },
+    {
+      "id": "S10",
+      "path": "specs/001-ffmpeg-ohcodec-producer/phase9-source-investigation/tasks.md",
+      "sha256": "1557de3d962c4c866be9707f9912b95da635e8fba0f4cda852125fd2eb155d10",
+      "bytes": 2819,
+      "availability": "仅原工作区本机材料，未在本PR基线入库",
+      "source": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/specs/001-ffmpeg-ohcodec-producer/phase9-source-investigation/tasks.md"
+    },
+    {
+      "id": "S11",
+      "path": "specs/001-ffmpeg-ohcodec-producer/tasks.md",
+      "sha256": "1e47bf8a75552b36b3a9276173ab77b49807e028579dbeb728b689ffda0165d4",
+      "bytes": 8818,
+      "availability": "本PR基线已跟踪",
+      "source": "/private/tmp/producer-speckit-closeout-20261024/pr1/specs/001-ffmpeg-ohcodec-producer/tasks.md"
+    },
+    {
+      "id": "E1",
+      "path": "docs/producer-phase8-report.md",
+      "sha256": "22650f64c997049b357b3a56ce16a052b0439e632b28adc30569d3eede7c9334",
+      "bytes": 10611,
+      "availability": "本机补充证据，未作为原件随本PR提交",
+      "source": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/docs/producer-phase8-report.md"
+    },
+    {
+      "id": "E2",
+      "path": "out/phase8/ci-independent-verification.json",
+      "sha256": "06b5e99c0125ff686ad4f6228bc6b6d5900fb0ccd904aa3be8de482e6df84de9",
+      "bytes": 1226,
+      "availability": "本机补充证据，未作为原件随本PR提交",
+      "source": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase8/ci-independent-verification.json"
+    },
+    {
+      "id": "E3",
+      "path": "out/phase10/resume-01/handoff.json",
+      "sha256": "5262a06d3669388a735d58f2cf4ac97ead7ed33d4d62517cd0fd852b20958a24",
+      "bytes": 3151,
+      "availability": "本机补充证据，未作为原件随本PR提交",
+      "source": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase10/resume-01/handoff.json"
+    },
+    {
+      "id": "E4",
+      "path": "out/phase10/resume-01/ci-verification.json",
+      "sha256": "7fe474c827d2e5e3d69b07b941c57e5048bb81e31d43186acf2ec285c49844b6",
+      "bytes": 82876,
+      "availability": "本机补充证据，未作为原件随本PR提交",
+      "source": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase10/resume-01/ci-verification.json"
+    },
+    {
+      "id": "E5",
+      "path": "out/phase17/completion-review.json",
+      "sha256": "40529958bdc691aae3da19854ac6d47ceccc3640d4e20f570e297922ce3cfa6b",
+      "bytes": 806,
+      "availability": "本机补充证据，未作为原件随本PR提交",
+      "source": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase17/completion-review.json"
+    },
+    {
+      "id": "E6",
+      "path": "out/phase17/ci/published-final-commit-verification.json",
+      "sha256": "d555dc29cfa32f8602cca1134a27012ed6a13ae17c53826c332418f2f68042bb",
+      "bytes": 247,
+      "availability": "本机补充证据，未作为原件随本PR提交",
+      "source": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase17/ci/published-final-commit-verification.json"
+    },
+    {
+      "id": "E7",
+      "path": "out/phase17/ci/fourth-run-artifact-verification.json",
+      "sha256": "fcfc29ed976700d015c99aed8bb377c2871b05c36b98dcdcc8b86361fdc73e17",
+      "bytes": 3000,
+      "availability": "本机补充证据，未作为原件随本PR提交",
+      "source": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase17/ci/fourth-run-artifact-verification.json"
+    }
+  ],
+  "tasksCovered": 154
+}

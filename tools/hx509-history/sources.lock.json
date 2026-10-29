@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "profile": "hx509-history",
+  "scope": "源码重建诊断组合；不证明历史机器安装身份。GNU Bison 可执行文件配 Apple data，不声称完整 Apple Bison 构建成功。",
+  "sources": [
+    {"name":"bison", "archiveFile":"bison-2.3.tar.gz", "url":"https://ftp.gnu.org/gnu/bison/bison-2.3.tar.gz", "sha256":"52f78aa4761a74ceb7fdf770f3554dd84308c3b93c4255e3a5c17558ecda293e"},
+    {"name":"flex", "archiveFile":"apple-flex-35.tar.gz", "url":"https://codeload.github.com/apple-oss-distributions/flex/tar.gz/8548f53e24244c0a411dea128a21686b61d29df4", "commit":"8548f53e24244c0a411dea128a21686b61d29df4", "sha256":"ba130fc9fccbb61470aed73a3f726ddc90fe42e1f10b30bf1b1a805232710131"},
+    {"name":"apple-data", "archiveFile":"apple-bison-16.tar.gz", "url":"https://codeload.github.com/apple-oss-distributions/bison/tar.gz/c2e580cfc49860601a5e159fe3d9daf232914404", "commit":"c2e580cfc49860601a5e159fe3d9daf232914404", "sha256":"c1c91c4b66a800cd2168410c808af5a247750d9646d688a1e061b1e3858fae3d"}
+  ]
+}

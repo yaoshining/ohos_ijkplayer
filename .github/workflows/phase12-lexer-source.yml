@@ -1,0 +1,35 @@
+name: Phase12 lexer 来源证据门禁
+on:
+  workflow_dispatch:
+  push:
+    branches: ['codex/hx509-history-diagnostics']
+    paths: ['tools/lexer-source-profile/**', '.github/workflows/phase12-lexer-source.yml']
+permissions:
+  contents: read
+jobs:
+  evidence-gates:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      LC_ALL: C.UTF-8
+      TZ: UTC
+    steps:
+      - uses: actions/checkout@v4
+      - name: 来源门禁及相关原回归
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/phase12/ci
+          python3 -B -m unittest discover -s tools/lexer-source-profile/tests -v 2>&1 | tee out/phase12/ci/lexer-tests.log
+          python3 -B -m unittest discover -s tools/ffmpeg8/tests -p test_python_target_paths.py -v 2>&1 | tee out/phase12/ci/python-path-tests.log
+          python3 -B -m unittest discover -s tools/hx509-history/tests -v 2>&1 | tee out/phase12/ci/hx509-tests.log
+          git rev-parse HEAD > out/phase12/ci/commit.txt
+          python3 --version > out/phase12/ci/python-version.txt
+      - name: 保存门禁证据（非发布产物）
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase12-lexer-gates-not-release
+          path: out/phase12/ci/
+          retention-days: 14

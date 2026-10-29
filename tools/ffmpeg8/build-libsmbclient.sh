@@ -3,7 +3,7 @@
 #
 # 本脚本在预装 DevEco Studio (OpenHarmony NDK) 的 macOS (arm64/x64) 宿主上执行，
 # 产出仅包含 SMB 协议所需的 libsmbclient.a / libsmbclient.h / smbclient.pc，
-# 供 FFmpeg --enable-libsmbclient 静态链接进 libmpv.so。
+# 供 FFmpeg --enable-libsmbclient 静态链接进 FFmpeg libavformat.so。
 #
 # 传递依赖闭包（全部静态）：
 #   zlib → popt → gmp → nettle → libtasn1 → gnutls → samba/libsmbclient
@@ -19,6 +19,10 @@
 #     并在 Waf 的交叉构建图中跳过所有 HostCC 子系统。
 #   - 交叉回答 (cross-answers) 覆盖所有运行期探测；以 rsplit 解析含冒号的回答。
 set -euo pipefail
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+
+NATIVE_BUILD_PATH="$PATH"
+export LC_ALL=C TZ=UTC SOURCE_DATE_EPOCH=1755820644 PYTHONHASHSEED=1
 
 log() { printf '\033[1;34m[smb]\033[0m %s\n' "$*"; }
 die() { printf '\033[1;31m[smb] 错误：%s\033[0m\n' "$*" >&2; exit 1; }
@@ -33,6 +37,7 @@ die() { printf '\033[1;31m[smb] 错误：%s\033[0m\n' "$*" >&2; exit 1; }
 : "${SAMBA_ARCHIVE_SHA256:=95098578bd03ab15fb7c1e06641fa8b9e174a16fce8e6246d378d171baec8cf0}"
 : "${JOBS:=$(sysctl -n hw.ncpu 2>/dev/null || echo 4)}"
 
+SOURCE_CACHE=${SOURCE_CACHE:-"$WORK_DIR/downloads"}
 OHOS_ARCH=${OHOS_ARCH:-arm64-v8a}
 case "$OHOS_ARCH" in
   arm64-v8a) TARGET=aarch64-unknown-linux-ohos; HOST_TRIPLET=aarch64-linux-musl ;;
@@ -71,7 +76,7 @@ clean_src() {
 
 # ---------------- 现代 bison（macOS 12 系统 bison 2.3 过旧） ----------------
 build_modern_bison() {
-  if bison --version | head -1 | grep -qE "GNU Bison [3-9]"; then
+  if [ "${FFMPEG8_PIN_HOST_BISON:-0}" != 1 ] && bison --version | head -1 | grep -qE "GNU Bison [3-9]"; then
     log "检测到现代 bison: $(bison --version | head -1)"
     return 0
   fi
@@ -99,8 +104,8 @@ setup_cross_env() {
   export PKG_CONFIG_PATH="$PREFIX/lib/pkgconfig"
   export PKG_CONFIG_LIBDIR="$SYSROOT/usr/lib"
   export PKG_CONFIG_SYSROOT_DIR="$SYSROOT"
-  export CFLAGS="-fPIC -D__MUSL__=1 -I$PREFIX/include"
-  export CXXFLAGS="-fPIC -D__MUSL__=1 -I$PREFIX/include"
+  export CFLAGS="-fPIC -D__MUSL__=1 -I$PREFIX/include -ffile-prefix-map=$WORK_DIR=/usr/src/ohcodec-deps -ffile-prefix-map=$PREFIX=/opt/ohcodec-deps"
+  export CXXFLAGS="$CFLAGS"
   export LDFLAGS="-L$PREFIX/lib"
   # Samba 通过 pkg-config 取得 GnuTLS 链接参数。静态 GnuTLS 的 ASN.1、zlib、
   # nettle 等传递依赖仅会由 --static 输出，避免 Waf 链接 genrand 时漏库。
@@ -126,15 +131,10 @@ EOF
 
 # ---------------- Locked Samba source ----------------
 fetch_samba() {
-  local archive="$WORK_DIR/samba-${SAMBA_COMMIT}.tar.gz" extracted actual_sha
-  mkdir -p "$WORK_DIR"
-  if [ ! -f "$archive" ]; then
-    curl -fsSL --retry 3 "$SAMBA_ARCHIVE_URL" -o "$archive"
-  fi
-  actual_sha=$(shasum -a 256 "$archive" | awk '{print $1}')
-  [ "$actual_sha" = "$SAMBA_ARCHIVE_SHA256" ] || die "Samba archive checksum mismatch"
+  local archive extracted
+  archive=$(python3 "$SCRIPT_DIR/fetch-sources.py" --name samba-4.20.7 --cache "$SOURCE_CACHE")
   rm -rf "$SAMBA_DIR" "$SAMBA_HOST_DIR"
-  tar -xzf "$archive" -C "$WORK_DIR"
+  tar -xf "$archive" -C "$WORK_DIR"
   extracted=$(find "$WORK_DIR" -maxdepth 1 -type d -name "samba-${SAMBA_COMMIT}*" -print -quit)
   [ -n "$extracted" ] || die "Samba archive did not contain the expected source tree"
   mv "$extracted" "$SAMBA_DIR"
@@ -145,23 +145,10 @@ fetch_samba() {
 # 下载到临时文件, 校验 tar 包未截断后才解压, 减少 iMac runner 网络抽风导致的失败。
 # 用法: fetch_extract <url> <label>
 fetch_extract() {
-  local url="$1" label="$2"
-  local attempt=0 max=4
-  while [ "$attempt" -lt "$max" ]; do
-    attempt=$((attempt + 1))
-    log "$label 下载 尝试 $attempt/$max: $url"
-    local tmp="$WORK_DIR/${label}.$$"
-    if curl -fsSL --retry 3 --retry-delay 5 "$url" -o "$tmp"; then
-      case "$url" in
-        *.tar.xz|*.txz) tar tJf "$tmp" >/dev/null 2>&1 && tar xJf "$tmp" -C "$WORK_DIR" && rm -f "$tmp" && return 0 ;;
-        *.tar.gz|*.tgz) tar tzf "$tmp" >/dev/null 2>&1 && tar xzf "$tmp" -C "$WORK_DIR" && rm -f "$tmp" && return 0 ;;
-        *) log "未识别的压缩格式: $url"; rm -f "$tmp"; return 1 ;;
-      esac
-    fi
-    rm -f "$tmp"
-    [ "$attempt" -lt "$max" ] || { log "$label 下载在 $max 次尝试后仍失败"; return 1; }
-    sleep $((attempt * 10))
-  done
+  local url="$1" label="$2" archive
+  # URL 参数保留旧调用签名；真正下载 URL 与 SHA256 只取统一来源锁。
+  archive=$(python3 "$SCRIPT_DIR/fetch-sources.py" --name "$label" --cache "$SOURCE_CACHE") || return 1
+  tar -xf "$archive" -C "$WORK_DIR"
 }
 
 build_zlib() {
@@ -184,7 +171,7 @@ build_popt() {
   ( cd "$d"
     # release tarball 已含预生成 configure/build-aux, 不再运行 autopoint/glibtoolize
     # (glibtoolize --force 会覆盖 build-aux/compile 和 missing 导致 configure 失败)。
-    ./configure --host="$HOST_TRIPLET" --prefix="$PREFIX" --enable-static --disable-shared
+    ./configure --host="$HOST_TRIPLET" --prefix="$PREFIX" --sysconfdir=/etc --enable-static --disable-shared
     make -j"$JOBS" && make install )
 }
 
@@ -195,7 +182,7 @@ build_gmp() {
     fetch_extract https://ftp.gnu.org/gnu/gmp/gmp-6.3.0.tar.xz gmp-6.3.0 || return 1
   fi
   ( cd "$d"
-    ./configure --host="$HOST_TRIPLET" --prefix="$PREFIX" --enable-static --disable-shared --with-pic
+    ./configure --host="$HOST_TRIPLET" --prefix="$PREFIX" --enable-static --disable-shared --with-pic --disable-assembly --without-readline
     make -j"$JOBS" && make install )
 }
 
@@ -236,11 +223,11 @@ build_gnutls() {
   ( cd "$d"
     ./configure --host="$HOST_TRIPLET" --prefix="$PREFIX" --enable-static --disable-shared --with-pic \
       --disable-doc --disable-tests --disable-tools --disable-cxx --disable-maintainer-mode \
-      --disable-openssl --disable-padlock --disable-guile --disable-hardware-acceleration \
-      --without-p11-kit --without-idn --without-tpm --disable-nls --with-included-unistring \
+      --disable-openssl --disable-padlock --disable-guile \
+      --without-p11-kit --without-idn --without-tpm --without-brotli --without-zstd --with-included-unistring \
       GMP_CFLAGS="-I$PREFIX/include" GMP_LIBS="-L$PREFIX/lib -lgmp" \
       NETTLE_CFLAGS="-I$PREFIX/include" NETTLE_LIBS="-L$PREFIX/lib -lnettle" \
-      HOGWEED_CFLAGS="-I$PREFIX/include" HOGWEED_LIBS="-L$PREFIX/lib -lhogweed -lnettle" \
+      HOGWEED_CFLAGS="-I$PREFIX/include" HOGWEED_LIBS="-L$PREFIX/lib -lhogweed -lnettle -lgmp" \
       LIBTASN1_CFLAGS="-I$PREFIX/include" LIBTASN1_LIBS="-L$PREFIX/lib -ltasn1" \
       CPPFLAGS="-I$stub -I$PREFIX/include"
     make -j"$JOBS" && make install )
@@ -250,6 +237,8 @@ build_dependencies() {
   build_zlib
   build_popt
   build_gmp
+  # GMP 的导出构建元数据必须在 Nettle 读取 gmp.h 前稳定，否则 DWARF5 的 MD5 仍随目录变化。
+  python3 "$SCRIPT_DIR/dependency-paths.py" --prefix "$PREFIX" --work "$WORK_DIR"
   build_nettle
   build_libtasn1
   build_gnutls
@@ -259,6 +248,20 @@ build_dependencies() {
 patch_samba_source() {
   log "应用 Samba 交叉编译补丁"
   cd "$SAMBA_DIR"
+
+  # SDK 静态库使用安装后的运行路径，不能嵌入构建树 bin/modules 等路径。
+  python3 - <<'PYPATH'
+p='dynconfig/wscript'
+s=open(p).read();old='if not bld.is_install:'
+assert s.count(old)==2
+s=s.replace(old,"if not bld.is_install and not bld.env.CROSS_COMPILE:")
+open(p,'w').write(s)
+p='lib/ldb/wscript'
+s=open(p).read();old='if bld.is_install:'
+assert s.count(old)==1
+s=s.replace(old,'if bld.is_install or bld.env.CROSS_COMPILE:')
+open(p,'w').write(s)
+PYPATH
 
   # 补丁 1：交叉编译时跳过 -framework CoreFoundation（ld.lld 不识别 -framework）。
   python3 - <<'PY'
@@ -302,27 +305,8 @@ assert old in s
 open(p,'w').write(s.replace(old,new))
 PY
 
-  # 补丁 4：目标配置仍将宿主 macOS 的 DARWINOS 宏写入 iconv.c；禁用
-  # MACOSXFS 编码器注册，避免引用已从交叉图移除的 CoreFoundation 实现。
-  python3 - <<'PY'
-p='lib/util/charset/iconv.c'
-s=open(p).read()
-old='#ifdef DARWINOS\n\t{\n\t\t.name = "MACOSXFS",'
-new='#if defined(DARWINOS) && !defined(__OHOS__)\n\t{\n\t\t.name = "MACOSXFS",'
-assert old in s, 'MACOSXFS 编码器块位置变化'
-open(p,'w').write(s.replace(old,new,1))
-PY
-
-  # 补丁 5：OHOS sysroot 提供 Linux ethtool 头，但缺少 Samba 使用的旧版
-  # ethtool_cmd_speed 实现；禁用这项非 SMB 必需的网卡测速功能。
-  python3 - <<'PY'
-p='lib/socket/interfaces.c'
-s=open(p).read()
-old='#ifdef HAVE_ETHTOOL'
-new='#if defined(HAVE_ETHTOOL) && !defined(__OHOS__)'
-assert s.count(old) == 3, 'ethtool 条件块位置变化'
-open(p,'w').write(s.replace(old,new))
-PY
+  # 目标编译器探测平台；ethtool必须通过完整编译链接探测。
+  python3 "$SCRIPT_DIR/samba-target-config.py" --source "$SAMBA_DIR"
 
   # 补丁 6：使用系统 host 工具时仍设置 bld.env.COMPILE_ET / ASN1_COMPILE。
   python3 - <<'PY'
@@ -509,14 +493,18 @@ PC
   : > "$host_pc/gnutls/gnutls.h"
 
   # 原生环境（清空交叉变量）。覆盖 x64(/usr/local) 和 arm64(/opt/homebrew) Homebrew 路径。
-  # 同时透传 -I/-L 让 waf 完整 build 中触发 genrand.c 等引用 gnutls.h 的源文件能找到头。
-  # host build 不需要真的链接 gnutls, 仅需 include 可见。
-  env -i HOME="$HOME" PATH="$PREFIX/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/opt/homebrew/bin" \
+  # 宿主生成器只使用宿主包和这里的 GnuTLS 声明占位，目标 sysroot 不得泄漏进宿主编译/链接。
+  local -a host_select_env=()
+  local selector
+  for selector in DEVELOPER_DIR SDKROOT TOOLCHAINS M4; do
+    if [ "${!selector+x}" = x ]; then host_select_env+=("$selector=${!selector}"); fi
+  done
+  env -i "${host_select_env[@]}" HOME="$HOME" PATH="$PREFIX/bin:$NATIVE_BUILD_PATH" LC_ALL=C TZ=UTC SOURCE_DATE_EPOCH="$SOURCE_DATE_EPOCH" \
     PKG_CONFIG_PATH="$host_pc:/usr/local/lib/pkgconfig:/opt/homebrew/lib/pkgconfig:/usr/lib/pkgconfig" \
     bash -c "cd '$SAMBA_HOST_DIR' && \
       unset CC CXX PKG_CONFIG_LIBDIR && \
-      export CFLAGS='-I$PREFIX/include' CXXFLAGS='-I$PREFIX/include' \
-             CPPFLAGS='-I$PREFIX/include' LDFLAGS='-L$PREFIX/lib' && \
+      export CFLAGS='-I$host_pc' CXXFLAGS='-I$host_pc' \
+             CPPFLAGS='-I$host_pc' LDFLAGS=''  && \
       PYTHONHASHSEED=1 ./configure --disable-python --without-ad-dc --disable-fault-handling \
         --without-ldb-lmdb --without-gettext --without-json --without-systemd --without-libarchive \
         --without-acl-support --without-ldap --without-ads --without-pam \
@@ -544,7 +532,9 @@ configure_samba() {
     --host=$HOST_TRIPLET --hostcc="${HOSTCC:-$(command -v clang)}" \
     --bundled-libraries=ALL --private-libraries=ALL \
     --with-static-modules='ALL,!vfs_snapper' --with-shared-modules='!DEFAULT,!vfs_snapper' \
-    --disable-python --without-ad-dc --disable-fault-handling \
+    --disable-python --pythondir=/usr/local/samba/lib/python3/site-packages \
+    --pythonarchdir=/usr/local/samba/lib/python3/site-packages \
+    --without-ad-dc --disable-fault-handling \
     --without-ldb-lmdb --without-gettext --without-json \
     --without-systemd --without-libarchive --without-acl-support \
     --without-ldap --without-ads --without-pam; then
@@ -564,8 +554,8 @@ build_samba() {
 install_libsmbclient() {
   log "归档 libsmbclient.a 并安装"
   local ar="$TOOLCHAIN/llvm-ar"
-  find "$SAMBA_DIR/bin/default" -name "*.o" -print > "$WORK_DIR/objlist.txt"
-  "$ar" rcs "$PREFIX/lib/libsmbclient.a" $(cat "$WORK_DIR/objlist.txt")
+  find "$SAMBA_DIR/bin/default" -name "*.o" -print | LC_ALL=C sort > "$WORK_DIR/objlist.txt"
+  "$ar" rcsD "$PREFIX/lib/libsmbclient.a" $(cat "$WORK_DIR/objlist.txt")
   cp "$SAMBA_DIR/bin/default/include/public/libsmbclient.h" "$PREFIX/include/libsmbclient.h"
 
   cat > "$PREFIX/lib/pkgconfig/smbclient.pc" <<EOF
@@ -592,6 +582,9 @@ EOF
 main() {
   fetch_samba
   build_modern_bison || die "无法提供现代 bison"
+  if [ -n "${FFMPEG8_HOST_LOCK_SHA256:-}" ]; then
+    python3 "$SCRIPT_DIR/generator-lock.py" --output "$WORK_DIR/generator-locks/bison.json" --host-lock-sha256 "$FFMPEG8_HOST_LOCK_SHA256" --directory "$PREFIX/share/bison" "$(command -v bison)"
+  fi
   setup_cross_env
   clean_src
   build_dependencies
@@ -599,9 +592,13 @@ main() {
   write_cross_answers
   # 先准备 host 工具目录以接收交叉树补丁之外的原始源码。
   build_host_tools
+  if [ -n "${FFMPEG8_HOST_LOCK_SHA256:-}" ]; then
+    python3 "$SCRIPT_DIR/generator-lock.py" --output "$WORK_DIR/generator-locks/heimdal.json" --host-lock-sha256 "$FFMPEG8_HOST_LOCK_SHA256" "$SAMBA_DIR/bin/compile_et" "$SAMBA_DIR/bin/asn1_compile"
+  fi
   configure_samba
   build_samba
   install_libsmbclient
+  python3 "$SCRIPT_DIR/dependency-paths.py" --prefix "$PREFIX" --work "$WORK_DIR"
   log "受控 libsmbclient 构建完成。sysroot：$PREFIX"
 }
 
