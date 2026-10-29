@@ -1,0 +1,1364 @@
+{
+  "scope": "Phase17 cached-input provenance; Phase16 actual-use evidence, Phase17 clean/CI attestation is root-owned",
+  "componentCount": 10,
+  "fullyVerified": false,
+  "components": [
+    {
+      "component": "libass",
+      "sourceDirectory": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/libass",
+      "repository": {
+        "requestedRoot": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/libass",
+        "verifiedTopLevel": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/libass",
+        "commit": "bbb3c7f1570a4a021e52683f3fbdf74fe492ae84",
+        "evidenceScope": "observed current repository only; not historical artifact build attestation"
+      },
+      "fullyVerified": false,
+      "artifactRebuiltThisResearch": false,
+      "archives": {
+        "currentCacheBuild": {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/libass/.build/libass/libass.a",
+          "sha256": "d32869dfbae07828b5448309a16f08c862fa03f69cd896505392a7c9f617cbec",
+          "sizeBytes": 324056
+        },
+        "currentCacheInstall": {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/arm64-build/lib/libass.a",
+          "sha256": "d32869dfbae07828b5448309a16f08c862fa03f69cd896505392a7c9f617cbec",
+          "sizeBytes": 324056
+        },
+        "phase16Staged": {
+          "path": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase16/deps/lib/libass.a",
+          "sha256": "d32869dfbae07828b5448309a16f08c862fa03f69cd896505392a7c9f617cbec",
+          "sizeBytes": 324056
+        }
+      },
+      "allThreeArchiveSHA256Equal": true,
+      "buildEvidenceFiles": [
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/libass/.build/compile_commands.json",
+          "sha256": "b987d003a2f8c0d65433924fe531e63779695eb7ebc6d8df74a429240574790a",
+          "sizeBytes": 49931
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/libass/.build/build.ninja",
+          "sha256": "32fb5671efe89704c4a1d73b8c2a6589f6c3fa8d4000aa4a67505294eecfd17c",
+          "sizeBytes": 51298
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/libass/.build/meson-logs/meson-log.txt",
+          "sha256": "0c6fd04e702bd166ffa28cdda0915600b175374b6fd5531d4e6392b21abc5c35",
+          "sizeBytes": 62688
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/libass/.build/meson-logs/install-log.txt",
+          "sha256": "e09e35e541eca9e32dd40d4bbca0c393581dc373fb50901fed6d71c443e8f1c2",
+          "sizeBytes": 472
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/libass/.build/meson-logs/meson-setup.txt",
+          "sha256": "1da570c770deb10bb87d10631ff86e58ed6a5aa3a1e2125e7800d8379e45a766",
+          "sizeBytes": 3297
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/libass/.build/meson-info/intro-buildoptions.json",
+          "sha256": "382bd6d8e2881a8523e206d1ae92a28b6e88c4b0507626816eb982074df57268",
+          "sizeBytes": 18522
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/libass/.build/meson-info/intro-installed.json",
+          "sha256": "f5b71db1c7a8fbefa783dcc13f7fe5405729168598df02dfdac641d1fecb4a20",
+          "sizeBytes": 787
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/libass/.build/meson-info/intro-dependencies.json",
+          "sha256": "69a4f68e6a3da83186b65d88339815da4972ad763b3c5612789bf7c432b85a87",
+          "sizeBytes": 3509
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/libass/.build/config.h",
+          "sha256": "d9231165ecd1eb53483aec54c4e192b324af80e6cf075958e6d0d9c4c4846516",
+          "sizeBytes": 405
+        }
+      ],
+      "observedWorkingTreeDiff": {
+        "path": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase17/provenance/source-diffs/libass.patch",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sizeBytes": 0
+      },
+      "archiveMembers": 29,
+      "membersBoundToCachedObjects": 29,
+      "membersWithCurrentCompileCommand": 29,
+      "phase16LinkMapUniqueMemberNameCount": 28,
+      "phase16ObservedUseRoles": [
+        "mpv-compiler-or-explicit-link-input",
+        "members-selected-in-mpv-link-map"
+      ],
+      "pkgConfig": {
+        "module": "libass",
+        "path": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase16/deps/lib/pkgconfig/libass.pc",
+        "sha256": "68b6c5d0741487e503a32cec94bf4599211200d936e05f75c30b4859167a647d",
+        "cacheOriginalPath": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/arm64-build/lib/pkgconfig/libass.pc",
+        "cacheOriginalSHA256": "e6763b52f3484c6d5f9c64b2a30c66caf28c30da7b8bfb340282375eb803c94d",
+        "fieldsLiteral": {
+          "Name": "libass",
+          "Description": "libass is an SSA/ASS subtitles rendering library",
+          "Version": "0.17.4",
+          "Requires": "freetype2 >=  9.17.3, fribidi >=  0.19.1, harfbuzz >=  1.2.3, fontconfig >=  2.10.92",
+          "Libs": "-L${libdir} -lass -lm",
+          "Cflags": "-I${includedir}"
+        },
+        "resolvedVersionFromFile": "0.17.4",
+        "variables": {
+          "prefix": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase16/deps",
+          "includedir": "${prefix}/include",
+          "libdir": "${prefix}/lib"
+        },
+        "usageRoles": [
+          "pkg-config-module-used-by-meson"
+        ],
+        "scope": "pkg-config metadata declaration; not independent proof of build source revision"
+      },
+      "licenses": [
+        {
+          "component": "libass",
+          "source": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/libass/COPYING",
+          "saved": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase17/provenance/licenses/libass/COPYING",
+          "sha256": "f7e30699d02798351e7f839e3d3bfeb29ce65e44efa7735c225464c4fd7dfe9c",
+          "sizeBytes": 755,
+          "scope": "Current source license text; full artifact license closure not asserted"
+        }
+      ],
+      "currentSourcePatchDiff": {
+        "path": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase17/provenance/source-diffs/libass.patch",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "originalBuildSourceSnapshotAttested": false,
+      "historicalToolAndHeaderClosureAttested": false,
+      "unresolved": [
+        "未有不可变的原始编译事件记录，把源码/补丁/当时头文件与工具摘要绑定到此归档。当前 HEAD、现存编译数据库及对象相等不能替代该记录。"
+      ]
+    },
+    {
+      "component": "dovi",
+      "sourceDirectory": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/dovi_tools",
+      "repository": {
+        "requestedRoot": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/dovi_tools",
+        "verifiedTopLevel": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/dovi_tools",
+        "commit": "b25558062e4a56973482ec70133bd7b891320e48",
+        "evidenceScope": "observed current repository only; not historical artifact build attestation"
+      },
+      "fullyVerified": false,
+      "artifactRebuiltThisResearch": false,
+      "archives": {
+        "currentCacheBuild": {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/dovi_tools/dolby_vision/target/aarch64-unknown-linux-ohos/release/libdovi.a",
+          "sha256": "bb23a36898c0778a2c9028f4bb74ccb6f0c77ac2df421876aecb40df83acf851",
+          "sizeBytes": 23483160
+        },
+        "currentCacheInstall": {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/arm64-build/lib/libdovi.a",
+          "sha256": "bb23a36898c0778a2c9028f4bb74ccb6f0c77ac2df421876aecb40df83acf851",
+          "sizeBytes": 23483160
+        },
+        "phase16Staged": {
+          "path": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase16/deps/lib/libdovi.a",
+          "sha256": "bb23a36898c0778a2c9028f4bb74ccb6f0c77ac2df421876aecb40df83acf851",
+          "sizeBytes": 23483160
+        }
+      },
+      "allThreeArchiveSHA256Equal": true,
+      "buildEvidenceFiles": [
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/dovi_tools/Cargo.lock",
+          "sha256": "a2d6127f9e4bad347fc98602282eb1cd8f711fc46ddf28723abfedc47ef30eac",
+          "sizeBytes": 47522
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/dovi_tools/dolby_vision/Cargo.lock",
+          "sha256": "e415cb414098495667f07a732633b632393adc1de2e0fa23c38c675b4fa81286",
+          "sizeBytes": 19237
+        }
+      ],
+      "observedWorkingTreeDiff": {
+        "path": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase17/provenance/source-diffs/dovi.patch",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sizeBytes": 0
+      },
+      "archiveMembers": 451,
+      "membersBoundToCachedObjects": 0,
+      "membersWithCurrentCompileCommand": 0,
+      "phase16LinkMapUniqueMemberNameCount": 46,
+      "phase16ObservedUseRoles": [
+        "mpv-compiler-or-explicit-link-input",
+        "members-selected-in-mpv-link-map"
+      ],
+      "pkgConfig": {
+        "module": "dovi",
+        "path": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase16/deps/lib/pkgconfig/dovi.pc",
+        "sha256": "75b4797c54a3049d745041dd422daa804dce0e0eee8f12d18d19e5c6c5272391",
+        "cacheOriginalPath": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/arm64-build/lib/pkgconfig/dovi.pc",
+        "cacheOriginalSHA256": "dc340cef0ab58ac767d921343f269ab6aaf9a57fda0f4fa127e62d0af919bdaa",
+        "fieldsLiteral": {
+          "Name": "dovi",
+          "Description": "Dolby Vision metadata parsing and writing",
+          "Version": "3.3.2",
+          "Libs": "-L${libdir} -ldovi -lunwind -lc",
+          "Cflags": "-I${includedir}",
+          "Libs.private": "-lunwind -lc"
+        },
+        "resolvedVersionFromFile": "3.3.2",
+        "variables": {
+          "prefix": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase16/deps",
+          "exec_prefix": "${prefix}",
+          "libdir": "${prefix}/lib",
+          "includedir": "${prefix}/include"
+        },
+        "usageRoles": [
+          "pkg-config-module-used-by-meson"
+        ],
+        "scope": "pkg-config metadata declaration; not independent proof of build source revision"
+      },
+      "licenses": [
+        {
+          "component": "dovi",
+          "source": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/dovi_tools/LICENSE",
+          "saved": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase17/provenance/licenses/dovi/LICENSE",
+          "sha256": "f35d4515dd8d81c7996af2b20e9605561d1af0c21bc12ba7cc4fa4c60aed2178",
+          "sizeBytes": 1066,
+          "scope": "Current source license text; full artifact license closure not asserted"
+        },
+        {
+          "component": "dovi",
+          "source": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/dovi_tools/dolby_vision/LICENSE",
+          "saved": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase17/provenance/licenses/dovi/dolby_vision/LICENSE",
+          "sha256": "f35d4515dd8d81c7996af2b20e9605561d1af0c21bc12ba7cc4fa4c60aed2178",
+          "sizeBytes": 1066,
+          "scope": "Current source license text; full artifact license closure not asserted"
+        }
+      ],
+      "currentSourcePatchDiff": {
+        "path": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase17/provenance/source-diffs/dovi.patch",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "originalBuildSourceSnapshotAttested": false,
+      "historicalToolAndHeaderClosureAttested": false,
+      "unresolved": [
+        "未有不可变的原始编译事件记录，把源码/补丁/当时头文件与工具摘要绑定到此归档。当前 HEAD、现存编译数据库及对象相等不能替代该记录。",
+        "Rust target standard-library/compiler-builtins source and exact original rustc/toolchain attestation not established.",
+        "Cargo lock may include unused packages; only registry paths found in cached dep-info are classified as observed.",
+        "Cached dep-info and crate checksum binding do not attest original crate build execution."
+      ],
+      "transitiveEvidence": "dovi-transitive-provenance.json"
+    },
+    {
+      "component": "fontconfig",
+      "sourceDirectory": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/fontconfig",
+      "repository": {
+        "requestedRoot": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/fontconfig",
+        "verifiedTopLevel": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/fontconfig",
+        "commit": "6d0a98982ec351c165c9224c8b7dbdfca3010e47",
+        "evidenceScope": "observed current repository only; not historical artifact build attestation"
+      },
+      "fullyVerified": false,
+      "artifactRebuiltThisResearch": false,
+      "archives": {
+        "currentCacheBuild": {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/fontconfig/.build/libfontconfig.a",
+          "sha256": "7fdcd48b8a71bd26a257c44a4cbb8fa128ace8e0b5e7b58078f2edfb58ded75d",
+          "sizeBytes": 517844
+        },
+        "currentCacheInstall": {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/arm64-build/lib/libfontconfig.a",
+          "sha256": "7fdcd48b8a71bd26a257c44a4cbb8fa128ace8e0b5e7b58078f2edfb58ded75d",
+          "sizeBytes": 517844
+        },
+        "phase16Staged": {
+          "path": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase16/deps/lib/libfontconfig.a",
+          "sha256": "7fdcd48b8a71bd26a257c44a4cbb8fa128ace8e0b5e7b58078f2edfb58ded75d",
+          "sizeBytes": 517844
+        }
+      },
+      "allThreeArchiveSHA256Equal": true,
+      "buildEvidenceFiles": [
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/fontconfig/.build/compile_commands.json",
+          "sha256": "ed4c266dac03ef6842096e71dbe7b3021d96143330ad9aeec86c00cd7a722453",
+          "sizeBytes": 37564
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/fontconfig/.build/build.ninja",
+          "sha256": "bd3f468f89471cb5173f05dcb6d5f7db69c737e1c6ce49fa561979d86f0434ea",
+          "sizeBytes": 63940
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/fontconfig/.build/meson-logs/meson-log.txt",
+          "sha256": "2553650dafb82413cbc62ae28082f725541f583dc73b54a400000b839e2294d0",
+          "sizeBytes": 192927
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/fontconfig/.build/meson-logs/install-log.txt",
+          "sha256": "3c6f4f096d471cd6ddbf3ed33cbcc0cadbf2ba3bbfd94787ca186cc021409389",
+          "sizeBytes": 7434
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/fontconfig/.build/meson-logs/meson-setup.txt",
+          "sha256": "a759ee47b0da47a1792fc9159a437f6b84af1ddf6ffe985375923ec9d592825b",
+          "sizeBytes": 8468
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/fontconfig/.build/meson-info/intro-buildoptions.json",
+          "sha256": "6628324d92aa1387f45401500fe000ea238a4b0df2b2bbc1d3b81e9bc5f0c922",
+          "sizeBytes": 20449
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/fontconfig/.build/meson-info/intro-installed.json",
+          "sha256": "ff1dbf72331c96132d5da8211a0459a32bc937179ba8678e36abb48628db024f",
+          "sizeBytes": 14266
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/fontconfig/.build/meson-info/intro-dependencies.json",
+          "sha256": "ecec5a0533e34dcf379334957c62dd7d0f737da87cb14e56fbcde483a1f2bc98",
+          "sizeBytes": 1927
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/fontconfig/.build/config.h",
+          "sha256": "05e7e66e48b8864af3c953ab6ebb8fe69804da1c80b43de7ed456b988c51119a",
+          "sizeBytes": 133
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/fontconfig/Cargo.lock",
+          "sha256": "43c07ff46bd45468f7032e9f327cac66081d1f4a715fe06cb5a60efc8386c573",
+          "sizeBytes": 2785
+        }
+      ],
+      "observedWorkingTreeDiff": {
+        "path": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase17/provenance/source-diffs/fontconfig.patch",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sizeBytes": 0
+      },
+      "archiveMembers": 28,
+      "membersBoundToCachedObjects": 28,
+      "membersWithCurrentCompileCommand": 28,
+      "phase16LinkMapUniqueMemberNameCount": 27,
+      "phase16ObservedUseRoles": [
+        "mpv-compiler-or-explicit-link-input",
+        "members-selected-in-mpv-link-map"
+      ],
+      "pkgConfig": {
+        "module": "fontconfig",
+        "path": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase16/deps/lib/pkgconfig/fontconfig.pc",
+        "sha256": "f2a3c7876eefc614f7a0da2245869545a55ec74426231c576377496d9397c429",
+        "cacheOriginalPath": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/arm64-build/lib/pkgconfig/fontconfig.pc",
+        "cacheOriginalSHA256": "5a399a9d51eb859f871de2c0ccf1531fcc7e3b83fddb00f362636a4c4ce2231d",
+        "fieldsLiteral": {
+          "Name": "Fontconfig",
+          "Description": "Font configuration and customization library",
+          "Version": "2.17.1",
+          "Requires": "freetype2 >=  21.0.15, libxml-2.0",
+          "Libs": "-L${libdir} -lfontconfig -pthread -lm",
+          "Cflags": "-I${includedir} -pthread"
+        },
+        "resolvedVersionFromFile": "2.17.1",
+        "variables": {
+          "prefix": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase16/deps",
+          "includedir": "${prefix}/include",
+          "libdir": "${prefix}/lib",
+          "sysconfdir": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase16/deps/etc",
+          "localstatedir": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase16/deps/var",
+          "confdir": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase16/deps/etc/fonts",
+          "cachedir": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase16/deps/var/cache/fontconfig"
+        },
+        "usageRoles": [
+          "pkg-config-transitive-requirement-from-used-module"
+        ],
+        "scope": "pkg-config metadata declaration; not independent proof of build source revision"
+      },
+      "licenses": [
+        {
+          "component": "fontconfig",
+          "source": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/fontconfig/AUTHORS",
+          "saved": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase17/provenance/licenses/fontconfig/AUTHORS",
+          "sha256": "db6d73a160bb2de10268f88ef60aae91771fefdeee4992b791c76ce6592a4a4b",
+          "sizeBytes": 62,
+          "scope": "Current source license text; full artifact license closure not asserted"
+        },
+        {
+          "component": "fontconfig",
+          "source": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/fontconfig/COPYING",
+          "saved": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase17/provenance/licenses/fontconfig/COPYING",
+          "sha256": "51a51aa9823704fd90bccc616cdd17ebabb5b2b3e9cbde886ca02c7002288067",
+          "sizeBytes": 8616,
+          "scope": "Current source license text; full artifact license closure not asserted"
+        }
+      ],
+      "currentSourcePatchDiff": {
+        "path": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase17/provenance/source-diffs/fontconfig.patch",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "originalBuildSourceSnapshotAttested": false,
+      "historicalToolAndHeaderClosureAttested": false,
+      "unresolved": [
+        "未有不可变的原始编译事件记录，把源码/补丁/当时头文件与工具摘要绑定到此归档。当前 HEAD、现存编译数据库及对象相等不能替代该记录。"
+      ]
+    },
+    {
+      "component": "freetype",
+      "sourceDirectory": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/freetype",
+      "repository": {
+        "requestedRoot": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/freetype",
+        "verifiedTopLevel": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/freetype",
+        "commit": "42608f77f20749dd6ddc9e0536788eaad70ea4b5",
+        "evidenceScope": "observed current repository only; not historical artifact build attestation"
+      },
+      "fullyVerified": false,
+      "artifactRebuiltThisResearch": false,
+      "archives": {
+        "currentCacheBuild": {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/freetype/.build/libfreetype.a",
+          "sha256": "21a5cf4d25ded30e97cce18ae8ed05df8fa10e8c13dd8c87f9c4bf6120d836f2",
+          "sizeBytes": 940750
+        },
+        "currentCacheInstall": {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/arm64-build/lib/libfreetype.a",
+          "sha256": "21a5cf4d25ded30e97cce18ae8ed05df8fa10e8c13dd8c87f9c4bf6120d836f2",
+          "sizeBytes": 940750
+        },
+        "phase16Staged": {
+          "path": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase16/deps/lib/libfreetype.a",
+          "sha256": "21a5cf4d25ded30e97cce18ae8ed05df8fa10e8c13dd8c87f9c4bf6120d836f2",
+          "sizeBytes": 940750
+        }
+      },
+      "allThreeArchiveSHA256Equal": true,
+      "buildEvidenceFiles": [
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/freetype/.build/compile_commands.json",
+          "sha256": "d9460e5bc05001b4890e7aee6717a724f88d18d876242015e1f6eac0db791adc",
+          "sizeBytes": 40473
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/freetype/.build/build.ninja",
+          "sha256": "a7ee19ef0d2f8ed328e55b7dae634b514ca6287f48d3cdf3bbbbd08358611004",
+          "sizeBytes": 40310
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/freetype/.build/meson-logs/meson-log.txt",
+          "sha256": "b65ca811e288aa8b764cc7821c3d1cd97beeae05c0d4075f822c3aaedcde8770",
+          "sizeBytes": 48609
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/freetype/.build/meson-logs/install-log.txt",
+          "sha256": "d72d2710aeb6276fe1ba1ed90d1445311d1d199df1703246a61a3bab19575421",
+          "sizeBytes": 6685
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/freetype/.build/meson-logs/meson-setup.txt",
+          "sha256": "0241233520cf41fd58dd193892f36835ab446628dc158e76aec3fcaaa8d1c7ed",
+          "sizeBytes": 2520
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/freetype/.build/meson-info/intro-buildoptions.json",
+          "sha256": "4f2cf75db5132e500d4639995851d85e32ac7a5d80b1fc26bc4866d9b0bc176f",
+          "sizeBytes": 16995
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/freetype/.build/meson-info/intro-installed.json",
+          "sha256": "f4df783ff58c0e2218b5a818c9ec5f15cad9a9099f7cb9906d14fb317d2288ef",
+          "sizeBytes": 12891
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/freetype/.build/meson-info/intro-dependencies.json",
+          "sha256": "c39a3f34055c420c7f2c5722002681280cdc4a8feb3639cb2512bc7b68fd899a",
+          "sizeBytes": 863
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/freetype/Makefile",
+          "sha256": "0060e40d584f38ffbe2b2f5c7675cbe8e39097948942a97f98fe2a9a1eb15cb5",
+          "sizeBytes": 846
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/freetype/README",
+          "sha256": "304b99f680248e42f9c656d36c8c41cda74cf6eebbc5af4d11c4abc1b0d9e2b9",
+          "sizeBytes": 3114
+        }
+      ],
+      "observedWorkingTreeDiff": {
+        "path": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase17/provenance/source-diffs/freetype.patch",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sizeBytes": 0
+      },
+      "archiveMembers": 41,
+      "membersBoundToCachedObjects": 41,
+      "membersWithCurrentCompileCommand": 41,
+      "phase16LinkMapUniqueMemberNameCount": 28,
+      "phase16ObservedUseRoles": [
+        "mpv-compiler-or-explicit-link-input",
+        "members-selected-in-mpv-link-map"
+      ],
+      "pkgConfig": {
+        "module": "freetype2",
+        "path": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase16/deps/lib/pkgconfig/freetype2.pc",
+        "sha256": "8415949798ba79e045d6187186c38477192aa38d005a72844599be99e6c62137",
+        "cacheOriginalPath": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/arm64-build/lib/pkgconfig/freetype2.pc",
+        "cacheOriginalSHA256": "1d511e9da22bed0e1b04746f7a2acaa4b3a27a62c0497f1b5ab60dbbee87ec9f",
+        "fieldsLiteral": {
+          "Name": "FreeType 2",
+          "Description": "A free, high-quality, and portable font engine.",
+          "URL": "https://freetype.org",
+          "Version": "26.2.20",
+          "Requires": "harfbuzz >=  2.0.0",
+          "Libs": "-L${libdir} -lfreetype -lz",
+          "Cflags": "-I${includedir}/freetype2"
+        },
+        "resolvedVersionFromFile": "26.2.20",
+        "variables": {
+          "prefix": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase16/deps",
+          "includedir": "${prefix}/include",
+          "libdir": "${prefix}/lib"
+        },
+        "usageRoles": [
+          "pkg-config-transitive-requirement-from-used-module"
+        ],
+        "scope": "pkg-config metadata declaration; not independent proof of build source revision"
+      },
+      "licenses": [
+        {
+          "component": "freetype",
+          "source": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/freetype/LICENSE.TXT",
+          "saved": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase17/provenance/licenses/freetype/LICENSE.TXT",
+          "sha256": "2e3bbb7d7c5c396368dd0853a790ec29ce5b8647163dde42a0493fb0d6556b2b",
+          "sizeBytes": 2074,
+          "scope": "Current source license text; full artifact license closure not asserted"
+        },
+        {
+          "component": "freetype",
+          "source": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/freetype/docs/FTL.TXT",
+          "saved": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase17/provenance/licenses/freetype/docs/FTL.TXT",
+          "sha256": "08c135755dd589039470f1fdbb400daaabaaa50d0b366d19cebff4d22986baa1",
+          "sizeBytes": 6743,
+          "scope": "Current source license text; full artifact license closure not asserted"
+        },
+        {
+          "component": "freetype",
+          "source": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/freetype/docs/GPLv2.TXT",
+          "saved": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase17/provenance/licenses/freetype/docs/GPLv2.TXT",
+          "sha256": "c4120c6752c910c299e3bd9cb3a46ff262c268303ca2069b61f92f10a5656c18",
+          "sizeBytes": 17994,
+          "scope": "Current source license text; full artifact license closure not asserted"
+        }
+      ],
+      "currentSourcePatchDiff": {
+        "path": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase17/provenance/source-diffs/freetype.patch",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "originalBuildSourceSnapshotAttested": false,
+      "historicalToolAndHeaderClosureAttested": false,
+      "unresolved": [
+        "未有不可变的原始编译事件记录，把源码/补丁/当时头文件与工具摘要绑定到此归档。当前 HEAD、现存编译数据库及对象相等不能替代该记录。"
+      ]
+    },
+    {
+      "component": "fribidi",
+      "sourceDirectory": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/fribidi",
+      "repository": {
+        "requestedRoot": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/fribidi",
+        "verifiedTopLevel": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/fribidi",
+        "commit": "68162babff4f39c4e2dc164a5e825af93bda9983",
+        "evidenceScope": "observed current repository only; not historical artifact build attestation"
+      },
+      "fullyVerified": false,
+      "artifactRebuiltThisResearch": false,
+      "archives": {
+        "currentCacheBuild": {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/fribidi/.build/lib/libfribidi.a",
+          "sha256": "e159bd5688d004ee120885dd3a74bff338300f4d91aa94872e54898fb0f5db79",
+          "sizeBytes": 142010
+        },
+        "currentCacheInstall": {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/arm64-build/lib/libfribidi.a",
+          "sha256": "e159bd5688d004ee120885dd3a74bff338300f4d91aa94872e54898fb0f5db79",
+          "sizeBytes": 142010
+        },
+        "phase16Staged": {
+          "path": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase16/deps/lib/libfribidi.a",
+          "sha256": "e159bd5688d004ee120885dd3a74bff338300f4d91aa94872e54898fb0f5db79",
+          "sizeBytes": 142010
+        }
+      },
+      "allThreeArchiveSHA256Equal": true,
+      "buildEvidenceFiles": [
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/fribidi/.build/compile_commands.json",
+          "sha256": "bc5a248438a70440fd943a357bcfa3ab81d0720c7526ce9a9e07750c98312944",
+          "sizeBytes": 30158
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/fribidi/.build/build.ninja",
+          "sha256": "e2e7284c29a344e2a0c1e0452162abe369e884f38e577d6384c8d1ce6f49b455",
+          "sizeBytes": 37790
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/fribidi/.build/meson-logs/meson-log.txt",
+          "sha256": "fa8f476b242de91603634d478dffdac03b1d6bca0c6994caa73bffa512290693",
+          "sizeBytes": 33336
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/fribidi/.build/meson-logs/install-log.txt",
+          "sha256": "065d41cc035e53baacaabbaae4502ffeb5fba6822b1c22f084cad3669a839035",
+          "sizeBytes": 2826
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/fribidi/.build/meson-logs/meson-setup.txt",
+          "sha256": "f9229a293bda18d8e9a99526b9422c39054d65dd99607490d6afa34839f358b6",
+          "sizeBytes": 2002
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/fribidi/.build/meson-info/intro-buildoptions.json",
+          "sha256": "eae86756450fdc1a5b99cdf65796b62f8e49e4f884dba9812395775d866f6f03",
+          "sizeBytes": 15840
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/fribidi/.build/meson-info/intro-installed.json",
+          "sha256": "5f2c2380d16b18db7cfbd4dc05c2a75c8002f108bcfc45422567e3f9cfa3c141",
+          "sizeBytes": 5351
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/fribidi/.build/meson-info/intro-dependencies.json",
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "sizeBytes": 2
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/fribidi/.build/config.h",
+          "sha256": "e3d78789789ae09d02c5c9451d2ae561b16fe4f996433e8ee254df5d301d1aaa",
+          "sizeBytes": 378
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/fribidi/README",
+          "sha256": "3debe734c777df09c3c762cadd0fea1bebdb857c55243d605dc5b09211895bf3",
+          "sizeBytes": 14
+        }
+      ],
+      "observedWorkingTreeDiff": {
+        "path": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase17/provenance/source-diffs/fribidi.patch",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sizeBytes": 0
+      },
+      "archiveMembers": 18,
+      "membersBoundToCachedObjects": 18,
+      "membersWithCurrentCompileCommand": 18,
+      "phase16LinkMapUniqueMemberNameCount": 9,
+      "phase16ObservedUseRoles": [
+        "mpv-compiler-or-explicit-link-input",
+        "members-selected-in-mpv-link-map"
+      ],
+      "pkgConfig": {
+        "module": "fribidi",
+        "path": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase16/deps/lib/pkgconfig/fribidi.pc",
+        "sha256": "50eadb55c0c84c69594d1cd53533650f7b4f013b7b3eb51ab06247992c7a78ce",
+        "cacheOriginalPath": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/arm64-build/lib/pkgconfig/fribidi.pc",
+        "cacheOriginalSHA256": "1ba75c0725b10a2c6f8c529d1010a978b4c89f6a09b4241b84b291caf19ad59f",
+        "fieldsLiteral": {
+          "Name": "GNU FriBidi",
+          "Description": "Unicode Bidirectional Algorithm Library",
+          "Version": "1.0.16",
+          "Libs": "-L${libdir} -lfribidi",
+          "Cflags": "-I${includedir}/fribidi"
+        },
+        "resolvedVersionFromFile": "1.0.16",
+        "variables": {
+          "prefix": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase16/deps",
+          "includedir": "${prefix}/include",
+          "libdir": "${prefix}/lib"
+        },
+        "usageRoles": [
+          "pkg-config-transitive-requirement-from-used-module"
+        ],
+        "scope": "pkg-config metadata declaration; not independent proof of build source revision"
+      },
+      "licenses": [
+        {
+          "component": "fribidi",
+          "source": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/fribidi/AUTHORS",
+          "saved": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase17/provenance/licenses/fribidi/AUTHORS",
+          "sha256": "cb173f55c9514c8f38f4647ac3fedd5f8611358d331e65ab955da931e826861c",
+          "sizeBytes": 1640,
+          "scope": "Current source license text; full artifact license closure not asserted"
+        },
+        {
+          "component": "fribidi",
+          "source": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/fribidi/COPYING",
+          "saved": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase17/provenance/licenses/fribidi/COPYING",
+          "sha256": "32434afcc8666ba060e111d715bfdb6c2d5dd8a35fa4d3ab8ad67d8f850d2f2b",
+          "sizeBytes": 26440,
+          "scope": "Current source license text; full artifact license closure not asserted"
+        }
+      ],
+      "currentSourcePatchDiff": {
+        "path": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase17/provenance/source-diffs/fribidi.patch",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "originalBuildSourceSnapshotAttested": false,
+      "historicalToolAndHeaderClosureAttested": false,
+      "unresolved": [
+        "未有不可变的原始编译事件记录，把源码/补丁/当时头文件与工具摘要绑定到此归档。当前 HEAD、现存编译数据库及对象相等不能替代该记录。"
+      ]
+    },
+    {
+      "component": "harfbuzz",
+      "sourceDirectory": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/harfbuzz",
+      "repository": {
+        "requestedRoot": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/harfbuzz",
+        "verifiedTopLevel": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/harfbuzz",
+        "commit": "22f77d48abc35c1e053d02f1ada0d8f1ce1b8423",
+        "evidenceScope": "observed current repository only; not historical artifact build attestation"
+      },
+      "fullyVerified": false,
+      "artifactRebuiltThisResearch": false,
+      "archives": {
+        "currentCacheBuild": {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/harfbuzz/.build/src/libharfbuzz.a",
+          "sha256": "577db0eb1c1fd0e278af50bafc0e8b80d1755697fcc3b7d3b4a0b72b5e5997cb",
+          "sizeBytes": 2785074
+        },
+        "currentCacheInstall": {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/arm64-build/lib/libharfbuzz.a",
+          "sha256": "577db0eb1c1fd0e278af50bafc0e8b80d1755697fcc3b7d3b4a0b72b5e5997cb",
+          "sizeBytes": 2785074
+        },
+        "phase16Staged": {
+          "path": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase16/deps/lib/libharfbuzz.a",
+          "sha256": "577db0eb1c1fd0e278af50bafc0e8b80d1755697fcc3b7d3b4a0b72b5e5997cb",
+          "sizeBytes": 2785074
+        }
+      },
+      "allThreeArchiveSHA256Equal": true,
+      "buildEvidenceFiles": [
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/harfbuzz/.build/compile_commands.json",
+          "sha256": "61d37c026e27caaeb4d8a20ca4b46eb094e31c4db0a5edb5c4992c0adf5dd1b3",
+          "sizeBytes": 72379
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/harfbuzz/.build/build.ninja",
+          "sha256": "ba8c8c3eccb6e81218972675e899da2424046cac2e619acd9f9187f1afa454b2",
+          "sizeBytes": 96164
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/harfbuzz/.build/meson-logs/meson-log.txt",
+          "sha256": "bb365ea16176ccf6eed677c7ce633882194dddbc174064539179cba982aca2c5",
+          "sizeBytes": 185151
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/harfbuzz/.build/meson-logs/install-log.txt",
+          "sha256": "de0bb71b4232b67b9f356862e02481edf0d06e1ef88a785596101b30d5541698",
+          "sizeBytes": 4314
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/harfbuzz/.build/meson-logs/meson-setup.txt",
+          "sha256": "ff3e29bcf807490c7548b1196b6e875e3265f1ebf378c8a75246a79be3f852b5",
+          "sizeBytes": 6360
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/harfbuzz/.build/meson-info/intro-buildoptions.json",
+          "sha256": "03e807adb63ebb835983bb389c9aac2c04ab0d49fc8d26c2f99a29ba1e8545f0",
+          "sizeBytes": 24630
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/harfbuzz/.build/meson-info/intro-installed.json",
+          "sha256": "39d4dbe96a661b000a83f3e0a3540336146a7f1d80e48ea3f0b6a0c6463e6e4a",
+          "sizeBytes": 8027
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/harfbuzz/.build/meson-info/intro-dependencies.json",
+          "sha256": "9f632f7d6127c58acfffd039f367db9e15eb8918a5174c127a23aa695de02774",
+          "sizeBytes": 337
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/harfbuzz/.build/config.h",
+          "sha256": "325c9396e335547a80adb6580138b5d6be9e6e66442dd49f2fad2f520942b6a3",
+          "sizeBytes": 454
+        }
+      ],
+      "observedWorkingTreeDiff": {
+        "path": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase17/provenance/source-diffs/harfbuzz.patch",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sizeBytes": 0
+      },
+      "archiveMembers": 55,
+      "membersBoundToCachedObjects": 55,
+      "membersWithCurrentCompileCommand": 55,
+      "phase16LinkMapUniqueMemberNameCount": 48,
+      "phase16ObservedUseRoles": [
+        "mpv-compiler-or-explicit-link-input",
+        "members-selected-in-mpv-link-map"
+      ],
+      "pkgConfig": {
+        "module": "harfbuzz",
+        "path": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase16/deps/lib/pkgconfig/harfbuzz.pc",
+        "sha256": "b1387f07231c71d60107ea7616e1374e353028badceb16ba41ef27d7d79483ab",
+        "cacheOriginalPath": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/arm64-build/lib/pkgconfig/harfbuzz.pc",
+        "cacheOriginalSHA256": "fb07a008783e703359e60ff7930ea16458c8d80f41705e18d4ad049d198c83fa",
+        "fieldsLiteral": {
+          "Name": "harfbuzz",
+          "Description": "HarfBuzz text shaping library",
+          "Version": "11.4.5",
+          "Libs": "-L${libdir} -lharfbuzz -pthread -lm",
+          "Cflags": "-I${includedir}/harfbuzz -pthread"
+        },
+        "resolvedVersionFromFile": "11.4.5",
+        "variables": {
+          "prefix": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase16/deps",
+          "includedir": "${prefix}/include",
+          "libdir": "${prefix}/lib"
+        },
+        "usageRoles": [
+          "pkg-config-transitive-requirement-from-used-module"
+        ],
+        "scope": "pkg-config metadata declaration; not independent proof of build source revision"
+      },
+      "licenses": [
+        {
+          "component": "harfbuzz",
+          "source": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/harfbuzz/AUTHORS",
+          "saved": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase17/provenance/licenses/harfbuzz/AUTHORS",
+          "sha256": "19bfe8f5ed100636cd24ab0c90a3f71c21d8b02d9ba00719447a0faab364d49f",
+          "sizeBytes": 201,
+          "scope": "Current source license text; full artifact license closure not asserted"
+        },
+        {
+          "component": "harfbuzz",
+          "source": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/harfbuzz/COPYING",
+          "saved": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase17/provenance/licenses/harfbuzz/COPYING",
+          "sha256": "ba8f810f2455c2f08e2d56bb49b72f37fcf68f1f4fade38977cfd7372050ad64",
+          "sizeBytes": 1971,
+          "scope": "Current source license text; full artifact license closure not asserted"
+        }
+      ],
+      "currentSourcePatchDiff": {
+        "path": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase17/provenance/source-diffs/harfbuzz.patch",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "originalBuildSourceSnapshotAttested": false,
+      "historicalToolAndHeaderClosureAttested": false,
+      "unresolved": [
+        "未有不可变的原始编译事件记录，把源码/补丁/当时头文件与工具摘要绑定到此归档。当前 HEAD、现存编译数据库及对象相等不能替代该记录。"
+      ]
+    },
+    {
+      "component": "lcms2",
+      "sourceDirectory": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/lcms",
+      "repository": {
+        "requestedRoot": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/lcms",
+        "verifiedTopLevel": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/lcms",
+        "commit": "5176347635785e53ee5cee92328f76fda766ecc6",
+        "evidenceScope": "observed current repository only; not historical artifact build attestation"
+      },
+      "fullyVerified": false,
+      "artifactRebuiltThisResearch": false,
+      "archives": {
+        "currentCacheBuild": {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/lcms/.build/src/liblcms2.a",
+          "sha256": "9c12a536862119a35fdb5d73e317d74a29c20171e8486fd13ecd2a65cc81a26f",
+          "sizeBytes": 632760
+        },
+        "currentCacheInstall": {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/arm64-build/lib/liblcms2.a",
+          "sha256": "9c12a536862119a35fdb5d73e317d74a29c20171e8486fd13ecd2a65cc81a26f",
+          "sizeBytes": 632760
+        },
+        "phase16Staged": {
+          "path": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase16/deps/lib/liblcms2.a",
+          "sha256": "9c12a536862119a35fdb5d73e317d74a29c20171e8486fd13ecd2a65cc81a26f",
+          "sizeBytes": 632760
+        }
+      },
+      "allThreeArchiveSHA256Equal": true,
+      "buildEvidenceFiles": [
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/lcms/.build/compile_commands.json",
+          "sha256": "83da4cd657486fdea895734bdc4cb0f2214ef561327d6538dd86b22b49fb698a",
+          "sizeBytes": 22005
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/lcms/.build/build.ninja",
+          "sha256": "760b3ef2e8e7fad353e326e1058daa21281f07e9c5a4402980e06da68f5aab84",
+          "sizeBytes": 20055
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/lcms/.build/meson-logs/meson-log.txt",
+          "sha256": "02a96bd6edb8e50a40e2d386e18ba71c290aedfd700a6879e84dd7aa95ab42ab",
+          "sizeBytes": 25030
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/lcms/.build/meson-logs/install-log.txt",
+          "sha256": "1f50100f007e3dba0dabcac3bc08e27b6664b1af9951b04db97b2e687e824d48",
+          "sizeBytes": 470
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/lcms/.build/meson-logs/meson-setup.txt",
+          "sha256": "108d59bdc5979af85cb8afe7b55a6454db8aad5c662330c640fb4067e6650a91",
+          "sizeBytes": 1998
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/lcms/.build/meson-info/intro-buildoptions.json",
+          "sha256": "2706e7b72886ebf164c2486e61e4dceb2d2b6133a7f95b6ebc8e4847f4a498e4",
+          "sizeBytes": 16279
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/lcms/.build/meson-info/intro-installed.json",
+          "sha256": "fa224e443115c5691d284d326fec2ee7c844cfe072322382c0ac61c463897d96",
+          "sizeBytes": 782
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/lcms/.build/meson-info/intro-dependencies.json",
+          "sha256": "f48bf85dc38b81f9e434c6704fb25b724ae16274e0df476be66131929470798a",
+          "sizeBytes": 338
+        }
+      ],
+      "observedWorkingTreeDiff": {
+        "path": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase17/provenance/source-diffs/lcms2.patch",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sizeBytes": 0
+      },
+      "archiveMembers": 26,
+      "membersBoundToCachedObjects": 26,
+      "membersWithCurrentCompileCommand": 26,
+      "phase16LinkMapUniqueMemberNameCount": 21,
+      "phase16ObservedUseRoles": [
+        "mpv-compiler-or-explicit-link-input",
+        "members-selected-in-mpv-link-map"
+      ],
+      "pkgConfig": {
+        "module": "lcms2",
+        "path": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase16/deps/lib/pkgconfig/lcms2.pc",
+        "sha256": "600dbe8a608fe31ef8e957da3ff4e3e94add835f9746dc8ac2e0680c88c02e08",
+        "cacheOriginalPath": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/arm64-build/lib/pkgconfig/lcms2.pc",
+        "cacheOriginalSHA256": "b4b609f3682da5a030fb9e1a6c8440640c2e11e1f4de007860798bce202aad6e",
+        "fieldsLiteral": {
+          "Name": "lcms2",
+          "Description": "LCMS Color Management Library",
+          "Version": "2.17",
+          "Libs": "-L${libdir} -llcms2 -lm -pthread",
+          "Cflags": "-I${includedir} -pthread"
+        },
+        "resolvedVersionFromFile": "2.17",
+        "variables": {
+          "prefix": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase16/deps",
+          "includedir": "${prefix}/include",
+          "libdir": "${prefix}/lib"
+        },
+        "usageRoles": [
+          "pkg-config-module-used-by-meson"
+        ],
+        "scope": "pkg-config metadata declaration; not independent proof of build source revision"
+      },
+      "licenses": [
+        {
+          "component": "lcms2",
+          "source": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/lcms/AUTHORS",
+          "saved": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase17/provenance/licenses/lcms2/AUTHORS",
+          "sha256": "e4bb09b7cb67c8d9bb342de6c5e01e4729b0c2c4aeefdd78186f25c8724ac7dd",
+          "sizeBytes": 999,
+          "scope": "Current source license text; full artifact license closure not asserted"
+        },
+        {
+          "component": "lcms2",
+          "source": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/lcms/LICENSE",
+          "saved": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase17/provenance/licenses/lcms2/LICENSE",
+          "sha256": "6dbd60437f8ef91d8de1f08ad75882547fd4931bfcc3566a0735f28db1484d31",
+          "sizeBytes": 1080,
+          "scope": "Current source license text; full artifact license closure not asserted"
+        }
+      ],
+      "currentSourcePatchDiff": {
+        "path": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase17/provenance/source-diffs/lcms2.patch",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "originalBuildSourceSnapshotAttested": false,
+      "historicalToolAndHeaderClosureAttested": false,
+      "unresolved": [
+        "未有不可变的原始编译事件记录，把源码/补丁/当时头文件与工具摘要绑定到此归档。当前 HEAD、现存编译数据库及对象相等不能替代该记录。"
+      ]
+    },
+    {
+      "component": "lua",
+      "sourceDirectory": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/lua",
+      "repository": {
+        "requestedRoot": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/lua",
+        "verifiedTopLevel": null,
+        "commit": null,
+        "reason": "ancestor repository does not establish component provenance: /Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/lua is owned by /Users/yaoshining/.cache/vidall-player/libmpv-ohos-build",
+        "ancestorTopLevel": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build",
+        "ancestorHeadNotComponentCommit": "1bab837e662ffa47ce51efd0720d3ed7c4988944"
+      },
+      "fullyVerified": false,
+      "artifactRebuiltThisResearch": false,
+      "archives": {
+        "currentCacheBuild": {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/lua/src/liblua.a",
+          "sha256": "c4921235d78574f40e45b370f3e91aa2683604f01a10eaf7a27b97c97fb591c1",
+          "sizeBytes": 355414
+        },
+        "currentCacheInstall": {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/arm64-build/lib/liblua.a",
+          "sha256": "c4921235d78574f40e45b370f3e91aa2683604f01a10eaf7a27b97c97fb591c1",
+          "sizeBytes": 355414
+        },
+        "phase16Staged": {
+          "path": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase16/deps/lib/liblua.a",
+          "sha256": "c4921235d78574f40e45b370f3e91aa2683604f01a10eaf7a27b97c97fb591c1",
+          "sizeBytes": 355414
+        }
+      },
+      "allThreeArchiveSHA256Equal": true,
+      "buildEvidenceFiles": [
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/lua/src/Makefile",
+          "sha256": "440ff273dbf75a7212d5e60c00fa15839482d6f1f2b608ef187e3d1a38f22e2c",
+          "sizeBytes": 6245
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/lua/Makefile",
+          "sha256": "03bc16024f6b68adc7a044928ddb017869a275eb17b1374f098e825608718538",
+          "sizeBytes": 3274
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/lua/README",
+          "sha256": "746ef475168b8efdaf19f8733fb84fa88bf8b4855e8f06ad4a97aceb8fb0664f",
+          "sizeBytes": 151
+        }
+      ],
+      "archiveMembers": 32,
+      "membersBoundToCachedObjects": 32,
+      "membersWithCurrentCompileCommand": 0,
+      "phase16LinkMapUniqueMemberNameCount": 32,
+      "phase16ObservedUseRoles": [
+        "mpv-compiler-or-explicit-link-input",
+        "members-selected-in-mpv-link-map"
+      ],
+      "pkgConfig": {
+        "module": "lua",
+        "path": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase16/deps/lib/pkgconfig/lua.pc",
+        "sha256": "68a846b87a5b7bd341f0e2018445daa87bd15fc0dd0f5c18d448fabc0495b509",
+        "cacheOriginalPath": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/arm64-build/lib/pkgconfig/lua.pc",
+        "cacheOriginalSHA256": "86d2cb3fa6520a160a003e128fcecafb10b9fb3954cea4aaa3bf5d42d1825d6b",
+        "fieldsLiteral": {
+          "Name": "Lua",
+          "Description": "",
+          "Version": "${version}",
+          "Libs": "-L${libdir} -llua",
+          "Cflags": "-I${includedir}"
+        },
+        "resolvedVersionFromFile": "5.2.4",
+        "variables": {
+          "version": "5.2.4",
+          "prefix": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase16/deps",
+          "libdir": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase16/deps/lib",
+          "includedir": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase16/deps/include"
+        },
+        "usageRoles": [
+          "pkg-config-module-used-by-meson"
+        ],
+        "scope": "pkg-config metadata declaration; not independent proof of build source revision"
+      },
+      "licenses": [
+        {
+          "component": "lua",
+          "source": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/lua/doc/readme.html",
+          "saved": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase17/provenance/licenses/lua/doc/readme.html",
+          "sha256": "a686d9158c8878ee4c6e1c90d719949c2b70031b74d6e945e6e218a063ebcb20",
+          "sizeBytes": 13160,
+          "scope": "Current source license text; full artifact license closure not asserted"
+        },
+        {
+          "component": "lua",
+          "source": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/lua/src/lua.h",
+          "saved": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase17/provenance/licenses/lua/src/lua.h",
+          "sha256": "aaa571c445bdafe72c7e116bda8f2a415e8dcb05d988e4072e6dc15029c32fae",
+          "sizeBytes": 13602,
+          "scope": "Current source license text; full artifact license closure not asserted"
+        }
+      ],
+      "currentSourcePatchDiff": null,
+      "originalBuildSourceSnapshotAttested": false,
+      "historicalToolAndHeaderClosureAttested": false,
+      "unresolved": [
+        "未有不可变的原始编译事件记录，把源码/补丁/当时头文件与工具摘要绑定到此归档。当前 HEAD、现存编译数据库及对象相等不能替代该记录。",
+        "未找到 Lua 原始完整编译日志/compile database；32 个成员仅与现存源树 .o 精确匹配。"
+      ],
+      "officialSourceComparison": {
+        "evidence": "lua-official-comparison.json",
+        "officialArchiveSHA256": "b9e2e4aad6789b3b63a056d442f7b39f0ecfca3ae0f1fc0ae4e9614401b69f4b",
+        "matchedFiles": 71,
+        "totalFiles": 71,
+        "version": "5.2.4",
+        "newDownloadNotHistoricalEvent": true
+      }
+    },
+    {
+      "component": "shaderc_combined",
+      "sourceDirectory": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/shaderc",
+      "repository": {
+        "requestedRoot": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/shaderc",
+        "verifiedTopLevel": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/shaderc",
+        "commit": "73743588fe9c39f2f1c780a087d94afac691a189",
+        "evidenceScope": "observed current repository only; not historical artifact build attestation"
+      },
+      "fullyVerified": false,
+      "artifactRebuiltThisResearch": false,
+      "archives": {
+        "currentCacheBuild": {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/shaderc/.build/libshaderc/libshaderc_combined.a",
+          "sha256": "149d458e29f55f0af300da5d105ef7474a583e073e21bf58b77d396661f8b424",
+          "sizeBytes": 24885686
+        },
+        "currentCacheInstall": {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/arm64-build/lib/libshaderc_combined.a",
+          "sha256": "149d458e29f55f0af300da5d105ef7474a583e073e21bf58b77d396661f8b424",
+          "sizeBytes": 24885686
+        },
+        "phase16Staged": {
+          "path": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase16/deps/lib/libshaderc_combined.a",
+          "sha256": "149d458e29f55f0af300da5d105ef7474a583e073e21bf58b77d396661f8b424",
+          "sizeBytes": 24885686
+        }
+      },
+      "allThreeArchiveSHA256Equal": true,
+      "buildEvidenceFiles": [
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/shaderc/.build/build.ninja",
+          "sha256": "66feea3d1d5d97d24c413e50d1d555d7261d345b9cedc2483ca845194993468f",
+          "sizeBytes": 977816
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/shaderc/.build/CMakeCache.txt",
+          "sha256": "4d63ddaf0eddc359cd2948de26c1a676640e6f6d714da2655bd402c30ef98646",
+          "sizeBytes": 28985
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/shaderc/.build/CMakeFiles/rules.ninja",
+          "sha256": "5da715ab3b07f091ca3a3a24fa7d58162f8aa40481e582783523b5ed06559d38",
+          "sizeBytes": 42808
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/shaderc/.build/install_manifest.txt",
+          "sha256": "7cf89090c19409270f4843afd996a439f8720f73e52319898e544e252313250b",
+          "sizeBytes": 9482
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/shaderc/DEPS",
+          "sha256": "0e50c3d78b4571181c14582e29916aeee91289388a9094a104e89165ed74ca81",
+          "sizeBytes": 1360
+        }
+      ],
+      "observedWorkingTreeDiff": {
+        "path": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase17/provenance/source-diffs/shaderc_combined.patch",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sizeBytes": 0
+      },
+      "archiveMembers": 252,
+      "membersBoundToCachedObjects": 252,
+      "membersWithCurrentCompileCommand": 252,
+      "phase16LinkMapUniqueMemberNameCount": 235,
+      "phase16ObservedUseRoles": [
+        "mpv-compiler-or-explicit-link-input",
+        "members-selected-in-mpv-link-map"
+      ],
+      "pkgConfig": {
+        "module": "shaderc",
+        "path": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase16/deps/lib/pkgconfig/shaderc.pc",
+        "sha256": "742180a553766da9859479067b406cd713025292275d6c2b57be8c6853e75dfb",
+        "cacheOriginalPath": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/arm64-build/lib/pkgconfig/shaderc.pc",
+        "cacheOriginalSHA256": "8ae3e23848343b714f2a528ced22638021d9bdb6cccc3335c950ba7998fac991",
+        "fieldsLiteral": {
+          "Name": "shaderc",
+          "Description": "Tools and libraries for Vulkan shader compilation",
+          "Version": "2023.8.1",
+          "URL": "https://github.com/google/shaderc",
+          "Libs": "-L${libdir} -lshaderc_combined",
+          "Cflags": "-I${includedir}"
+        },
+        "resolvedVersionFromFile": "2023.8.1",
+        "variables": {
+          "prefix": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase16/deps",
+          "exec_prefix": "${prefix}",
+          "libdir": "${prefix}/lib",
+          "includedir": "${prefix}/include"
+        },
+        "usageRoles": [
+          "pkg-config-module-used-by-meson"
+        ],
+        "scope": "pkg-config metadata declaration; not independent proof of build source revision"
+      },
+      "licenses": [
+        {
+          "component": "shaderc_combined",
+          "source": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/shaderc/AUTHORS",
+          "saved": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase17/provenance/licenses/shaderc_combined/AUTHORS",
+          "sha256": "9fb4b067e4c9a1f91ea1c26465b3d1c6b515cb24860e0dbb719879925a5a1248",
+          "sizeBytes": 310,
+          "scope": "Current source license text; full artifact license closure not asserted"
+        },
+        {
+          "component": "shaderc_combined",
+          "source": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/shaderc/LICENSE",
+          "saved": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase17/provenance/licenses/shaderc_combined/LICENSE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+          "sizeBytes": 11357,
+          "scope": "Current source license text; full artifact license closure not asserted"
+        }
+      ],
+      "currentSourcePatchDiff": {
+        "path": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase17/provenance/source-diffs/shaderc_combined.patch",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "originalBuildSourceSnapshotAttested": false,
+      "historicalToolAndHeaderClosureAttested": false,
+      "unresolved": [
+        "未有不可变的原始编译事件记录，把源码/补丁/当时头文件与工具摘要绑定到此归档。当前 HEAD、现存编译数据库及对象相等不能替代该记录。"
+      ],
+      "transitiveEvidence": "shaderc-transitive-provenance.json"
+    },
+    {
+      "component": "xml2",
+      "sourceDirectory": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/libxml2",
+      "repository": {
+        "requestedRoot": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/libxml2",
+        "verifiedTopLevel": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/libxml2",
+        "commit": "b7fa62cbe8ef0df5869e000d5b690bdedd07f33e",
+        "evidenceScope": "observed current repository only; not historical artifact build attestation"
+      },
+      "fullyVerified": false,
+      "artifactRebuiltThisResearch": false,
+      "archives": {
+        "currentCacheBuild": {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/libxml2/.build/libxml2.a",
+          "sha256": "4893287a4823b4ec1b1370565dccdb3c23c81650f09d2c745e6f81126279cb34",
+          "sizeBytes": 1958798
+        },
+        "currentCacheInstall": {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/arm64-build/lib/libxml2.a",
+          "sha256": "4893287a4823b4ec1b1370565dccdb3c23c81650f09d2c745e6f81126279cb34",
+          "sizeBytes": 1958798
+        },
+        "phase16Staged": {
+          "path": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase16/deps/lib/libxml2.a",
+          "sha256": "4893287a4823b4ec1b1370565dccdb3c23c81650f09d2c745e6f81126279cb34",
+          "sizeBytes": 1958798
+        }
+      },
+      "allThreeArchiveSHA256Equal": true,
+      "buildEvidenceFiles": [
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/libxml2/.build/compile_commands.json",
+          "sha256": "90a7a3369daf1613bc0d67eef8f93e6df97ac6fc0d7fc77a63b33179187bf461",
+          "sizeBytes": 67104
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/libxml2/.build/build.ninja",
+          "sha256": "08da352eef298305786d9942427ae5e81c201c24bb9096ff59f0d0094849585c",
+          "sizeBytes": 75481
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/libxml2/.build/meson-logs/meson-log.txt",
+          "sha256": "49741a90028e64fc974781a0fe8b7881c21386e2dc3d2bd8a4cea6bcca3e3deb",
+          "sizeBytes": 53944
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/libxml2/.build/meson-logs/install-log.txt",
+          "sha256": "9ce090e0395426baa21c90b521c70be2e35693c12bfc2cd7fb495c3098affacd",
+          "sizeBytes": 5722
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/libxml2/.build/meson-logs/meson-setup.txt",
+          "sha256": "1badd22c50cce6849a14b7b960fdbec276e8d91fedd5296df2136d2d14b76e8d",
+          "sizeBytes": 4178
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/libxml2/.build/meson-info/intro-buildoptions.json",
+          "sha256": "98deb5ca615197f14c88a6274106318f43427a2f670194be2fb61bd24c1d32bb",
+          "sizeBytes": 22696
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/libxml2/.build/meson-info/intro-installed.json",
+          "sha256": "8f5cf30e679b020030095677be2d000672680dafb73eb8fd02bf1839a227c73c",
+          "sizeBytes": 11122
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/libxml2/.build/meson-info/intro-dependencies.json",
+          "sha256": "11bdfd7a26ac6f4634b3a9e51f7e7680bd2e450adfe931af8d8d5ccacdb5e30f",
+          "sizeBytes": 1166
+        },
+        {
+          "path": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/libxml2/.build/config.h",
+          "sha256": "4967a47e0e69c66bb29577c379e16330db78ca78cd538d46fe88f83a928d1a45",
+          "sizeBytes": 389
+        }
+      ],
+      "observedWorkingTreeDiff": {
+        "path": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase17/provenance/source-diffs/xml2.patch",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sizeBytes": 0
+      },
+      "archiveMembers": 37,
+      "membersBoundToCachedObjects": 37,
+      "membersWithCurrentCompileCommand": 37,
+      "phase16LinkMapUniqueMemberNameCount": 33,
+      "phase16ObservedUseRoles": [
+        "mpv-compiler-or-explicit-link-input",
+        "members-selected-in-mpv-link-map"
+      ],
+      "pkgConfig": {
+        "module": "libxml-2.0",
+        "path": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase16/deps/lib/pkgconfig/libxml-2.0.pc",
+        "sha256": "f8619eb31458d829fcc62bc27263df013f81facdcbba8552807099961eb0bf08",
+        "cacheOriginalPath": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/arm64-build/lib/pkgconfig/libxml-2.0.pc",
+        "cacheOriginalSHA256": "56e7f8cec445870c20c97d270e1b887bd11b434e8b399e85bcf277b18168b51c",
+        "fieldsLiteral": {
+          "Name": "libXML",
+          "Description": "libXML library version2.",
+          "Version": "2.15.1",
+          "Libs": "-L${libdir} -lxml2 -lm -pthread -lz",
+          "Cflags": "-I${includedir}/libxml2 -pthread"
+        },
+        "resolvedVersionFromFile": "2.15.1",
+        "variables": {
+          "prefix": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase16/deps",
+          "includedir": "${prefix}/include",
+          "libdir": "${prefix}/lib",
+          "modules": "1"
+        },
+        "usageRoles": [
+          "pkg-config-transitive-requirement-from-used-module"
+        ],
+        "scope": "pkg-config metadata declaration; not independent proof of build source revision"
+      },
+      "licenses": [
+        {
+          "component": "xml2",
+          "source": "/Users/yaoshining/.cache/vidall-player/libmpv-ohos-build/libmpv/libxml2/Copyright",
+          "saved": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase17/provenance/licenses/xml2/Copyright",
+          "sha256": "5d4873884a890122a4b9b20ad56ac6f7da1d796a5bfcf04a427970ac96217626",
+          "sizeBytes": 1314,
+          "scope": "Current source license text; full artifact license closure not asserted"
+        }
+      ],
+      "currentSourcePatchDiff": {
+        "path": "/Users/yaoshining/DevEcoStudioProjects/ohos_ijkplayer/out/phase17/provenance/source-diffs/xml2.patch",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "originalBuildSourceSnapshotAttested": false,
+      "historicalToolAndHeaderClosureAttested": false,
+      "unresolved": [
+        "未有不可变的原始编译事件记录，把源码/补丁/当时头文件与工具摘要绑定到此归档。当前 HEAD、现存编译数据库及对象相等不能替代该记录。"
+      ]
+    }
+  ],
+  "stagedFileCount": 236,
+  "observedDirectOrPkgConfigUseCount": 33,
+  "stagedWithoutObservedDirectUseCount": 203,
+  "notes": [
+    "独立 glslang/SPIRV 静态库未直接使用不代表其组件代码未使用：shaderc_combined 已包含其对象。",
+    "link map 数量为唯一成员名字数；归档精确 occurrence 另见 archive-member-binding.json。",
+    "新构建 libplacebo 不属于复用的 10 个库；SDK libunwind 另属工具链，未声称源码闭包。"
+  ]
+}

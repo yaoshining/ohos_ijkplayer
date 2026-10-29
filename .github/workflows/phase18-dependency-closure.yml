@@ -1,0 +1,74 @@
+name: Phase18 从源码重建静态依赖及 mpv
+on:
+  workflow_dispatch:
+  pull_request:
+    paths: ["tools/pr2-gates/**", "specs/003-pr2-ci-gates/**", ".github/workflows/phase18-dependency-closure.yml", "tools/phase18/**"]
+  merge_group:
+  push:
+    branches: ["master", "codex/docs-pr2-speckit-closeout", "codex/phase18-dependency-closure"]
+    paths: ["tools/pr2-gates/**", "specs/003-pr2-ci-gates/**", ".github/workflows/phase18-dependency-closure.yml", "tools/phase18/**"]
+permissions:
+  contents: read
+jobs:
+  dependency-closure:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONNOUSERSITE: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: 绑定实际 checkout 与输入
+        run: python3 -B tools/pr2-gates/snapshot.py begin --out "${{ runner.temp }}/pr2-${{ github.job }}-identity"
+      - name: 准备固定宿主工具
+        run: python3 -B tools/phase18/host_setup.py
+      - name: 校验原始输入并准备隔离 SDK 和 Rust 工具链
+        run: python3 -B tools/phase18/bootstrap.py
+      - name: 输入及版本门禁回归
+        run: |
+          python3 -B -m unittest discover -s tools/phase18/tests -p test_evidence_contract.py -v
+          python3 -B -m unittest discover -s tools/phase18/tests -p test_host_isolation.py -v
+          python3 -B -m unittest discover -s tools/phase18/tests -p test_tool_inputs.py -v
+          python3 -B -m unittest discover -s tools/phase18/tests -p test_collect_paths.py -v
+          python3 -B -m unittest discover -s out/phase18-ci/tests -p test_inputs.py -v
+          python3 -B -m unittest discover -s out/phase18-ci/tests -p test_recipes.py -v
+          python3 -B -m unittest discover -s out/phase18-ci/integration/runtime -p 'test_*.py' -v
+      - name: 从源码构建八个 C 与 C++ 依赖
+        run: python3 -B out/phase18-ci/runtime/build_deps.py --run out/phase18-ci/runs/native-01 --jobs 4
+      - name: 从源码构建 shaderc 传递依赖
+        run: python3 -B out/phase18-ci/runtime/build_shaderc.py out/phase18-ci/runs/shaderc-01
+      - name: 离线构建 dovi 并运行宿主 Rust 测试
+        run: bash out/phase18-ci/runtime/build_dovi.sh "$PWD/out/phase18-ci/dovi-input" "$PWD/out/phase18-ci/runs/dovi-01" "$PWD/out/phase18-ci/sdk"
+      - name: 绑定新静态库成员和实际编译输入
+        run: python3 -B out/phase18-ci/runtime/collect_dependencies.py
+      - name: 准备仅使用新十库的 LP 与 mpv 输入
+        run: python3 -B out/phase18-ci/runtime/prepare_integration.py out/phase18-ci/integration/base
+      - name: 两个全新绝对路径构建
+        run: |
+          python3 -B out/phase18-ci/integration/runtime/fresh_build.py --input-root out/phase18-ci/integration/input-package --run-root out/phase18-ci/integration/runs/origin-a --sdk out/phase18-ci/sdk --meson "$(command -v meson)" --ninja out/phase18-ci/sdk/build-tools/cmake/bin/ninja --pkg-config "$(command -v pkg-config)" --stable-prefix /usr/local --jobs 4
+          python3 -B out/phase18-ci/integration/runtime/fresh_build.py --input-root out/phase18-ci/integration/input-package --run-root out/phase18-ci/integration/runs/longer-ci-absolute-directory/origin-b --sdk out/phase18-ci/sdk --meson "$(command -v meson)" --ninja out/phase18-ci/sdk/build-tools/cmake/bin/ninja --pkg-config "$(command -v pkg-config)" --stable-prefix /usr/local --jobs 4
+      - name: 功能宏与实际链接来源逐项核验
+        run: python3 -B tools/phase18/verify.py
+      - name: 收集完整验证与失败证据
+        if: always()
+        run: python3 -B tools/phase18/collect.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: phase18-dependency-closure
+          path: out/phase18-artifact
+          if-no-files-found: error
+          include-hidden-files: true
+      - name: 核对输入未漂移并保留实际执行身份
+        if: always()
+        run: python3 -B tools/pr2-gates/snapshot.py end --out "${{ runner.temp }}/pr2-${{ github.job }}-identity" --job-status "${{ job.status }}"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pr2-${{ github.workflow }}-${{ github.job }}-identity
+          path: ${{ runner.temp }}/pr2-${{ github.job }}-identity/artifact/
+          if-no-files-found: error
+          retention-days: 14

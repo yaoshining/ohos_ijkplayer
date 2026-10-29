@@ -1,0 +1,195 @@
+{
+  "schemaVersion": 1,
+  "commands": [
+    {
+      "name": "gate-tests",
+      "argv": [
+        "{python}",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/pr2-gates/tests",
+        "-p",
+        "test_*.py",
+        "-v"
+      ]
+    },
+    {
+      "name": "phase18-collect-paths",
+      "argv": [
+        "{python}",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/phase18/tests",
+        "-p",
+        "test_collect_paths.py",
+        "-v"
+      ]
+    },
+    {
+      "name": "phase18-evidence-contract",
+      "argv": [
+        "{python}",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/phase18/tests",
+        "-p",
+        "test_evidence_contract.py",
+        "-v"
+      ]
+    },
+    {
+      "name": "phase18-host-isolation",
+      "argv": [
+        "{python}",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/phase18/tests",
+        "-p",
+        "test_host_isolation.py",
+        "-v"
+      ]
+    },
+    {
+      "name": "phase18-inputs",
+      "argv": [
+        "{python}",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/phase18/tests",
+        "-p",
+        "test_inputs.py",
+        "-v"
+      ]
+    },
+    {
+      "name": "phase18-tool-inputs",
+      "argv": [
+        "{python}",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/phase18/tests",
+        "-p",
+        "test_tool_inputs.py",
+        "-v"
+      ]
+    },
+    {
+      "name": "phase20-build-gate",
+      "argv": [
+        "{python}",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/phase20/tests",
+        "-p",
+        "test_build_gate.py",
+        "-v"
+      ]
+    },
+    {
+      "name": "phase20-collect",
+      "argv": [
+        "{python}",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/phase20/tests",
+        "-p",
+        "test_collect.py",
+        "-v"
+      ]
+    },
+    {
+      "name": "phase20-extract",
+      "argv": [
+        "{python}",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/phase20/tests",
+        "-p",
+        "test_extract.py",
+        "-v"
+      ]
+    },
+    {
+      "name": "phase20-host-python-environment",
+      "argv": [
+        "{python}",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/phase20/tests",
+        "-p",
+        "test_host_python_environment.py",
+        "-v"
+      ]
+    },
+    {
+      "name": "phase20-lifecycle",
+      "argv": [
+        "{python}",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/phase20/tests",
+        "-p",
+        "test_lifecycle.py",
+        "-v"
+      ]
+    },
+    {
+      "name": "phase20-runtime",
+      "argv": [
+        "{python}",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/phase20/tests",
+        "-p",
+        "test_runtime.py",
+        "-v"
+      ]
+    }
+  ],
+  "scope": "real host regressions only; target build jobs remain separate",
+  "formalArtifactAllowed": false,
+  "targetOnlyTests": {
+    "phase18": [
+      "test_recipes.py (requires bootstrap source-package; actual workflow runs out/phase18-ci/tests/test_recipes.py)"
+    ],
+    "phase20": [
+      "test_apply.py (requires prepare PHASE20_SAMBA_SOURCE and PHASE20_FFMPEG_SOURCE; actual target workflow runs all phase20 tests after prepare)"
+    ]
+  }
+}

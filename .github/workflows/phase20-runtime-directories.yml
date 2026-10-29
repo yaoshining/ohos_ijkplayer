@@ -1,0 +1,98 @@
+name: Phase20 Samba 运行目录诊断验证
+on:
+  workflow_dispatch:
+  pull_request:
+    paths: ["tools/pr2-gates/**", "specs/003-pr2-ci-gates/**", ".github/workflows/phase20-runtime-directories.yml", "tools/phase18/**", "tools/phase20/**"]
+  merge_group:
+  push:
+    branches: ["master", "codex/docs-pr2-speckit-closeout", "codex/phase20-runtime-directories"]
+    paths: ["tools/pr2-gates/**", "specs/003-pr2-ci-gates/**", ".github/workflows/phase20-runtime-directories.yml", "tools/phase18/**", "tools/phase20/**"]
+permissions:
+  contents: read
+jobs:
+  native:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONNOUSERSITE: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: 绑定实际 checkout 与输入
+        run: python3 -B tools/pr2-gates/snapshot.py begin --out "${{ runner.temp }}/pr2-${{ github.job }}-identity"
+      - name: 记录宿主并安装原生依赖
+        run: python3 -B tools/phase20/host_setup.py
+      - name: 校验并提取固定 Samba 源码
+        run: python3 -B tools/phase20/prepare.py --native-only
+      - name: 真实 Samba 宿主集成与文件访问跟踪
+        run: python3 -B tools/phase20/native.py --out out/phase20-ci/native --archive out/phase20-ci/inputs/cache/samba-3984b04d7085c428ab3126ef4cfac2a396b5b29e.tar
+      - name: 收集成功或失败证据
+        if: always()
+        run: python3 -B tools/phase20/collect.py --kind native --job-status "${{ job.status }}"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: phase20-native
+          path: out/phase20-artifact-native
+          if-no-files-found: error
+          include-hidden-files: true
+      - name: 核对输入未漂移并保留实际执行身份
+        if: always()
+        run: python3 -B tools/pr2-gates/snapshot.py end --out "${{ runner.temp }}/pr2-${{ github.job }}-identity" --job-status "${{ job.status }}"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pr2-${{ github.workflow }}-${{ github.job }}-identity
+          path: ${{ runner.temp }}/pr2-${{ github.job }}-identity/artifact/
+          if-no-files-found: error
+          retention-days: 14
+  target:
+    # 宿主包装层修正单独验证；目标验收绑定独立成功 run 及相同目标输入摘要。
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONNOUSERSITE: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: 绑定实际 checkout 与输入
+        run: python3 -B tools/pr2-gates/snapshot.py begin --out "${{ runner.temp }}/pr2-${{ github.job }}-identity"
+      - name: 记录实际宿主工具与包
+        run: python3 -B tools/phase20/host_setup.py
+      - name: 复用已批准 SDK 并校验固定源码
+        run: python3 -B tools/phase20/prepare.py
+      - name: 配置合同与源码补丁门禁
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -B -m unittest discover -s tools/phase20/tests -p 'test_*.py' -v 2>&1 | tee out/phase20-ci/unit-tests.log
+      - name: 两个全新目录重建 Samba 与 FFmpeg
+        run: python3 -B tools/phase20/build.py --out out/phase20-ci/target --ndk out/phase20-ci/inputs/sdk --cache out/phase20-ci/inputs/cache --ffmpeg-tar out/phase20-ci/inputs/ffmpeg.tar --jobs 4
+      - name: 实际导出、Python 目录、链接与调用方验证
+        run: python3 -B tools/phase20/verify.py --out out/phase20-ci/target --ndk out/phase20-ci/inputs/sdk
+      - name: 收集成功或失败证据
+        if: always()
+        run: python3 -B tools/phase20/collect.py --kind target --job-status "${{ job.status }}"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: phase20-target
+          path: out/phase20-artifact-target
+          if-no-files-found: error
+          include-hidden-files: true
+      - name: 核对输入未漂移并保留实际执行身份
+        if: always()
+        run: python3 -B tools/pr2-gates/snapshot.py end --out "${{ runner.temp }}/pr2-${{ github.job }}-identity" --job-status "${{ job.status }}"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pr2-${{ github.workflow }}-${{ github.job }}-identity
+          path: ${{ runner.temp }}/pr2-${{ github.job }}-identity/artifact/
+          if-no-files-found: error
+          retention-days: 14

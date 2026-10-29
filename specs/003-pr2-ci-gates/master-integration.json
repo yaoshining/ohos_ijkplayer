@@ -1,0 +1,185 @@
+{
+  "schemaVersion": 1,
+  "scope": "2026-10-29 PR2本地同步已合并PR1；不含新远端CI或目标构建",
+  "previousHead": "05dcf4acdc462d88fb94ce2d7f076e58cfc85bdb",
+  "newMaster": "c5828aeac29adae93b5a5f799ec8459a4cd025f9",
+  "testedLocalMerge": "4c5382ed10a74cc027d34b3a806b4f2e4552a33a",
+  "testedParents": [
+    "05dcf4acdc462d88fb94ce2d7f076e58cfc85bdb",
+    "c5828aeac29adae93b5a5f799ec8459a4cd025f9"
+  ],
+  "tree": "3a449c82f60ff13b45676a92e66bac7ad80f2a43",
+  "sameTreeAsGitHubSyntheticMerge": "dfd78e6bd896994c671c17d700d37c4204accf2c",
+  "sourceChangedBeyondMerge": false,
+  "newFunctionality": false,
+  "TDD": "无新增功能或源码修复；运行两套已有真实正常/边界/失败回归，不伪造新RED",
+  "interpreter": "Python 3.10.9",
+  "PyYAML": "6.0.1",
+  "host": {
+    "PR1": {
+      "accepted": true,
+      "exactCommitReplay": true,
+      "inputsUnchanged": true,
+      "identityUnchanged": true,
+      "commandCount": 8,
+      "unittestCount": 263,
+      "commands": [
+        {
+          "name": "gate-tests",
+          "testsRun": 23,
+          "passed": true
+        },
+        {
+          "name": "producer-contracts",
+          "testsRun": 148,
+          "passed": true
+        },
+        {
+          "name": "hx509-contracts",
+          "testsRun": 21,
+          "passed": true
+        },
+        {
+          "name": "cross-root-contracts",
+          "testsRun": 2,
+          "passed": true
+        },
+        {
+          "name": "lexer-contracts",
+          "testsRun": 21,
+          "passed": true
+        },
+        {
+          "name": "phase17-contracts",
+          "testsRun": 25,
+          "passed": true
+        },
+        {
+          "name": "phase17-repeat",
+          "testsRun": 23,
+          "passed": true
+        },
+        {
+          "name": "sdk-contract",
+          "testsRun": null,
+          "passed": true
+        }
+      ],
+      "evidenceDigests": [
+        {
+          "name": "result.json",
+          "bytes": 3611,
+          "sha256": "ea52de87216181b66344e7eac305c6459b799bce2a9b7e6ca6be4076f84906ea"
+        },
+        {
+          "name": "identity.json",
+          "bytes": 389,
+          "sha256": "a36bafb7e020af37e7d51281395c5ebd45af30892e6975bcfed2271555fff93d"
+        },
+        {
+          "name": "artifact-index.json",
+          "bytes": 2038,
+          "sha256": "b83a7485215f582fbce0a55e14134135a4f1022c553dad48097c960a37270250"
+        }
+      ]
+    },
+    "PR2": {
+      "accepted": true,
+      "exactCommitReplay": true,
+      "inputsUnchanged": true,
+      "identityUnchanged": true,
+      "commandCount": 12,
+      "unittestCount": 101,
+      "commands": [
+        {
+          "name": "gate-tests",
+          "testsRun": 30,
+          "passed": true
+        },
+        {
+          "name": "phase18-collect-paths",
+          "testsRun": 3,
+          "passed": true
+        },
+        {
+          "name": "phase18-evidence-contract",
+          "testsRun": 18,
+          "passed": true
+        },
+        {
+          "name": "phase18-host-isolation",
+          "testsRun": 3,
+          "passed": true
+        },
+        {
+          "name": "phase18-inputs",
+          "testsRun": 18,
+          "passed": true
+        },
+        {
+          "name": "phase18-tool-inputs",
+          "testsRun": 2,
+          "passed": true
+        },
+        {
+          "name": "phase20-build-gate",
+          "testsRun": 3,
+          "passed": true
+        },
+        {
+          "name": "phase20-collect",
+          "testsRun": 2,
+          "passed": true
+        },
+        {
+          "name": "phase20-extract",
+          "testsRun": 2,
+          "passed": true
+        },
+        {
+          "name": "phase20-host-python-environment",
+          "testsRun": 1,
+          "passed": true
+        },
+        {
+          "name": "phase20-lifecycle",
+          "testsRun": 1,
+          "passed": true
+        },
+        {
+          "name": "phase20-runtime",
+          "testsRun": 18,
+          "passed": true
+        }
+      ],
+      "evidenceDigests": [
+        {
+          "name": "result.json",
+          "bytes": 5615,
+          "sha256": "5821ca0f4ee7e6f1f6fcc8818d4306065bc4d352bc1c86b6e3faf35ed43c0654"
+        },
+        {
+          "name": "identity.json",
+          "bytes": 389,
+          "sha256": "a36bafb7e020af37e7d51281395c5ebd45af30892e6975bcfed2271555fff93d"
+        },
+        {
+          "name": "artifact-index.json",
+          "bytes": 2689,
+          "sha256": "2e481a2f3a80c51dbfc63d4af770b6fd7cec0197ab6350b4ada4454d4921dc37"
+        }
+      ]
+    }
+  },
+  "historicalHeadCIRuns": [
+    39998335430,
+    39998335365,
+    39998335454
+  ],
+  "historicalCINotReassigned": true,
+  "newRemoteCI": "pending-approved-push",
+  "phase18Target": "not-rerun",
+  "phase20NativeAndTarget": "not-rerun",
+  "deviceVerified": false,
+  "formalArtifactAllowed": false
+}
