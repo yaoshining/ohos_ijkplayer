@@ -1,0 +1,76 @@
+{
+  "frozenAt": "2026-10-21T23:05:00+08:00",
+  "purpose": "immutable baseline slices for T005/T008 RED; working copies are out/phase28/input-package/sources/mpv and out/phase28/ffmpeg-input/source",
+  "files": [
+    {
+      "path": "ffmpeg/libavcodec/ohcodec.h",
+      "size": 1828,
+      "sha256": "0819dd69b404bbfa82824cac95a6370a2a5b12a17fae0c7a8310f736c7992bfe"
+    },
+    {
+      "path": "ffmpeg/libavcodec/ohcodec_buffer.h",
+      "size": 929,
+      "sha256": "61c5d35eb4e5f549d39ce2324505bd3ca19733f264a830bd270eeac760d21b89"
+    },
+    {
+      "path": "ffmpeg/libavcodec/ohdec.c",
+      "size": 39351,
+      "sha256": "d4a2aa3c121423e4be08cbfe1d035b01e967e31fd5a067f69bdc794d95e60070"
+    },
+    {
+      "path": "ffmpeg/libavutil/hwcontext_oh.h",
+      "size": 1098,
+      "sha256": "62df338901602b1ac41b8a61fb26b2179de39662e78f3e2b87b6464c53895ddc"
+    },
+    {
+      "path": "mpv/video/decode/vd_lavc.c",
+      "size": 49508,
+      "sha256": "2609b509776c9962bf8c7db33df584dda2bd6652ae93d337c5f8aeceb9b83140"
+    },
+    {
+      "path": "mpv/video/out/gpu/hwdec.c",
+      "size": 11252,
+      "sha256": "6c51610b80fe328b389b311ecb91d476ff3f561b7f966b96376f1b0ae95681d6"
+    },
+    {
+      "path": "mpv/video/out/gpu/hwdec.h",
+      "size": 6448,
+      "sha256": "2557dc33fc441e234349bc92322e42870e0166e3f73f645711976b4087059f17"
+    },
+    {
+      "path": "mpv/video/out/hwdec/hwdec_ohcodec.c",
+      "size": 8626,
+      "sha256": "54d8b8808471d4a0e3cbdefe65fea9e3549a9f8949d3201202e061641f6bfd41"
+    },
+    {
+      "path": "mpv/video/out/hwdec/hwdec_ohcodec.h",
+      "size": 1515,
+      "sha256": "b980b707ebdc0db5edc4d05b1bd359182696929f51d2c272bd87a23825eb5cb9"
+    },
+    {
+      "path": "mpv/video/out/hwdec/hwdec_ohcodec_gl.c",
+      "size": 5439,
+      "sha256": "c0eb321a867ec682568087cf39f1e9c21e0ed1f96674d943f349114713364d83"
+    },
+    {
+      "path": "mpv/video/out/hwdec/hwdec_ohcodec_pl.c",
+      "size": 25591,
+      "sha256": "895d9294cf8c309485aff361e7571c5f46cfdae1d388aab80c723d80b6436e68"
+    },
+    {
+      "path": "mpv/video/out/vo.c",
+      "size": 46401,
+      "sha256": "c4c4aad4f2907b7fffdd0da7bfb4ce8f46bd5bd25ed9b6e1509e9c0f6833c7bb"
+    },
+    {
+      "path": "mpv/video/out/vo.h",
+      "size": 21632,
+      "sha256": "28784c80a3ccdfbf496dcb75cf11ab770e45ed51910a12dc6124b41dfd053795"
+    },
+    {
+      "path": "mpv/video/out/vo_gpu_next.c",
+      "size": 96335,
+      "sha256": "22135e5bad9c3822b7b5dbac98086bd4cbf60cde8cd20739e8ce32247069ffd0"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "hapSHA": "464282f16c4bea59b32e6c870cd6a99acfca7955e336c3dfa06349409e11b9db",
+  "libraries": {
+    "libs/arm64-v8a/libavcodec.so.62": "64e832a24990dfe83eb7a8f755a12a791bf9b524672576498fce0e65f162c5d8",
+    "libs/arm64-v8a/libavfilter.so.11": "02fc9b2aa099d6f45716afa44ab09b73d75e9b79a7c9666d61f8feb4302b7f7c",
+    "libs/arm64-v8a/libavformat.so.62": "4fa4673dc7a6445e7a8e591225089f2207498938922ef504d7c61d295fa4a931",
+    "libs/arm64-v8a/libavutil.so.60": "35e486d5f9e57fb956c2fb6cc60dd053a8579be48ddafd4230e3698d7123bec7",
+    "libs/arm64-v8a/libc++_shared.so": "9b67147034bfc1d2b7b51b97b638713f90bd8ca9cf4acbcdac6cbc6d155f6042",
+    "libs/arm64-v8a/libmpv.so": "014622aef1a845ecbf8476785273bb3fb820e28d4d0e987c4947218ac86ff61c",
+    "libs/arm64-v8a/libphase22.so": "37e4b61e68e11acae6ae82117a3a219b367be3cdde2c3b1ef9e06a2a81849842",
+    "libs/arm64-v8a/libswresample.so.6": "fd1e181e52c6dd9ea8f0c2e38481516c09317b979801e571a2f5219ad57d1458",
+    "libs/arm64-v8a/libswscale.so.9": "c2d4568c182a3e030af99a66c4005e66ab7e30d4a86fd5e2d99220727f660173"
+  },
+  "allExpectedMatched": true,
+  "appSourceIndexSHA": "dd0413e2b9a996da7629bdf8a2f9969c357617fe52b3c697fcb8dc44f4a7de51"
+}

@@ -1,0 +1,237 @@
+{
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "80c199ef9f374d89d0b85efdd847d6b4848bd1ea475d84edb5d5d76d5cfe82af",
+      "size": 1793
+    },
+    {
+      "path": "callback-dependency-audit.md",
+      "sha256": "7d98c1f6d920a9b1017ca1a54dc95918f918186b70736ab7526060245d0fa25f",
+      "size": 4610
+    },
+    {
+      "path": "cleanup_gate.py",
+      "sha256": "3d8330596100b21a2a19c164592ad06314b4e89fdb5af4a9edff5fac44250656",
+      "size": 5120
+    },
+    {
+      "path": "licenses/ffmpeg/COPYING.GPLv2",
+      "sha256": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643",
+      "size": 18092
+    },
+    {
+      "path": "licenses/ffmpeg/COPYING.GPLv3",
+      "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+      "size": 35147
+    },
+    {
+      "path": "licenses/ffmpeg/COPYING.LGPLv2.1",
+      "sha256": "246041b6ecf9bc32d718a62c57877c78b5eb397b6467e74ed7ae2626ab189c30",
+      "size": 26517
+    },
+    {
+      "path": "licenses/ffmpeg/COPYING.LGPLv3",
+      "sha256": "da7eabb7bafdf7d3ae5e9f223aa5bdc1eece45ac569dc21b3b037520b4464768",
+      "size": 7651
+    },
+    {
+      "path": "licenses/ffmpeg/LICENSE.md",
+      "sha256": "2e1d16c72fd74e12063776371da757322f8b77589386532f4fd8634bde7de1af",
+      "size": 4346
+    },
+    {
+      "path": "licenses/mpv/LICENSE.GPL",
+      "sha256": "edaef632cbb643e4e7a221717a6c441a4c1a7c918e6e4d56debc3d8739b233f6",
+      "size": 17984
+    },
+    {
+      "path": "licenses/mpv/LICENSE.LGPL",
+      "sha256": "72b672113d642cbb8ef5dcc76938db801983c56e50b1400ab930f1a64d6dc8d9",
+      "size": 26410
+    },
+    {
+      "path": "lifecycle/extract.py",
+      "sha256": "08a7f0239a577dace07e58361a34e820e4497bb06b8a95c9107037b771286132",
+      "size": 9498
+    },
+    {
+      "path": "lifecycle/ohdec/harness.c",
+      "sha256": "02dec4281aa2021518be8299a0b979d5f86699adaf507eecf9d6d3074397734d",
+      "size": 33662
+    },
+    {
+      "path": "lifecycle/run_ohdec.py",
+      "sha256": "e520168a635aa5b51172404f201d7b19effbde77e6cc8c970a0d70f7d0ea0333",
+      "size": 4142
+    },
+    {
+      "path": "local-tdd.json",
+      "sha256": "5787ee7e8dd23f8f0f80d9af0db840ee395b0e178284b1f34fea4ac9545195f3",
+      "size": 1074
+    },
+    {
+      "path": "parent-chain/extract.py",
+      "sha256": "4a3d3966c32548506d46f45311120604b3102f06c2ede74d264e6a8b3f7434f5",
+      "size": 9625
+    },
+    {
+      "path": "parent-chain/harness.c",
+      "sha256": "271d9d370ea113295c80e9edb15aebaa1abd83fb87598ef993590d689842b114",
+      "size": 45270
+    },
+    {
+      "path": "parent-chain/run.py",
+      "sha256": "f496641b33124cbb72be6b5f66fe79f762f48373a8468f6361603164d58228b1",
+      "size": 21572
+    },
+    {
+      "path": "provenance.json",
+      "sha256": "11c14a872a7abec73dd2da2744d08ec3ba7ea13819dbd1a7d5af596e15c21297",
+      "size": 9338
+    },
+    {
+      "path": "runner.py",
+      "sha256": "fee164cae152ab759811b3678cdf04619cf4f7d076996450b7154900ca4daae5",
+      "size": 8563
+    },
+    {
+      "path": "sources/ffmpeg/libavcodec/ohcodec_diagnostic.h",
+      "sha256": "fa756a28088bba6e1d8ed6308fa6c23dd7998d3309b9238e7ac7fb0b5901723a",
+      "size": 3214
+    },
+    {
+      "path": "sources/ffmpeg/libavcodec/ohdec.c",
+      "sha256": "8d557632b5d75e247fc5222a74144bcff2a7e7429ad56790ededd8dff9352e9a",
+      "size": 49030
+    },
+    {
+      "path": "sources/mpv-green/misc/dispatch.c",
+      "sha256": "488d517a098ae50bc839b172f58aa59e75c3f0758de9745a4325c37eac9e8cee",
+      "size": 16761
+    },
+    {
+      "path": "sources/mpv-green/player/main.c",
+      "sha256": "c3bfca8c73543fc7beed2ce1f6856d0d2bfd5f0178af3149d592c7395788ff3e",
+      "size": 14401
+    },
+    {
+      "path": "sources/mpv-green/player/video.c",
+      "sha256": "fcb5ea2449d9dce5a1bb518fc8905a22815411eb8ad20fc528b266f25d221512",
+      "size": 46522
+    },
+    {
+      "path": "sources/mpv-green/video/decode/vd_lavc.c",
+      "sha256": "f745a27d2071c7b7695897a053b8a4d6cadfb1bf6e620158338991dfc443a0b7",
+      "size": 55671
+    },
+    {
+      "path": "sources/mpv-green/video/hwdec.c",
+      "sha256": "1e33af77233d13ba0741c7c06676c4872f72cd116cb75f1c1856b9f6020c96b1",
+      "size": 3890
+    },
+    {
+      "path": "sources/mpv-green/video/out/gpu/hwdec.c",
+      "sha256": "c27baa56daeb036f2407beb3b1d96332ed1c8abe25902a96e23268f993705475",
+      "size": 12061
+    },
+    {
+      "path": "sources/mpv-green/video/out/hwdec/hwdec_ohcodec.c",
+      "sha256": "19e6dba42a291d628d059b7c17eef7df9c254da4be8d5ba77b5a222629b30a6e",
+      "size": 14785
+    },
+    {
+      "path": "sources/mpv-green/video/out/hwdec/hwdec_ohcodec.h",
+      "sha256": "7461e84843e4485f9a9b4f2d5e6371b09810c881cf1a7fdc7bae6bedab3ac187",
+      "size": 3529
+    },
+    {
+      "path": "sources/mpv-green/video/out/hwdec/hwdec_ohcodec_pl.c",
+      "sha256": "b84193d259dbdc9778d32cb423061b9ee3dc14d00941365868c0a917a1a8767d",
+      "size": 34741
+    },
+    {
+      "path": "sources/mpv-green/video/out/vo.c",
+      "sha256": "2bb427e92e279323a5a0ebf690a98c0ed9be5e6d6eb3892f2da11741c0874bec",
+      "size": 47129
+    },
+    {
+      "path": "sources/mpv-green/video/out/vo_gpu_next.c",
+      "sha256": "dca4189b62934353d13ac0cfad69bb08a9b67dedf6b9b40cb667131207438f6c",
+      "size": 100491
+    },
+    {
+      "path": "sources/mpv-red/misc/dispatch.c",
+      "sha256": "488d517a098ae50bc839b172f58aa59e75c3f0758de9745a4325c37eac9e8cee",
+      "size": 16761
+    },
+    {
+      "path": "sources/mpv-red/player/main.c",
+      "sha256": "c3bfca8c73543fc7beed2ce1f6856d0d2bfd5f0178af3149d592c7395788ff3e",
+      "size": 14401
+    },
+    {
+      "path": "sources/mpv-red/player/video.c",
+      "sha256": "fcb5ea2449d9dce5a1bb518fc8905a22815411eb8ad20fc528b266f25d221512",
+      "size": 46522
+    },
+    {
+      "path": "sources/mpv-red/video/decode/vd_lavc.c",
+      "sha256": "f745a27d2071c7b7695897a053b8a4d6cadfb1bf6e620158338991dfc443a0b7",
+      "size": 55671
+    },
+    {
+      "path": "sources/mpv-red/video/hwdec.c",
+      "sha256": "1e33af77233d13ba0741c7c06676c4872f72cd116cb75f1c1856b9f6020c96b1",
+      "size": 3890
+    },
+    {
+      "path": "sources/mpv-red/video/out/gpu/hwdec.c",
+      "sha256": "c27baa56daeb036f2407beb3b1d96332ed1c8abe25902a96e23268f993705475",
+      "size": 12061
+    },
+    {
+      "path": "sources/mpv-red/video/out/hwdec/hwdec_ohcodec.c",
+      "sha256": "a2f56a8ea277c5b271433c8aad7e1e65b6c80eac38e1cbca994ec81064fcfa04",
+      "size": 13463
+    },
+    {
+      "path": "sources/mpv-red/video/out/hwdec/hwdec_ohcodec.h",
+      "sha256": "8f2e9325a07b0ac4c7488b00b0b5e3352a8acd92322af0da59832b5635aa7372",
+      "size": 3106
+    },
+    {
+      "path": "sources/mpv-red/video/out/hwdec/hwdec_ohcodec_pl.c",
+      "sha256": "b84193d259dbdc9778d32cb423061b9ee3dc14d00941365868c0a917a1a8767d",
+      "size": 34741
+    },
+    {
+      "path": "sources/mpv-red/video/out/vo.c",
+      "sha256": "2bb427e92e279323a5a0ebf690a98c0ed9be5e6d6eb3892f2da11741c0874bec",
+      "size": 47129
+    },
+    {
+      "path": "sources/mpv-red/video/out/vo_gpu_next.c",
+      "sha256": "78d182bf706d2a7feeb6ca932ada6284db111038c2c3eb825cb9ba969d714fa3",
+      "size": 98997
+    },
+    {
+      "path": "test_ci_gate.py",
+      "sha256": "1f407dd20588d0f9561a8d8470b2d97a8ee4261f8399e5fd1ae97620dfe096eb",
+      "size": 4522
+    },
+    {
+      "path": "test_cleanup_gate.py",
+      "sha256": "5b6cf4aef21d57ad2000cc56acc5459559332ca1047bc8540c9ad70947f90262",
+      "size": 1965
+    }
+  ],
+  "externalFiles": [
+    {
+      "path": ".github/workflows/phase28-parent-chain.yml",
+      "sha256": "a732c981aa26cf25c80562b9b4bc051231bb3a44c8c2dfa02b9bb4259dcbb270",
+      "size": 994
+    }
+  ],
+  "formalArtifactAllowed": false
+}

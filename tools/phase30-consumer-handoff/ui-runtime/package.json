@@ -1,0 +1,1 @@
+{"name":"phase29-host-ui-contract","version":"1.0.0","private":true,"description":"仅用于实际ArkTS方法的宿主转译测试，不是目标编译器","dependencies":{"typescript":"4.9.5"}}

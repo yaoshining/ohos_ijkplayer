@@ -1,0 +1,31 @@
+name: Phase24 长播与HDR诊断合同
+on:
+  push:
+    branches: [codex/phase24-runtime-evidence]
+    paths: ['tools/phase24/**', 'specs/001-ffmpeg-ohcodec-producer/phase24/**', '.github/workflows/phase24-runtime-evidence.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  contracts:
+    runs-on: ubuntu-22.04
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONNOUSERSITE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - name: 编译实际探针策略与播放器配置并验证正常和失败路径
+        run: |
+          set -euo pipefail
+          mkdir -p out/phase24-contract
+          python3 -B -m unittest discover -s tools/phase24/tests -v 2>&1 | tee out/phase24-contract/tests.log
+      - name: 绑定精确源码与合同结果
+        if: always()
+        env:
+          JOB_STATUS: ${{ job.status }}
+        run: python3 -B tools/phase24/collect_ci.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: phase24-contract
+          path: out/phase24-contract

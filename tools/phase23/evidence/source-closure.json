@@ -1,0 +1,17 @@
+{
+  "packageSHA256": "0c85736f8ad904bdd34dcc259721dbf3ffa3164a9fdfe1e246c0269ef8b1d7f9",
+  "verifiedFiles": 2319,
+  "sourceCopies": [
+    {
+      "path": "video/out/opengl/context_ohos.c",
+      "sha256": "f5297300c6b7c7cb41264530b03188d2a1406a27e5b7ca2f890a8a9a2f1b79d7",
+      "allThreeCopiesEqual": true
+    },
+    {
+      "path": "video/out/hwdec/hwdec_ohcodec_pl.c",
+      "sha256": "494ab023dd3983c1e5ae2f50d51184ebfc14725e017b60c23baa52d6c5d4d9d2",
+      "allThreeCopiesEqual": true
+    }
+  ],
+  "candidateChanged": false
+}

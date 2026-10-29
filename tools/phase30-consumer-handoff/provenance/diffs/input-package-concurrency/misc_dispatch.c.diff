@@ -1,0 +1,43 @@
+--- baseline/misc/dispatch.c
++++ input-package-concurrency/misc/dispatch.c
+@@ -25,0 +26,21 @@
++
++#ifdef MP_OHCODEC_HANDOFF_TEST
++#include <stdatomic.h>
++#include <stdint.h>
++#include <pthread.h>
++static atomic_uint_fast64_t p30_wait_tids[32];
++__attribute__((visibility("default"))) int mpv_ohcodec_handoff_test_waiting(uint64_t *tids, int count);
++int mpv_ohcodec_handoff_test_waiting(uint64_t *tids, int count)
++{
++    if (!tids || count < 1) return -1;
++    int n=0;
++    for (int i=0;i<32 && n<count;i++) { uint64_t tid=atomic_load(&p30_wait_tids[i]); if(tid)tids[n++]=tid; }
++    return n;
++}
++static int p30_wait_enter(void)
++{
++    uint64_t tid=(uint64_t)pthread_gettid_np(pthread_self());
++    for(int i=0;i<32;i++){uint_fast64_t zero=0;if(atomic_compare_exchange_strong(&p30_wait_tids[i],&zero,tid))return i;}
++    return -1;
++}
++#endif
+@@ -373,0 +395,3 @@
++#ifdef MP_OHCODEC_HANDOFF_TEST
++    int p30_slot = -1;
++#endif
+@@ -385,0 +410,3 @@
++#ifdef MP_OHCODEC_HANDOFF_TEST
++        if(p30_slot<0)p30_slot=p30_wait_enter();
++#endif
+@@ -389 +416,4 @@
+-    while (!queue->in_process || queue->locked)
++    while (!queue->in_process || queue->locked) {
++#ifdef MP_OHCODEC_HANDOFF_TEST
++        if(p30_slot<0)p30_slot=p30_wait_enter();
++#endif
+@@ -390,0 +421,4 @@
++    }
++#ifdef MP_OHCODEC_HANDOFF_TEST
++    if(p30_slot>=0)atomic_store(&p30_wait_tids[p30_slot],0);
++#endif

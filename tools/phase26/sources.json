@@ -1,0 +1,122 @@
+{
+  "phase25Seal": "adfbce7a850e7994980b0937e543b0af56d8433f29f7ed2c42b6a48091aeb44b",
+  "files": [
+    {
+      "path": "phase25/tests/test_analysis.py",
+      "size": 3068,
+      "sha256": "f3deaeab9219079506c25da7fdcb6f916cde249a00fbad066ee8e2fd622986ba"
+    },
+    {
+      "path": "phase25/tests/test_power.py",
+      "size": 540,
+      "sha256": "b199d4df34c753645254261e44bddd78ea06293a11d38d8f4bff44c2d8a441bd"
+    },
+    {
+      "path": "phase25/tests/test_timeline.cpp",
+      "size": 3669,
+      "sha256": "e2cba4091dd90bf106643f93ef74942880a3c32b50e64b4585431d14d6c20886"
+    },
+    {
+      "path": "phase25/tools/analyze_timeline.py",
+      "size": 6854,
+      "sha256": "1236e350330c88080e0100af2bc5be44f94cd40fc777efc28ae6f323038e4b00"
+    },
+    {
+      "path": "phase25/tools/power_state.py",
+      "size": 147,
+      "sha256": "fdda544ba70b6515b1954a6ce28270665335e5eca0248ab0acd1b4fdcb1f99ca"
+    },
+    {
+      "path": "phase25/app/entry/src/main/cpp/phase25_timeline.h",
+      "size": 6413,
+      "sha256": "e249e247f3680b2ce1c714ea66548aec933e07a8c77b08e68b90d38ae9476659"
+    },
+    {
+      "path": "phase25/app/entry/src/main/cpp/phase25_mpv.h",
+      "size": 1239,
+      "sha256": "02627132d0fe12a43933ed2584f7aa9f65307998ab2e01aaec8e3f626e55453d"
+    },
+    {
+      "path": "phase25/app/entry/src/main/cpp/sampling.cpp",
+      "size": 239,
+      "sha256": "86bb45eb88e1e0f2ee19b3649d7f36e415533d9e8ec55b81ca322ce5e39fbf0f"
+    },
+    {
+      "path": "phase25/app/entry/src/main/cpp/include/mpv/client.h",
+      "size": 85973,
+      "sha256": "3c073236a09cb456c6e80587d5523c8771c32fb22ca014e0f99cc3d43905b75c"
+    },
+    {
+      "path": "phase25/app/entry/src/main/cpp/napi.cpp",
+      "size": 9279,
+      "sha256": "38f9e2c44af6339ba75b5546b27a111314c8de90f68972285ebfb3197b1fa4cd",
+      "ciCompiled": false
+    },
+    {
+      "path": "phase25/app/entry/src/main/cpp/phase25_runner.inc",
+      "size": 9875,
+      "sha256": "bfff402e151f93a38bfdd100186b4b0180997e045fc5c350280b722cc370232d",
+      "ciCompiled": false
+    },
+    {
+      "path": "phase25/app/entry/src/main/cpp/phase24_policy.h",
+      "size": 2119,
+      "sha256": "04fb361a4b2f20394136b81bf3fb13e22570683e724171805264e313f302ead3",
+      "ciCompiled": false
+    },
+    {
+      "path": "phase25/app/entry/src/main/cpp/phase24_metrics.h",
+      "size": 552,
+      "sha256": "babc8ae65e820d542878e0e274705270401f250c8c92ae42b38f6d352649ebb9",
+      "ciCompiled": false
+    },
+    {
+      "path": "phase25/app/entry/src/main/cpp/play_factory.cpp",
+      "size": 2303,
+      "sha256": "cf7d14f6214adf8f3b8d3cb3602b81e802cc9489437991a6b68da35cd9afb6f2",
+      "ciCompiled": false
+    },
+    {
+      "path": "phase25/app/entry/src/main/cpp/play_factory.h",
+      "size": 314,
+      "sha256": "3ff3f3c1cb9c66c79edf370e8d8ea076ae95ada8c46f28ea9a5600aa614d7a59",
+      "ciCompiled": false
+    },
+    {
+      "path": "phase25/app/entry/src/main/ets/lifecycle/Timeline.ets",
+      "size": 2280,
+      "sha256": "577c45b1d81d4f55f422423f4bc5509b85b2098fe5e7fd3653d1ecb5c1dd3fee",
+      "ciCompiled": false
+    },
+    {
+      "path": "phase25/app/entry/src/main/ets/lifecycle/SurfaceSize.ts",
+      "size": 544,
+      "sha256": "272f533bed5bdc3ac64d6eb5660a2d24b58d59bc165e1022dd6009ac730a8ff8",
+      "ciCompiled": false
+    },
+    {
+      "path": "phase25/app/entry/src/main/ets/entryability/EntryAbility.ets",
+      "size": 3274,
+      "sha256": "b5732e24cb0f725186cd7b185cdd28b7897af49266248e9e1b8ed03de777f1cc",
+      "ciCompiled": false
+    },
+    {
+      "path": "phase25/app/entry/src/main/ets/pages/Index.ets",
+      "size": 6873,
+      "sha256": "d902f30d2398668ed797a539e1158a9ee3bb0ccd6f19ddec8a4924fa097bdf44",
+      "ciCompiled": false
+    },
+    {
+      "path": "phase25/app/entry/src/main/ets/pages/Focus.ets",
+      "size": 166,
+      "sha256": "f9f7e54199237fb7af04451514e81246652fac00ce2b2cc134c831467fe67c78",
+      "ciCompiled": false
+    },
+    {
+      "path": "phase25/app/entry/src/main/cpp/types/libphase22/Index.d.ts",
+      "size": 326,
+      "sha256": "54e30173ee1318d2a1cc063dccd094ffc7e47c6624c1e8bc02a79f192a68c6f8",
+      "ciCompiled": false
+    }
+  ]
+}

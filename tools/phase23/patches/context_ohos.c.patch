@@ -1,0 +1,74 @@
+--- a/context_ohos.c
++++ b/context_ohos.c
+@@ -17,6 +17,7 @@
+ 
+ #include <EGL/egl.h>
+ #include <EGL/eglext.h>
++#include <native_window/external_window.h>
+ 
+ #include "video/out/ohos_common.h"
+ #include "egl_helpers.h"
+@@ -28,6 +29,8 @@
+     EGLDisplay egl_display;
+     EGLContext egl_context;
+     EGLSurface egl_surface;
++    int previous_format;
++    bool format_set;
+ };
+ 
+ static pl_color_space_t ohos_preferred_csp(struct ra_ctx *ctx)
+@@ -55,9 +58,20 @@
+         eglMakeCurrent(p->egl_display, EGL_NO_SURFACE, EGL_NO_SURFACE,
+                        EGL_NO_CONTEXT);
+         eglDestroySurface(p->egl_display, p->egl_surface);
++        p->egl_surface = EGL_NO_SURFACE;
+     }
+-    if (p->egl_context)
++    if (p->egl_context) {
+         eglDestroyContext(p->egl_display, p->egl_context);
++        p->egl_context = EGL_NO_CONTEXT;
++    }
++
++    if (p->format_set) {
++        int ret = OH_NativeWindow_NativeWindowHandleOpt(
++            vo_ohos_native_window(ctx->vo), SET_FORMAT, p->previous_format);
++        if (ret)
++            MP_ERR(ctx, "Failed restoring NativeWindow format: %d\n", ret);
++        p->format_set = false;
++    }
+ 
+     vo_ohos_uninit(ctx->vo);
+ }
+@@ -80,11 +94,31 @@
+         goto fail;
+ 
+     OHNativeWindow *native_window = vo_ohos_native_window(ctx->vo);
++    EGLint visual;
++    if (!eglGetConfigAttrib(p->egl_display, config, EGL_NATIVE_VISUAL_ID,
++                            &visual)) {
++        MP_FATAL(ctx, "Failed querying EGL native visual: 0x%x\n", eglGetError());
++        goto fail;
++    }
++    int ret = OH_NativeWindow_NativeWindowHandleOpt(
++        native_window, GET_FORMAT, &p->previous_format);
++    if (ret) {
++        MP_FATAL(ctx, "Failed reading NativeWindow format: %d\n", ret);
++        goto fail;
++    }
++    ret = OH_NativeWindow_NativeWindowHandleOpt(native_window, SET_FORMAT, visual);
++    if (ret) {
++        MP_FATAL(ctx, "Failed setting NativeWindow visual %d: %d\n", visual, ret);
++        goto fail;
++    }
++    p->format_set = true;
++    MP_VERBOSE(ctx, "NativeWindow format %d -> EGL native visual %d\n",
++               p->previous_format, visual);
+     p->egl_surface = eglCreateWindowSurface(p->egl_display, config,
+                                     (EGLNativeWindowType)native_window, NULL);
+ 
+     if (p->egl_surface == EGL_NO_SURFACE) {
+-        MP_FATAL(ctx, "Could not create EGL surface!\n");
++        MP_FATAL(ctx, "Could not create EGL surface: 0x%x\n", eglGetError());
+         goto fail;
+     }
+ 

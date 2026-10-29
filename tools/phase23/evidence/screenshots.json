@@ -1,0 +1,18 @@
+[
+  {
+    "file": "gl.jpeg",
+    "sha256": "650987ab7f4a885d7c2d1efc9e81941ee4486c28086e24e71caafd59c569c050",
+    "bytes": 181422,
+    "receivedAtUTC": "2026-10-20T04:45:55.244243+00:00",
+    "visualInspection": "test pattern, Chinese OSD and subtitle visible",
+    "scope": "single static screenshot, not human audiovisual acceptance"
+  },
+  {
+    "file": "vk.jpeg",
+    "sha256": "a56b9d093517fd2e899f61bd0274d75b9a522b668507c67351cc6c86f3b60854",
+    "bytes": 241348,
+    "receivedAtUTC": "2026-10-20T04:49:22.036443+00:00",
+    "visualInspection": "test pattern, Chinese OSD and subtitle visible",
+    "scope": "single static screenshot, not human audiovisual acceptance"
+  }
+]

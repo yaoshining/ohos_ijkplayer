@@ -1,0 +1,6 @@
+--- baseline/video/out/hwdec/hwdec_ohcodec.h
++++ input-package/video/out/hwdec/hwdec_ohcodec.h
+@@ -56,0 +57,3 @@
++#ifdef MP_OHCODEC_HANDOFF_TRACE
++    uint64_t trace_owner, trace_consumer;
++#endif

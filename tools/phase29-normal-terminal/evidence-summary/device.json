@@ -1,0 +1,277 @@
+{
+  "formalArtifactAllowed": false,
+  "accepted": true,
+  "scope": "独立应用，正常库双播；其余故障为平台成功返回后的测试替换，不是真实GPU挂起",
+  "cases": [
+    {
+      "scenario": "device-normal-repeat-02",
+      "kind": "normal",
+      "pid": "59127",
+      "checks": {
+        "singlePID": true,
+        "collectorCleanupValid": true,
+        "noRegistryAssertion": true,
+        "sevenMappedLibraries": true,
+        "sessionEnd": true,
+        "keepScreenFalse": true,
+        "didNotSelfTerminate": true,
+        "twoRealRunsSamePID": true
+      },
+      "passed": true,
+      "hapSHA256": "95b5eb1411d44c69d7628c6bc1ac8ac56d9a8ca24415b584a1c0954369780304",
+      "jobs": [
+        "vk-pq-1.log",
+        "vk-pq-0.log"
+      ],
+      "loadedLibrarySHA256": {
+        "libavcodec.so.62": "5e32a49ddc1d07d4e932008de6f7139320ca3427e6aca9e698539a1614ebdf6e",
+        "libavutil.so.60": "ba410532a07b16e018d6d57bc744576b3cfa2e246d4fa028c2adae95205777e2",
+        "libswscale.so.9": "f1982cde4d2b6d899f99e38ae4cfb50dcda4859e9912a6b4f18913ebaf9836a0",
+        "libmpv.so": "ed64fa7819e5d5218caa45de4a8c59937ea0b5844bd6f1c6af12327401ca15ee",
+        "libavfilter.so.11": "82b431c76910f2a826c7679b3cfb9273dd131c1566d06cee1f80818f23c2622c",
+        "libswresample.so.6": "4244a9e1e2697bd8ec35436148d55d5e8b2c09080c40754cc505a05c5fc52e3b",
+        "libavformat.so.62": "106d9d216b11c45fc96c5b0073288ff7f247018a5d9aeced1bfdf612d6f40a37"
+      }
+    },
+    {
+      "scenario": "device-release-01",
+      "kind": "release",
+      "pid": "65351",
+      "checks": {
+        "singlePID": true,
+        "collectorCleanupValid": true,
+        "noRegistryAssertion": true,
+        "sevenMappedLibraries": true,
+        "sessionEnd": true,
+        "keepScreenFalse": true,
+        "didNotSelfTerminate": true,
+        "returnReplacement": true,
+        "surfaceRejected": true,
+        "codecDestroyed": true,
+        "noProcessTerminal": true,
+        "expectedRejectedSecondLoad": true
+      },
+      "passed": true,
+      "hapSHA256": "23e970dddd2ce62af3c7d39ffd914785224b6e787dd5406f0b1d467f6a9e8765",
+      "jobs": [
+        "vk-inject-release-0.log"
+      ],
+      "loadedLibrarySHA256": {
+        "libavcodec.so.62": "5e32a49ddc1d07d4e932008de6f7139320ca3427e6aca9e698539a1614ebdf6e",
+        "libavfilter.so.11": "82b431c76910f2a826c7679b3cfb9273dd131c1566d06cee1f80818f23c2622c",
+        "libswresample.so.6": "4244a9e1e2697bd8ec35436148d55d5e8b2c09080c40754cc505a05c5fc52e3b",
+        "libmpv.so": "646de14733c0f8ac95a792b9af9b688cb7d3e1639c6c6717620b8d76dd37df63",
+        "libavutil.so.60": "ba410532a07b16e018d6d57bc744576b3cfa2e246d4fa028c2adae95205777e2",
+        "libswscale.so.9": "f1982cde4d2b6d899f99e38ae4cfb50dcda4859e9912a6b4f18913ebaf9836a0",
+        "libavformat.so.62": "106d9d216b11c45fc96c5b0073288ff7f247018a5d9aeced1bfdf612d6f40a37"
+      },
+      "expectedError": "第二片在terminal Surface上被拒绝，errors=1不是一般播放通过"
+    },
+    {
+      "scenario": "device-no-registration-02",
+      "kind": "refused",
+      "pid": "5692",
+      "checks": {
+        "singlePID": true,
+        "collectorCleanupValid": true,
+        "noRegistryAssertion": true,
+        "sessionEnd": true,
+        "keepScreenFalse": true,
+        "didNotSelfTerminate": true,
+        "explicitRefusal": true,
+        "sameRunOperator90": true,
+        "noRunOrLibrary": true
+      },
+      "passed": true,
+      "hapSHA256": "ace093dde3a2f3bac1a62c12c0562ca52a92e247c4bb59d260fe24bcea22f687",
+      "jobs": [],
+      "loadedLibrarySHA256": {},
+      "staleAdmissionElsewhere": "其他场景中残留admission-result.json不参与判定"
+    },
+    {
+      "scenario": "device-ui-fatal-03",
+      "kind": "ui",
+      "pid": "6214",
+      "checks": {
+        "singlePID": true,
+        "collectorCleanupValid": true,
+        "noRegistryAssertion": true,
+        "sevenMappedLibraries": true,
+        "selfExitBeforeCleanup": true,
+        "pidAbsentBeforeCleanup": true,
+        "connected": true,
+        "abilityQueryValid": true,
+        "windowQueryValid": true,
+        "noRemainingAbility": true,
+        "noRemainingWindow": true,
+        "systemPIDExitCode": true,
+        "realReturnReplacement": true,
+        "uiOrder": true,
+        "beforeNativeDeadline": true,
+        "screenshot": true,
+        "notificationOnce": true
+      },
+      "passed": true,
+      "hapSHA256": "ace093dde3a2f3bac1a62c12c0562ca52a92e247c4bb59d260fe24bcea22f687",
+      "jobs": [
+        "vk-inject-wait-0.log"
+      ],
+      "loadedLibrarySHA256": {
+        "libavformat.so.62": "106d9d216b11c45fc96c5b0073288ff7f247018a5d9aeced1bfdf612d6f40a37",
+        "libmpv.so": "646de14733c0f8ac95a792b9af9b688cb7d3e1639c6c6717620b8d76dd37df63",
+        "libavfilter.so.11": "82b431c76910f2a826c7679b3cfb9273dd131c1566d06cee1f80818f23c2622c",
+        "libswscale.so.9": "f1982cde4d2b6d899f99e38ae4cfb50dcda4859e9912a6b4f18913ebaf9836a0",
+        "libswresample.so.6": "4244a9e1e2697bd8ec35436148d55d5e8b2c09080c40754cc505a05c5fc52e3b",
+        "libavutil.so.60": "ba410532a07b16e018d6d57bc744576b3cfa2e246d4fa028c2adae95205777e2",
+        "libavcodec.so.62": "5e32a49ddc1d07d4e932008de6f7139320ca3427e6aca9e698539a1614ebdf6e"
+      },
+      "deviceExitDeltaMs": 2261.0,
+      "timeOrigin": "first app snapshot",
+      "exitRows": [
+        [
+          "107918.986",
+          "0"
+        ]
+      ],
+      "screenshotSHA256": "08393b80152207743126674c41af0c4d770983d2782081271ff5116f9bb3a5b8",
+      "lifecycleMeaning": "异常主动终止或native deadline；不声明完整生命周期清理"
+    },
+    {
+      "scenario": "device-callback-hang-02",
+      "kind": "callback",
+      "pid": "7247",
+      "checks": {
+        "singlePID": true,
+        "collectorCleanupValid": true,
+        "noRegistryAssertion": true,
+        "sevenMappedLibraries": true,
+        "selfExitBeforeCleanup": true,
+        "pidAbsentBeforeCleanup": true,
+        "connected": true,
+        "abilityQueryValid": true,
+        "windowQueryValid": true,
+        "noRemainingAbility": true,
+        "noRemainingWindow": true,
+        "systemPIDExitCode": true,
+        "realReturnReplacement": true,
+        "deadlineTolerance": true,
+        "noUIKillRequest": true,
+        "notificationOnce": true
+      },
+      "passed": true,
+      "hapSHA256": "ace093dde3a2f3bac1a62c12c0562ca52a92e247c4bb59d260fe24bcea22f687",
+      "jobs": [
+        "vk-inject-wait-0.log"
+      ],
+      "loadedLibrarySHA256": {
+        "libavcodec.so.62": "5e32a49ddc1d07d4e932008de6f7139320ca3427e6aca9e698539a1614ebdf6e",
+        "libmpv.so": "646de14733c0f8ac95a792b9af9b688cb7d3e1639c6c6717620b8d76dd37df63",
+        "libavformat.so.62": "106d9d216b11c45fc96c5b0073288ff7f247018a5d9aeced1bfdf612d6f40a37",
+        "libswresample.so.6": "4244a9e1e2697bd8ec35436148d55d5e8b2c09080c40754cc505a05c5fc52e3b",
+        "libswscale.so.9": "f1982cde4d2b6d899f99e38ae4cfb50dcda4859e9912a6b4f18913ebaf9836a0",
+        "libavfilter.so.11": "82b431c76910f2a826c7679b3cfb9273dd131c1566d06cee1f80818f23c2622c",
+        "libavutil.so.60": "ba410532a07b16e018d6d57bc744576b3cfa2e246d4fa028c2adae95205777e2"
+      },
+      "deviceExitDeltaMs": 2941.0,
+      "timeOrigin": "first app snapshot",
+      "exitRows": [
+        [
+          "107974.283",
+          "86"
+        ]
+      ],
+      "lifecycleMeaning": "异常主动终止或native deadline；不声明完整生命周期清理"
+    },
+    {
+      "scenario": "device-ui-block-02",
+      "kind": "ui-block",
+      "pid": "9184",
+      "checks": {
+        "singlePID": true,
+        "collectorCleanupValid": true,
+        "noRegistryAssertion": true,
+        "sevenMappedLibraries": true,
+        "selfExitBeforeCleanup": true,
+        "pidAbsentBeforeCleanup": true,
+        "connected": true,
+        "abilityQueryValid": true,
+        "windowQueryValid": true,
+        "noRemainingAbility": true,
+        "noRemainingWindow": true,
+        "systemPIDExitCode": true,
+        "realReturnReplacement": true,
+        "deadlineTolerance": true,
+        "noUIKillRequest": true,
+        "notificationOnce": true
+      },
+      "passed": true,
+      "hapSHA256": "ace093dde3a2f3bac1a62c12c0562ca52a92e247c4bb59d260fe24bcea22f687",
+      "jobs": [
+        "vk-inject-wait-0.log"
+      ],
+      "loadedLibrarySHA256": {
+        "libswresample.so.6": "4244a9e1e2697bd8ec35436148d55d5e8b2c09080c40754cc505a05c5fc52e3b",
+        "libmpv.so": "646de14733c0f8ac95a792b9af9b688cb7d3e1639c6c6717620b8d76dd37df63",
+        "libavfilter.so.11": "82b431c76910f2a826c7679b3cfb9273dd131c1566d06cee1f80818f23c2622c",
+        "libavutil.so.60": "ba410532a07b16e018d6d57bc744576b3cfa2e246d4fa028c2adae95205777e2",
+        "libswscale.so.9": "f1982cde4d2b6d899f99e38ae4cfb50dcda4859e9912a6b4f18913ebaf9836a0",
+        "libavcodec.so.62": "5e32a49ddc1d07d4e932008de6f7139320ca3427e6aca9e698539a1614ebdf6e",
+        "libavformat.so.62": "106d9d216b11c45fc96c5b0073288ff7f247018a5d9aeced1bfdf612d6f40a37"
+      },
+      "deviceExitDeltaMs": 2942.0,
+      "timeOrigin": "first app snapshot",
+      "exitRows": [
+        [
+          "108098.700",
+          "86"
+        ]
+      ],
+      "lifecycleMeaning": "异常主动终止或native deadline；不声明完整生命周期清理"
+    },
+    {
+      "scenario": "device-logger-hang-02",
+      "kind": "logger",
+      "pid": "8050",
+      "checks": {
+        "singlePID": true,
+        "collectorCleanupValid": true,
+        "noRegistryAssertion": true,
+        "sevenMappedLibraries": true,
+        "selfExitBeforeCleanup": true,
+        "pidAbsentBeforeCleanup": true,
+        "connected": true,
+        "abilityQueryValid": true,
+        "windowQueryValid": true,
+        "noRemainingAbility": true,
+        "noRemainingWindow": true,
+        "systemPIDExitCode": true,
+        "realReturnReplacement": true,
+        "deadlineTolerance": true,
+        "noUIKillRequest": true
+      },
+      "passed": true,
+      "hapSHA256": "ace093dde3a2f3bac1a62c12c0562ca52a92e247c4bb59d260fe24bcea22f687",
+      "jobs": [
+        "vk-inject-wait-0.log"
+      ],
+      "loadedLibrarySHA256": {
+        "libavcodec.so.62": "5e32a49ddc1d07d4e932008de6f7139320ca3427e6aca9e698539a1614ebdf6e",
+        "libavutil.so.60": "ba410532a07b16e018d6d57bc744576b3cfa2e246d4fa028c2adae95205777e2",
+        "libavfilter.so.11": "82b431c76910f2a826c7679b3cfb9273dd131c1566d06cee1f80818f23c2622c",
+        "libavformat.so.62": "106d9d216b11c45fc96c5b0073288ff7f247018a5d9aeced1bfdf612d6f40a37",
+        "libswscale.so.9": "f1982cde4d2b6d899f99e38ae4cfb50dcda4859e9912a6b4f18913ebaf9836a0",
+        "libswresample.so.6": "4244a9e1e2697bd8ec35436148d55d5e8b2c09080c40754cc505a05c5fc52e3b",
+        "libmpv.so": "646de14733c0f8ac95a792b9af9b688cb7d3e1639c6c6717620b8d76dd37df63"
+      },
+      "deviceExitDeltaMs": 2936.2830000072718,
+      "timeOrigin": "injected queue return; app logger intentionally blocked",
+      "exitRows": [
+        [
+          "108020.080",
+          "86"
+        ]
+      ],
+      "lifecycleMeaning": "异常主动终止或native deadline；不声明完整生命周期清理"
+    }
+  ]
+}

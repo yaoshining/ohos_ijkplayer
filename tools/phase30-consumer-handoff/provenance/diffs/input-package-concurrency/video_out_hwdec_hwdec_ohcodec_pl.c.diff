@@ -1,0 +1,51 @@
+--- baseline/video/out/hwdec/hwdec_ohcodec_pl.c
++++ input-package-concurrency/video/out/hwdec/hwdec_ohcodec_pl.c
+@@ -9,0 +10,3 @@
++#ifdef MP_OHCODEC_HANDOFF_TRACE
++#include <pthread.h>
++#endif
+@@ -81,0 +85,3 @@
++#ifdef MP_OHCODEC_HANDOFF_TRACE
++    uint64_t trace_map_count;
++#endif
+@@ -89,0 +96,12 @@
++
++#ifdef MP_OHCODEC_HANDOFF_TRACE
++static atomic_uint_fast64_t p30_owner_serial, p30_event_serial;
++#define P30_OWNER(hw, op_, rc_) do { \
++    struct ohcodec_priv *p30p = (hw)->priv; \
++    MP_INFO(hw, "P30_OWNER seq=%"PRIu64" t=%"PRId64" pid=%ld tid=%ld op=%s owner=%"PRIu64" generation=1 consumer=%"PRIu64" rc=%d\n", \
++        (uint64_t)atomic_fetch_add(&p30_event_serial, 1)+1, p27_monotonic_us(), \
++        (long)getpid(), (long)pthread_gettid_np(pthread_self()), op_, p30p->trace_owner, p30p->trace_consumer, (int)(rc_)); \
++} while (0)
++#else
++#define P30_OWNER(hw, op_, rc_) ((void)0)
++#endif
+@@ -641,0 +660,7 @@
++#ifdef MP_OHCODEC_HANDOFF_TRACE
++    if ((v->trace_map_count++ % 16) == 0) {
++        MP_INFO(mapper, "P30_FRAME seq=%"PRIu64" t=%"PRId64" pid=%ld tid=%ld owner=%"PRIu64" consumer=%"PRIu64" image=%p map_index=%"PRIu64" pts=%.9f\n",
++            (uint64_t)atomic_fetch_add(&p30_event_serial, 1)+1, p27_monotonic_us(), (long)getpid(), (long)pthread_gettid_np(pthread_self()),
++            owner->trace_owner, owner->trace_consumer, owner->surface->image, v->trace_map_count, mapper->src->pts);
++    }
++#endif
+@@ -831,0 +857,6 @@
++#ifdef MP_OHCODEC_HANDOFF_TRACE
++    struct ohcodec_priv *trace_owner = mapper->owner->priv;
++    MP_INFO(mapper, "P30_DRAIN seq=%"PRIu64" t=%"PRId64" pid=%ld tid=%ld owner=%"PRIu64" consumer=%"PRIu64" reason=%d result=%d platform=%d\n",
++        (uint64_t)atomic_fetch_add(&p30_event_serial, 1)+1, p27_monotonic_us(), (long)getpid(), (long)pthread_gettid_np(pthread_self()),
++        trace_owner->trace_owner, trace_owner->trace_consumer, reason, result, platform_error ? *platform_error : 0);
++#endif
+@@ -845,0 +877 @@
++    P30_OWNER(hw, "destroy", 0);
+@@ -920,0 +953,10 @@
++#ifdef MP_OHCODEC_HANDOFF_TRACE
++    uint64_t trace_image_id = 0, trace_window_id = 0;
++    int trace_image_rc = OH_NativeImage_GetSurfaceId(image, &trace_image_id);
++    int trace_window_rc = OH_NativeWindow_GetSurfaceId(v->surface.window, &trace_window_id);
++    p->trace_owner = atomic_fetch_add(&p30_owner_serial, 1) + 1;
++    p->trace_consumer = trace_image_id;
++    P30_OWNER(hw, "create", trace_image_rc || trace_window_rc || !trace_image_id || trace_image_id != trace_window_id);
++    MP_INFO(hw, "P30_ID pid=%ld owner=%"PRIu64" image=%p window=%p consumer=%"PRIu64" window_consumer=%"PRIu64" image_rc=%d window_rc=%d\n",
++        (long)getpid(), p->trace_owner, image, v->surface.window, trace_image_id, trace_window_id, trace_image_rc, trace_window_rc);
++#endif

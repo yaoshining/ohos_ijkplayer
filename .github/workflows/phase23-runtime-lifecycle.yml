@@ -1,0 +1,35 @@
+name: Phase23 运行时生命周期回归
+on:
+  push:
+    branches: [codex/phase23-runtime-lifecycle]
+    paths: ['tools/phase23/**', 'specs/001-ffmpeg-ohcodec-producer/phase23/**', '.github/workflows/phase23-runtime-lifecycle.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  contract:
+    runs-on: ubuntu-22.04
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONNOUSERSITE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: 编译真实函数并运行正常与失败路径回归
+        run: |
+          set -euo pipefail
+          mkdir -p out/phase23-contract
+          python3 -B -m unittest discover -s tools/phase23/tests -v 2>&1 | tee out/phase23-contract/source-tests.log
+          python3 -B -m unittest discover -s tools/phase23/diagnostic/tests -v 2>&1 | tee out/phase23-contract/diagnostic-tests.log
+      - name: 绑定精确源码与执行结果
+        if: always()
+        env:
+          JOB_STATUS: ${{ job.status }}
+        run: python3 -B tools/phase23/collect_contract.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: phase23-contract
+          path: out/phase23-contract

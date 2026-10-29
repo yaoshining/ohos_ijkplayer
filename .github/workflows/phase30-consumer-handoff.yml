@@ -1,0 +1,23 @@
+name: Phase30 consumer handoff host validation
+on:
+  push:
+    branches: [codex/phase28-validation]
+    paths: ['tools/phase30-consumer-handoff/**', '.github/workflows/phase30-consumer-handoff.yml']
+permissions:
+  contents: read
+jobs:
+  host:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Replay exact committed host inputs
+        run: python3 -B tools/phase30-consumer-handoff/runner.py --out "$RUNNER_TEMP/phase30-evidence"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: phase30-consumer-handoff-${{ github.sha }}
+          path: ${{ runner.temp }}/phase30-evidence/artifact/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30
