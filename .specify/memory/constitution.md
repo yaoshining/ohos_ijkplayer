@@ -31,3 +31,13 @@ source-build、imported-baseline、可重复构建和设备验收分别表示。
 本宪章依据本次用户明确授权初始化。中文是默认文档语言。规则改变需记录来源和影响，不能为通过门禁稀释验收。Spec Kit CLI/模板固定官方版本，项目隔离安装，不更新全局其他项目。旧证据和清单保持，新增结果使用独立路径。
 
 **Version**: 1.0.0 | **Ratified**: 2026-10-17 | **Last Amended**: 2026-10-17
+
+## 2026-11-10 本轮授权与适用范围
+
+用户明确本次交付到 FFmpeg SDK，随后要求补齐 Spec Kit 流程、提 PR、合并主分支后再交付。本轮允许在隔离工作副本提交、推送本次修复、创建 PR，并在检查通过且无未解决阻塞评审后合并实际默认分支 `master`。Player/TV 仍只读，不包含消费者接入、HAR 发布或新的设备部署。
+
+设备状态按本轮实际证据更新：API 24 MatePad Air 的 Stop/Destroy 返回错误与正常六库回归已有独立验收；不得扩展为 API 19 TV、平台调用挂起或资源耗尽验收。既有 TV 字节基线不变，本次只绑定已验收 FFmpeg SDK，不替换 TV 制品。
+
+Spec Kit 1.2.1 的脚本和模板按 `tools/speckit/version-lock.json` 固定；本次活动 feature 指向 `specs/001-ffmpeg-ohcodec-producer/phase30-close-recovery`。文档补全发生在原型实现后，必须保留真实先后顺序。不得将人工完成的流程冒充自动 workflow engine 的 gate 批准。
+
+**本轮补充版本**: 1.1.0 | **授权日期**: 2026-11-10
