@@ -1,0 +1,177 @@
+--- a/libavcodec/ohdec.c
++++ b/libavcodec/ohdec.c
+@@ -27,8 +27,8 @@
+ #ifdef MP_OHCODEC_HANDOFF_TRACE
+ #include <unistd.h>
+ #include <pthread.h>
+-#include <native_window/external_window.h>
+ #endif
++#include <native_window/external_window.h>
+ #include <multimedia/player_framework/native_avcapability.h>
+ #include <multimedia/player_framework/native_avcodec_videodecoder.h>
+ #include <native_buffer/native_buffer.h>
+@@ -56,13 +56,6 @@
+ 
+ #define OH_DOVI_QUEUE_SIZE 64
+ 
+-/* A platform Stop/Destroy failure leaves a Surface producer in an unknown
+- * state. Do not create another OHCodec decoder in this process: the failure is
+- * terminal for this diagnostic run, while the close itself remains safe to
+- * complete. */
+-static atomic_bool ohcodec_terminal_failure = ATOMIC_VAR_INIT(false);
+-static atomic_int ohcodec_failed_destroy_count;
+-
+ typedef struct OHCodecDecQueueItem {
+     uint32_t index;
+     OH_AVBuffer *buffer;
+@@ -77,6 +70,12 @@
+ 
+ typedef struct OHCodecDecRef {
+     OH_AVCodec *dec;
++    /* The platform borrows this producer. Keep our own reference until
++     * Destroy seals callbacks and relinquishes the producer. */
++    OHNativeWindow *window;
++    uint64_t surface_id;
++    struct OHCodecDecRef *next_surface;
++    AVBufferRef *quarantine_ref;
+ #ifdef MP_OHCODEC_HANDOFF_TRACE
+     uint64_t trace_instance, trace_surface;
+ #endif
+@@ -101,6 +100,49 @@
+     AVCodecContext *attached;
+ } OHCodecDecRef;
+ 
++/* Reserve by consumer identity before SetSurface. Two wrappers can refer to
++ * the same consumer. A failed Destroy leaves its reservation in this list. */
++static AVMutex surface_mutex = AV_MUTEX_INITIALIZER;
++static OHCodecDecRef *surface_owners;
++
++static int oh_decode_claim_surface(OHCodecDecRef *ref, OHNativeWindow *window)
++{
++    uint64_t id;
++    if (OH_NativeWindow_GetSurfaceId(window, &id) || !id ||
++        OH_NativeWindow_NativeObjectReference(window))
++        return AVERROR_EXTERNAL;
++
++    ff_mutex_lock(&surface_mutex);
++    for (OHCodecDecRef *owner = surface_owners; owner; owner = owner->next_surface) {
++        if (owner->surface_id == id) {
++            ff_mutex_unlock(&surface_mutex);
++            OH_NativeWindow_NativeObjectUnreference(window);
++            return AVERROR(EBUSY);
++        }
++    }
++    ref->window = window;
++    ref->surface_id = id;
++    ref->next_surface = surface_owners;
++    surface_owners = ref;
++    ff_mutex_unlock(&surface_mutex);
++    return 0;
++}
++
++static void oh_decode_release_surface(OHCodecDecRef *ref)
++{
++    if (!ref->window)
++        return;
++    ff_mutex_lock(&surface_mutex);
++    OHCodecDecRef **link = &surface_owners;
++    while (*link != ref)
++        link = &(*link)->next_surface;
++    *link = ref->next_surface;
++    ref->next_surface = NULL;
++    ff_mutex_unlock(&surface_mutex);
++    OH_NativeWindow_NativeObjectUnreference(ref->window);
++    ref->window = NULL;
++}
++
+ typedef struct OHCodecDecContext {
+     AVClass *avclass;
+     OH_AVCodec *dec;
+@@ -356,13 +398,6 @@
+ static int oh_decode_create(OHCodecDecContext *s, AVCodecContext *avctx)
+ {
+     const char *name = s->name;
+-
+-    if (atomic_load_explicit(&ohcodec_terminal_failure, memory_order_acquire)) {
+-        av_log(avctx, AV_LOG_ERROR,
+-               "Refusing to create a new OHCodec decoder after a terminal "
+-               "platform Stop/Destroy failure\n");
+-        return AVERROR_EXTERNAL;
+-    }
+ 
+     if (!name) {
+         const char *mime = ff_oh_mime(avctx->codec_id, avctx);
+@@ -518,6 +553,12 @@
+     }
+ 
+     if (s->output_to_window) {
++        ret = oh_decode_claim_surface(oh_decode_ref(s), window);
++        if (ret < 0) {
++            av_log(avctx, AV_LOG_ERROR, "Cannot reserve decoder Surface: %s\n",
++                   av_err2str(ret));
++            return ret;
++        }
+ #ifdef MP_OHCODEC_DIAGNOSTIC
+         OHCodecDecRef *ref = oh_decode_ref(s);
+         uint64_t surface = 0;
+@@ -883,15 +924,12 @@
+ #ifdef MP_OHCODEC_DIAGNOSTIC
+             ohcodec_diagnostic_log(avctx, ref, "stop-platform-return", stop_err);
+ #endif
+-            ref->stopped = true;
++            ref->stopped = stop_err == AV_ERR_OK;
+             av_log(avctx, AV_LOG_INFO, "P28_CODEC t=%"PRId64" op=stop-end dec=%p rc=%d\n",
+                    p27_monotonic_us(), s->dec, stop_err);
+             if (stop_err != AV_ERR_OK) {
+-                atomic_store_explicit(&ohcodec_terminal_failure, true,
+-                                      memory_order_release);
+                 av_log(avctx, AV_LOG_ERROR,
+-                       "Stop decoder failed, %d, %s; OHCodec lifecycle is now "
+-                       "terminal and no new decoder will be created\n",
++                       "Stop decoder failed, %d, %s; attempting Destroy\n",
+                        stop_err, av_err2str(ff_oh_err_to_ff_err(stop_err)));
+             }
+         }
+@@ -901,7 +939,7 @@
+ #ifdef MP_OHCODEC_DIAGNOSTIC
+         if (ref) {
+             ohcodec_diagnostic_log(avctx, ref, "destroy-platform-return", destroy_err);
+-            if (stop_err == AV_ERR_OK && destroy_err == AV_ERR_OK) {
++            if (destroy_err == AV_ERR_OK) {
+                 ohcodec_diagnostic_release(ref);
+                 ohcodec_diagnostic_log(avctx, ref, "surface-admission-released", 0);
+             }
+@@ -911,8 +949,10 @@
+                p27_monotonic_us(), s->dec, destroy_err);
+         s->dec = NULL;
+         if (destroy_err == AV_ERR_OK) {
+-            if (ref)
++            if (ref) {
+                 ref->destroyed = true;
++                oh_decode_release_surface(ref);
++            }
+             av_buffer_unref(&s->dec_ref);
+         } else {
+             /* Successful Destroy is the callback-sealing boundary we rely on.
+@@ -920,17 +960,10 @@
+              * userdata that a late platform callback could still enter. This
+              * is an explicit, visible process-lifetime quarantine; it is not
+              * reported as a safe close. */
+-            atomic_store_explicit(&ohcodec_terminal_failure, true,
+-                                  memory_order_release);
+-            atomic_fetch_add_explicit(&ohcodec_failed_destroy_count, 1,
+-                                      memory_order_acq_rel);
+-            av_log(avctx, AV_LOG_ERROR,
+-                   "Destroy decoder failed, %d; callback lifetime unsafe, "
+-                   "quarantining stable reference shell and native handle "
+-                   "(failedDestroyCount=%d). New OHCodec decoders are refused.\n",
+-                   destroy_err,
+-                   atomic_load_explicit(&ohcodec_failed_destroy_count,
+-                                        memory_order_acquire));
++            av_log(avctx, AV_LOG_ERROR,
++                   "Destroy decoder failed, %d; retaining decoder and callback "
++                   "gate for Surface %"PRIu64"\n", destroy_err, ref->surface_id);
++            ref->quarantine_ref = s->dec_ref;
+             s->dec_ref = NULL;
+         }
+     } else if (s->dec_ref) {

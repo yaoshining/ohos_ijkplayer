@@ -1,0 +1,40 @@
+{
+  "identical": true,
+  "roots": [
+    "normal-a",
+    "normal-b",
+    "normal-final"
+  ],
+  "libraries": [
+    {
+      "library": "libavcodec.so.62",
+      "sha256": "692a946baf97629287c4e23461c243b2080e91a825be11efb4ac4764972bbdd3",
+      "size": 12305456
+    },
+    {
+      "library": "libavformat.so.62",
+      "sha256": "106d9d216b11c45fc96c5b0073288ff7f247018a5d9aeced1bfdf612d6f40a37",
+      "size": 19264304
+    },
+    {
+      "library": "libavutil.so.60",
+      "sha256": "ba410532a07b16e018d6d57bc744576b3cfa2e246d4fa028c2adae95205777e2",
+      "size": 683352
+    },
+    {
+      "library": "libavfilter.so.11",
+      "sha256": "82b431c76910f2a826c7679b3cfb9273dd131c1566d06cee1f80818f23c2622c",
+      "size": 3942968
+    },
+    {
+      "library": "libswresample.so.6",
+      "sha256": "4244a9e1e2697bd8ec35436148d55d5e8b2c09080c40754cc505a05c5fc52e3b",
+      "size": 91704
+    },
+    {
+      "library": "libswscale.so.9",
+      "sha256": "f1982cde4d2b6d899f99e38ae4cfb50dcda4859e9912a6b4f18913ebaf9836a0",
+      "size": 738672
+    }
+  ]
+}

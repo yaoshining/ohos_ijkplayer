@@ -1,0 +1,78 @@
+{
+  "device": "MatePad Air WKI-W10",
+  "os": "6.1.0.112",
+  "apiLevel": 24,
+  "date": "2026-11-10",
+  "cases": [
+    {
+      "injectedCall": "stop",
+      "pid": 59523,
+      "surfaceIds": [
+        "255649338359808",
+        "255649338359809"
+      ],
+      "hardware": "active",
+      "pixelFormat": "nv12",
+      "renderBackend": "vulkan",
+      "audioWindows": [
+        [
+          0,
+          1000
+        ],
+        [
+          1000,
+          2667
+        ],
+        [
+          2667,
+          4333
+        ]
+      ],
+      "nonzeroOutputSamples": 95,
+      "audioSamples": 96,
+      "maxAmplitude": 0.0198,
+      "listAliveAfterClose": true
+    },
+    {
+      "injectedCall": "destroy",
+      "pid": 63191,
+      "surfaceIds": [
+        "271403278401536",
+        "271403278401537"
+      ],
+      "hardware": "active",
+      "pixelFormat": "nv12",
+      "renderBackend": "vulkan",
+      "audioWindows": [
+        [
+          0,
+          1083
+        ],
+        [
+          1083,
+          2750
+        ],
+        [
+          2750,
+          4417
+        ]
+      ],
+      "nonzeroOutputSamples": 94,
+      "audioSamples": 96,
+      "maxAmplitude": 0.0182,
+      "listAliveAfterClose": true
+    }
+  ],
+  "screenPairs": {
+    "stop": [
+      "stop-retest-b-10.jpg",
+      "stop-retest-b-25.jpg"
+    ],
+    "destroy": [
+      "destroy-b-10.jpg",
+      "destroy-b-25.jpg"
+    ]
+  },
+  "audioMethod": "getMaxAmplitudeForOutputDevice, 3 windows of 32 samples at 50 ms intervals",
+  "sessionReleased": true
+}
