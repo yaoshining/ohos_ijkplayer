@@ -12,3 +12,7 @@
 最终绑定需包含 PR URL、PR head、merge SHA、master 读取结果、各项 CI 与未解决评审状态、产品文件逐项摘要，以及 SDK archive/manifest 摘要和全部清单文件校验结果。任何产品文件变化均需重新评估旧 SDK/设备证据；不能仅用提交标题证明一致。
 
 本次交付范围保持 FFmpeg SDK。Player/TV 未接入，未发布新的消费者 HAR。
+
+## 实际 PR
+
+[PR #11](https://github.com/yaoshining/ohos_ijkplayer/pull/11) 已创建，目标 master。首轮新增恢复回归、PR1、PR3 完整宿主矩阵及汇总通过；源码闭包构建仍在运行。自动评审提出的未提交文件链接已修正；更新提交必须重新等待相关检查，旧提交绿灯不代替新提交。实际最终 head/merge/检查状态以 PR 与交付绑定为准。

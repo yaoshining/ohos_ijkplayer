@@ -27,10 +27,12 @@ API 22 平板在应用进程内查询 H.264 硬件能力返回空，因此原生
 
 B 的 4 个帧 PTS 均为 0、1024、2048、3072。B 正常 Stop 和 Destroy 都返回 0。模拟器应用是离屏 NativeImage 探针，未测音频。其启动器的 UI 检查将诊断页判为纯色，逐帧结果来自应用内的 NativeImage 和 HiLog。独立诊断进程已停止。
 
-- [宿主重放记录](../../../out/phase30-close-recovery/host-final.log)
-- [定向 HiLog](../../../out/phase30-close-recovery/emulator-hilog.txt)
-- [Stop 逐帧记录](../../../out/phase30-close-recovery/emulator-stop.txt)
-- [Destroy 逐帧记录](../../../out/phase30-close-recovery/emulator-destroy.txt)
+以下文件保存在本地，未提交到仓库：
+
+- 宿主重放记录：`out/phase30-close-recovery/host-final.log`
+- 定向 HiLog：`out/phase30-close-recovery/emulator-hilog.txt`
+- Stop 逐帧记录：`out/phase30-close-recovery/emulator-stop.txt`
+- Destroy 逐帧记录：`out/phase30-close-recovery/emulator-destroy.txt`
 
 ## 重放与真机验收
 
@@ -38,10 +40,10 @@ B 的 4 个帧 PTS 均为 0、1024、2048、3072。B 正常 Stop 和 Destroy 都
 
 诊断包构建使用 Phase30 A 的 TRACE 配置及 SDK。在完整构建的候选目录上运行 `python3 tools/ffmpeg8/phase30-close-recovery/build_probes.py BUILD NEW_OUTPUT`，生成 Stop 和 Destroy 专用库。正常候选不包含注入。两份离线播放页 HAP 均已签名，逐项核对本地 CI HAR 的九个原生库，只有 libavcodec 被替换。包名为 `com.yao.vidalltv`，用于隔离测试设备。
 
-| 诊断 HAP | HAP SHA-256 |
+| 诊断 HAP（本地文件，未提交） | HAP SHA-256 |
 | --- | --- |
-| [Stop](../../../out/phase30-close-recovery/stop/close-probe.hap) | `b11a7e700f265c280287795421d31d27a12b5960d5c39470fab1aacc5f028411` |
-| [Destroy](../../../out/phase30-close-recovery/destroy/close-probe.hap) | `4d8a433dcf245d4dc652aa70bb6e9c738b84610db3babb922a87d08043464364` |
+| `out/phase30-close-recovery/stop/close-probe.hap` | `b11a7e700f265c280287795421d31d27a12b5960d5c39470fab1aacc5f028411` |
+| `out/phase30-close-recovery/destroy/close-probe.hap` | `4d8a433dcf245d4dc652aa70bb6e9c738b84610db3babb922a87d08043464364` |
 
 真机每包冷启动一次。在应用内先播 A，退回列表，再播 B。核对 CloseVerify 中 A 的指定调用 skipped=1、另一项返回值，以及 B 在同 PID、不同 Surface ID 上 SetSurface 成功。记录 B 的 hw=active、两帧可辨认且内容不同的屏幕画面、推进的播放位置与该音轨的非零输出幅度。遇到软件回退应单独记录。真机验收结果见下方，历史电视未用于本次验证。
 

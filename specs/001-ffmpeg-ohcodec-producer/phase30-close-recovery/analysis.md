@@ -40,3 +40,9 @@
 独立 NativeWindow 引用避免依赖消费方 wrapper 生命周期；注册表访问受 mutex 保护。旧 callbacks 通过保留的 detached gate 返回，旧 context/队列可以回收。成功 Destroy 才解除 Surface 占用；失败保留，不重试。旧 token 的 generation 准入阻断跨实例 buffer 操作。
 
 ASan/UBSan 不检查故意保留资源的泄漏；平台资源耗尽和 Stop/Destroy 永久不返回不在本次覆盖。真机为 API 24 平板，不证明 API 19 TV。SDK 来自本地已验收构建，PR Ubuntu CI 只证明宿主回归。PR 评审中新产生的阻塞项必须处理后再合并。
+
+## PR #11 首轮反馈处理
+
+CodeRabbit 唯一行内问题是 README 指向未提交的 out 日志/HAP：已改为明确标注“本地未提交”的路径文字，保留摘要；已提交 evidence 的链接保留。此改动只影响文档，产品补丁、构建脚本、输入锁和实际库不变。Codex 首轮代码评审无发现。
+
+其余四条非阻塞建议经核对后不在此轮改动：诊断 make 输出解析匹配数不符已经 fail-closed，只是错误提示可更清晰；正常构建清除了 CFLAGS 等环境输入且全量源码/补丁/配置固定，本次交付还实际核对了库内诊断字符串，自动产物扫描可作为后续加强；离屏探针的第一段循环未完成四帧会退出且 clone 失败立即退出，因此当前调用顺序保证 held 存在；Surface 用例的 GetSurfaceId/Reference 替身在此场景恒成功，结合未调用 SetSurface、引用计数和显式 EBUSY 产品分支，现有用例证明冲突隔离，精确透传/断言错误码属于可增强项。未把这些建议写成已经实施的修复。
