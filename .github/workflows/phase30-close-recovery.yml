@@ -1,0 +1,47 @@
+name: Phase30 关闭失败恢复
+on:
+  pull_request:
+    paths:
+      - 'tools/ffmpeg8/phase30-close-recovery/**'
+      - 'specs/001-ffmpeg-ohcodec-producer/phase30-close-recovery/**'
+      - '.specify/**'
+      - '.github/workflows/phase30-close-recovery.yml'
+  push:
+    branches: [master, codex/ffmpeg-close-recovery-pr]
+    paths:
+      - 'tools/ffmpeg8/phase30-close-recovery/**'
+      - 'specs/001-ffmpeg-ohcodec-producer/phase30-close-recovery/**'
+      - '.specify/**'
+      - '.github/workflows/phase30-close-recovery.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  recovery:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: 固定规格上下文与前置检查
+        env:
+          SPECIFY_FEATURE_NO_PERSIST: '1'
+          SPECIFY_FEATURE_DIRECTORY: specs/001-ffmpeg-ohcodec-producer/phase30-close-recovery
+        run: |
+          set -euo pipefail
+          mkdir -p out/close-recovery-ci
+          bash .specify/scripts/bash/check-prerequisites.sh --json --require-spec --require-tasks --include-tasks | tee out/close-recovery-ci/prerequisites.json
+          git rev-parse HEAD > out/close-recovery-ci/source-commit.txt
+          clang --version > out/close-recovery-ci/compiler.txt
+      - name: 原版复现与候选 ASan UBSan 生命周期回归
+        run: |
+          set -euo pipefail
+          python3 -B tools/ffmpeg8/phase30-close-recovery/test_recovery.py 2>&1 | tee out/close-recovery-ci/host.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: close-recovery-${{ github.sha }}
+          path: out/close-recovery-ci/
+          if-no-files-found: error
+          retention-days: 30

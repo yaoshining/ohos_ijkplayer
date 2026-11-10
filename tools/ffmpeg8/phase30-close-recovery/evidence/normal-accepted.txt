@@ -1,0 +1,31 @@
+2026-11-10 20:49:18 12571-12571/hdc I/A0D001/com.yao.vidalltv/FenceVerify: FENCE_VERIFY open index=0
+
+2026-11-10 20:49:20 12571-12571/hdc I/A0D001/com.yao.vidalltv/FenceVerify: FENCE_VERIFY audio phase=clip-0/0 backend=mpv playing=true from=0 to=833 peaks=0.0117,0.0117,0.0117,0.0117,0.0117,0.0117,0.0117,0.0117,0.0117,0.0117,0.0117,0.0117,0.0117,0.0117,0.0000,0.0221,0.0169,0.0185,0.0171,0.0173,0.0183,0.0174,0.0168,0.0168,0.0164,0.0167,0.0154,0.0164,0.0147,0.0162,0.0158,0.0157
+
+2026-11-10 20:49:20 12571-12571/hdc I/A0D001/com.yao.vidalltv/FenceVerify: FENCE_VERIFY hw=active fmt=nv12 renderer=vulkan
+
+2026-11-10 20:49:22 12571-12571/hdc I/A0D001/com.yao.vidalltv/FenceVerify: FENCE_VERIFY audio phase=clip-0/1 backend=mpv playing=true from=833 to=2500 peaks=0.0145,0.0151,0.0152,0.0148,0.0144,0.0139,0.0151,0.0143,0.0140,0.0143,0.0139,0.0130,0.0138,0.0136,0.0136,0.0129,0.0134,0.0132,0.0127,0.0137,0.0128,0.0122,0.0127,0.0122,0.0128,0.0117,0.0123,0.0127,0.0121,0.0120,0.0123,0.0113
+
+2026-11-10 20:49:22 12571-12571/hdc I/A0D001/com.yao.vidalltv/FenceVerify: FENCE_VERIFY hw=active fmt=nv12 renderer=vulkan
+
+2026-11-10 20:49:23 12571-12571/hdc I/A0D001/com.yao.vidalltv/FenceVerify: FENCE_VERIFY audio phase=clip-0/2 backend=mpv playing=true from=2500 to=4167 peaks=0.0119,0.0115,0.0118,0.0118,0.0117,0.0108,0.0118,0.0117,0.0119,0.0120,0.0119,0.0116,0.0114,0.0118,0.0113,0.0118,0.0118,0.0118,0.0120,0.0116,0.0117,0.0116,0.0116,0.0118,0.0116,0.0121,0.0118,0.0117,0.0115,0.0119,0.0119,0.0118
+
+2026-11-10 20:49:23 12571-12571/hdc I/A0D001/com.yao.vidalltv/FenceVerify: FENCE_VERIFY hw=active fmt=nv12 renderer=vulkan
+
+2026-11-10 20:49:30 12571-12571/hdc I/A0D001/com.yao.vidalltv/FenceVerify: FENCE_VERIFY list active=true index=0
+
+2026-11-10 20:50:14 12571-12571/hdc I/A0D001/com.yao.vidalltv/FenceVerify: FENCE_VERIFY open index=1
+
+2026-11-10 20:50:16 12571-12571/hdc I/A0D001/com.yao.vidalltv/FenceVerify: FENCE_VERIFY audio phase=clip-1/0 backend=mpv playing=true from=0 to=1083 peaks=0.0117,0.0117,0.0117,0.0117,0.0117,0.0117,0.0117,0.0117,0.0117,0.0000,0.0000,0.0225,0.0182,0.0177,0.0178,0.0175,0.0179,0.0163,0.0172,0.0167,0.0165,0.0170,0.0157,0.0165,0.0156,0.0160,0.0165,0.0152,0.0155,0.0152,0.0145,0.0149
+
+2026-11-10 20:50:16 12571-12571/hdc I/A0D001/com.yao.vidalltv/FenceVerify: FENCE_VERIFY hw=active fmt=nv12 renderer=vulkan
+
+2026-11-10 20:50:17 12571-12571/hdc I/A0D001/com.yao.vidalltv/FenceVerify: FENCE_VERIFY audio phase=clip-1/1 backend=mpv playing=true from=1083 to=2750 peaks=0.0140,0.0143,0.0148,0.0142,0.0139,0.0144,0.0134,0.0138,0.0134,0.0136,0.0134,0.0133,0.0137,0.0131,0.0128,0.0132,0.0122,0.0128,0.0125,0.0124,0.0127,0.0123,0.0126,0.0121,0.0120,0.0122,0.0113,0.0120,0.0117,0.0118,0.0118,0.0117
+
+2026-11-10 20:50:17 12571-12571/hdc I/A0D001/com.yao.vidalltv/FenceVerify: FENCE_VERIFY hw=active fmt=nv12 renderer=vulkan
+
+2026-11-10 20:50:19 12571-12571/hdc I/A0D001/com.yao.vidalltv/FenceVerify: FENCE_VERIFY audio phase=clip-1/2 backend=mpv playing=true from=2750 to=4417 peaks=0.0117,0.0116,0.0117,0.0123,0.0120,0.0115,0.0118,0.0117,0.0121,0.0117,0.0117,0.0118,0.0118,0.0123,0.0119,0.0115,0.0119,0.0117,0.0120,0.0116,0.0117,0.0122,0.0117,0.0117,0.0119,0.0117,0.0118,0.0117,0.0120,0.0118,0.0118,0.0116
+
+2026-11-10 20:50:19 12571-12571/hdc I/A0D001/com.yao.vidalltv/FenceVerify: FENCE_VERIFY hw=active fmt=nv12 renderer=vulkan
+
+2026-11-10 20:50:26 12571-12571/hdc I/A0D001/com.yao.vidalltv/FenceVerify: FENCE_VERIFY list active=true index=1

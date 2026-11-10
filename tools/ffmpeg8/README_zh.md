@@ -1,5 +1,12 @@
 # FFmpeg 8 OpenHarmony 动态库 SDK
 
+## Phase30 A 关闭错误恢复构建
+
+Phase30 A 消费者请使用 [关闭错误恢复入口](phase30-close-recovery/README.md)。
+该入口固定完整的 Phase30 A 源码与依赖，自动应用实例隔离修复，输出六个共享库、头文件、pkgconfig 和摘要清单。
+Stop、Destroy 分别注入后的同 PID 新 Surface 硬解、动态画面和音频输出已在 API 24 MatePad Air 验收。
+
+
 本目录提供可供其他 HarmonyOS/OpenHarmony 工程复用的 FFmpeg 8.0 动态库 SDK 构建链。它不使用 Lycium、IJK 的 FFmpeg fork 或私有 patch，也不会生成或依赖 `libffmpeg.so`。支持 `arm64-v8a` 和 `x86_64`；仓库以 GitHub Actions 工作流 `.github/workflows/build-ffmpeg8.yml` 作为权威的最小交叉编译验证，成功运行会分别产出 `ffmpeg-8.0-ohos-arm64-v8a` 与 `ffmpeg-8.0-ohos-x86_64` artifact。
 
 ## 前置条件
