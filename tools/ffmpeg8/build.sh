@@ -133,16 +133,33 @@ mkdir -p "$BUILD_DIR"
 cp -a "$SOURCE_DIR/." "$BUILD_DIR/"
 patch -d "$BUILD_DIR" -p1 < "$SMB_PATCH"
 
+# SMB 沙箱配置与 OHCodec 硬解独立；复用 ARM64 交付使用的真实实现。
+SMB_RUNTIME=0
+if [ "$OHOS_ARCH" = x86_64 ]; then
+    SMB_RUNTIME=1
+    python3 -B "$SCRIPT_DIR/x86-build-record.py" begin --repo "$REPO_ROOT" --ndk "$OHOS_NDK" \
+        --record "$WORK_DIR/x86-build-inputs.json"
+    python3 -B "$SCRIPT_DIR/../phase20/apply.py" ffmpeg "$BUILD_DIR" \
+        --evidence "$WORK_DIR/runtime-ffmpeg-patch.json"
+fi
+
 # Build the complete, static Samba dependency closure in an isolated sysroot.
 SMB_SYSROOT=${FFMPEG8_SMB_SYSROOT:-"$WORK_DIR/smb-sysroot-$OHOS_ARCH"}
 if [ ! -f "$SMB_SYSROOT/lib/libsmbclient.a" ] || [ ! -f "$SMB_SYSROOT/lib/pkgconfig/smbclient.pc" ]; then
     OHOS_ARCH="$OHOS_ARCH" OHOS_NDK="$OHOS_NDK" OHOS_LLVM_BIN="$LLVM_BIN" \
-        OHOS_SYSROOT="$SYSROOT" PREFIX="$SMB_SYSROOT" \
+        OHOS_SYSROOT="$SYSROOT" PREFIX="$SMB_SYSROOT" FFMPEG8_SMB_RUNTIME="$SMB_RUNTIME" \
         WORK_DIR="$WORK_DIR/samba-$OHOS_ARCH" "$SCRIPT_DIR/build-libsmbclient.sh"
 fi
 [ -f "$SMB_SYSROOT/include/libsmbclient.h" ] || fail "SMB sysroot is missing libsmbclient headers"
 [ -f "$SMB_SYSROOT/lib/libsmbclient.a" ] || fail "SMB sysroot is missing static libsmbclient"
 [ -f "$SMB_SYSROOT/lib/pkgconfig/smbclient.pc" ] || fail "SMB sysroot is missing smbclient.pc"
+if [ "$SMB_RUNTIME" = 1 ]; then
+    python3 -B "$SCRIPT_DIR/x86-build-record.py" verify --repo "$REPO_ROOT" --ndk "$OHOS_NDK" \
+        --prefix "$SMB_SYSROOT" --record "$SMB_SYSROOT/x86-runtime-build.json"
+    "$NM" --defined-only "$SMB_SYSROOT/lib/libsmbclient.a" > "$WORK_DIR/runtime-static-symbols.txt"
+    grep -Eq ' T ohcodec_smb_runtime_configure_internal$' "$WORK_DIR/runtime-static-symbols.txt" || \
+        fail "SMB sysroot lacks real runtime implementation; rebuild in a fresh directory"
+fi
 
 # Keep FFmpeg's stock component boundaries and broad built-in media support.
 # libsmbclient is GPLv3; this SDK is consequently a GPLv3 distribution.
@@ -244,6 +261,7 @@ source_commit=${FFMPEG_COMMIT}
 source_digest=sha256:${FFMPEG_SHA256}
 libsmbclient=enabled
 libsmbclient_linkage=static-closure
+smb_runtime_v1=${SMB_RUNTIME}
 tls_backend=gnutls
 tls_backend_linkage=static-closure
 https_protocol=enabled
@@ -279,6 +297,10 @@ generate_manifest() {
 }
 
 "$SCRIPT_DIR/verify.sh" "$PREFIX"
+if [ "$SMB_RUNTIME" = 1 ]; then
+    python3 -B "$SCRIPT_DIR/x86-build-record.py" seal --repo "$REPO_ROOT" --ndk "$OHOS_NDK" \
+        --prefix "$PREFIX" --start "$WORK_DIR/x86-build-inputs.json" --record "$PREFIX/x86-sdk-build.json"
+fi
 
 # Emit the final inventory only after ELF verification has added its report.
 generate_manifest

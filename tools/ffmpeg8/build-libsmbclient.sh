@@ -580,6 +580,10 @@ EOF
 
 # ---------------- 主流程 ----------------
 main() {
+  if [ "${FFMPEG8_SMB_RUNTIME:-0}" = 1 ]; then
+    python3 -B "$SCRIPT_DIR/x86-build-record.py" begin --repo "$SCRIPT_DIR/../.." --ndk "$OHOS_NDK" \
+      --record "$WORK_DIR/x86-runtime-inputs.json"
+  fi
   fetch_samba
   build_modern_bison || die "无法提供现代 bison"
   if [ -n "${FFMPEG8_HOST_LOCK_SHA256:-}" ]; then
@@ -589,6 +593,10 @@ main() {
   clean_src
   build_dependencies
   patch_samba_source
+  if [ "${FFMPEG8_SMB_RUNTIME:-0}" = 1 ]; then
+    python3 -B "$SCRIPT_DIR/../phase20/apply.py" samba "$SAMBA_DIR" \
+      --evidence "$WORK_DIR/runtime-samba-patch.json"
+  fi
   write_cross_answers
   # 先准备 host 工具目录以接收交叉树补丁之外的原始源码。
   build_host_tools
@@ -599,6 +607,10 @@ main() {
   build_samba
   install_libsmbclient
   python3 "$SCRIPT_DIR/dependency-paths.py" --prefix "$PREFIX" --work "$WORK_DIR"
+  if [ "${FFMPEG8_SMB_RUNTIME:-0}" = 1 ]; then
+    python3 -B "$SCRIPT_DIR/x86-build-record.py" seal --repo "$SCRIPT_DIR/../.." --ndk "$OHOS_NDK" \
+      --prefix "$PREFIX" --start "$WORK_DIR/x86-runtime-inputs.json" --record "$PREFIX/x86-runtime-build.json"
+  fi
   log "受控 libsmbclient 构建完成。sysroot：$PREFIX"
 }
 

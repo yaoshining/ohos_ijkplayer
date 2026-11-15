@@ -5,11 +5,22 @@
 #include <string.h>
 #include <pthread.h>
 #include <sched.h>
+#include <stdio.h>
 typedef struct { int initialized; } SMBCCTX;
 static int allocations, terminations, fail_new, fail_init, busy, recurse;
 static int race_go, config_result, config_errno, observed_explicit;
 static struct ohcodec_smb_runtime_v1 race_config;
+static const struct ohcodec_smb_runtime_v1 *expected_runtime;
 static SMBCCTX *smbc_new_context_runtime_original(void) {
+ if(expected_runtime) {
+  assert(!strcmp(rt_dyn("CONFIGFILE"), expected_runtime->config_file));
+  assert(!strcmp(rt_dyn("CACHEDIR"), expected_runtime->cache_root));
+  char path[4096];
+  snprintf(path,sizeof(path),"%s/private",expected_runtime->state_root);assert(!strcmp(rt_dyn("PRIVATE_DIR"),path));
+  snprintf(path,sizeof(path),"%s/state",expected_runtime->state_root);assert(!strcmp(rt_dyn("STATEDIR"),path));
+  snprintf(path,sizeof(path),"%s/lock",expected_runtime->state_root);assert(!strcmp(rt_dyn("LOCKDIR"),path));
+  snprintf(path,sizeof(path),"%s/codepages",expected_runtime->resource_root);assert(!strcmp(rt_dyn("CODEPAGEDIR"),path));
+ }
  if(fail_new){errno=ENOMEM;return NULL;} SMBCCTX *c=calloc(1,sizeof(*c));if(c)allocations++;return c;
 }
 static SMBCCTX *smbc_init_context_runtime_original(SMBCCTX *c){
@@ -27,7 +38,11 @@ static void *configure_worker(void *unused){(void)unused;while(!__atomic_load_n(
 static void *create_worker(void *unused){(void)unused;while(!__atomic_load_n(&race_go,__ATOMIC_ACQUIRE))sched_yield();SMBCCTX *c=smbc_new_context();assert(c);observed_explicit=rt_dyn("CONFIGFILE")!=NULL;assert(smbc_init_context(c));assert(smbc_free_context(c,1)==0);return NULL;}
 int main(int argc,char **argv){
  assert(argc==2 || argc==6);
- if(!strcmp(argv[1],"pending")){
+ if(!strcmp(argv[1],"configured-order")) {
+  assert(argc==6);race_config=(struct ohcodec_smb_runtime_v1){sizeof(race_config),argv[2],argv[3],argv[4],argv[5]};
+  assert(!ohcodec_smb_runtime_configure_internal(&race_config));expected_runtime=&race_config;
+  worker(NULL);assert(!ohcodec_smb_runtime_configure_internal(&race_config));
+ }else if(!strcmp(argv[1],"pending")){
   SMBCCTX *a=smbc_new_context(),*b=smbc_new_context();assert(a&&b);assert(smbc_init_context(b));assert(smbc_free_context(b,1)==0);assert(terminations==0);assert(smbc_init_context(a));assert(smbc_free_context(a,1)==0);assert(terminations==1);
  }else if(!strcmp(argv[1],"failures")){
   fail_new=1;assert(!smbc_new_context());fail_new=0;SMBCCTX *a=smbc_new_context(),*b=smbc_new_context();fail_init=1;assert(!smbc_init_context(a));assert(smbc_free_context(a,1)==0);assert(terminations==0);fail_init=0;assert(smbc_init_context(b));busy=1;assert(smbc_free_context(b,0)==1);assert(terminations==0);busy=0;assert(smbc_free_context(b,1)==0);assert(terminations==1);

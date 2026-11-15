@@ -30,6 +30,14 @@ def check_software_exports(exports):
         raise ValueError('软件能力合同不允许意外 OHCodec 导出')
 
 
+def check_smb_runtime(sdk, exports):
+    header = sdk / 'include/libavformat/ohcodec_smb_runtime.h'
+    if not header.is_file() or sha(header) != 'b952497cd47e840dfffd2262cfd874caa8521175a88bdc595d9f9910f23c9f26':
+        raise ValueError('SMB runtime 公共头文件缺失或与 ARM64 v1 合同不匹配')
+    if 'ohcodec_smb_runtime_configure_v1' not in exports:
+        raise ValueError('SMB runtime 公共动态导出缺失')
+
+
 def check_pkgconfig(pc, sdk):
     variables = dict(re.findall(r'^([a-z_]+)\s*=\s*(.*?)\s*$', pc, re.M))
     if variables.get('prefix') != '${pcfiledir}/../..' or str(sdk.resolve()) in pc:
@@ -73,6 +81,8 @@ def audit(sdk, ndk):
         check_needed(needed, packaged | {p.name for p in platform.glob('*.so')})
         symbols = exports(library)
         check_software_exports(symbols)
+        if name == "avformat":
+            check_smb_runtime(sdk, symbols)
         if name + '_version' not in symbols:
             raise ValueError(f'缺少公共版本接口: {name}')
         system = []
@@ -92,6 +102,8 @@ def audit(sdk, ndk):
                        'needed': needed, 'platformDependencies': system,
                        'exportedSymbols': sorted(symbols)})
     return {'schemaVersion': 1, 'targetAbi': 'x86_64', 'ohcodec': False,
+            'smbRuntime': {'apiVersion': 1, 'configureBeforeContext': True,
+                           'headerSha256': sha(sdk / 'include/libavformat/ohcodec_smb_runtime.h')},
             'libraries': report, 'deviceAcceptanceStatus': 'pending',
             'limitations': ['ELF/接口静态审计不代表设备运行通过',
                             '平台依赖身份来自本次 NDK；较低 API 兼容性未验证']}

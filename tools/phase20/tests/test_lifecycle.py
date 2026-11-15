@@ -10,5 +10,6 @@ class Lifecycle(unittest.TestCase):
     with self.subTest(case=case):subprocess.run([str(exe),case],check=True,timeout=15)
    base=Path(t).resolve();config=base/'smb.conf';config.write_text('[global]\n');state=base/'state';cache=base/'cache';resource=base/'resource'
    for p in [state,cache,resource,state/'private',state/'state',state/'lock']:p.mkdir()
+   subprocess.run([str(exe),'configured-order',str(config),str(state),str(cache),str(resource)],check=True,timeout=15)
    for repeat in range(30):
     with self.subTest(race=repeat):subprocess.run([str(exe),'create-config-race',str(config),str(state),str(cache),str(resource)],check=True,timeout=15)
