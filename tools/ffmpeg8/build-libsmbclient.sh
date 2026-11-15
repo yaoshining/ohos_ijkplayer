@@ -589,6 +589,10 @@ main() {
   clean_src
   build_dependencies
   patch_samba_source
+  if [ "${FFMPEG8_SMB_RUNTIME:-0}" = 1 ]; then
+    python3 -B "$SCRIPT_DIR/../phase20/apply.py" samba "$SAMBA_DIR" \
+      --evidence "$WORK_DIR/runtime-samba-patch.json"
+  fi
   write_cross_answers
   # 先准备 host 工具目录以接收交叉树补丁之外的原始源码。
   build_host_tools
