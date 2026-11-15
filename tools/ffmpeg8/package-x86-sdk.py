@@ -18,6 +18,9 @@ HERE = Path(__file__).resolve().parent
 spec = importlib.util.spec_from_file_location('x86audit', HERE / 'audit-x86-sdk.py')
 audit = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(audit)
+record_spec = importlib.util.spec_from_file_location('x86record', HERE / 'x86-build-record.py')
+records = importlib.util.module_from_spec(record_spec)
+record_spec.loader.exec_module(records)
 
 
 def write(path, value):
@@ -52,6 +55,9 @@ def runtime_evidence(checkout, work, evidence):
     runtime = checkout / 'tools/phase20'
     shutil.copytree(runtime / 'runtime', evidence / 'phase20/runtime')
     shutil.copy2(runtime / 'apply.py', evidence / 'phase20/apply.py')
+    (evidence / 'phase20/tests').mkdir()
+    for name in ['test_runtime.py', 'test_lifecycle.py', 'lifecycle.c']:
+        shutil.copy2(runtime / 'tests' / name, evidence / 'phase20/tests' / name)
     for kind, original in [('ffmpeg', work / 'runtime-ffmpeg-patch.json'),
                            ('samba', work / 'samba-x86_64/runtime-samba-patch.json')]:
         data = json.loads(original.read_text())
@@ -88,7 +94,7 @@ def source_bundle(output, checkout, work, lock, evidence, commit):
         '设置 OHOS_NDK、OHOS_ARCH=x86_64、FFMPEG8_PIN_HOST_BISON=1 后执行 bash tools/ffmpeg8/build.sh。'
         '需要配套宿主工具；脚本会重新验证所有来源摘要。目标运行未验证。\n')
     (source_root / 'SHA256SUMS').write_text(''.join(f"{row['sha256']}  {row['path']}\n" for row in inventory(source_root)))
-    archive = source_root.with_suffix('.tar.gz')
+    archive = source_root.parent / (source_root.name + '.tar.gz')
     with tarfile.open(archive, 'x:gz') as tar:
         tar.add(source_root, arcname=source_root.name)
     digest = audit.sha(archive)
@@ -110,6 +116,11 @@ def main():
     deps = work / 'samba-x86_64'
     prefix = work / 'smb-sysroot-x86_64'
     sdk = checkout / 'out/ffmpeg8/x86_64'
+    sdk_record = records.verify_record(sdk / 'x86-sdk-build.json', checkout, ndk, sdk)
+    static_record = records.verify_record(prefix / 'x86-runtime-build.json', checkout, ndk, prefix)
+    if sdk_record['inputs'] != static_record['inputs']:
+        raise ValueError('SDK 与静态依赖的构建来源不一致')
+    commit = sdk_record['inputs']['producerCommit']
     audit.audit(sdk, ndk)
     lock = json.loads((recipe / 'dependency-sources.lock.json').read_text())
     for row in lock['sources']:
@@ -131,6 +142,7 @@ def main():
     evidence = output / 'evidence'
     evidence.mkdir()
     runtime_evidence(checkout, work, evidence)
+    write(evidence / 'x86-runtime-build.json', static_record)
     write(evidence / 'elf-audit.json', result)
     consumer = evidence / 'x86-sdk-consumer.c'
     shutil.copy2(HERE / 'tests/x86-sdk-consumer.c', consumer)
@@ -181,7 +193,6 @@ def main():
     tools = [{'name': name, 'sha256': audit.sha(ndk / 'llvm/bin' / name)}
              for name in ['clang', 'ld.lld', 'llvm-ar', 'llvm-ranlib', 'llvm-nm', 'llvm-readelf']]
     created = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
-    commit = subprocess.check_output(['git', '-C', str(checkout), 'rev-parse', 'HEAD'], text=True).strip()
     source_archive = source_bundle(output, checkout, work, lock, evidence, commit)
     sbom = {'spdxVersion': 'SPDX-2.3', 'dataLicense': 'CC0-1.0', 'SPDXID': 'SPDXRef-DOCUMENT',
             'name': 'OHOS x86_64 FFmpeg 8 SDK',

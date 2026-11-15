@@ -137,6 +137,8 @@ patch -d "$BUILD_DIR" -p1 < "$SMB_PATCH"
 SMB_RUNTIME=0
 if [ "$OHOS_ARCH" = x86_64 ]; then
     SMB_RUNTIME=1
+    python3 -B "$SCRIPT_DIR/x86-build-record.py" begin --repo "$REPO_ROOT" --ndk "$OHOS_NDK" \
+        --record "$WORK_DIR/x86-build-inputs.json"
     python3 -B "$SCRIPT_DIR/../phase20/apply.py" ffmpeg "$BUILD_DIR" \
         --evidence "$WORK_DIR/runtime-ffmpeg-patch.json"
 fi
@@ -152,6 +154,8 @@ fi
 [ -f "$SMB_SYSROOT/lib/libsmbclient.a" ] || fail "SMB sysroot is missing static libsmbclient"
 [ -f "$SMB_SYSROOT/lib/pkgconfig/smbclient.pc" ] || fail "SMB sysroot is missing smbclient.pc"
 if [ "$SMB_RUNTIME" = 1 ]; then
+    python3 -B "$SCRIPT_DIR/x86-build-record.py" verify --repo "$REPO_ROOT" --ndk "$OHOS_NDK" \
+        --prefix "$SMB_SYSROOT" --record "$SMB_SYSROOT/x86-runtime-build.json"
     "$NM" --defined-only "$SMB_SYSROOT/lib/libsmbclient.a" > "$WORK_DIR/runtime-static-symbols.txt"
     grep -Eq ' T ohcodec_smb_runtime_configure_internal$' "$WORK_DIR/runtime-static-symbols.txt" || \
         fail "SMB sysroot lacks real runtime implementation; rebuild in a fresh directory"
@@ -293,6 +297,10 @@ generate_manifest() {
 }
 
 "$SCRIPT_DIR/verify.sh" "$PREFIX"
+if [ "$SMB_RUNTIME" = 1 ]; then
+    python3 -B "$SCRIPT_DIR/x86-build-record.py" seal --repo "$REPO_ROOT" --ndk "$OHOS_NDK" \
+        --prefix "$PREFIX" --start "$WORK_DIR/x86-build-inputs.json" --record "$PREFIX/x86-sdk-build.json"
+fi
 
 # Emit the final inventory only after ELF verification has added its report.
 generate_manifest
