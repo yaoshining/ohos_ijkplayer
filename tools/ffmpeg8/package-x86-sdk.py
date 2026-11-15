@@ -30,6 +30,23 @@ def inventory(root):
             for p in sorted(root.rglob('*')) if p.is_file()]
 
 
+def copy_and_audit(sdk, output, ndk):
+    shutil.copytree(sdk, output, symlinks=True)
+    return audit.audit(output, ndk)
+
+
+def check_sbom_relationships(sbom):
+    packages = [row['SPDXID'] for row in sbom['packages']]
+    describes = sbom.get('documentDescribes', [])
+    relationships = sbom.get('relationships', [])
+    targets = [row['relatedSpdxElement'] for row in relationships
+               if row.get('spdxElementId') == sbom['SPDXID']
+               and row.get('relationshipType') == 'DESCRIBES']
+    if (not packages or len(packages) != len(set(packages))
+            or sorted(describes) != sorted(packages) or sorted(targets) != sorted(packages)):
+        raise ValueError('SPDX 描述声明和关系必须完整对应唯一包 ID')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--checkout', required=True, type=Path)
@@ -44,7 +61,7 @@ def main():
     deps = work / 'samba-x86_64'
     prefix = work / 'smb-sysroot-x86_64'
     sdk = checkout / 'out/ffmpeg8/x86_64'
-    result = audit.audit(sdk, ndk)
+    audit.audit(sdk, ndk)
     lock = json.loads((recipe / 'dependency-sources.lock.json').read_text())
     for row in lock['sources']:
         source = deps / 'downloads' / row['archiveFile']
@@ -61,7 +78,7 @@ def main():
         if not machines or any('X86-64' not in line for line in machines):
             raise ValueError(f'静态依赖不是完整 x86_64 archive: {file}')
         archives.append({'name': file.name, 'sha256': audit.sha(file)})
-    shutil.copytree(sdk, output, symlinks=True)
+    result = copy_and_audit(sdk, output, ndk)
     evidence = output / 'evidence'
     evidence.mkdir()
     write(evidence / 'elf-audit.json', result)
@@ -125,6 +142,11 @@ def main():
                           'copyrightText': 'NOASSERTION',
                           'checksums': [{'algorithm': 'SHA256', 'checksumValue': row['sha256']}]}
                          for i, row in enumerate(sources)]}
+    sbom['documentDescribes'] = [row['SPDXID'] for row in sbom['packages']]
+    sbom['relationships'] = [{'spdxElementId': sbom['SPDXID'],
+                              'relationshipType': 'DESCRIBES', 'relatedSpdxElement': package_id}
+                             for package_id in sbom['documentDescribes']]
+    check_sbom_relationships(sbom)
     write(output / 'SBOM.spdx.json', sbom)
     write(output / 'capabilities.json', {'softwareDecoding': True, 'ohcodec': False,
           'ohcodecConsumerRequirement': '必须禁用 OHCodec 编译分支，不链接 av_ohcodec_*。',

@@ -30,6 +30,17 @@ def check_software_exports(exports):
         raise ValueError('软件能力合同不允许意外 OHCodec 导出')
 
 
+def check_pkgconfig(pc, sdk):
+    variables = dict(re.findall(r'^([a-z_]+)\s*=\s*(.*?)\s*$', pc, re.M))
+    if variables.get('prefix') != '${pcfiledir}/../..' or str(sdk.resolve()) in pc:
+        raise ValueError('pkg-config 不可重定位: prefix')
+    if variables.get('exec_prefix', '${prefix}') != '${prefix}':
+        raise ValueError('pkg-config 不可重定位: exec_prefix')
+    for name in ('libdir', 'includedir'):
+        if not re.fullmatch(r'\$\{(?:exec_prefix|prefix)\}(?:/[^\s]*)?', variables.get(name, '')):
+            raise ValueError(f'pkg-config 不可重定位: {name}')
+
+
 def sha(path):
     h = hashlib.sha256()
     with path.open('rb') as stream:
@@ -76,8 +87,7 @@ def audit(sdk, ndk):
             if not path.is_file():
                 raise ValueError(f'缺少开发文件: {path}')
         pc = (sdk / 'lib/pkgconfig' / ('lib' + name + '.pc')).read_text()
-        if 'prefix=${pcfiledir}/../..' not in pc or str(sdk.resolve()) in pc:
-            raise ValueError(f'pkg-config 不可重定位: {name}')
+        check_pkgconfig(pc, sdk)
         report.append({'soname': soname, 'sha256': sha(library),
                        'needed': needed, 'platformDependencies': system,
                        'exportedSymbols': sorted(symbols)})
